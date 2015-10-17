@@ -1,9 +1,13 @@
 # fabio
 
-fabio is a fast, modern, zero-conf load balancing HTTP router for deploying
-microservices. Services provide one or more host/path prefixes they serve and
-fabio updates the routing table every time a service becomes (un-)available
-without restart.
+fabio is a fast, modern, zero-conf load balancing HTTP(S) router for deploying
+microservices managed by consul.
+
+It provides a single-binary alternative to running [consul-
+template](https://github.com/hashicorp/consul-template) together with
+haproxy/varnish/nginx/apache. Services provide one or more host/path prefixes
+they serve and fabio updates the routing table every time a service becomes
+(un-)available without restart.
 
 fabio was developed at the [eBay Classifieds Group](http://www.ebayclassifiedsgroup.com)
 in Amsterdam and is currently used to route traffic for
@@ -23,9 +27,6 @@ instances.
 * Request tracing
 * WebUI
 * Fast
-
-fabio listens on a single HTTP port for incoming requests and routes
-them to the registered services.
 
 ## Installation
 
