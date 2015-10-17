@@ -31,7 +31,7 @@ them to the registered services.
 
 To install fabio run (you need Go 1.4 or higher)
 
-    go get github.corm/eBay/fabio
+    go get github.com/eBay/fabio
 
 To start fabio run
 
