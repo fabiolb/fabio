@@ -28,6 +28,12 @@ instances.
 * WebUI
 * Fast
 
+## Demo
+
+See fabio in action
+
+[![fabio demo](http://i.imgur.com/aivFAKl.png)](https://vimeo.com/142934255 "fabio demo - Click to Watch!")
+
 ## Installation
 
 To install fabio run (you need Go 1.4 or higher)
