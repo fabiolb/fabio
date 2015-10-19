@@ -54,8 +54,6 @@ func (w *Watcher) Watch() {
 		}
 
 		input := strings.Join(append(auto, manual...), "\n")
-		log.Printf("[DEBUG] Received config\n%q", input)
-
 		t, err = route.ParseString(input)
 		if err != nil {
 			log.Printf("[WARN] %s", err)
