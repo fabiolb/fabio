@@ -28,11 +28,26 @@ instances.
 * WebUI
 * Fast
 
-## Demo
+## Quickstart
+
+This is how you use fabio in your setup:
+
+1. Register your services in consul with one `urlprefix-` tag per `host/path` prefix
+   they serve, e.g. `urlprefix-/css`, `urlprefix-/static`, `urlprefix-mysite.com/`
+2. Start fabio without a config file (assuming a consul agent on `localhost:8500`)
+3. Send all your HTTP traffic to fabio on port `9999`
+4. Done
+
+If you want fabio to handle SSL as well set the `proxy.addr` along with the
+public/private key files in
+[fabio.properties](https://github.com/eBay/fabio/blob/master/fabio.properties)
+and run `fabio -cfg fabio.properties`. You might also want to set the
+`proxy.header.clientip`, `proxy.header.tls` and `proxy.header.tls.value`
+options.
 
 See fabio in action
 
-[![fabio demo](http://i.imgur.com/aivFAKl.png)](https://vimeo.com/142934255 "fabio demo - Click to Watch!")
+[![fabio demo](http://i.imgur.com/aivFAKl.png)](https://www.youtube.com/watch?v=gvxxu0PLevs"fabio demo - Click to Watch!")
 
 ## Installation
 
@@ -188,18 +203,6 @@ publishing the same prefix.
 route weight service-b www.kjca.dev/auth/ weight 0.05 tags "version-15,dc-fra"
 ```
 
-### Traffic shaping with multiple active fabio instances
-
-The percentage calculation is currently local to the fabio instance.
-That means that each fabio will send N percent of traffic to a
-service for which traffic shaping is enabled. Therefore, if you want to
-send 10% of traffic to a service and have two fabio instances
-running you need to set the percentage to 5%.
-
-This will change in a later version when fabio registers itself in
-consul and can adapt the percentages automatically depending on the number
-of active fabio instances.
-
 ## Debugging
 
 To send a request from the command line via the fabio using `curl`
@@ -237,7 +240,6 @@ table. By default it is accessible on `http://localhost:9998/`
 The following features are planned to be added next.
 
 * HTTP/2 support
-* Correct traffic shaping with multiple fabio instances
 
 ## License
 
