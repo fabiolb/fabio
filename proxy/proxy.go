@@ -1,13 +1,11 @@
 package proxy
 
 import (
-	"log"
 	"net/http"
 	"time"
 
 	gometrics "github.com/eBay/fabio/_third_party/github.com/rcrowley/go-metrics"
 	"github.com/eBay/fabio/config"
-	"github.com/eBay/fabio/route"
 )
 
 // Proxy is a dynamic reverse proxy.
@@ -31,6 +29,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// http or ws?
 	h := p.httpProxy
 	if r.Header.Get("Upgrade") == "websocket" {
 		h = p.wsProxy
@@ -39,12 +38,4 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	h.ServeHTTP(w, r)
 	p.requests.UpdateSince(start)
-}
-
-func target(r *http.Request) *route.Target {
-	t := route.GetTable().Lookup(r, r.Header.Get("trace"))
-	if t == nil {
-		log.Print("[WARN] No route for ", r.URL)
-	}
-	return t
 }

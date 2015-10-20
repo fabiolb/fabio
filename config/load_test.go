@@ -12,6 +12,7 @@ import (
 func TestFromProperties(t *testing.T) {
 	in := `
 proxy.addr = :1234
+proxy.localip = 4.4.4.4
 proxy.strategy = rr
 proxy.shutdownwait = 500ms
 proxy.timeout     = 3s
@@ -36,6 +37,7 @@ ui.addr = 7.8.9.0:1234
 	out := &Config{
 		Proxy: Proxy{
 			MaxConn:               666,
+			LocalIP:               "4.4.4.4",
 			Strategy:              "rr",
 			ShutdownWait:          500 * time.Millisecond,
 			DialTimeout:           60 * time.Second,

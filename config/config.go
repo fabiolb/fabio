@@ -33,6 +33,7 @@ type Proxy struct {
 	DialTimeout           time.Duration
 	ResponseHeaderTimeout time.Duration
 	KeepAliveTimeout      time.Duration
+	LocalIP               string
 	ClientIPHeader        string
 	TLSHeader             string
 	TLSHeaderValue        string

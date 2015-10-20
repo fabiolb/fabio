@@ -1,7 +1,6 @@
 package proxy
 
 import (
-	"net"
 	"net/http"
 	"net/http/httputil"
 	"time"
@@ -25,17 +24,9 @@ func (p *httpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if p.cfg.ClientIPHeader != "" {
-		ip, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
-			return
-		}
-		r.Header.Set(p.cfg.ClientIPHeader, ip)
-	}
-
-	if p.cfg.TLSHeader != "" && r.TLS != nil {
-		r.Header.Set(p.cfg.TLSHeader, p.cfg.TLSHeaderValue)
+	if err := addHeaders(r, p.cfg); err != nil {
+		http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
+		return
 	}
 
 	start := time.Now()

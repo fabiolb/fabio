@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net"
 	"runtime"
 	"strings"
 	"time"
@@ -28,6 +29,7 @@ func FromProperties(p *properties.Properties) (*Config, error) {
 		DialTimeout:           p.GetParsedDuration("proxy.dialtimeout", DefaultConfig.Proxy.DialTimeout),
 		ResponseHeaderTimeout: p.GetParsedDuration("proxy.timeout", DefaultConfig.Proxy.ResponseHeaderTimeout),
 		KeepAliveTimeout:      p.GetParsedDuration("proxy.timeout", DefaultConfig.Proxy.KeepAliveTimeout),
+		LocalIP:               p.GetString("proxy.localip", DefaultConfig.Proxy.LocalIP),
 		ClientIPHeader:        p.GetString("proxy.header.clientip", DefaultConfig.Proxy.ClientIPHeader),
 		TLSHeader:             p.GetString("proxy.header.tls", DefaultConfig.Proxy.TLSHeader),
 		TLSHeaderValue:        p.GetString("proxy.header.tls.value", DefaultConfig.Proxy.TLSHeaderValue),
@@ -102,4 +104,20 @@ func parseListen(addrs string) ([]Listen, error) {
 		listen = append(listen, l)
 	}
 	return listen, nil
+}
+
+// localIP tries to determine a non-loopback address for the local machine
+func localIP() string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, addr := range addrs {
+		if ipnet, ok := addr.(*net.IPNet); ok && ipnet.IP.IsGlobalUnicast() {
+			if ipnet.IP.To4() != nil || ipnet.IP.To16() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
+	return ""
 }

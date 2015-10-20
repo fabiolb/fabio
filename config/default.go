@@ -10,6 +10,7 @@ var DefaultConfig = &Config{
 		MaxConn:     10000,
 		Strategy:    "rnd",
 		DialTimeout: 30 * time.Second,
+		LocalIP:     localIP(),
 	},
 	Listen: []Listen{
 		{
