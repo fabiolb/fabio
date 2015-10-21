@@ -1,4 +1,4 @@
-# fabio
+# fabio [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio)
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) router for deploying
 microservices managed by consul.
