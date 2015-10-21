@@ -16,7 +16,7 @@ Marktplaats is running all of its traffic through fabio which is
 several thousand requests per second distributed over several fabio
 instances.
 
-#### Current version is 1.0.1 ([Release History](#History))
+#### Current version is 1.0.1 ([Release History](#history))
 
 ## Features
 
