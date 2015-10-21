@@ -17,7 +17,7 @@ import (
 	"github.com/eBay/fabio/ui"
 )
 
-var version = "1.0.0"
+var version = "1.0.1"
 
 func main() {
 	var cfg string

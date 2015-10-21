@@ -16,6 +16,8 @@ Marktplaats is running all of its traffic through fabio which is
 several thousand requests per second distributed over several fabio
 instances.
 
+#### Current version is 1.0.1 ([Release History](#History))
+
 ## Features
 
 * Single binary in Go. No external dependencies.
@@ -235,11 +237,15 @@ $ curl -v -H 'Trace: abc' -H 'Host: foo.com' 'http://localhost:9999/bar/baz'
 fabio contains a (very) simple web ui to examine the routing
 table. By default it is accessible on `http://localhost:9998/`
 
-## Roadmap
+## History
 
-The following features are planned to be added next.
+### v1.0.1 - 21 Oct 2015
 
-* HTTP/2 support
+ * Honor maintenance mode for both services and nodes
+
+### v1.0.0 - 16 Oct 2015
+
+ * Initial open-source release
 
 ## License
 
