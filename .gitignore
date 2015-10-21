@@ -4,3 +4,4 @@ fabio.sublime-*
 *.test
 *.pem
 .DS_Store
+*.out

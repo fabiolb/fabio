@@ -18,7 +18,7 @@ func watchAutoConfig(client *api.Client, tagPrefix string, config chan []string)
 
 	for {
 		q := &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
-		checks, meta, err := client.Health().State("passing", q)
+		checks, meta, err := client.Health().State("any", q)
 		if err != nil {
 			log.Printf("[WARN] Error fetching health state. %v", err)
 			time.Sleep(time.Second)
@@ -26,7 +26,7 @@ func watchAutoConfig(client *api.Client, tagPrefix string, config chan []string)
 		}
 
 		log.Printf("[INFO] Health changed to #%d", meta.LastIndex)
-		config <- servicesConfig(client, checks, tagPrefix)
+		config <- servicesConfig(client, passingServices(checks), tagPrefix)
 		lastIndex = meta.LastIndex
 	}
 }
@@ -40,10 +40,9 @@ func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix str
 		name, id := check.ServiceName, check.ServiceID
 
 		if _, ok := m[name]; !ok {
-			m[name] = map[string]bool{id: true}
-		} else {
-			m[name][id] = true
+			m[name] = map[string]bool{}
 		}
+		m[name][id] = true
 	}
 
 	var config []string
