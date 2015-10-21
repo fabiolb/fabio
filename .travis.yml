@@ -1,3 +1,5 @@
 language: go
+
 go:
-    - release
+    - 1.4.3
+    - 1.5.1
