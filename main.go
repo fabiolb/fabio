@@ -67,6 +67,9 @@ func main() {
 		log.Fatal("[FATAL] ", err)
 	}
 
+	consul.Addr = consulAddr;
+	consul.URL = consulURL;
+
 	dc, err := consul.Datacenter()
 	if err != nil {
 		log.Fatal("[FATAL] ", err)
