@@ -16,7 +16,7 @@ Marktplaats is running all of its traffic through fabio which is
 several thousand requests per second distributed over several fabio
 instances.
 
-#### Current version is 1.0.1 ([Release History](#history))
+#### Current version is 1.0.2 ([Release History](#history))
 
 ## Features
 
@@ -238,6 +238,10 @@ fabio contains a (very) simple web ui to examine the routing
 table. By default it is accessible on `http://localhost:9998/`
 
 ## History
+
+### v1.0.2 - 23 Oct 2015
+
+ * [Pull Request #3](https://github.com/eBay/fabio/pull/3): Honor consul.url and consul.addr from config file (@jeinwag)
 
 ### v1.0.1 - 21 Oct 2015
 
