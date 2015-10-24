@@ -11,7 +11,7 @@ they serve and fabio updates the routing table every time a service becomes
 
 fabio was developed at the [eBay Classifieds Group](http://www.ebayclassifiedsgroup.com)
 in Amsterdam and is currently used to route traffic for
-[marktplaats.nl](http://www.makrtplaats.nl) and [kijiji.it](http://www.kijiji.it).
+[marktplaats.nl](http://www.marktplaats.nl) and [kijiji.it](http://www.kijiji.it).
 Marktplaats is running all of its traffic through fabio which is
 several thousand requests per second distributed over several fabio
 instances.
