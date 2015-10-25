@@ -16,7 +16,7 @@ Marktplaats is running all of its traffic through fabio which is
 several thousand requests per second distributed over several fabio
 instances.
 
-#### Current version is 1.0.2 ([Release History](#history))
+#### Current version is 1.0.3 ([Release History](#history))
 
 ## Features
 
@@ -65,7 +65,23 @@ which will run it with the default configuration which is described
 in `fabio.properties`. To run it with a config file run it
 with
 
-    ./fabio -cfg cfgfile
+    ./fabio -cfg fabio.properties
+
+or use the official Docker image and mount your own config file to `/etc/fabio/fabio.properties`
+
+    docker run -d -p 9999:9999 -p 9998:9998 -v $PWD/fabio/fabio.properties:/etc/fabio/fabio.properties magiconair/fabio
+
+If you want to run the Docker image with one or more SSL certificates then 
+you can store your configuration and certificates in `/etc/fabio` and mount
+the entire directory, e.g.
+
+    $ cat ~/fabio/fabio.properties
+    proxy.addr=:443;/etc/fabio/ssl/mycert.pem;/etc/fabio/ssl/mykey.pem
+
+    docker run -d -p 443:443 -p 9998:9998 -v $PWD/fabio:/etc/fabio magiconair/fabio
+
+The official Docker image contains the root CA certificates from a recent and updated 
+Ubuntu 12.04.5 LTS installation. 
 
 ## Performance
 
@@ -238,6 +254,10 @@ fabio contains a (very) simple web ui to examine the routing
 table. By default it is accessible on `http://localhost:9998/`
 
 ## History
+
+### v1.0.3 - 25 Oct 2015
+
+ * Add Docker support and official Docker image `magiconair/fabio`
 
 ### v1.0.2 - 23 Oct 2015
 
