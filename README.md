@@ -1,4 +1,6 @@
-# fabio [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio)
+# ./fabio [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio)
+
+##### Current version: 1.0.3
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) router for deploying
 microservices managed by consul.
@@ -16,8 +18,6 @@ Marktplaats is running all of its traffic through fabio which is
 several thousand requests per second distributed over several fabio
 instances.
 
-#### Current version is 1.0.3 ([Release History](#history))
-
 ## Features
 
 * Single binary in Go. No external dependencies.
@@ -29,6 +29,22 @@ instances.
 * Request tracing
 * WebUI
 * Fast
+
+## Documentation
+
+* [Installation](#installation)
+* [Quickstart](#quickstart)
+* [Configuration](https://raw.githubusercontent.com/eBay/fabio/master/fabio.properties) (documented fabio.properties file)
+* [Performance](#performance)
+* [Service configuration](#service-configuration)
+* [Manual overrides](#manual-overrides)
+* [Routing](#routing)
+* [Traffic shaping](#traffic-shaping)
+* [Debugging](#debugging)
+* [Request tracing](#request-tracing)
+* [Web UI](#web-ui)
+* [Release History](#history)
+* [License](#license)
 
 ## Quickstart
 
@@ -71,7 +87,7 @@ or use the official Docker image and mount your own config file to `/etc/fabio/f
 
     docker run -d -p 9999:9999 -p 9998:9998 -v $PWD/fabio/fabio.properties:/etc/fabio/fabio.properties magiconair/fabio
 
-If you want to run the Docker image with one or more SSL certificates then 
+If you want to run the Docker image with one or more SSL certificates then
 you can store your configuration and certificates in `/etc/fabio` and mount
 the entire directory, e.g.
 
@@ -80,8 +96,8 @@ the entire directory, e.g.
 
     docker run -d -p 443:443 -p 9998:9998 -v $PWD/fabio:/etc/fabio magiconair/fabio
 
-The official Docker image contains the root CA certificates from a recent and updated 
-Ubuntu 12.04.5 LTS installation. 
+The official Docker image contains the root CA certificates from a recent and updated
+Ubuntu 12.04.5 LTS installation.
 
 ## Performance
 
@@ -173,7 +189,7 @@ match - just `/path` matches.
 The matching route determines the target URL depending on the configured
 strategy. `rnd` and `rr` are available with `rnd` being the default.
 
-## Example
+### Example
 
 The auto-generated routing table is
 
@@ -234,7 +250,7 @@ The `-x` or `--proxy` options will most likely not work as you expect as they
 send the full URL instead of just the request URI which usually does not match
 any route but the default one - if configured.
 
-### Tracing a request
+## Request tracing
 
 To trace how a request is routed you can add a `Trace` header with an non-
 empty value which is truncated at 16 characters to keep the log output short.
