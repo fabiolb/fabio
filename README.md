@@ -126,7 +126,7 @@ the time in the GC. With `GOGC=800` this drops back to 1-2%. Higher values
 don't provide higher gains.
 
 As usual, don't rely on these numbers and perform your own benchmarks. You can
-check the time fabio spends in the GC with `GODEBUG=gotrace=1`.
+check the time fabio spends in the GC with `GODEBUG=gctrace=1`.
 
 ## Service configuration
 
