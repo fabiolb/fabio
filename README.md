@@ -43,18 +43,24 @@ instances.
 * [Debugging](#debugging)
 * [Request tracing](#request-tracing)
 * [Web UI](#web-ui)
-* [Release History](#history)
+* [Changelog](https://github.com/eBay/fabio/blob/master/CHANGELOG.md)
 * [License](#license)
 
 ## Quickstart
 
 This is how you use fabio in your setup:
 
-1. Register your services in consul with one `urlprefix-` tag per `host/path` prefix
-   they serve, e.g. `urlprefix-/css`, `urlprefix-/static`, `urlprefix-mysite.com/`
-2. Start fabio without a config file (assuming a consul agent on `localhost:8500`)
-3. Send all your HTTP traffic to fabio on port `9999`
-4. Done
+1. Register your service in consul
+2. Register a **health check** in consul as described [here](https://consul.io/docs/agent/checks.html).
+   Make sure the health check is **passing** since fabio will only watch services
+   which have a passing health check.
+3. Register one `urlprefix-` tag per `host/path` prefix it serves,
+   e.g. `urlprefix-/css`, `urlprefix-/static`, `urlprefix-mysite.com/`
+4. Start fabio without a config file (assuming a consul agent on `localhost:8500`)
+   Watch the log output how fabio picks up the route to your service.
+   Try starting/stopping your service to see how the routing table changes instantly.
+5. Send all your HTTP traffic to fabio on port `9999`
+6. Done
 
 If you want fabio to handle SSL as well set the `proxy.addr` along with the
 public/private key files in
@@ -62,6 +68,8 @@ public/private key files in
 and run `fabio -cfg fabio.properties`. You might also want to set the
 `proxy.header.clientip`, `proxy.header.tls` and `proxy.header.tls.value`
 options.
+
+Check the [Debugging](#debugging) section to see how to test fabio with `curl`.
 
 See fabio in action
 
@@ -268,24 +276,6 @@ $ curl -v -H 'Trace: abc' -H 'Host: foo.com' 'http://localhost:9999/bar/baz'
 
 fabio contains a (very) simple web ui to examine the routing
 table. By default it is accessible on `http://localhost:9998/`
-
-## History
-
-### v1.0.3 - 25 Oct 2015
-
- * Add Docker support and official Docker image `magiconair/fabio`
-
-### v1.0.2 - 23 Oct 2015
-
- * [Pull Request #3](https://github.com/eBay/fabio/pull/3): Honor consul.url and consul.addr from config file (@jeinwag)
-
-### v1.0.1 - 21 Oct 2015
-
- * Honor maintenance mode for both services and nodes
-
-### v1.0.0 - 16 Oct 2015
-
- * Initial open-source release
 
 ## License
 
