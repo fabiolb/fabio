@@ -24,7 +24,7 @@ instances.
 * Zero-conf
 * Hot-reloading of routing table through backend watchers
 * Round robin and random distribution
-* [Traffic Shaping](#Traffic Shaping) (send 5% of traffic to new instances)
+* [Traffic Shaping](#traffic-shaping) (send 5% of traffic to new instances)
 * Graphite metrics
 * Request tracing
 * WebUI
