@@ -3,5 +3,6 @@ fabio.sublime-*
 *.pprof
 *.test
 *.pem
+*.p12
 .DS_Store
 *.out
