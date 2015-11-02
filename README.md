@@ -1,6 +1,6 @@
 # ./fabio [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio)
 
-##### Current version: 1.0.3
+##### Current version: 1.0.4
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) router for deploying
 microservices managed by consul.
@@ -25,6 +25,7 @@ instances.
 * Hot-reloading of routing table through backend watchers
 * Round robin and random distribution
 * [Traffic Shaping](#traffic-shaping) (send 5% of traffic to new instances)
+* SSL client certificate authentication support (see `proxy.addr` in [fabio.properties](https://raw.githubusercontent.com/eBay/fabio/master/fabio.properties))
 * Graphite metrics
 * Request tracing
 * WebUI
@@ -280,4 +281,3 @@ table. By default it is accessible on `http://localhost:9998/`
 ## License
 
 MIT licensed
-

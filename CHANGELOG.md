@@ -1,5 +1,9 @@
 ## Changelog
 
+### [v1.0.3](https://github.com/eBay/fabio/releases/tag/v1.0.4) - 03 Nov 2015
+
+ * Add support for SSL client certificate authentication
+
 ### [v1.0.3](https://github.com/eBay/fabio/releases/tag/v1.0.3) - 25 Oct 2015
 
  * Add Docker support and official Docker image `magiconair/fabio`

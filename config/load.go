@@ -94,6 +94,8 @@ func parseListen(addrs string) ([]Listen, error) {
 			l.Addr, l.CertFile, l.KeyFile, l.TLS = p[0], p[1], p[1], true
 		case 3:
 			l.Addr, l.CertFile, l.KeyFile, l.TLS = p[0], p[1], p[2], true
+		case 4:
+			l.Addr, l.CertFile, l.KeyFile, l.ClientAuthFile, l.TLS = p[0], p[1], p[2], p[3], true
 		default:
 			return nil, fmt.Errorf("invalid address %s", addr)
 		}

@@ -122,9 +122,16 @@ func TestParseAddr(t *testing.T) {
 			"",
 		},
 		{
-			":123;cert.pem;key.pem;",
+			":123;cert.pem;key.pem;client.pem",
+			[]Listen{
+				Listen{Addr: ":123", CertFile: "cert.pem", KeyFile: "key.pem", ClientAuthFile: "client.pem", TLS: true},
+			},
+			"",
+		},
+		{
+			":123;cert.pem;key.pem;client.pem;",
 			nil,
-			"invalid address :123;cert.pem;key.pem;",
+			"invalid address :123;cert.pem;key.pem;client.pem;",
 		},
 	}
 

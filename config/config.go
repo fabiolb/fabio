@@ -13,12 +13,13 @@ type Config struct {
 }
 
 type Listen struct {
-	Addr         string
-	KeyFile      string
-	CertFile     string
-	TLS          bool
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
+	Addr           string
+	KeyFile        string
+	CertFile       string
+	ClientAuthFile string
+	TLS            bool
+	ReadTimeout    time.Duration
+	WriteTimeout   time.Duration
 }
 
 type UI struct {

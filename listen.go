@@ -2,6 +2,9 @@ package main
 
 import (
 	"crypto/tls"
+	"crypto/x509"
+	"errors"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -48,6 +51,9 @@ func listenAndServe(l config.Listen, h http.Handler) {
 
 	if srv.TLSConfig != nil {
 		log.Printf("[INFO] HTTPS proxy listening on %s with certificate %s", l.Addr, l.CertFile)
+		if srv.TLSConfig.ClientAuth == tls.RequireAndVerifyClientCert {
+			log.Printf("[INFO] Client certificate authentication enabled on %s with certificates from %s", l.Addr, l.ClientAuthFile)
+		}
 	} else {
 		log.Printf("[INFO] HTTP proxy listening on %s", l.Addr)
 	}
@@ -76,6 +82,19 @@ func newServer(l config.Listen, h http.Handler) (*http.Server, error) {
 		srv.TLSConfig = &tls.Config{
 			NextProtos:   []string{"http/1.1"},
 			Certificates: []tls.Certificate{cert},
+		}
+
+		if l.ClientAuthFile != "" {
+			pemBlock, err := ioutil.ReadFile(l.ClientAuthFile)
+			if err != nil {
+				return nil, err
+			}
+			pool := x509.NewCertPool()
+			if !pool.AppendCertsFromPEM(pemBlock) {
+				return nil, errors.New("failed to add client auth certs")
+			}
+			srv.TLSConfig.ClientCAs = pool
+			srv.TLSConfig.ClientAuth = tls.RequireAndVerifyClientCert
 		}
 	}
 

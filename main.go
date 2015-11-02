@@ -12,7 +12,7 @@ import (
 	"github.com/eBay/fabio/ui"
 )
 
-var version = "1.0.4-dev"
+var version = "1.0.4"
 
 func main() {
 	var filename string
