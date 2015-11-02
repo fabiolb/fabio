@@ -13,31 +13,41 @@ import (
 
 	"github.com/eBay/fabio/_third_party/github.com/cyberdelia/go-metrics-graphite"
 	gometrics "github.com/eBay/fabio/_third_party/github.com/rcrowley/go-metrics"
+	"github.com/eBay/fabio/config"
 )
 
 var pfx string
 
-func Init(target, prefix string, interval time.Duration, graphteAddr string) error {
-	pfx = prefix
+func Init(cfgs []config.Metrics) error {
+	for _, cfg := range cfgs {
+		if err := initMetrics(cfg); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func initMetrics(cfg config.Metrics) error {
+	pfx = cfg.Prefix
 	if pfx == "default" {
 		pfx = defaultPrefix()
 	}
 
-	switch target {
+	switch cfg.Target {
 	case "stdout":
 		log.Printf("[INFO] Sending metrics to stdout")
-		return initStdout(interval)
+		return initStdout(cfg.Interval)
 	case "graphite":
-		if graphteAddr == "" {
+		if cfg.Addr == "" {
 			return errors.New("metrics: graphite addr missing")
 		}
 
-		log.Printf("[INFO] Sending metrics to Graphite on %s as %q", graphteAddr, pfx)
-		return initGraphite(graphteAddr, interval)
+		log.Printf("[INFO] Sending metrics to Graphite on %s as %q", cfg.Addr, pfx)
+		return initGraphite(cfg.Addr, cfg.Interval)
 	case "":
 		log.Printf("[INFO] Metrics disabled")
 	default:
-		log.Fatal("[FATAL] Invalid metrics target ", target)
+		log.Fatal("[FATAL] Invalid metrics target ", cfg.Target)
 	}
 	return nil
 }

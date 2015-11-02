@@ -17,7 +17,7 @@ var URL string
 
 // Datacenter returns the datacenter of the local agent
 func Datacenter() (string, error) {
-	client, err := api.NewClient(&api.Config{Address: Addr, Scheme: Scheme})
+	client, err := newClient()
 	if err != nil {
 		return "", nil
 	}
@@ -36,4 +36,8 @@ func Datacenter() (string, error) {
 		return "", errors.New("consul: self.Datacenter not found")
 	}
 	return dc, nil
+}
+
+func newClient() (*api.Client, error) {
+	return api.NewClient(&api.Config{Address: Addr, Scheme: Scheme})
 }

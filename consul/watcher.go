@@ -16,7 +16,7 @@ type Watcher struct {
 }
 
 func NewWatcher(tagPrefix, configPath string) (*Watcher, error) {
-	client, err := api.NewClient(&api.Config{Address: Addr, Scheme: "http"})
+	client, err := newClient()
 	if err != nil {
 		return nil, err
 	}

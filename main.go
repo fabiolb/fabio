@@ -6,23 +6,18 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
-	"runtime"
-	"runtime/debug"
-	"strings"
 
-	"github.com/eBay/fabio/consul"
-	"github.com/eBay/fabio/metrics"
+	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/route"
 	"github.com/eBay/fabio/ui"
 )
 
-var version = "1.0.3"
+var version = "1.0.4-dev"
 
 func main() {
-	var cfg string
+	var filename string
 	var v bool
-	flag.StringVar(&cfg, "cfg", "", "path to config file")
+	flag.StringVar(&filename, "cfg", "", "path to config file")
 	flag.BoolVar(&v, "v", false, "show version")
 	flag.Parse()
 
@@ -30,104 +25,44 @@ func main() {
 		fmt.Println(version)
 		return
 	}
-
 	log.Printf("[INFO] Version %s starting", version)
 
-	if cfg != "" {
-		if err := loadConfig(cfg); err != nil {
-			log.Fatal("[FATAL] ", err)
-		}
+	cfg := config.DefaultConfig
+	if filename != "" {
+		cfg = loadConfig(filename)
 	}
+	initConsul(cfg)
+	initMetrics(cfg)
+	initRuntime(cfg)
+	initRoutes(cfg)
+	startUI(cfg)
+	startProxy(cfg)
+}
 
-	if err := metrics.Init(metricsTarget, metricsPrefix, metricsInterval, metricsGraphiteAddr); err != nil {
+func startProxy(cfg *config.Config) {
+	if err := route.SetPickerStrategy(cfg.Proxy.Strategy); err != nil {
 		log.Fatal("[FATAL] ", err)
 	}
-
-	if os.Getenv("GOMAXPROCS") == "" {
-		log.Print("[INFO] Setting GOMAXPROCS=", gomaxprocs)
-		runtime.GOMAXPROCS(gomaxprocs)
-	} else {
-		log.Print("[INFO] Using GOMAXPROCS=", os.Getenv("GOMAXPROCS"), " from env")
-	}
-
-	if os.Getenv("GOGC") == "" {
-		log.Print("[INFO] Setting GOGC=", gogc)
-		debug.SetGCPercent(gogc)
-	} else {
-		log.Print("[INFO] Using GOGC=", os.Getenv("GOGC"), " from env")
-	}
-
-	if proxyRoutes == "" {
-		useDynamicRoutes()
-	} else {
-		useStaticRoutes()
-	}
-
-	if err := route.SetPickerStrategy(proxyStrategy); err != nil {
-		log.Fatal("[FATAL] ", err)
-	}
-
-	consul.Addr = consulAddr
-	consul.URL = consulURL
-
-	dc, err := consul.Datacenter()
-	if err != nil {
-		log.Fatal("[FATAL] ", err)
-	}
-
-	log.Printf("[INFO] Using routing strategy %q", proxyStrategy)
-	log.Printf("[INFO] Connecting to consul on %q in datacenter %q", consulAddr, dc)
-	log.Printf("[INFO] Consul can be reached via %q", consulURL)
-
-	log.Printf("[INFO] UI listening on %q", uiAddr)
-	go func() {
-		if err := ui.Start(uiAddr, consulKVPath); err != nil {
-			log.Fatal("[FATAL] ui: ", err)
-		}
-	}()
+	log.Printf("[INFO] Using routing strategy %q", cfg.Proxy.Strategy)
 
 	tr := &http.Transport{
-		ResponseHeaderTimeout: proxyTimeout,
-		MaxIdleConnsPerHost:   proxyMaxConn,
+		ResponseHeaderTimeout: cfg.Proxy.ResponseHeaderTimeout,
+		MaxIdleConnsPerHost:   cfg.Proxy.MaxConn,
 		Dial: (&net.Dialer{
-			Timeout:   proxyDialTimeout,
-			KeepAlive: proxyTimeout,
+			Timeout:   cfg.Proxy.DialTimeout,
+			KeepAlive: cfg.Proxy.KeepAliveTimeout,
 		}).Dial,
 	}
 
-	proxy := route.NewProxy(tr, proxyHeaderClientIP, proxyHeaderTLS, proxyHeaderTLSValue)
-	listen(proxyAddr, proxyShutdownWait, proxy)
+	proxy := route.NewProxy(tr, cfg.Proxy)
+	listen(cfg.Listen, cfg.Proxy.ShutdownWait, proxy)
 }
 
-func useDynamicRoutes() {
-	log.Printf("[INFO] Using dynamic routes from consul on %s", consulAddr)
-	log.Printf("[INFO] Using tag prefix %q", consulTagPrefix)
-	log.Printf("[INFO] Watching KV path %q", consulKVPath)
+func startUI(cfg *config.Config) {
+	log.Printf("[INFO] UI listening on %q", cfg.UI.Addr)
 	go func() {
-		w, err := consul.NewWatcher(consulTagPrefix, consulKVPath)
-		if err != nil {
-			log.Fatal("[FATAL] ", err)
+		if err := ui.Start(cfg.UI.Addr, cfg.Consul.KVPath); err != nil {
+			log.Fatal("[FATAL] ui: ", err)
 		}
-		w.Watch()
 	}()
-}
-
-func useStaticRoutes() {
-	var err error
-	var t route.Table
-
-	if strings.HasPrefix(proxyRoutes, "@") {
-		proxyRoutes = proxyRoutes[1:]
-		log.Print("[INFO] Using static routes from ", proxyRoutes)
-		t, err = route.ParseFile(proxyRoutes)
-	} else {
-		log.Print("[INFO] Using static routes from config file")
-		t, err = route.ParseString(proxyRoutes)
-	}
-
-	if err != nil {
-		log.Fatal("[FATAL] ", err)
-	}
-
-	route.SetTable(t)
 }

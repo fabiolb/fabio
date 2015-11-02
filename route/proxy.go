@@ -8,24 +8,21 @@ import (
 	"time"
 
 	gometrics "github.com/eBay/fabio/_third_party/github.com/rcrowley/go-metrics"
+	"github.com/eBay/fabio/config"
 )
 
 // Proxy is a dynamic reverse proxy.
 type Proxy struct {
-	tr             http.RoundTripper
-	clientIPHeader string
-	tlsHeader      string
-	tlsHeaderValue string
-	requests       gometrics.Timer
+	tr       http.RoundTripper
+	cfg      config.Proxy
+	requests gometrics.Timer
 }
 
-func NewProxy(tr http.RoundTripper, clientIPHeader, tlsHeader, tlsHeaderValue string) *Proxy {
+func NewProxy(tr http.RoundTripper, cfg config.Proxy) *Proxy {
 	return &Proxy{
-		tr:             tr,
-		clientIPHeader: clientIPHeader,
-		tlsHeader:      tlsHeader,
-		tlsHeaderValue: tlsHeaderValue,
-		requests:       gometrics.GetOrRegisterTimer("requests", gometrics.DefaultRegistry),
+		tr:       tr,
+		cfg:      cfg,
+		requests: gometrics.GetOrRegisterTimer("requests", gometrics.DefaultRegistry),
 	}
 }
 
@@ -42,17 +39,17 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if p.clientIPHeader != "" {
+	if p.cfg.ClientIPHeader != "" {
 		ip, _, err := net.SplitHostPort(req.RemoteAddr)
 		if err != nil {
 			http.Error(w, "cannot parse "+req.RemoteAddr, http.StatusInternalServerError)
 			return
 		}
-		req.Header.Set(p.clientIPHeader, ip)
+		req.Header.Set(p.cfg.ClientIPHeader, ip)
 	}
 
-	if p.tlsHeader != "" && req.TLS != nil {
-		req.Header.Set(p.tlsHeader, p.tlsHeaderValue)
+	if p.cfg.TLSHeader != "" && req.TLS != nil {
+		req.Header.Set(p.cfg.TLSHeader, p.cfg.TLSHeaderValue)
 	}
 
 	start := time.Now()

@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/route"
 )
 
@@ -39,11 +40,11 @@ func TestGracefulShutdown(t *testing.T) {
 	// start proxy with graceful shutdown period long enough
 	// to complete one more request.
 	var wg sync.WaitGroup
+	l := config.Listen{Addr: "127.0.0.1:57777"}
 	wg.Add(1)
-	laddr := "127.0.0.1:57777"
 	go func() {
 		defer wg.Done()
-		listen(laddr, 250*time.Millisecond, route.NewProxy(http.DefaultTransport, "", "", ""))
+		listen([]config.Listen{l}, 250*time.Millisecond, route.NewProxy(http.DefaultTransport, config.Proxy{}))
 	}()
 
 	// trigger shutdown after some time
@@ -59,13 +60,13 @@ func TestGracefulShutdown(t *testing.T) {
 
 	// make 200 OK request
 	// start before and complete after shutdown was triggered
-	if got, want := req("http://"+laddr+"/"), 200; got != want {
+	if got, want := req("http://"+l.Addr+"/"), 200; got != want {
 		t.Fatalf("request 1: got %v want %v", got, want)
 	}
 
 	// make 503 request
 	// start and complete after shutdown was triggered
-	if got, want := req("http://"+laddr+"/"), 503; got != want {
+	if got, want := req("http://"+l.Addr+"/"), 503; got != want {
 		t.Fatalf("got %v want %v", got, want)
 	}
 

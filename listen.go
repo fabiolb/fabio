@@ -6,11 +6,11 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"os/signal"
 	"regexp"
-	"syscall"
 	"time"
 
+	"github.com/eBay/fabio/config"
+	"github.com/eBay/fabio/exit"
 	"github.com/eBay/fabio/route"
 )
 
@@ -19,33 +19,17 @@ var commas = regexp.MustCompile(`\s*,\s*`)
 var semicolons = regexp.MustCompile(`\s*;\s*`)
 
 func init() {
-	go func() {
-		// we use buffered to mitigate losing the signal
-		sigchan := make(chan os.Signal, 1)
-		signal.Notify(sigchan, os.Interrupt, os.Kill, syscall.SIGTERM)
-		<-sigchan
-		close(quit)
-	}()
+	exit.Listen(func(os.Signal) { close(quit) })
 }
 
 // listen starts one or more listeners for the handler. The list
 // of addresses are
-func listen(addrs string, wait time.Duration, h http.Handler) {
-	for _, addr := range commas.Split(addrs, -1) {
-		if addr == "" {
-			continue
-		}
-
-		p := semicolons.Split(addr, 4)
-		switch len(p) {
-		case 1:
-			go listenAndServe(p[0], h)
-		case 2:
-			go listenAndServeTLS(p[0], p[1], p[1], h)
-		case 3:
-			go listenAndServeTLS(p[0], p[1], p[2], h)
-		default:
-			log.Fatal("[FATAL] Invalid address format ", addr)
+func listen(cfg []config.Listen, wait time.Duration, h http.Handler) {
+	for _, l := range cfg {
+		if l.TLS {
+			go listenAndServeTLS(l, h)
+		} else {
+			go listenAndServe(l, h)
 		}
 	}
 
@@ -61,33 +45,44 @@ func listen(addrs string, wait time.Duration, h http.Handler) {
 	log.Print("[INFO] Down")
 }
 
-func listenAndServe(addr string, h http.Handler) {
-	log.Printf("[INFO] HTTP proxy listening on %s", addr)
-	if err := http.ListenAndServe(addr, h); err != nil {
+func listenAndServe(l config.Listen, h http.Handler) {
+	log.Printf("[INFO] HTTP proxy listening on %s", l.Addr)
+	srv := &http.Server{
+		Addr:         l.Addr,
+		Handler:      h,
+		ReadTimeout:  l.ReadTimeout,
+		WriteTimeout: l.WriteTimeout,
+	}
+	if err := srv.ListenAndServe(); err != nil {
 		log.Fatal("[FATAL] ", err)
 	}
 }
 
 // listenAndServeTLS starts an HTTPS server with the given certificate.
-func listenAndServeTLS(addr, certFile, keyFile string, h http.Handler) {
-	log.Printf("[INFO] HTTPS proxy listening on %s with certificate %s", addr, certFile)
-	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+func listenAndServeTLS(l config.Listen, h http.Handler) {
+	log.Printf("[INFO] HTTPS proxy listening on %s with certificate %s", l.Addr, l.CertFile)
+	cert, err := tls.LoadX509KeyPair(l.CertFile, l.KeyFile)
 	if err != nil {
 		log.Fatal("[FATAL] ", err)
 	}
 
-	config := &tls.Config{
-		NextProtos:   []string{"http/1.1"},
-		Certificates: []tls.Certificate{cert},
+	srv := &http.Server{
+		Addr:         l.Addr,
+		Handler:      h,
+		ReadTimeout:  l.ReadTimeout,
+		WriteTimeout: l.WriteTimeout,
+		TLSConfig: &tls.Config{
+			NextProtos:   []string{"http/1.1"},
+			Certificates: []tls.Certificate{cert},
+		},
 	}
-	srv := &http.Server{Addr: addr, TLSConfig: config, Handler: h}
 
-	ln, err := net.Listen("tcp", addr)
+	ln, err := net.Listen("tcp", l.Addr)
 	if err != nil {
 		log.Fatal("[FATAL] ", err)
 	}
 
-	tlsListener := tls.NewListener(tcpKeepAliveListener{ln.(*net.TCPListener)}, config)
+	tlsListener := tls.NewListener(tcpKeepAliveListener{ln.(*net.TCPListener)}, srv.TLSConfig)
 	if err := srv.Serve(tlsListener); err != nil {
 		log.Fatal("[FATAL] ", err)
 	}
