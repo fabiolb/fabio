@@ -1,8 +1,10 @@
 package main
 
 import (
+	"crypto/tls"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"sync"
 	"testing"
 	"time"
@@ -11,9 +13,50 @@ import (
 	"github.com/eBay/fabio/route"
 )
 
-// TestGracefulShutdown tests
-func TestGracefulShutdown(t *testing.T) {
+func TestNewServer(t *testing.T) {
+	h := http.DefaultServeMux
+	cert := tls.Certificate{}
+	tlsLoadX509KeyPair = func(string, string) (tls.Certificate, error) {
+		return cert, nil
+	}
+	defer func() { tlsLoadX509KeyPair = tls.LoadX509KeyPair }()
 
+	tests := []struct {
+		in  config.Listen
+		out *http.Server
+		err string
+	}{
+		{
+			config.Listen{Addr: ":123"},
+			&http.Server{Addr: ":123", Handler: h},
+			"",
+		},
+		{
+			config.Listen{Addr: ":123", CertFile: "cert.pem"},
+			&http.Server{
+				Addr:    ":123",
+				Handler: h,
+				TLSConfig: &tls.Config{
+					NextProtos:   []string{"http/1.1"},
+					Certificates: []tls.Certificate{cert},
+				},
+			},
+			"",
+		},
+	}
+
+	for i, tt := range tests {
+		srv, err := newServer(tt.in, h)
+		if got, want := err, tt.err; (got != nil || want != "") && got.Error() != want {
+			t.Errorf("%d: got %v want %v", i, got, want)
+		}
+		if got, want := srv, tt.out; !reflect.DeepEqual(got, want) {
+			t.Errorf("%d: got %v want %v", i, got, want)
+		}
+	}
+}
+
+func TestGracefulShutdown(t *testing.T) {
 	req := func(url string) int {
 		resp, err := http.Get(url)
 		if err != nil {
@@ -44,7 +87,7 @@ func TestGracefulShutdown(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		listen([]config.Listen{l}, 250*time.Millisecond, route.NewProxy(http.DefaultTransport, config.Proxy{}))
+		startListeners([]config.Listen{l}, 250*time.Millisecond, route.NewProxy(http.DefaultTransport, config.Proxy{}))
 	}()
 
 	// trigger shutdown after some time

@@ -36,10 +36,10 @@ func main() {
 	initRuntime(cfg)
 	initRoutes(cfg)
 	startUI(cfg)
-	startProxy(cfg)
+	startListeners(cfg.Listen, cfg.Proxy.ShutdownWait, newProxy(cfg))
 }
 
-func startProxy(cfg *config.Config) {
+func newProxy(cfg *config.Config) *route.Proxy {
 	if err := route.SetPickerStrategy(cfg.Proxy.Strategy); err != nil {
 		log.Fatal("[FATAL] ", err)
 	}
@@ -54,8 +54,7 @@ func startProxy(cfg *config.Config) {
 		}).Dial,
 	}
 
-	proxy := route.NewProxy(tr, cfg.Proxy)
-	listen(cfg.Listen, cfg.Proxy.ShutdownWait, proxy)
+	return route.NewProxy(tr, cfg.Proxy)
 }
 
 func startUI(cfg *config.Config) {

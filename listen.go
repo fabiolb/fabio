@@ -22,15 +22,10 @@ func init() {
 	exit.Listen(func(os.Signal) { close(quit) })
 }
 
-// listen starts one or more listeners for the handler. The list
-// of addresses are
-func listen(cfg []config.Listen, wait time.Duration, h http.Handler) {
-	for _, l := range cfg {
-		if l.TLS {
-			go listenAndServeTLS(l, h)
-		} else {
-			go listenAndServe(l, h)
-		}
+// startListeners runs one or more listeners for the handler
+func startListeners(listen []config.Listen, wait time.Duration, h http.Handler) {
+	for _, l := range listen {
+		go listenAndServe(l, h)
 	}
 
 	// wait for shutdown signal
@@ -46,46 +41,60 @@ func listen(cfg []config.Listen, wait time.Duration, h http.Handler) {
 }
 
 func listenAndServe(l config.Listen, h http.Handler) {
-	log.Printf("[INFO] HTTP proxy listening on %s", l.Addr)
-	srv := &http.Server{
-		Addr:         l.Addr,
-		Handler:      h,
-		ReadTimeout:  l.ReadTimeout,
-		WriteTimeout: l.WriteTimeout,
+	srv, err := newServer(l, h)
+	if err != nil {
+		log.Fatal("[FATAL] ", err)
 	}
-	if err := srv.ListenAndServe(); err != nil {
+
+	if srv.TLSConfig != nil {
+		log.Printf("[INFO] HTTPS proxy listening on %s with certificate %s", l.Addr, l.CertFile)
+	} else {
+		log.Printf("[INFO] HTTP proxy listening on %s", l.Addr)
+	}
+
+	if err := serve(srv); err != nil {
 		log.Fatal("[FATAL] ", err)
 	}
 }
 
-// listenAndServeTLS starts an HTTPS server with the given certificate.
-func listenAndServeTLS(l config.Listen, h http.Handler) {
-	log.Printf("[INFO] HTTPS proxy listening on %s with certificate %s", l.Addr, l.CertFile)
-	cert, err := tls.LoadX509KeyPair(l.CertFile, l.KeyFile)
-	if err != nil {
-		log.Fatal("[FATAL] ", err)
-	}
+var tlsLoadX509KeyPair = tls.LoadX509KeyPair
 
+func newServer(l config.Listen, h http.Handler) (*http.Server, error) {
 	srv := &http.Server{
 		Addr:         l.Addr,
 		Handler:      h,
 		ReadTimeout:  l.ReadTimeout,
 		WriteTimeout: l.WriteTimeout,
-		TLSConfig: &tls.Config{
-			NextProtos:   []string{"http/1.1"},
-			Certificates: []tls.Certificate{cert},
-		},
 	}
 
-	ln, err := net.Listen("tcp", l.Addr)
+	if l.CertFile != "" {
+		cert, err := tlsLoadX509KeyPair(l.CertFile, l.KeyFile)
+		if err != nil {
+			return nil, err
+		}
+
+		srv.TLSConfig = &tls.Config{
+			NextProtos:   []string{"http/1.1"},
+			Certificates: []tls.Certificate{cert},
+		}
+	}
+
+	return srv, nil
+}
+
+func serve(srv *http.Server) error {
+	ln, err := net.Listen("tcp", srv.Addr)
 	if err != nil {
 		log.Fatal("[FATAL] ", err)
 	}
 
-	tlsListener := tls.NewListener(tcpKeepAliveListener{ln.(*net.TCPListener)}, srv.TLSConfig)
-	if err := srv.Serve(tlsListener); err != nil {
-		log.Fatal("[FATAL] ", err)
+	ln = tcpKeepAliveListener{ln.(*net.TCPListener)}
+
+	if srv.TLSConfig != nil {
+		ln = tls.NewListener(ln, srv.TLSConfig)
 	}
+
+	return srv.Serve(ln)
 }
 
 // copied from http://golang.org/src/net/http/server.go?s=54604:54695#L1967
