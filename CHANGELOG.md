@@ -1,6 +1,6 @@
 ## Changelog
 
-### [v1.0.3](https://github.com/eBay/fabio/releases/tag/v1.0.4) - 03 Nov 2015
+### [v1.0.4](https://github.com/eBay/fabio/releases/tag/v1.0.4) - 03 Nov 2015
 
  * Add support for SSL client certificate authentication
 
