@@ -66,7 +66,7 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 	q := &api.QueryOptions{RequireConsistent: true}
 	svcs, _, err := client.Catalog().Service(name, "", q)
 	if err != nil {
-		log.Printf("[WARN] [%s] Error getting catalog service %s. %v", name, err)
+		log.Printf("[WARN] Error getting catalog service %s. %v", name, err)
 		return nil
 	}
 
