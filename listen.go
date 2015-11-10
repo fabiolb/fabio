@@ -14,7 +14,7 @@ import (
 
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/exit"
-	"github.com/eBay/fabio/route"
+	"github.com/eBay/fabio/proxy"
 )
 
 var quit = make(chan bool)
@@ -35,7 +35,7 @@ func startListeners(listen []config.Listen, wait time.Duration, h http.Handler) 
 	<-quit
 
 	// disable routing for all requests
-	route.Shutdown()
+	proxy.Shutdown()
 
 	// trigger graceful shutdown
 	log.Printf("[INFO] Graceful shutdown over %s", wait)

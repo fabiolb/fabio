@@ -114,7 +114,7 @@ func benchmarkGet(t Table, m matcher, p picker, pb *testing.PB) {
 	match, pick = m, p
 	k, n := len(reqs), 0
 	for pb.Next() {
-		t.lookup(reqs[n%k], "")
+		t.Lookup(reqs[n%k], "")
 		n++
 	}
 }

@@ -155,11 +155,11 @@ func (t Table) route(host, path string) *route {
 	return hr.find(path)
 }
 
-// lookup finds a target url based on the current matcher and picker
+// Lookup finds a target url based on the current matcher and picker
 // or nil if there is none. It first checks the routes for the host
 // and if none matches then it falls back to generic routes without
 // a host. This is useful for a catch-all '/' rule.
-func (t Table) lookup(req *http.Request, trace string) *target {
+func (t Table) Lookup(req *http.Request, trace string) *Target {
 	if trace != "" {
 		if len(trace) > 16 {
 			trace = trace[:15]
@@ -179,7 +179,7 @@ func (t Table) lookup(req *http.Request, trace string) *target {
 	return u
 }
 
-func (t Table) doLookup(host, path, trace string) *target {
+func (t Table) doLookup(host, path, trace string) *Target {
 	hr := t[host]
 	if hr == nil {
 		return nil

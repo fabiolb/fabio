@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/eBay/fabio/config"
+	"github.com/eBay/fabio/proxy"
 	"github.com/eBay/fabio/route"
 	"github.com/eBay/fabio/ui"
 )
@@ -39,7 +40,7 @@ func main() {
 	startListeners(cfg.Listen, cfg.Proxy.ShutdownWait, newProxy(cfg))
 }
 
-func newProxy(cfg *config.Config) *route.Proxy {
+func newProxy(cfg *config.Config) *proxy.Proxy {
 	if err := route.SetPickerStrategy(cfg.Proxy.Strategy); err != nil {
 		log.Fatal("[FATAL] ", err)
 	}
@@ -54,7 +55,7 @@ func newProxy(cfg *config.Config) *route.Proxy {
 		}).Dial,
 	}
 
-	return route.NewProxy(tr, cfg.Proxy)
+	return proxy.New(tr, cfg.Proxy)
 }
 
 func startUI(cfg *config.Config) {

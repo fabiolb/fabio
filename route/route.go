@@ -27,19 +27,19 @@ type route struct {
 	path string
 
 	// targets contains the list of URLs
-	targets []*target
+	targets []*Target
 
 	// wTargets contains 100 targets distributed
 	// according to their weight and ordered RR in the
 	// same order as targets
-	wTargets []*target
+	wTargets []*Target
 
 	// total contains the total number of requests for this route.
 	// Used by the RRPicker
 	total uint64
 }
 
-type target struct {
+type Target struct {
 	// service is the name of the service the targetURL points to
 	service string
 
@@ -57,7 +57,7 @@ type target struct {
 	weight float64
 
 	// timer measures throughput and latency of this target
-	timer gometrics.Timer
+	Timer gometrics.Timer
 }
 
 func newRoute(host, path string) *route {
@@ -72,13 +72,13 @@ func (r *route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 	name := metrics.TargetName(service, r.host, r.path, targetURL)
 	timer := gometrics.GetOrRegisterTimer(name, gometrics.DefaultRegistry)
 
-	t := &target{service: service, tags: tags, URL: targetURL, fixedWeight: fixedWeight, timer: timer}
+	t := &Target{service: service, tags: tags, URL: targetURL, fixedWeight: fixedWeight, Timer: timer}
 	r.targets = append(r.targets, t)
 	r.weighTargets()
 }
 
 func (r *route) delService(service string) {
-	var clone []*target
+	var clone []*Target
 	for _, t := range r.targets {
 		if t.service == service {
 			continue
@@ -90,7 +90,7 @@ func (r *route) delService(service string) {
 }
 
 func (r *route) delTarget(service string, targetURL *url.URL) {
-	var clone []*target
+	var clone []*Target
 	for _, t := range r.targets {
 		if t.service == service && t.URL.String() == targetURL.String() {
 			continue
@@ -227,7 +227,7 @@ func (r *route) weighTargets() {
 	}
 	sort.Sort(slotCount)
 
-	slots := make([]*target, gotSlots)
+	slots := make([]*Target, gotSlots)
 	for _, c := range slotCount {
 		if c.n <= 0 {
 			continue

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/eBay/fabio/config"
+	"github.com/eBay/fabio/proxy"
 	"github.com/eBay/fabio/route"
 )
 
@@ -87,7 +88,7 @@ func TestGracefulShutdown(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		startListeners([]config.Listen{l}, 250*time.Millisecond, route.NewProxy(http.DefaultTransport, config.Proxy{}))
+		startListeners([]config.Listen{l}, 250*time.Millisecond, proxy.New(http.DefaultTransport, config.Proxy{}))
 	}()
 
 	// trigger shutdown after some time

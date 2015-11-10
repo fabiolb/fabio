@@ -1,4 +1,4 @@
-package route
+package proxy
 
 import "sync/atomic"
 
