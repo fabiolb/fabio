@@ -23,7 +23,7 @@ application. Finally, updating the routing table without loss of existing
 connections can be [challenging](http://engineeringblog.yelp.com/2015/04/true-
 zero-downtime-haproxy-reloads.html).
 
-fabio solves this problem by making the services themselves repsonsible for
+fabio solves this problem by making the services themselves responsible for
 updating the routing table. Services already know which routes they serve since
 they have handlers who can handle requests for them. Once services push the
 routes they handle into the service registry (in this case consul) fabio can
@@ -156,7 +156,7 @@ request.
 That means that fabio is currently not used as an FE-BE or BE-BE router to
 route traffic among the services themselves since the service discovery of
 consul already solves that problem. Having said that, there is nothing that
-inherintly prevents fabio from being used that way. It just means that we
+inherently prevents fabio from being used that way. It just means that we
 are not doing it.
 
 ### Direct
@@ -173,7 +173,7 @@ internet -- HTTP/HTTPS --> fabio -- HTTP --+--> service-b
 ```
 
 To scale fabio you can deploy it together with the frontend services which provides
-high-availablity and distributes the network bandwidth.
+high-availability and distributes the network bandwidth.
 
 ```
            +- HTTP/HTTPS -> fabio -+- HTTP -> service-a (host-a)
@@ -186,7 +186,7 @@ internet --+- HTTP/HTTPS -> fabio -+- HTTP -> service-b (host-b)
 ### Behind an existing LB/Gateway
 
 In the following setup fabio is configured receive all incoming traffic
-from an exising gateway which also terminates SSL for one or more domains.
+from an existing gateway which also terminates SSL for one or more domains.
 fabio supports SSL Client Certificate Authentication to support the
 [Amazon API Gateway](https://aws.amazon.com/api-gateway/)
 
@@ -199,7 +199,7 @@ internet -- HTTP/HTTPS --> LB -- HTTP --> fabio -- HTTP --+--> service-b
 ```
 
 Again, to scale fabio you can deploy it together with the frontend services
-which provides high-availablity and distributes the network bandwidth.
+which provides high-availability and distributes the network bandwidth.
 
 ```
                                +- HTTP -> fabio -+-> service-a (host-a)
