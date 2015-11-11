@@ -13,7 +13,7 @@ import (
 	"github.com/eBay/fabio/ui"
 )
 
-var version = "1.0.5-issue-10-forward-header"
+var version = "1.0.5"
 
 func main() {
 	var filename string
