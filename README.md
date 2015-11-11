@@ -2,21 +2,43 @@
 
 ##### Current version: 1.0.4
 
-fabio is a fast, modern, zero-conf load balancing HTTP(S) router for deploying
-microservices managed by consul.
+fabio is a fast, modern, zero-conf load balancing HTTP(S) router
+for deploying microservices managed by consul.
 
-It provides a single-binary alternative to running [consul-
-template](https://github.com/hashicorp/consul-template) together with
-haproxy/varnish/nginx/apache. Services provide one or more host/path prefixes
-they serve and fabio updates the routing table every time a service becomes
-(un-)available without restart.
+## Why build another HTTP router?
+
+Both hardware and software routers like Citrix Netscaler, F5 Big IP, haproxy,
+varnish, nginx or apache require some form of configuration - the routing
+table - to route incoming traffic to services which can handle them. The
+routing table has to be kept in sync with the actual deployed set of services
+and instances during each deployment and each outage on every environment.
+This makes the routing table a crucial part of the configuration without the
+application cannot function.
+
+Managing the routing table can be automated via API calls or tools like
+[consul-template](https://github.com/hashicorp/consul-template) but that also
+requires configuration and/or tools. In the case of consul-template the config
+file template itself has to be kept in sync with the actual setup of the
+application. Finally, updating the routing table without loss of existing
+connections can be [challenging](http://engineeringblog.yelp.com/2015/04/true-
+zero-downtime-haproxy-reloads.html).
+
+fabio solves this problem by making the services themselves repsonsible for
+updating the routing table. Services already know which routes they serve since
+they have handlers who can handle requests for them. Once services push the
+routes they handle into the service registry (in this case consul) fabio can
+build the routing table and can re-configure itself on every change
+automatically without restart and without the loss of existing connections.
+
+The motivation is also outlined in the presentation I've given at the dotGo EU
+pre-party in Paris  on 9 Nov 2015. You can watch it
+[here](https://www.youtube.com/watch?v=82UAB3qEe54).
 
 fabio was developed at the [eBay Classifieds Group](http://www.ebayclassifiedsgroup.com)
-in Amsterdam and is currently used to route traffic for
-[marktplaats.nl](http://www.marktplaats.nl) and [kijiji.it](http://www.kijiji.it).
-Marktplaats is running all of its traffic through fabio which is
-several thousand requests per second distributed over several fabio
-instances.
+in Amsterdam and routes traffic for [marktplaats.nl](http://www.marktplaats.nl) and
+[kijiji.it](http://www.kijiji.it). Marktplaats is running all of its traffic
+through fabio which is several thousand requests per second distributed over
+several fabio instances. We don't observe any measurable additional latency.
 
 ## Features
 
@@ -35,6 +57,7 @@ instances.
 
 * [Installation](#installation)
 * [Quickstart](#quickstart)
+* [Deployment](#deployment)
 * [Configuration](https://raw.githubusercontent.com/eBay/fabio/master/fabio.properties) (documented fabio.properties file)
 * [Performance](#performance)
 * [Service configuration](#service-configuration)
@@ -107,6 +130,71 @@ the entire directory, e.g.
 
 The official Docker image contains the root CA certificates from a recent and updated
 Ubuntu 12.04.5 LTS installation.
+
+## Deployment
+
+The main use-case for fabio is to distribute incoming HTTP(S) requests
+from the internet to frontend (FE) services which can handle these requests.
+In this scenario the FE services then use the service discovery feature in
+consul to find backend (BE) services they need in order to fulfil the
+request.
+
+That means that fabio is currently not used as an FE-BE or BE-BE router to
+route traffic among the services themselves since the service discovery of
+consul already solves that problem. Having said that, there is nothing that
+inherintly prevents fabio from being used that way. It just means that we
+are not doing it.
+
+### Direct
+
+In the following setup fabio is configured to listen on the public ip(s)
+where it can optionally terminate SSL traffic for one or more domains - one ip per domain.
+
+```
+                                           +--> service-a
+                                           |
+internet -- HTTP/HTTPS --> fabio -- HTTP --+--> service-b
+                                           |
+                                           +--> service-c
+```
+
+To scale fabio you can deploy it together with the frontend services which provides
+high-availablity and distributes the network bandwidth.
+
+```
+           +- HTTP/HTTPS -> fabio -+- HTTP -> service-a (host-a)
+           |                       |
+internet --+- HTTP/HTTPS -> fabio -+- HTTP -> service-b (host-b)
+           |                       |
+           +- HTTP/HTTPS -> fabio -+- HTTP -> service-c (host-c)
+```
+
+### Behind an existing LB/Gateway
+
+In the following setup fabio is configured receive all incoming traffic
+from an exising gateway which also terminates SSL for one or more domains.
+fabio supports SSL Client Certificate Authentication to support the
+[Amazon API Gateway](https://aws.amazon.com/api-gateway/)
+
+```
+                                                          +--> service-a
+                                                          |
+internet -- HTTP/HTTPS --> LB -- HTTP --> fabio -- HTTP --+--> service-b
+                                                          |
+                                                          +--> service-c
+```
+
+Again, to scale fabio you can deploy it together with the frontend services
+which provides high-availablity and distributes the network bandwidth.
+
+```
+                               +- HTTP -> fabio -+-> service-a (host-a)
+                               |                 |
+internet -- HTTP/HTTPS --> LB -+- HTTP -> fabio -+-> service-b (host-b)
+                               |                 |
+                               +- HTTP -> fabio -+-> service-c (host-c)
+```
+
 
 ## Performance
 
