@@ -1,5 +1,5 @@
-// Package server provides a sample HTTP web server which registers
-// itself in consul using one or more URL prefixes to demonstrate and
+// Package server provides a sample HTTP/Websocket server which registers
+// itself in consul using one or more url prefixes to demonstrate and
 // test the automatic fabio routing table update.
 //
 // During startup the server performs the following steps:
@@ -12,17 +12,24 @@
 //   tag per prefix
 // * Install a signal handler to deregister the service on exit
 //
+// If the protocol is set to "ws" the registered endpoints function
+// as websocket echo servers.
+//
 // Example:
 //
+//   # http server
 //   ./server -addr 127.0.0.1:5000 -name svc-a -prefix /foo,/bar
-//   ./server -addr 127.0.0.1:6000 -name svc-b -prefix /baz,/bar
+//   ./server -addr 127.0.0.1:5001 -name svc-b -prefix /baz,/bar
 //
-// This used to be hosted under https://github.com/magiconair/fabio-example
+//   # websocket server
+//   ./server -addr 127.0.0.1:6000 -name ws-a -prefix /echo1,/echo2 -proto ws
+//
 package main
 
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -33,14 +40,16 @@ import (
 	"strings"
 
 	"github.com/eBay/fabio/_third_party/github.com/hashicorp/consul/api"
+	"github.com/eBay/fabio/_third_party/golang.org/x/net/websocket"
 )
 
 func main() {
-	var addr, consul, name, prefix string
+	var addr, consul, name, prefix, proto string
 	flag.StringVar(&addr, "addr", "127.0.0.1:5000", "host:port of the service")
 	flag.StringVar(&consul, "consul", "127.0.0.1:8500", "host:port of the consul agent")
 	flag.StringVar(&name, "name", filepath.Base(os.Args[0]), "name of the service")
 	flag.StringVar(&prefix, "prefix", "", "comma-sep list of host/path prefixes to register")
+	flag.StringVar(&proto, "proto", "http", "protocol for endpoints: http or ws")
 	flag.Parse()
 
 	if prefix == "" {
@@ -51,9 +60,16 @@ func main() {
 	// register prefixes
 	prefixes := strings.Split(prefix, ",")
 	for _, p := range prefixes {
-		http.HandleFunc(p, func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, "Serving %s from %s on %s\n", r.RequestURI, name, addr)
-		})
+		switch proto {
+		case "http":
+			http.HandleFunc(p, func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprintf(w, "Serving %s from %s on %s\n", r.RequestURI, name, addr)
+			})
+		case "ws":
+			http.Handle(p, websocket.Handler(EchoServer))
+		default:
+			log.Fatal("Invalid protocol ", proto)
+		}
 	}
 
 	// start http server
@@ -122,4 +138,28 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Printf("Deregistered service %q in consul", name)
+}
+
+func EchoServer(ws *websocket.Conn) {
+	addr := ws.LocalAddr().String()
+	pfx := []byte("[" + addr + "] ")
+
+	log.Printf("ws connect on %s", addr)
+
+	// the following could be done with io.Copy(ws, ws)
+	// but I want to add some meta data
+	var msg = make([]byte, 1024)
+	for {
+		n, err := ws.Read(msg)
+		if err != nil && err != io.EOF {
+			log.Printf("ws error on %s. %s", addr, err)
+			break
+		}
+		_, err = ws.Write(append(pfx, msg[:n]...))
+		if err != nil && err != io.EOF {
+			log.Printf("ws error on %s%s. %s", addr, err)
+			break
+		}
+	}
+	log.Printf("ws disconnect on %s", addr)
 }
