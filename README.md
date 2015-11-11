@@ -86,6 +86,15 @@ This is how you use fabio in your setup:
 5. Send all your HTTP traffic to fabio on port `9999`
 6. Done
 
+To start a sample server to test the routing run the `demo/server` like this:
+
+    ./server -addr 127.0.0.1:5000 -name svc-a -prefix /foo
+
+and access the server direct and via fabio
+
+    curl 127.0.0.1:5000/foo   # direct
+    curl 127.0.0.1:9999/foo   # via fabio
+
 If you want fabio to handle SSL as well set the `proxy.addr` along with the
 public/private key files in
 [fabio.properties](https://github.com/eBay/fabio/blob/master/fabio.properties)
@@ -98,6 +107,8 @@ Check the [Debugging](#debugging) section to see how to test fabio with `curl`.
 See fabio in action
 
 [![fabio demo](http://i.imgur.com/aivFAKl.png)](https://www.youtube.com/watch?v=gvxxu0PLevs"fabio demo - Click to Watch!")
+
+The `fabio-example` project is now in the `demo/server` directory.
 
 ## Installation
 
