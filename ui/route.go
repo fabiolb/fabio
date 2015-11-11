@@ -1,27 +1,19 @@
 package ui
 
 import (
-	"fmt"
 	"html/template"
 	"net/http"
 
-	"github.com/eBay/fabio/consul"
 	"github.com/eBay/fabio/route"
 )
 
 func handleRoute(w http.ResponseWriter, r *http.Request) {
-	dc, err := consul.Datacenter()
-	if err != nil {
-		http.Error(w, "cannot get datacenter: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	data := struct {
 		Config    []string
 		ConfigURL string
 	}{
 		route.GetTable().Config(true),
-		fmt.Sprintf("%sui/#/%s/kv%s/edit", consul.URL, dc, configPath),
+		configURL,
 	}
 	tmplTable.ExecuteTemplate(w, "table", data)
 }

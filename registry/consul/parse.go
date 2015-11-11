@@ -16,7 +16,7 @@ func parseURLPrefixTag(s, prefix string) (host, path string, ok bool) {
 	// split host/path
 	p := strings.SplitN(s[len(prefix):], "/", 2)
 	if len(p) != 2 {
-		log.Printf("[WARN] Invalid %s tag %q", prefix, s)
+		log.Printf("[WARN] consul: Invalid %s tag %q", prefix, s)
 		return "", "", false
 	}
 

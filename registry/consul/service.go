@@ -11,21 +11,21 @@ import (
 	"github.com/eBay/fabio/_third_party/github.com/hashicorp/consul/api"
 )
 
-// watchAutoConfig monitors the consul health checks and creates a new configuration
+// watchServices monitors the consul health checks and creates a new configuration
 // on every change.
-func watchAutoConfig(client *api.Client, tagPrefix string, config chan []string) {
+func watchServices(client *api.Client, tagPrefix string, config chan []string) {
 	var lastIndex uint64
 
 	for {
 		q := &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
 		checks, meta, err := client.Health().State("any", q)
 		if err != nil {
-			log.Printf("[WARN] Error fetching health state. %v", err)
+			log.Printf("[WARN] consul: Error fetching health state. %v", err)
 			time.Sleep(time.Second)
 			continue
 		}
 
-		log.Printf("[INFO] Health changed to #%d", meta.LastIndex)
+		log.Printf("[INFO] consul: Health changed to #%d", meta.LastIndex)
 		config <- servicesConfig(client, passingServices(checks), tagPrefix)
 		lastIndex = meta.LastIndex
 	}
@@ -66,7 +66,7 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 	q := &api.QueryOptions{RequireConsistent: true}
 	svcs, _, err := client.Catalog().Service(name, "", q)
 	if err != nil {
-		log.Printf("[WARN] Error getting catalog service %s. %v", name, err)
+		log.Printf("[WARN] consul: Error getting catalog service %s. %v", name, err)
 		return nil
 	}
 

@@ -3,10 +3,10 @@ package ui
 import "net/http"
 
 // Addr contains the host:port of the UI endpoint
-var configPath string
+var configURL string
 
-func Start(addr, cfgpath string) error {
-	configPath = cfgpath
+func Start(addr, cfgurl string) error {
+	configURL = cfgurl
 	http.HandleFunc("/", handleRoute)
 	return http.ListenAndServe(addr, nil)
 }

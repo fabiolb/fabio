@@ -8,10 +8,13 @@ import (
 	"strings"
 
 	"github.com/eBay/fabio/config"
-	"github.com/eBay/fabio/consul"
 	"github.com/eBay/fabio/metrics"
+	"github.com/eBay/fabio/registry"
+	"github.com/eBay/fabio/registry/consul"
 	"github.com/eBay/fabio/route"
 )
+
+var be registry.Backend
 
 func loadConfig(filename string) *config.Config {
 	cfg, err := config.FromFile(filename)
@@ -21,17 +24,12 @@ func loadConfig(filename string) *config.Config {
 	return cfg
 }
 
-func initConsul(cfg *config.Config) {
-	consul.Addr = cfg.Consul.Addr
-	consul.URL = cfg.Consul.URL
-
-	dc, err := consul.Datacenter()
+func initBackend(cfg *config.Config) {
+	var err error
+	be, err = consul.NewBackend(&cfg.Consul)
 	if err != nil {
-		log.Fatal("[FATAL] ", err)
+		log.Fatal("[FATAL] Error initializing backend. ", err)
 	}
-
-	log.Printf("[INFO] Connecting to consul on %q in datacenter %q", cfg.Consul.Addr, dc)
-	log.Printf("[INFO] Consul can be reached via %q", cfg.Consul.URL)
 }
 
 func initMetrics(cfg *config.Config) {
@@ -58,22 +56,24 @@ func initRuntime(cfg *config.Config) {
 
 func initRoutes(cfg *config.Config) {
 	if cfg.Routes == "" {
-		initDynamicRoutes(cfg.Consul)
+		initDynamicRoutes()
 	} else {
 		initStaticRoutes(cfg.Routes)
 	}
 }
 
-func initDynamicRoutes(cfg config.Consul) {
-	log.Printf("[INFO] Using dynamic routes from consul on %s", cfg.Addr)
-	log.Printf("[INFO] Using tag prefix %q", cfg.TagPrefix)
-	log.Printf("[INFO] Watching KV path %q", cfg.KVPath)
+func initDynamicRoutes() {
 	go func() {
-		w, err := consul.NewWatcher(cfg.TagPrefix, cfg.KVPath)
-		if err != nil {
-			log.Fatal("[FATAL] ", err)
+		ch := be.Watch()
+		for {
+			r := <-ch
+			t, err := route.ParseString(r)
+			if err != nil {
+				log.Printf("[WARN] %s", err)
+				continue
+			}
+			route.SetTable(t)
 		}
-		w.Watch()
 	}()
 }
 

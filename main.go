@@ -13,7 +13,7 @@ import (
 	"github.com/eBay/fabio/ui"
 )
 
-var version = "1.0.5"
+var version = "1.0.6-dev"
 
 func main() {
 	var filename string
@@ -32,7 +32,8 @@ func main() {
 	if filename != "" {
 		cfg = loadConfig(filename)
 	}
-	initConsul(cfg)
+
+	initBackend(cfg)
 	initMetrics(cfg)
 	initRuntime(cfg)
 	initRoutes(cfg)
@@ -61,7 +62,7 @@ func newProxy(cfg *config.Config) *proxy.Proxy {
 func startUI(cfg *config.Config) {
 	log.Printf("[INFO] UI listening on %q", cfg.UI.Addr)
 	go func() {
-		if err := ui.Start(cfg.UI.Addr, cfg.Consul.KVPath); err != nil {
+		if err := ui.Start(cfg.UI.Addr, be.ConfigURL()); err != nil {
 			log.Fatal("[FATAL] ui: ", err)
 		}
 	}()
