@@ -1,13 +1,14 @@
 ## Changelog
 
-### WIP
+### [v1.0.5](https://github.com/eBay/fabio/releases/tag/v1.0.5) - 11 Nov 2015
 
- * Add support for `Forwarded` and `X-Forwarded-For` header
+ * [Issue #9](https://github.com/eBay/fabio/issues/9): Add experimental support for web sockets
+ * [Issue #10](https://github.com/eBay/fabio/issues/10): Add support for `Forwarded` and `X-Forwarded-For` header
  * Add `proxy.localip` to set proxy ip address for headers
 
 ### [v1.0.4](https://github.com/eBay/fabio/releases/tag/v1.0.4) - 03 Nov 2015
 
- * Add support for SSL client certificate authentication
+ * [Issue #8](https://github.com/eBay/fabio/issues/8): Add support for SSL client certificate authentication
 
 ### [v1.0.3](https://github.com/eBay/fabio/releases/tag/v1.0.3) - 25 Oct 2015
 
