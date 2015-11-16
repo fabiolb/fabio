@@ -44,7 +44,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var h http.Handler
 	switch {
 	case r.Header.Get("Upgrade") == "websocket":
-		h = newWSProxy(t.URL)
+		h = newRawProxy(t.URL)
+
+		// To use the filtered proxy use
+		// h = newWSProxy(t.URL)
 	default:
 		h = newHTTPProxy(t.URL, p.tr)
 	}
