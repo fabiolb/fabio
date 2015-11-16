@@ -157,7 +157,7 @@ func EchoServer(ws *websocket.Conn) {
 		}
 		_, err = ws.Write(append(pfx, msg[:n]...))
 		if err != nil && err != io.EOF {
-			log.Printf("ws error on %s%s. %s", addr, err)
+			log.Printf("ws error on %s. %s", addr, err)
 			break
 		}
 	}
