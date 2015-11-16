@@ -4,22 +4,23 @@ import (
 	"net/http"
 	"time"
 
-	gometrics "github.com/eBay/fabio/_third_party/github.com/rcrowley/go-metrics"
 	"github.com/eBay/fabio/config"
+
+	gometrics "github.com/eBay/fabio/_third_party/github.com/rcrowley/go-metrics"
 )
 
 // Proxy is a dynamic reverse proxy.
 type Proxy struct {
-	httpProxy http.Handler
-	wsProxy   http.Handler
-	requests  gometrics.Timer
+	tr       http.RoundTripper
+	cfg      config.Proxy
+	requests gometrics.Timer
 }
 
 func New(tr http.RoundTripper, cfg config.Proxy) *Proxy {
 	return &Proxy{
-		httpProxy: newHTTPProxy(tr, cfg),
-		wsProxy:   newWSProxy(),
-		requests:  gometrics.GetOrRegisterTimer("requests", gometrics.DefaultRegistry),
+		tr:       tr,
+		cfg:      cfg,
+		requests: gometrics.GetOrRegisterTimer("requests", gometrics.DefaultRegistry),
 	}
 }
 
@@ -29,13 +30,27 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// http or ws?
-	h := p.httpProxy
-	if r.Header.Get("Upgrade") == "websocket" {
-		h = p.wsProxy
+	t := target(r)
+	if t == nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	if err := addHeaders(r, p.cfg); err != nil {
+		http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
+		return
+	}
+
+	var h http.Handler
+	switch {
+	case r.Header.Get("Upgrade") == "websocket":
+		h = newWSProxy(t.URL)
+	default:
+		h = newHTTPProxy(t.URL, p.tr)
 	}
 
 	start := time.Now()
 	h.ServeHTTP(w, r)
 	p.requests.UpdateSince(start)
+	t.Timer.UpdateSince(start)
 }
