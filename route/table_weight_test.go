@@ -120,17 +120,49 @@ func TestWeight(t *testing.T) {
 			[]int{0, 25, 75},
 		},
 
-		{ // fixed weight > 100%  -> route only to fixed weighted targets and normalize weight
+		{ // dynamic weight matched on service name
+			[]string{
+				`route add svca /foo http://bar:111/`,
+				`route add svcb /foo http://bar:222/`,
+				`route add svcb /foo http://bar:333/`,
+				`route weight svcb /foo weight 0.1`,
+			},
+			[]string{
+				`route add svca /foo http://bar:111/ weight 0.90`,
+				`route add svcb /foo http://bar:222/ weight 0.05`,
+				`route add svcb /foo http://bar:333/ weight 0.05`,
+			},
+			[]int{90, 5, 5},
+		},
+
+		{ // dynamic weight matched on service name and tags
 			[]string{
 				`route add svc /foo http://bar:111/ tags "a"`,
 				`route add svc /foo http://bar:222/ tags "b"`,
+				`route add svc /foo http://bar:333/ tags "b"`,
 				`route weight svc /foo weight 0.1 tags "b"`,
 			},
 			[]string{
 				`route add svc /foo http://bar:111/ weight 0.90 tags "a"`,
-				`route add svc /foo http://bar:222/ weight 0.10 tags "b"`,
+				`route add svc /foo http://bar:222/ weight 0.05 tags "b"`,
+				`route add svc /foo http://bar:333/ weight 0.05 tags "b"`,
 			},
-			[]int{90, 10},
+			[]int{90, 5, 5},
+		},
+
+		{ // dynamic weight matched on tags
+			[]string{
+				`route add svca /foo http://bar:111/ tags "a"`,
+				`route add svcb /foo http://bar:222/ tags "b"`,
+				`route add svcb /foo http://bar:333/ tags "b"`,
+				`route weight /foo weight 0.1 tags "b"`,
+			},
+			[]string{
+				`route add svca /foo http://bar:111/ weight 0.90 tags "a"`,
+				`route add svcb /foo http://bar:222/ weight 0.05 tags "b"`,
+				`route add svcb /foo http://bar:333/ weight 0.05 tags "b"`,
+			},
+			[]int{90, 5, 5},
 		},
 	}
 

@@ -101,7 +101,7 @@ func (t Table) AddRouteWeight(service, prefix string, weight float64, tags []str
 		return errNoMatch
 	}
 
-	if n := t[host].find(path).setWeight(weight, tags); n == 0 {
+	if n := t[host].find(path).setWeight(service, weight, tags); n == 0 {
 		return errNoMatch
 	}
 	return nil

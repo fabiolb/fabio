@@ -263,24 +263,45 @@ store.
 The routing table is configured with the following commands:
 
 ```
-route add service host/path targetURL [weight <weight>] [tags "tag1,tag2,..."]
-	- Add a new route for host/path to targetURL
+route add <svc> <src> <dst> weight <w> tags "<t1>,<t2>,..."
+  - Add route for service svc from src to dst and assign weight and tags
 
-route del service
-	- Remove all routes for service
+route add <svc> <src> <dst> weight <w>
+  - Add route for service svc from src to dst and assign weight
 
-route del service host/path
-	- Remove all routes for host/path for this service only
+route add <svc> <src> <dst> tags "<t1>,<t2>,..."
+  - Add route for service svc from src to dst and assign tags
 
-route del service host/path targetURL
-	- Remove only this route
+route add <svc> <src> <dst>
+  - Add route for service svc from src to dst
 
-route weight service host/path weight n tags "tag1,tag2"
-  - Route n% of traffic to services matching service, host/path and tags
-    n is a float > 0 describing a percentage, e.g. 0.5 == 50%
-    n <= 0: means no fixed weighting. Traffic is evenly distributed
-    n > 0: route will receive n% of traffic. If sum(n) > 1 then n is normalized.
-    sum(n) >= 1: only matching services will receive traffic
+route del <svc> <src> <dst>
+  - Remove route matching svc, src and dst
+
+route del <svc> <src>
+  - Remove all routes of services matching svc and src
+
+route del <svc>
+  - Remove all routes of service matching svc
+
+route weight <svc> <src> weight <w> tags "<t1>,<t2>,..."
+  - Route w% of traffic to all services matching svc, src and tags
+
+route weight <src> weight <w> tags "<t1>,<t2>,..."
+  - Route w% of traffic to all services matching src and tags
+
+route weight <svc> <src> weight <w>
+  - Route w% of traffic to all services matching svc and src
+
+route weight service host/path weight w tags "tag1,tag2"
+  - Route w% of traffic to all services matching service, host/path and tags
+
+    w is a float > 0 describing a percentage, e.g. 0.5 == 50%
+    w <= 0: means no fixed weighting. Traffic is evenly distributed
+    w > 0: route will receive n% of traffic. If sum(w) > 1 then w is normalized.
+    sum(w) >= 1: only matching services will receive traffic
+
+    Note that the total sum of traffic sent to all matching routes is w%.
 
 ```
 
@@ -333,10 +354,11 @@ route add service-c www.somedomain.com/ http://host-z:12345/ tags "a,b"
 
 ## Traffic Shaping
 
-fabio allows to control the amount of traffic a set of service
-instances will receive. You can use this feature to direct a fixed percentage
-of traffic to a newer version of an existing service for testing ("Canary
-testing").
+fabio allows to control the amount of traffic a set of service instances will
+receive. You can use this feature to direct a fixed percentage of traffic to a
+newer version of an existing service for testing ("Canary testing"). See
+[Manual Overrides](#manual-overrides) for a complete description of the `route
+weight` command.
 
 The following command will allocate 5% of traffic to `www.kjca.dev/auth/` to
 all instances of `service-b` which match tags `version-15` and `dc-fra`. This

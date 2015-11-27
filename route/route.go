@@ -101,18 +101,35 @@ func (r *route) delTarget(service string, targetURL *url.URL) {
 	r.weighTargets()
 }
 
-func (r *route) setWeight(weight float64, tags []string) int {
-	updated := 0
-	for _, t := range r.targets {
-		if contains(t.tags, tags) {
-			t.fixedWeight = weight
-			updated++
+func (r *route) setWeight(service string, weight float64, tags []string) int {
+	loop := func(w float64) int {
+		n := 0
+		for _, t := range r.targets {
+			if service != "" && t.service != service {
+				continue
+			}
+			if len(tags) > 0 && !contains(t.tags, tags) {
+				continue
+			}
+			n++
+			t.fixedWeight = w
 		}
+		return n
 	}
-	if updated > 0 {
+
+	// if we have multiple matching targets
+	// then we need to distribute the total
+	// weight across all of them since the rule
+	// states to assign only that percentage
+	// of traffic to all matching routes combined.
+	n := loop(0)
+	w := weight / float64(n)
+	loop(w)
+
+	if n > 0 {
 		r.weighTargets()
 	}
-	return updated
+	return n
 }
 
 func contains(src, dst []string) bool {

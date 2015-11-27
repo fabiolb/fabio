@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -17,17 +18,45 @@ import (
 //
 // Route commands can have the following form:
 //
-//   route add service host/path targetURL
-//   - Add a new route for host/path to targetURL
+// route add <svc> <src> <dst> weight <w> tags "<t1>,<t2>,..."
+//   - Add route for service svc from src to dst and assign weight and tags
 //
-//   route del service
-//   - Remove all routes for service
+// route add <svc> <src> <dst> weight <w>
+//   - Add route for service svc from src to dst and assign weight
 //
-//   route del service host/path
-//   - Remove all routes for host/path for this service only
+// route add <svc> <src> <dst> tags "<t1>,<t2>,..."
+//   - Add route for service svc from src to dst and assign tags
 //
-//   route del service host/path targetURL
-//    - Remove only this route
+// route add <svc> <src> <dst>
+//   - Add route for service svc from src to dst
+//
+// route del <svc> <src> <dst>
+//   - Remove route matching svc, src and dst
+//
+// route del <svc> <src>
+//   - Remove all routes of services matching svc and src
+//
+// route del <svc>
+//   - Remove all routes of service matching svc
+//
+// route weight <svc> <src> weight <w> tags "<t1>,<t2>,..."
+//   - Route w% of traffic to all services matching svc, src and tags
+//
+// route weight <src> weight <w> tags "<t1>,<t2>,..."
+//   - Route w% of traffic to all services matching src and tags
+//
+// route weight <svc> <src> weight <w>
+//   - Route w% of traffic to all services matching svc and src
+//
+// route weight service host/path weight w tags "tag1,tag2"
+//   - Route w% of traffic to all services matching service, host/path and tags
+//
+//     w is a float > 0 describing a percentage, e.g. 0.5 == 50%
+//     w <= 0: means no fixed weighting. Traffic is evenly distributed
+//     w > 0: route will receive n% of traffic. If sum(w) > 1 then w is normalized.
+//     sum(w) >= 1: only matching services will receive traffic
+//
+//    Note that the total sum of traffic sent to all matching routes is w%.
 //
 func Parse(r io.Reader) (Table, error) {
 	p := &parser{t: make(Table)}
@@ -58,10 +87,12 @@ type parser struct {
 	line       string
 }
 
-type cmdMap map[string]func(args []string) error
-
 func (p *parser) parse(r io.Reader) error {
-	cmds := cmdMap{"route": p.route}
+	cmds := map[string]func(s string) error{
+		"route add ":    p.routeAdd,
+		"route del ":    p.routeDel,
+		"route weight ": p.routeWeight,
+	}
 
 	sc := bufio.NewScanner(r)
 	for sc.Scan() {
@@ -70,23 +101,141 @@ func (p *parser) parse(r io.Reader) error {
 		if p.line == "" || strings.HasPrefix(p.line, "#") {
 			continue
 		}
-		if err := p.call(cmds, strings.Split(p.line, " ")); err != nil {
-			return err
+		for cmd, fn := range cmds {
+			if !strings.HasPrefix(p.line, cmd) {
+				continue
+			}
+			if err := fn(p.line); err != nil {
+				return err
+			}
+			break
 		}
 	}
 	return nil
 }
 
-func (p *parser) call(cmds cmdMap, args []string) error {
-	cmd, args := args[0], args[1:]
-	fn, ok := cmds[cmd]
-	if !ok {
-		return p.syntaxError()
+var (
+	// route add <svc> <src> <dst> weight <w> tags "<t1>,<t2>,..."
+	routeAddSvcWeightTags = regexp.MustCompile(`^route add (\S+) (\S+) (\S+) weight (\S+) tags "([^"]*)"$`)
+
+	// route add <svc> <src> <dst> weight <w>
+	routeAddSvcWeight = regexp.MustCompile(`^route add (\S+) (\S+) (\S+) weight (\S+)$`)
+
+	// route add <svc> <src> <dst> tags "<t1>,<t2>,..."
+	routeAddSvcTags = regexp.MustCompile(`^route add (\S+) (\S+) (\S+) tags "([^"]*)"$`)
+
+	// route add <svc> <src> <dst>
+	routeAddSvc = regexp.MustCompile(`^route add (\S+) (\S+) (\S+)$`)
+)
+
+func (p *parser) routeAdd(s string) error {
+	var svc, src, dst string
+	var tags []string
+	var w float64
+	var err error
+
+	// test most to least specific
+	if m := routeAddSvcWeightTags.FindStringSubmatch(s); m != nil {
+		svc, src, dst, tags = m[1], m[2], m[4], strings.Split(m[5], ",")
+		w, err = p.parseWeight(m[3])
+	} else if m := routeAddSvcWeight.FindStringSubmatch(s); m != nil {
+		svc, src, dst = m[1], m[2], m[3]
+		w, err = p.parseWeight(m[4])
+	} else if m := routeAddSvcTags.FindStringSubmatch(s); m != nil {
+		svc, src, dst, tags = m[1], m[2], m[3], strings.Split(m[4], ",")
+	} else if m := routeAddSvc.FindStringSubmatch(s); m != nil {
+		svc, src, dst = m[1], m[2], m[3]
+	} else {
+		err = p.syntaxError()
 	}
-	if err := fn(args); err != nil {
+
+	if err != nil {
 		return err
 	}
+
+	p.t.AddRoute(svc, src, dst, w, tags)
 	return nil
+}
+
+var (
+	// route del <svc> <src> <dst>
+	routeDelSvcSrcDst = regexp.MustCompile(`^route del (\S+) (\S+) (\S+)$`)
+
+	// route del <svc> <src>
+	routeDelSvcSrc = regexp.MustCompile(`^route del (\S+) (\S+)$`)
+
+	// route del <svc>
+	routeDelSvc = regexp.MustCompile(`^route del (\S+)$`)
+)
+
+func (p *parser) routeDel(s string) error {
+	var svc, src, dst string
+	var err error
+
+	// test most to least specific
+	if m := routeDelSvcSrcDst.FindStringSubmatch(s); m != nil {
+		svc, src, dst = m[1], m[2], m[3]
+	} else if m := routeDelSvcSrc.FindStringSubmatch(s); m != nil {
+		svc, src = m[1], m[2]
+	} else if m := routeDelSvc.FindStringSubmatch(s); m != nil {
+		svc = m[1]
+	} else {
+		err = p.syntaxError()
+	}
+
+	if err != nil {
+		return err
+	}
+
+	p.t.DelRoute(svc, src, dst)
+	return nil
+}
+
+var (
+	// route weight <svc> <src> weight <w> tags "<t1>,<t2>,..."'
+	routeWeightSvcSrcTags = regexp.MustCompile(`^route weight (\S+) (\S+) weight (\S+) tags "([^"]*)"$`)
+
+	// route weight <src> weight <w> tags "<t1>,<t2>,..."'
+	routeWeightSrcTags = regexp.MustCompile(`^route weight (\S+) weight (\S+) tags "([^"]+)"$`)
+
+	// route weight <svc> <src> weight <w>'
+	routeWeightSvcSrc = regexp.MustCompile(`^route weight (\S+) (\S+) weight (\S+)$`)
+)
+
+func (p *parser) routeWeight(s string) error {
+	var svc, src string
+	var tags []string
+	var w float64
+	var err error
+
+	// test most to least specific
+	if m := routeWeightSvcSrcTags.FindStringSubmatch(s); m != nil {
+		svc, src, tags = m[1], m[2], strings.Split(m[4], ",")
+		w, err = p.parseWeight(m[3])
+	} else if m := routeWeightSvcSrc.FindStringSubmatch(s); m != nil {
+		svc, src = m[1], m[2]
+		w, err = p.parseWeight(m[3])
+	} else if m := routeWeightSrcTags.FindStringSubmatch(s); m != nil {
+		src, tags = m[1], strings.Split(m[3], ",")
+		w, err = p.parseWeight(m[2])
+	} else {
+		err = p.syntaxError()
+	}
+
+	if err != nil {
+		return err
+	}
+
+	p.t.AddRouteWeight(svc, src, w, tags)
+	return nil
+}
+
+func (p *parser) parseWeight(s string) (float64, error) {
+	n, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return 0, p.errorf("invalid weight: %s", s)
+	}
+	return n, nil
 }
 
 func (p *parser) syntaxError() error {
@@ -95,122 +244,4 @@ func (p *parser) syntaxError() error {
 
 func (p *parser) errorf(msg string, args ...string) error {
 	return fmt.Errorf("route: line %d: %s", p.lineNumber, fmt.Sprintf(msg, args))
-}
-
-// route implements the 'route' command.
-func (p *parser) route(args []string) error {
-	cmds := cmdMap{
-		"add":    p.routeAdd,
-		"del":    p.routeDel,
-		"weight": p.routeWeight,
-	}
-	return p.call(cmds, args)
-}
-
-// routeAdd implements 'route add <svc> <prefix> <target> [weight <weight>] [tags "tag1,tag2,..."]'
-func (p *parser) routeAdd(args []string) error {
-	var service, prefix, target string
-	var weight float64
-	var tags []string
-	var err error
-
-	switch len(args) {
-	case 3:
-		service, prefix, target = args[0], args[1], args[2]
-
-	case 5:
-		service, prefix, target = args[0], args[1], args[2]
-		switch args[3] {
-		case "weight":
-			if weight, err = p.parseWeight(args[3:]); err != nil {
-				return err
-			}
-		case "tags":
-			if tags, err = p.parseTags(args[3:]); err != nil {
-				return err
-			}
-		default:
-			return p.syntaxError()
-		}
-
-	case 7:
-		service, prefix, target = args[0], args[1], args[2]
-		if weight, err = p.parseWeight(args[3:]); err != nil {
-			return err
-		}
-		if tags, err = p.parseTags(args[5:]); err != nil {
-			return err
-		}
-
-	default:
-		return p.syntaxError()
-	}
-
-	p.t.AddRoute(service, prefix, target, weight, tags)
-	return nil
-}
-
-// routeDel implements 'route del service [prefix [target]]''
-func (p *parser) routeDel(args []string) error {
-	var service, prefix, target string
-	switch len(args) {
-	case 1:
-		service = args[0]
-	case 2:
-		service, prefix = args[0], args[1]
-	case 3:
-		service, prefix, target = args[0], args[1], args[2]
-	default:
-		return p.syntaxError()
-	}
-
-	p.t.DelRoute(service, prefix, target)
-	return nil
-}
-
-// routeWeight implements 'route weight <svc> <prefix> weight <weight> tags "tag1,tag2,..."'
-func (p *parser) routeWeight(args []string) error {
-	var service, prefix string
-	var weight float64
-	var tags []string
-	var err error
-
-	switch len(args) {
-	case 6:
-		service, prefix = args[0], args[1]
-		if weight, err = p.parseWeight(args[2:]); err != nil {
-			return err
-		}
-		if tags, err = p.parseTags(args[4:]); err != nil {
-			return err
-		}
-
-	default:
-		p.syntaxError()
-	}
-
-	p.t.AddRouteWeight(service, prefix, weight, tags)
-	return nil
-}
-
-func (p *parser) parseWeight(args []string) (float64, error) {
-	if args[0] != "weight" || len(args) < 2 {
-		return 0, p.syntaxError()
-	}
-	n, err := strconv.ParseFloat(args[1], 64)
-	if err != nil {
-		return 0, p.errorf("invalid weight: %s", args[1])
-	}
-	return n, nil
-}
-
-func (p *parser) parseTags(args []string) ([]string, error) {
-	if args[0] != "tags" || len(args) < 2 {
-		return nil, p.syntaxError()
-	}
-	tags := args[1]
-	if !strings.HasPrefix(tags, `"`) || !strings.HasPrefix(tags, `"`) {
-		return nil, p.syntaxError()
-	}
-	return strings.Split(tags[1:len(tags)-1], ","), nil
 }
