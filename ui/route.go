@@ -43,26 +43,40 @@ var htmlTable = `
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>fabio routing table</title>
-  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
+	<meta charset="utf-8">
+	<title>./fabio</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <style type="text/css">
-  </style>
+	<style type="text/css">
+		td.tags { display: none; }
+
+		/*
+		 * -- DESKTOP (AND UP) MEDIA QUERIES --
+		 * On desktops and other large devices, we want to over-ride some
+		 * of the mobile and tablet styles.
+		 */
+		@media (min-width: 78em) {
+			td.tags{ display: table-cell; }
+		}
+	</style>
 </head>
 <body>
 
-<nav>
-	<div class="nav-wrapper light-green">
-		&nbsp;&nbsp;&nbsp;
-		<a href="https://github.com/eBay/fabio" class="brand-logo">./fabio</a>
-		<ul id="nav-mobile" class="right hide-on-med-and-down">
-			<li><a href="{{.ConfigURL}}">consul KV</a></li>
-			<li><a href="https://github.com/eBay/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
-		</ul>
+<nav class="top-nav light-green">
+
+	<div class="container">
+		<div class="nav-wrapper">
+			<a href="https://github.com/eBay/fabio" class="brand-logo">./fabio</a>
+			<ul id="nav-mobile" class="right hide-on-med-and-down">
+				<li><a href="{{.ConfigURL}}">consul KV</a></li>
+				<li><a href="https://github.com/eBay/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
+			</ul>
+		</div>
 	</div>
+
 </nav>
 
 <div class="container">
