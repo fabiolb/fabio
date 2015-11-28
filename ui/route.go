@@ -22,14 +22,22 @@ func handleRoute(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Config    [][]string
 		ConfigURL string
+		Version   string
 	}{
 		cfg,
 		configURL,
+		version,
 	}
 	tmplTable.ExecuteTemplate(w, "table", data)
 }
 
-var tmplTable = template.Must(template.New("table").Parse(htmlTable))
+func add(x, y int) int {
+	return x + y
+}
+
+var funcs = template.FuncMap{"add": add}
+
+var tmplTable = template.Must(template.New("table").Funcs(funcs).Parse(htmlTable))
 
 var htmlTable = `
 <!doctype html>
@@ -37,32 +45,50 @@ var htmlTable = `
 <head>
   <meta charset="utf-8">
   <title>fabio routing table</title>
-  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
+
   <style type="text/css">
-    *, html, body {font-family: sans-serif;}
-  	table, tr, td {text-align: left;}
-  	td, input {font-family: monospace; font-size: 12px;}
   </style>
 </head>
 <body>
-<h2>./fabio - Routing Table</h2>
 
-<p>Filter routes: <input type="text" id="filter"></p>
+<nav>
+	<div class="nav-wrapper light-green">
+		&nbsp;&nbsp;&nbsp;
+		<a href="https://github.com/eBay/fabio" class="brand-logo">./fabio</a>
+		<ul id="nav-mobile" class="right hide-on-med-and-down">
+			<li><a href="{{.ConfigURL}}">consul KV</a></li>
+			<li><a href="https://github.com/eBay/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
+		</ul>
+	</div>
+</nav>
 
-<table>
-<tbody>
-{{range $i, $v := .Config}}
-	<tr><td class="route">{{index $v 0}}</td><td>{{index $v 1}}</td></tr>
-{{end}}
-</tbody>
-</table>
+<div class="container">
 
-<p><a href="{{.ConfigURL}}" target="_new">Edit config</a></p>
+	<div class="section">
+		<h5>Routing Table</h5>
+
+		<p><input type="text" id="filter" placeholder="type to filter routes"></p>
+
+		<table class="highlight">
+		<tbody>
+		{{range $i, $v := .Config}}<tr>
+			<td class="idx">{{add $i 1}}.</td>
+			<td class="route">{{index $v 0}}</td>
+			<td class="tags">{{index $v 1}}</td>
+		</tr>
+		{{end}}</tbody>
+		</table>
+	</div>
+
+</div>
 
 <script>
-
 $(function(){
 	var $filter = $('#filter');
+
 	var params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
 	if (params.filter) {
 		$filter.val(params.filter);
@@ -70,6 +96,7 @@ $(function(){
 			$(this).parent("tr").hide();
 		});
 	}
+
 	$filter.focus();
 	$filter.keyup(function() {
 		var url = window.location.href.split('?')[0];

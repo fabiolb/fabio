@@ -70,7 +70,7 @@ func newProxy(cfg *config.Config) *proxy.Proxy {
 func startUI(cfg *config.Config) {
 	log.Printf("[INFO] UI listening on %q", cfg.UI.Addr)
 	go func() {
-		if err := ui.Start(cfg.UI.Addr, be.ConfigURL()); err != nil {
+		if err := ui.Start(cfg.UI.Addr, be.ConfigURL(), version); err != nil {
 			log.Fatal("[FATAL] ui: ", err)
 		}
 	}()
