@@ -20,5 +20,6 @@ fi
 
 sed -i '' -e "s|^var version .*$|var version = \"$v\"|" $basedir/main.go
 git add $basedir/main.go
-git commit -m "Release $v"
-git tag $v
+git commit -m "Release v$v"
+git commit --amend
+git tag v$v
