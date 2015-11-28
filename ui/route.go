@@ -103,22 +103,24 @@ var htmlTable = `
 $(function(){
 	var $filter = $('#filter');
 
-	var params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
-	if (params.filter) {
-		$filter.val(params.filter);
-		$("td.route:not(:contains('"+params.filter+"'))").each(function() {
+	function doFilter(v) {
+		$("tr").show();
+		$filter.val(v);
+		if (!v || v == "") return;
+		$("td.route:not(:contains('"+v+"'))").each(function() {
 			$(this).parent("tr").hide();
 		});
 	}
 
+	var params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
+	doFilter(params.filter);
+
 	$filter.focus();
 	$filter.keyup(function() {
-		var url = window.location.href.split('?')[0];
-		if ($filter.val() != '') {
-			url +=  "?filter=" +$filter.val();
-		}
-		window.location = url;
-	})
+		var v = $filter.val();
+		window.history.pushState(null, null, "?filter=" +v);
+		doFilter(v);
+	});
 })
 </script>
 
