@@ -6,7 +6,11 @@ type Backend interface {
 	// with a proper API
 	ConfigURL() string
 
-	// Watch watches the services and manual overrides for changes
-	// and pushes them if there is a difference.
-	Watch() chan string
+	// WatchServices watches the registry for changes in service
+	// registration and health and pushes them if there is a difference.
+	WatchServices() chan string
+
+	// WatchManual watches the registry for changes in the manual
+	// overrides and pushes them if there is a difference.
+	WatchManual() chan string
 }

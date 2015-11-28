@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/registry"
@@ -42,47 +41,21 @@ func (b *be) ConfigURL() string {
 	return fmt.Sprintf("%sui/#/%s/kv%s/edit", b.cfg.URL, b.dc, b.cfg.KVPath)
 }
 
-func (b *be) Watch() chan string {
+func (b *be) WatchServices() chan string {
 	log.Printf("[INFO] consul: Using dynamic routes")
 	log.Printf("[INFO] consul: Using tag prefix %q", b.cfg.TagPrefix)
-	log.Printf("[INFO] consul: Watching KV path %q", b.cfg.KVPath)
 
-	kv := make(chan []string)
-	svc := make(chan []string)
-	routes := make(chan string)
-	go watchKV(b.c, b.cfg.KVPath, kv)
+	svc := make(chan string)
 	go watchServices(b.c, b.cfg.TagPrefix, svc)
-	go watchRoutes(kv, svc, routes)
-	return routes
+	return svc
 }
 
-func watchRoutes(kv, svc chan []string, routes chan string) {
-	var (
-		last   string
-		kvcfg  []string
-		svccfg []string
-	)
+func (b *be) WatchManual() chan string {
+	log.Printf("[INFO] consul: Watching KV path %q", b.cfg.KVPath)
 
-	for {
-		select {
-		case kvcfg = <-kv:
-		case svccfg = <-svc:
-		}
-
-		if len(kvcfg)+len(svccfg) == 0 {
-			continue
-		}
-
-		// build next config by appending kv config to service config
-		// order matters
-		next := strings.Join(append(svccfg, kvcfg...), "\n")
-		if next == last {
-			continue
-		}
-
-		routes <- next
-		last = next
-	}
+	kv := make(chan string)
+	go watchKV(b.c, b.cfg.KVPath, kv)
+	return kv
 }
 
 // datacenter returns the datacenter of the local agent

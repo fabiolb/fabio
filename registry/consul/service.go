@@ -13,7 +13,7 @@ import (
 
 // watchServices monitors the consul health checks and creates a new configuration
 // on every change.
-func watchServices(client *api.Client, tagPrefix string, config chan []string) {
+func watchServices(client *api.Client, tagPrefix string, config chan string) {
 	var lastIndex uint64
 
 	for {
@@ -33,7 +33,7 @@ func watchServices(client *api.Client, tagPrefix string, config chan []string) {
 
 // servicesConfig determines which service instances have passing health checks
 // and then finds the ones which have tags with the right prefix to build the config from.
-func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix string) []string {
+func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix string) string {
 	// map service name to list of service passing for which the health check is ok
 	m := map[string]map[string]bool{}
 	for _, check := range checks {
@@ -54,7 +54,7 @@ func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix str
 	// sort config in reverse order to sort most specific config to the top
 	sort.Sort(sort.Reverse(sort.StringSlice(config)))
 
-	return config
+	return strings.Join(config, "\n")
 }
 
 // serviceConfig constructs the config for all good instances of a single service.

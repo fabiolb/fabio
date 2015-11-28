@@ -62,17 +62,45 @@ func initRoutes(cfg *config.Config) {
 	}
 }
 
+// initDynamicRoutes watches the registry for changes in service
+// registration/health and manual overrides and merge them into a new routing
+// table
 func initDynamicRoutes() {
 	go func() {
-		ch := be.Watch()
+		var (
+			last   string
+			svccfg string
+			mancfg string
+		)
+
+		svc := be.WatchServices()
+		man := be.WatchManual()
+
 		for {
-			r := <-ch
-			t, err := route.ParseString(r)
+			select {
+			case svccfg = <-svc:
+			case mancfg = <-man:
+			}
+
+			if svccfg == "" && mancfg == "" {
+				continue
+			}
+
+			// manual config overrides service config
+			// order matters
+			next := svccfg + "\n" + mancfg
+			if next == last {
+				continue
+			}
+
+			t, err := route.ParseString(next)
 			if err != nil {
 				log.Printf("[WARN] %s", err)
 				continue
 			}
 			route.SetTable(t)
+
+			last = next
 		}
 	}()
 }
