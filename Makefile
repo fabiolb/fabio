@@ -5,6 +5,10 @@ GOFLAGS = -tags netgo -ldflags "-X main.version=$(shell git describe --tags)"
 build:
 	go build $(GOFLAGS)
 
+.PHONY: linux
+linux:
+	GOOS=linux GOARCH=amd64 go build $(GOFLAGS)
+
 .PHONY: install
 install:
 	go install $(GOFLAGS)
