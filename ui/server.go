@@ -9,6 +9,7 @@ var version string
 func Start(addr, cfgurl, ver string) error {
 	configURL = cfgurl
 	version = ver
-	http.HandleFunc("/", handleRoute)
+	http.HandleFunc("/api/routes", handleRoutes)
+	http.HandleFunc("/", handleUI)
 	return http.ListenAndServe(addr, nil)
 }

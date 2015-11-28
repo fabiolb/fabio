@@ -1,12 +1,12 @@
 package route
 
 // routes stores a list of routes usually for a single host.
-type routes []*route
+type Routes []*Route
 
 // find returns the route with the given path and returns nil if none was found.
-func (rt routes) find(path string) *route {
+func (rt Routes) find(path string) *Route {
 	for _, r := range rt {
-		if r.path == path {
+		if r.Path == path {
 			return r
 		}
 	}
@@ -14,6 +14,6 @@ func (rt routes) find(path string) *route {
 }
 
 // sort by path in reverse order (most to least specific)
-func (rt routes) Len() int           { return len(rt) }
-func (rt routes) Swap(i, j int)      { rt[i], rt[j] = rt[j], rt[i] }
-func (rt routes) Less(i, j int) bool { return rt[j].path < rt[i].path }
+func (rt Routes) Len() int           { return len(rt) }
+func (rt Routes) Swap(i, j int)      { rt[i], rt[j] = rt[j], rt[i] }
+func (rt Routes) Less(i, j int) bool { return rt[j].Path < rt[i].Path }

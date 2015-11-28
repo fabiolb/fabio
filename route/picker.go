@@ -10,7 +10,7 @@ import (
 var pick picker = rndPicker
 
 // Picker selects a target from a list of targets
-type picker func(r *route) *Target
+type picker func(r *Route) *Target
 
 // SetPickerStrategy sets the picker function for the proxy.
 func SetPickerStrategy(s string) error {
@@ -26,12 +26,12 @@ func SetPickerStrategy(s string) error {
 }
 
 // rndPicker picks a random target from the list of targets.
-func rndPicker(r *route) *Target {
+func rndPicker(r *Route) *Target {
 	return r.wTargets[randIntn(len(r.wTargets))]
 }
 
 // rrPicker picks the next target from a list of targets using round-robin.
-func rrPicker(r *route) *Target {
+func rrPicker(r *Route) *Target {
 	u := r.wTargets[r.total%uint64(len(r.wTargets))]
 	atomic.AddUint64(&r.total, 1)
 	return u

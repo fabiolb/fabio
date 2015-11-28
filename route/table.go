@@ -38,7 +38,7 @@ func SetTable(t Table) {
 // Table contains a set of routes grouped by host.
 // The host routes are sorted from most to least specific
 // by sorting the routes in reverse order by path.
-type Table map[string]routes
+type Table map[string]Routes
 
 // hostpath splits a host/path prefix into a host and a path.
 // The path always starts with a slash
@@ -73,7 +73,7 @@ func (t Table) AddRoute(service, prefix, target string, weight float64, tags []s
 
 	// add new host
 	if t[host] == nil {
-		t[host] = routes{r}
+		t[host] = Routes{r}
 		return nil
 	}
 
@@ -147,7 +147,7 @@ func (t Table) DelRoute(service, prefix, target string) error {
 }
 
 // route finds the route for host/path or returns nil if none exists.
-func (t Table) route(host, path string) *route {
+func (t Table) route(host, path string) *Route {
 	hr := t[host]
 	if hr == nil {
 		return nil
@@ -187,20 +187,20 @@ func (t Table) doLookup(host, path, trace string) *Target {
 
 	for _, r := range hr {
 		if match(path, r) {
-			n := len(r.targets)
+			n := len(r.Targets)
 			if n == 0 {
 				return nil
 			}
 			if n == 1 {
-				return r.targets[0]
+				return r.Targets[0]
 			}
 			if trace != "" {
-				log.Printf("[TRACE] %s Match %s%s", trace, r.host, r.path)
+				log.Printf("[TRACE] %s Match %s%s", trace, r.Host, r.Path)
 			}
 			return pick(r)
 		}
 		if trace != "" {
-			log.Printf("[TRACE] %s No match %s%s", trace, r.host, r.path)
+			log.Printf("[TRACE] %s No match %s%s", trace, r.Host, r.Path)
 		}
 	}
 	return nil

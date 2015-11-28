@@ -3,41 +3,14 @@ package ui
 import (
 	"html/template"
 	"net/http"
-	"strings"
-
-	"github.com/eBay/fabio/route"
 )
 
-func handleRoute(w http.ResponseWriter, r *http.Request) {
-	var cfg [][]string
-	for _, s := range route.GetTable().Config(true) {
-		p := strings.Split(s, "tags")
-		if len(p) == 1 {
-			cfg = append(cfg, []string{s, ""})
-		} else {
-			cfg = append(cfg, []string{strings.TrimSpace(p[0]), "tags" + p[1]})
-		}
-	}
-
-	data := struct {
-		Config    [][]string
-		ConfigURL string
-		Version   string
-	}{
-		cfg,
-		configURL,
-		version,
-	}
+func handleUI(w http.ResponseWriter, r *http.Request) {
+	data := struct{ ConfigURL, Version string }{configURL, version}
 	tmplTable.ExecuteTemplate(w, "table", data)
 }
 
-func add(x, y int) int {
-	return x + y
-}
-
-var funcs = template.FuncMap{"add": add}
-
-var tmplTable = template.Must(template.New("table").Funcs(funcs).Parse(htmlTable))
+var tmplTable = template.Must(template.New("table").Parse(htmlTable))
 
 var htmlTable = `
 <!doctype html>
@@ -45,9 +18,9 @@ var htmlTable = `
 <head>
 	<meta charset="utf-8">
 	<title>./fabio</title>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
-	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 	<style type="text/css">
@@ -83,37 +56,55 @@ var htmlTable = `
 
 	<div class="section">
 		<h5>Routing Table</h5>
-
 		<p><input type="text" id="filter" placeholder="type to filter routes"></p>
-
-		<table class="highlight">
-		<tbody>
-		{{range $i, $v := .Config}}<tr>
-			<td class="idx">{{add $i 1}}.</td>
-			<td class="route">{{index $v 0}}</td>
-			<td class="tags">{{index $v 1}}</td>
-		</tr>
-		{{end}}</tbody>
-		</table>
+		<table class="routes highlight"></table>
 	</div>
 
 </div>
 
 <script>
 $(function(){
-	var $filter = $('#filter');
+	var params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
 
-	function doFilter(v) {
-		$("tr").show();
-		$filter.val(v);
-		if (!v || v == "") return;
-		$("td.route:not(:contains('"+v+"'))").each(function() {
-			$(this).parent("tr").hide();
-		});
+	function renderRoutes(routes) {
+		var $table = $("table.routes");
+
+		var tbl = '<thead><tr>';
+		tbl += '<th>#</th>';
+		tbl += '<th>Service</th>';
+		tbl += '<th>Host</th>';
+		tbl += '<th>Path</th>';
+		tbl += '<th>Dest</th>';
+		tbl += '<th>Weight</th>';
+		tbl += '</tr></thead><tbody>'
+		tbl += '<tbody>'
+		for (var i=0; i < routes.length; i++) {
+			var r = routes[i];
+			tbl += '<tr>';
+			tbl += '<td>' + (i+1) + '</td>';
+			tbl += '<td>' + r.service + '</td>';
+			tbl += '<td>' + r.host + '</td>';
+			tbl += '<td>' + r.path + '</td>';
+			tbl += '<td>' + r.dst + '</td>';
+			tbl += '<td>' + r.weight * 100 + '%</td>';
+			tbl += '</tr>';
+		}
+		tbl += '</tbody>';
+		$table.html(tbl);
 	}
 
-	var params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
-	doFilter(params.filter);
+	var $filter = $('#filter');
+	function doFilter(v) {
+		$("tr").show();
+		if (!v) return;
+		var words = v.split(' ');
+		console.log('words: ', words);
+		for (var i=0; i < words.length; i++) {
+			var w = words[i].trim();
+			if (w == "") continue;
+			$("tbody tr:not(:contains('"+w+"'))").hide();
+		}
+	}
 
 	$filter.focus();
 	$filter.keyup(function() {
@@ -121,6 +112,15 @@ $(function(){
 		window.history.pushState(null, null, "?filter=" +v);
 		doFilter(v);
 	});
+
+	$.get("/api/routes", function(data) {
+		renderRoutes(data);
+		if (!params.filter) return;
+		var v = decodeURIComponent(params.filter);
+		$filter.val(v);
+		doFilter(v);
+	});
+
 })
 </script>
 

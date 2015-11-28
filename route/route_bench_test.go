@@ -100,7 +100,7 @@ func makeRequests(t Table) []*http.Request {
 	reqs := []*http.Request{}
 	for host, hr := range t {
 		for _, r := range hr {
-			req := &http.Request{Host: host, RequestURI: r.path + "/some/additional/path"}
+			req := &http.Request{Host: host, RequestURI: r.Path + "/some/additional/path"}
 			reqs = append(reqs, req)
 		}
 	}

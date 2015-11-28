@@ -16,7 +16,7 @@ func mustParse(rawurl string) *url.URL {
 
 func TestNewRoute(t *testing.T) {
 	r := newRoute("www.bar.com", "/foo")
-	if got, want := r.path, "/foo"; got != want {
+	if got, want := r.Path, "/foo"; got != want {
 		t.Errorf("got %q want %q", got, want)
 	}
 }
@@ -27,10 +27,10 @@ func TestAddTarget(t *testing.T) {
 	r := newRoute("www.bar.com", "/foo")
 	r.addTarget("service", u, 0, nil)
 
-	if got, want := len(r.targets), 1; got != want {
+	if got, want := len(r.Targets), 1; got != want {
 		t.Errorf("target length: got %d want %d", got, want)
 	}
-	if got, want := r.targets[0].URL, u; got != want {
+	if got, want := r.Targets[0].URL, u; got != want {
 		t.Errorf("target url: got %s want %s", got, want)
 	}
 	config := []string{"route add service www.bar.com/foo http://foo.com/"}
