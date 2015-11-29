@@ -1,14 +1,12 @@
-package ui
+package api
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
 
-	"github.com/eBay/fabio/route"
+	fabioroute "github.com/eBay/fabio/route"
 )
 
-type apiRoute struct {
+type route struct {
 	Service string   `json:"service"`
 	Host    string   `json:"host"`
 	Path    string   `json:"path"`
@@ -20,19 +18,19 @@ type apiRoute struct {
 	Pct99   float64  `json:"pct99"`
 }
 
-func handleRoutes(w http.ResponseWriter, r *http.Request) {
-	t := route.GetTable()
+func HandleRoutes(w http.ResponseWriter, r *http.Request) {
+	t := fabioroute.GetTable()
 
 	var hosts []string
 	for host := range t {
 		hosts = append(hosts, host)
 	}
 
-	var apiRoutes []apiRoute
+	var routes []route
 	for _, host := range hosts {
 		for _, tr := range t[host] {
 			for _, tg := range tr.Targets {
-				ar := apiRoute{
+				ar := route{
 					Service: tg.Service,
 					Host:    tr.Host,
 					Path:    tr.Path,
@@ -43,30 +41,9 @@ func handleRoutes(w http.ResponseWriter, r *http.Request) {
 					Rate1:   tg.Timer.Rate1(),
 					Pct99:   tg.Timer.Percentile(0.99),
 				}
-				apiRoutes = append(apiRoutes, ar)
+				routes = append(routes, ar)
 			}
 		}
 	}
-	writeJSON(w, r, apiRoutes)
-}
-
-func writeJSON(w http.ResponseWriter, r *http.Request, v interface{}) {
-	_, pretty := r.URL.Query()["pretty"]
-
-	var buf []byte
-	var err error
-	if pretty {
-		buf, err = json.MarshalIndent(v, "", "    ")
-	} else {
-		buf, err = json.Marshal(v)
-	}
-
-	if err != nil {
-		log.Printf("[ERROR] ", err)
-		http.Error(w, "internal error", 500)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Write(buf)
+	writeJSON(w, r, routes)
 }

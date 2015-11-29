@@ -14,8 +14,6 @@ import (
 	"github.com/eBay/fabio/route"
 )
 
-var be registry.Backend
-
 func loadConfig(filename string) *config.Config {
 	cfg, err := config.FromFile(filename)
 	if err != nil {
@@ -26,7 +24,7 @@ func loadConfig(filename string) *config.Config {
 
 func initBackend(cfg *config.Config) {
 	var err error
-	be, err = consul.NewBackend(&cfg.Consul)
+	registry.DefaultBackend, err = consul.NewBackend(&cfg.Consul)
 	if err != nil {
 		log.Fatal("[FATAL] Error initializing backend. ", err)
 	}
@@ -73,8 +71,8 @@ func initDynamicRoutes() {
 			mancfg string
 		)
 
-		svc := be.WatchServices()
-		man := be.WatchManual()
+		svc := registry.DefaultBackend.WatchServices()
+		man := registry.DefaultBackend.WatchManual()
 
 		for {
 			select {

@@ -5,14 +5,14 @@ import (
 	"net/http"
 )
 
-func handleUI(w http.ResponseWriter, r *http.Request) {
-	data := struct{ ConfigURL, Version string }{configURL, version}
-	tmplTable.ExecuteTemplate(w, "table", data)
+var Version string
+
+func HandleRoutes(w http.ResponseWriter, r *http.Request) {
+	data := struct{ Version string }{Version}
+	tmplRoutes.ExecuteTemplate(w, "routes", data)
 }
 
-var tmplTable = template.Must(template.New("table").Parse(htmlTable))
-
-var htmlTable = `
+var tmplRoutes = template.Must(template.New("routes").Parse(`
 <!doctype html>
 <html lang="en">
 <head>
@@ -44,7 +44,7 @@ var htmlTable = `
 		<div class="nav-wrapper">
 			<a href="https://github.com/eBay/fabio" class="brand-logo">./fabio</a>
 			<ul id="nav-mobile" class="right hide-on-med-and-down">
-				<li><a href="{{.ConfigURL}}">consul KV</a></li>
+				<li><a href="/manual">Overrides</a></li>
 				<li><a href="https://github.com/eBay/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
 			</ul>
 		</div>
@@ -126,4 +126,4 @@ $(function(){
 
 </body>
 </html>
-`
+`))

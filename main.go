@@ -7,10 +7,10 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/eBay/fabio/admin"
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/proxy"
 	"github.com/eBay/fabio/route"
-	"github.com/eBay/fabio/ui"
 )
 
 // version contains the version number
@@ -45,7 +45,7 @@ func main() {
 	initMetrics(cfg)
 	initRuntime(cfg)
 	initRoutes(cfg)
-	startUI(cfg)
+	startAdmin(cfg)
 	startListeners(cfg.Listen, cfg.Proxy.ShutdownWait, newProxy(cfg))
 }
 
@@ -67,10 +67,10 @@ func newProxy(cfg *config.Config) *proxy.Proxy {
 	return proxy.New(tr, cfg.Proxy)
 }
 
-func startUI(cfg *config.Config) {
-	log.Printf("[INFO] UI listening on %q", cfg.UI.Addr)
+func startAdmin(cfg *config.Config) {
+	log.Printf("[INFO] Admin server listening on %q", cfg.UI.Addr)
 	go func() {
-		if err := ui.Start(cfg.UI.Addr, be.ConfigURL(), version); err != nil {
+		if err := admin.Start(cfg.UI.Addr, version); err != nil {
 			log.Fatal("[FATAL] ui: ", err)
 		}
 	}()

@@ -2,7 +2,6 @@ package consul
 
 import (
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/eBay/fabio/config"
@@ -37,8 +36,14 @@ func NewBackend(cfg *config.Consul) (registry.Backend, error) {
 	return &be{c, dc, cfg}, nil
 }
 
-func (b *be) ConfigURL() string {
-	return fmt.Sprintf("%sui/#/%s/kv%s/edit", b.cfg.URL, b.dc, b.cfg.KVPath)
+func (b *be) ReadManual() (value string, version uint64, err error) {
+	// we cannot rely on the value provided by WatchManual() since
+	// someone has to call that method first to kick off the go routine.
+	return getKV(b.c, b.cfg.KVPath, 0)
+}
+
+func (b *be) WriteManual(value string, version uint64) (ok bool, err error) {
+	return putKV(b.c, b.cfg.KVPath, value, version)
 }
 
 func (b *be) WatchServices() chan string {
