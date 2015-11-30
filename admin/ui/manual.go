@@ -56,6 +56,51 @@ var tmplManual = template.Must(template.New("manual").Parse(`
 				</div>
 			</form>
 			<button class="btn waves-effect waves-light" name="save">Save</button>
+			<button class="btn waves-effect waves-light" name="help">Help</button>
+		</div>
+
+		<div class="row">
+			<pre class="help hide">
+route add &lt;svc&gt; &lt;src&gt; &lt;dst&gt; weight &lt;w&gt; tags "&lt;t1&gt;,&lt;t2&gt;,..."
+  - Add route for service svc from src to dst and assign weight and tags
+
+route add &lt;svc&gt; &lt;src&gt; &lt;dst&gt; weight &lt;w&gt;
+  - Add route for service svc from src to dst and assign weight
+
+route add &lt;svc&gt; &lt;src&gt; &lt;dst&gt; tags "&lt;t1&gt;,&lt;t2&gt;,..."
+  - Add route for service svc from src to dst and assign tags
+
+route add &lt;svc&gt; &lt;src&gt; &lt;dst&gt;
+  - Add route for service svc from src to dst
+
+route del &lt;svc&gt; &lt;src&gt; &lt;dst&gt;
+  - Remove route matching svc, src and dst
+
+route del &lt;svc&gt; &lt;src&gt;
+  - Remove all routes of services matching svc and src
+
+route del &lt;svc&gt;
+  - Remove all routes of service matching svc
+
+route weight &lt;svc&gt; &lt;src&gt; weight &lt;w&gt; tags "&lt;t1&gt;,&lt;t2&gt;,..."
+  - Route w% of traffic to all services matching svc, src and tags
+
+route weight &lt;src&gt; weight &lt;w&gt; tags "&lt;t1&gt;,&lt;t2&gt;,..."
+  - Route w% of traffic to all services matching src and tags
+
+route weight &lt;svc&gt; &lt;src&gt; weight &lt;w&gt;
+  - Route w% of traffic to all services matching svc and src
+
+route weight service host/path weight w tags "tag1,tag2"
+  - Route w% of traffic to all services matching service, host/path and tags
+
+    w is a float &gt; 0 describing a percentage, e.g. 0.5 == 50%
+    w &lt;= 0: means no fixed weighting. Traffic is evenly distributed
+    w &gt; 0: route will receive n% of traffic. If sum(w) &gt; 1 then w is normalized.
+    sum(w) &gt;= 1: only matching services will receive traffic
+
+    Note that the total sum of traffic sent to all matching routes is w%.
+			</pre>
 		</div>
 	</div>
 
@@ -70,6 +115,10 @@ $(function(){
 		$("textarea>label").val("Version " + data.version);
 		$("#textarea1").val(data.value);
 		$("#textarea1").trigger('autoresize');
+	});
+
+	$("button[name=help]").click(function() {
+		$("pre.help").toggleClass("hide");
 	});
 
 	$("button[name=save]").click(function() {
