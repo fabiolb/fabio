@@ -52,7 +52,10 @@ type Metrics struct {
 }
 
 type Consul struct {
-	Addr      string
-	KVPath    string
-	TagPrefix string
+	Addr          string
+	KVPath        string
+	TagPrefix     string
+	ServiceName   string
+	CheckInterval time.Duration
+	CheckTimeout  time.Duration
 }

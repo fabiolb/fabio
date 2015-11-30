@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/eBay/fabio/admin/api"
@@ -13,6 +14,11 @@ func Start(addr, version string) error {
 	http.HandleFunc("/api/routes", api.HandleRoutes)
 	http.HandleFunc("/manual", ui.HandleManual)
 	http.HandleFunc("/routes", ui.HandleRoutes)
+	http.HandleFunc("/health", handleHealth)
 	http.Handle("/", http.RedirectHandler("/routes", http.StatusSeeOther))
 	return http.ListenAndServe(addr, nil)
+}
+
+func handleHealth(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "OK")
 }

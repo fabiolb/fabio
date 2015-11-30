@@ -25,6 +25,9 @@ proxy.header.tls.value = tls-true
 consul.addr = 1.2.3.4:5678
 consul.kvpath = /some/path
 consul.tagprefix = p-
+consul.register.name = fab
+consul.register.checkInterval = 5s
+consul.register.checkTimeout = 10s
 metrics.target = graphite
 metrics.prefix = someprefix
 metrics.interval = 5s
@@ -53,9 +56,12 @@ ui.addr = 7.8.9.0:1234
 		},
 		Routes: "route add svc / http://127.0.0.1:6666/",
 		Consul: Consul{
-			Addr:      "1.2.3.4:5678",
-			KVPath:    "/some/path",
-			TagPrefix: "p-",
+			Addr:          "1.2.3.4:5678",
+			KVPath:        "/some/path",
+			TagPrefix:     "p-",
+			ServiceName:   "fab",
+			CheckInterval: 5 * time.Second,
+			CheckTimeout:  10 * time.Second,
 		},
 		Metrics: []Metrics{
 			Metrics{

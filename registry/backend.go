@@ -1,6 +1,12 @@
 package registry
 
 type Backend interface {
+	// Register registers fabio as a service in the registry.
+	Register() error
+
+	// Deregister removes the service registration for fabio.
+	Deregister() error
+
 	// ReadManual returns the current manual overrides and
 	// their version as seen by the registry.
 	ReadManual() (value string, version uint64, err error)

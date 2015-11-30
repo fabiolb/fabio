@@ -24,9 +24,12 @@ func loadConfig(filename string) *config.Config {
 
 func initBackend(cfg *config.Config) {
 	var err error
-	registry.Default, err = consul.NewBackend(&cfg.Consul)
+	registry.Default, err = consul.NewBackend(&cfg.Consul, cfg.UI.Addr)
 	if err != nil {
 		log.Fatal("[FATAL] Error initializing backend. ", err)
+	}
+	if err := registry.Default.Register(); err != nil {
+		log.Fatal("[FATAL] Error registering backend. ", err)
 	}
 }
 

@@ -10,6 +10,7 @@ import (
 	"github.com/eBay/fabio/admin"
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/proxy"
+	"github.com/eBay/fabio/registry"
 	"github.com/eBay/fabio/route"
 )
 
@@ -47,6 +48,7 @@ func main() {
 	initRoutes(cfg)
 	startAdmin(cfg)
 	startListeners(cfg.Listen, cfg.Proxy.ShutdownWait, newProxy(cfg))
+	registry.Default.Deregister()
 }
 
 func newProxy(cfg *config.Config) *proxy.Proxy {

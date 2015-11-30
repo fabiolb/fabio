@@ -12,12 +12,14 @@ import (
 
 // be is an implementation of a registry backend for consul.
 type be struct {
-	c   *api.Client
-	dc  string
-	cfg *config.Consul
+	c         *api.Client
+	dc        string
+	cfg       *config.Consul
+	apiAddr   string
+	serviceID string
 }
 
-func NewBackend(cfg *config.Consul) (registry.Backend, error) {
+func NewBackend(cfg *config.Consul, apiAddr string) (registry.Backend, error) {
 	// create a reusable client
 	c, err := api.NewClient(&api.Config{Address: cfg.Addr, Scheme: "http"})
 	if err != nil {
@@ -32,7 +34,26 @@ func NewBackend(cfg *config.Consul) (registry.Backend, error) {
 
 	// we're good
 	log.Printf("[INFO] consul: Connecting to %q in datacenter %q", cfg.Addr, dc)
-	return &be{c, dc, cfg}, nil
+	return &be{c: c, dc: dc, cfg: cfg, apiAddr: apiAddr}, nil
+}
+
+func (b *be) Register() error {
+	service, err := serviceRegistration(b.apiAddr, b.cfg.ServiceName, b.cfg.CheckInterval, b.cfg.CheckTimeout)
+	if err != nil {
+		return err
+	}
+	if err := b.c.Agent().ServiceRegister(service); err != nil {
+		return err
+	}
+
+	log.Printf("[INFO] consul: Registered fabio as %q", service.ID)
+	b.serviceID = service.ID
+	return nil
+}
+
+func (b *be) Deregister() error {
+	log.Printf("[INFO] consul: Deregistering fabio")
+	return b.c.Agent().ServiceDeregister(b.serviceID)
 }
 
 func (b *be) ReadManual() (value string, version uint64, err error) {

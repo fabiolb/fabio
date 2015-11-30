@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"log"
-	"net"
 	"runtime"
 	"strings"
 	"time"
@@ -58,9 +57,12 @@ func FromProperties(p *properties.Properties) (*Config, error) {
 	)
 
 	cfg.Consul = Consul{
-		Addr:      p.GetString("consul.addr", DefaultConfig.Consul.Addr),
-		KVPath:    p.GetString("consul.kvpath", DefaultConfig.Consul.KVPath),
-		TagPrefix: p.GetString("consul.tagprefix", DefaultConfig.Consul.TagPrefix),
+		Addr:          p.GetString("consul.addr", DefaultConfig.Consul.Addr),
+		KVPath:        p.GetString("consul.kvpath", DefaultConfig.Consul.KVPath),
+		TagPrefix:     p.GetString("consul.tagprefix", DefaultConfig.Consul.TagPrefix),
+		ServiceName:   p.GetString("consul.register.name", DefaultConfig.Consul.ServiceName),
+		CheckInterval: p.GetParsedDuration("consul.register.checkInterval", DefaultConfig.Consul.CheckInterval),
+		CheckTimeout:  p.GetParsedDuration("consul.register.checkTimeout", DefaultConfig.Consul.CheckTimeout),
 	}
 	deprecate("consul.url", "consul.url is obsolete. Please remove it.")
 
@@ -112,20 +114,4 @@ func parseListen(addrs string) ([]Listen, error) {
 		listen = append(listen, l)
 	}
 	return listen, nil
-}
-
-// localIP tries to determine a non-loopback address for the local machine
-func localIP() string {
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		return ""
-	}
-	for _, addr := range addrs {
-		if ipnet, ok := addr.(*net.IPNet); ok && ipnet.IP.IsGlobalUnicast() {
-			if ipnet.IP.To4() != nil || ipnet.IP.To16() != nil {
-				return ipnet.IP.String()
-			}
-		}
-	}
-	return ""
 }

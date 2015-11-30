@@ -10,7 +10,7 @@ var DefaultConfig = &Config{
 		MaxConn:     10000,
 		Strategy:    "rnd",
 		DialTimeout: 30 * time.Second,
-		LocalIP:     localIP(),
+		LocalIP:     LocalIPString(),
 	},
 	Listen: []Listen{
 		{
@@ -18,9 +18,12 @@ var DefaultConfig = &Config{
 		},
 	},
 	Consul: Consul{
-		Addr:      "localhost:8500",
-		KVPath:    "/fabio/config",
-		TagPrefix: "urlprefix-",
+		Addr:          "localhost:8500",
+		KVPath:        "/fabio/config",
+		TagPrefix:     "urlprefix-",
+		ServiceName:   "fabio",
+		CheckInterval: time.Second,
+		CheckTimeout:  3 * time.Second,
 	},
 	Runtime: Runtime{
 		GOGC:       800,
