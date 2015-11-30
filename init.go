@@ -24,7 +24,7 @@ func loadConfig(filename string) *config.Config {
 
 func initBackend(cfg *config.Config) {
 	var err error
-	registry.DefaultBackend, err = consul.NewBackend(&cfg.Consul)
+	registry.Default, err = consul.NewBackend(&cfg.Consul)
 	if err != nil {
 		log.Fatal("[FATAL] Error initializing backend. ", err)
 	}
@@ -71,8 +71,8 @@ func initDynamicRoutes() {
 			mancfg string
 		)
 
-		svc := registry.DefaultBackend.WatchServices()
-		man := registry.DefaultBackend.WatchManual()
+		svc := registry.Default.WatchServices()
+		man := registry.Default.WatchManual()
 
 		for {
 			select {

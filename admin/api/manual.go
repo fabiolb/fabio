@@ -16,7 +16,7 @@ type manual struct {
 func HandleManual(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		value, version, err := registry.DefaultBackend.ReadManual()
+		value, version, err := registry.Default.ReadManual()
 		if err != nil {
 			log.Printf("[ERROR] ", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -34,7 +34,7 @@ func HandleManual(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 
-		ok, err := registry.DefaultBackend.WriteManual(m.Value, m.Version)
+		ok, err := registry.Default.WriteManual(m.Value, m.Version)
 		if err != nil {
 			log.Printf("[ERROR] ", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)

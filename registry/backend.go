@@ -18,4 +18,4 @@ type Backend interface {
 	WatchManual() chan string
 }
 
-var DefaultBackend Backend
+var Default Backend
