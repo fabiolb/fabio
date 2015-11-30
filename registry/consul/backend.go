@@ -32,7 +32,6 @@ func NewBackend(cfg *config.Consul) (registry.Backend, error) {
 
 	// we're good
 	log.Printf("[INFO] consul: Connecting to %q in datacenter %q", cfg.Addr, dc)
-	log.Printf("[INFO] consul: UI is on %q", cfg.URL)
 	return &be{c, dc, cfg}, nil
 }
 

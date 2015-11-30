@@ -23,7 +23,6 @@ proxy.header.clientip = clientip
 proxy.header.tls = tls
 proxy.header.tls.value = tls-true
 consul.addr = 1.2.3.4:5678
-consul.url = http://hooray.com/
 consul.kvpath = /some/path
 consul.tagprefix = p-
 metrics.target = graphite
@@ -55,7 +54,6 @@ ui.addr = 7.8.9.0:1234
 		Routes: "route add svc / http://127.0.0.1:6666/",
 		Consul: Consul{
 			Addr:      "1.2.3.4:5678",
-			URL:       "http://hooray.com/",
 			KVPath:    "/some/path",
 			TagPrefix: "p-",
 		},

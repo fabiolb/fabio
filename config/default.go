@@ -21,7 +21,6 @@ var DefaultConfig = &Config{
 		Addr:      "localhost:8500",
 		KVPath:    "/fabio/config",
 		TagPrefix: "urlprefix-",
-		URL:       "http://localhost:8500/",
 	},
 	Runtime: Runtime{
 		GOGC:       800,

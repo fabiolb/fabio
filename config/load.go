@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"runtime"
 	"strings"
@@ -21,6 +22,13 @@ func FromFile(filename string) (*Config, error) {
 func FromProperties(p *properties.Properties) (*Config, error) {
 	var cfg *Config = &Config{}
 	var err error
+
+	deprecate := func(key, msg string) {
+		_, exists := p.Get(key)
+		if exists {
+			log.Print("[WARN] config: ", msg)
+		}
+	}
 
 	cfg.Proxy = Proxy{
 		MaxConn:               p.GetInt("proxy.maxconn", DefaultConfig.Proxy.MaxConn),
@@ -53,8 +61,8 @@ func FromProperties(p *properties.Properties) (*Config, error) {
 		Addr:      p.GetString("consul.addr", DefaultConfig.Consul.Addr),
 		KVPath:    p.GetString("consul.kvpath", DefaultConfig.Consul.KVPath),
 		TagPrefix: p.GetString("consul.tagprefix", DefaultConfig.Consul.TagPrefix),
-		URL:       p.GetString("consul.url", DefaultConfig.Consul.URL),
 	}
+	deprecate("consul.url", "consul.url is obsolete. Please remove it.")
 
 	cfg.Runtime = Runtime{
 		GOGC:       p.GetInt("runtime.gogc", DefaultConfig.Runtime.GOGC),

@@ -55,5 +55,4 @@ type Consul struct {
 	Addr      string
 	KVPath    string
 	TagPrefix string
-	URL       string
 }
