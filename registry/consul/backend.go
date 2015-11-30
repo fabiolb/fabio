@@ -43,6 +43,12 @@ func (b *be) ReadManual() (value string, version uint64, err error) {
 }
 
 func (b *be) WriteManual(value string, version uint64) (ok bool, err error) {
+	// try to create the key first by using version 0
+	if ok, err = putKV(b.c, b.cfg.KVPath, value, 0); ok {
+		return
+	}
+
+	// then try the CAS update
 	return putKV(b.c, b.cfg.KVPath, value, version)
 }
 
