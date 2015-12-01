@@ -9,6 +9,7 @@ export PATH=/usr/local/go/bin:$PATH
 export GOPATH=~/go
 
 v=`git describe --tags`
+v=${v/v/}
 tag=magiconair/fabio
 
 # check go version
