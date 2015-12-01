@@ -5,8 +5,7 @@ import (
 	"net/http"
 )
 
-var Version string
-
+// HandleRoutes provides the UI for managing the routing table.
 func HandleRoutes(w http.ResponseWriter, r *http.Request) {
 	data := struct{ Version string }{Version}
 	tmplRoutes.ExecuteTemplate(w, "routes", data)

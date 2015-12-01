@@ -18,9 +18,8 @@ func FromFile(filename string) (*Config, error) {
 	return FromProperties(p)
 }
 
-func FromProperties(p *properties.Properties) (*Config, error) {
-	var cfg *Config = &Config{}
-	var err error
+func FromProperties(p *properties.Properties) (cfg *Config, err error) {
+	cfg = &Config{}
 
 	deprecate := func(key, msg string) {
 		_, exists := p.Get(key)

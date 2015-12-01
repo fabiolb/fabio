@@ -13,12 +13,13 @@ type manual struct {
 	Version uint64 `json:"version,string"`
 }
 
+// HandleManual provides a fetch and update handler for the manual overrides api.
 func HandleManual(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		value, version, err := registry.Default.ReadManual()
 		if err != nil {
-			log.Printf("[ERROR] ", err)
+			log.Print("[ERROR] ", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -28,7 +29,7 @@ func HandleManual(w http.ResponseWriter, r *http.Request) {
 	case "PUT":
 		var m manual
 		if err := json.NewDecoder(r.Body).Decode(&m); err != nil {
-			log.Printf("[ERROR] ", err)
+			log.Print("[ERROR] ", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -36,7 +37,7 @@ func HandleManual(w http.ResponseWriter, r *http.Request) {
 
 		ok, err := registry.Default.WriteManual(m.Value, m.Version)
 		if err != nil {
-			log.Printf("[ERROR] ", err)
+			log.Print("[ERROR] ", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

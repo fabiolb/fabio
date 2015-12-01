@@ -1,3 +1,4 @@
+// Package api provides the HTTP api.
 package api
 
 import (
@@ -18,7 +19,7 @@ func writeJSON(w http.ResponseWriter, r *http.Request, v interface{}) {
 	}
 
 	if err != nil {
-		log.Printf("[ERROR] ", err)
+		log.Print("[ERROR] ", err)
 		http.Error(w, "internal error", 500)
 		return
 	}

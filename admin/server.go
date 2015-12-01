@@ -8,7 +8,8 @@ import (
 	"github.com/eBay/fabio/admin/ui"
 )
 
-func Start(addr, version string) error {
+// ListenAndServe starts the admin api and ui server.
+func ListenAndServe(addr, version string) error {
 	ui.Version = version
 	http.HandleFunc("/api/manual", api.HandleManual)
 	http.HandleFunc("/api/routes", api.HandleRoutes)

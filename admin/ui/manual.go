@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// HandleManual provides the UI for the manual overrides.
 func HandleManual(w http.ResponseWriter, r *http.Request) {
 	data := struct{ Version string }{Version}
 	tmplManual.ExecuteTemplate(w, "manual", data)

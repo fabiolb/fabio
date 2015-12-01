@@ -11,7 +11,7 @@ import (
 	gometrics "github.com/eBay/fabio/_third_party/github.com/rcrowley/go-metrics"
 )
 
-// route maps a path prefix to one or more target URLs.
+// Route maps a path prefix to one or more target URLs.
 // routes can have a share value which describes the
 // amount of traffic this route should get. You can specify
 // that a route should get a fixed percentage of the traffic

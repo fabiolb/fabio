@@ -18,6 +18,7 @@ type route struct {
 	Pct99   float64  `json:"pct99"`
 }
 
+// HandleRoutes provides a fetch handler for the current routing table.
 func HandleRoutes(w http.ResponseWriter, r *http.Request) {
 	t := fabioroute.GetTable()
 

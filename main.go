@@ -72,7 +72,7 @@ func newProxy(cfg *config.Config) *proxy.Proxy {
 func startAdmin(cfg *config.Config) {
 	log.Printf("[INFO] Admin server listening on %q", cfg.UI.Addr)
 	go func() {
-		if err := admin.Start(cfg.UI.Addr, version); err != nil {
+		if err := admin.ListenAndServe(cfg.UI.Addr, version); err != nil {
 			log.Fatal("[FATAL] ui: ", err)
 		}
 	}()
