@@ -23,3 +23,8 @@ git add $basedir/main.go
 git commit -m "Release v$v"
 git commit --amend
 git tag v$v
+
+for os in darwin linux ; do
+	echo "Building release packages for $v $os"
+	( cd $prgdir/.. ; GOOS=${os} GOARCH=${arch} go build -a -tags netgo -o build/fabio-${v}_${os}-${arch} )
+done
