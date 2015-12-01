@@ -1,6 +1,6 @@
 # ./fabio [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio)
 
-##### Current version: 1.0.5
+##### Current version: 1.0.6
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) router
 for deploying microservices managed by consul.
@@ -54,6 +54,10 @@ several fabio instances. We don't observe any measurable additional latency.
 * v1.0.4: SSL client certificate authentication support (see `proxy.addr` in [fabio.properties](https://raw.githubusercontent.com/eBay/fabio/master/fabio.properties))
 * v1.0.5: `X-Forwarded-For` and `Forwarded` header support
 * v1.0.5: Websocket support (experimental)
+* v1.0.6: Raw websocket support as default
+* v1.0.6: Experimental HTTP api
+* v1.0.6: Improved UI
+* v1.0.6: fabio registers itself in consul
 
 ## Documentation
 
@@ -441,8 +445,8 @@ $ curl -v -H 'Trace: abc' -H 'Host: foo.com' 'http://localhost:9999/bar/baz'
 
 ## Web UI
 
-fabio contains a (very) simple web ui to examine the routing
-table. By default it is accessible on `http://localhost:9998/`
+fabio contains a simple web ui to examine the routing table and manage the
+manual overrides. By default it is accessible on `http://localhost:9998/`
 
 ## License
 

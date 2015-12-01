@@ -1,5 +1,12 @@
 ## Changelog
 
+### [v1.0.6](https://github.com/eBay/fabio/releases/tag/v1.0.6) - 01 Dec 2015
+
+ * [Issue #9](https://github.com/eBay/fabio/issues/9): Enabled raw websocket proxy by default
+ * [Issue #15](https://github.com/eBay/fabio/issues/15): Traffic shaping now matches on service
+ * [Issue #16](https://github.com/eBay/fabio/issues/16): Improved Web UI with better filtering
+ * [Issue #18](https://github.com/eBay/fabio/issues/18): Manage manual overrides via ui
+
 ### [v1.0.5](https://github.com/eBay/fabio/releases/tag/v1.0.5) - 11 Nov 2015
 
  * [Issue #9](https://github.com/eBay/fabio/issues/9): Add experimental support for web sockets
