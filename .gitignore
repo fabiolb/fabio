@@ -7,3 +7,4 @@ fabio.sublime-*
 .DS_Store
 *.out
 *.p12
+build/fabio-*
