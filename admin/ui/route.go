@@ -41,10 +41,11 @@ var tmplRoutes = template.Must(template.New("routes").Parse(`
 
 	<div class="container">
 		<div class="nav-wrapper">
-			<a href="https://github.com/eBay/fabio" class="brand-logo">./fabio</a>
+			<a href="/" class="brand-logo">./fabio</a>
 			<ul id="nav-mobile" class="right hide-on-med-and-down">
 				<li><a href="/manual">Overrides</a></li>
 				<li><a href="https://github.com/eBay/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
+				<li><a href="https://github.com/eBay/fabio">Github</a></li>
 			</ul>
 		</div>
 	</div>
