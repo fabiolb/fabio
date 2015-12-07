@@ -74,7 +74,9 @@ func FromProperties(p *properties.Properties) (cfg *Config, err error) {
 	}
 
 	cfg.UI = UI{
-		Addr: p.GetString("ui.addr", DefaultConfig.UI.Addr),
+		Addr:  p.GetString("ui.addr", DefaultConfig.UI.Addr),
+		Color: p.GetString("ui.color", DefaultConfig.UI.Color),
+		Title: p.GetString("ui.title", DefaultConfig.UI.Title),
 	}
 
 	return cfg, nil

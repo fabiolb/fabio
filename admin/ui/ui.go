@@ -1,5 +1,11 @@
 // Package ui provides the HTML admin console.
 package ui
 
-// Version contains the current fabio version
+// Color contains the color of the nav bar.
+var Color string
+
+// Title contains an optional title for the nav bar.
+var Title string
+
+// Version contains the current fabio version.
 var Version string

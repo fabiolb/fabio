@@ -23,7 +23,9 @@ type Listen struct {
 }
 
 type UI struct {
-	Addr string
+	Addr  string
+	Color string
+	Title string
 }
 
 type Proxy struct {

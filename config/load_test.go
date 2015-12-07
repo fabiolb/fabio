@@ -35,6 +35,8 @@ metrics.graphite.addr = 5.6.7.8:9999
 runtime.gogc = 666
 runtime.gomaxprocs = 12
 ui.addr = 7.8.9.0:1234
+ui.color = fonzy
+ui.title = fabfab
 	`
 	out := &Config{
 		Proxy: Proxy{
@@ -76,7 +78,9 @@ ui.addr = 7.8.9.0:1234
 			GOMAXPROCS: 12,
 		},
 		UI: UI{
-			Addr: "7.8.9.0:1234",
+			Addr:  "7.8.9.0:1234",
+			Color: "fonzy",
+			Title: "fabfab",
 		},
 	}
 

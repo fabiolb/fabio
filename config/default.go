@@ -30,6 +30,7 @@ var DefaultConfig = &Config{
 		GOMAXPROCS: runtime.NumCPU(),
 	},
 	UI: UI{
-		Addr: ":9998",
+		Addr:  ":9998",
+		Color: "light-green",
 	},
 }

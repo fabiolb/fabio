@@ -7,7 +7,11 @@ import (
 
 // HandleManual provides the UI for the manual overrides.
 func HandleManual(w http.ResponseWriter, r *http.Request) {
-	data := struct{ Version string }{Version}
+	data := struct {
+		Color   string
+		Title   string
+		Version string
+	}{Color, Title, Version}
 	tmplManual.ExecuteTemplate(w, "manual", data)
 }
 
@@ -16,7 +20,7 @@ var tmplManual = template.Must(template.New("manual").Parse(`
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>./fabio</title>
+	<title>./fabio{{if .Title}} - {{.Title}}{{end}}</title>
 	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
@@ -27,11 +31,11 @@ var tmplManual = template.Must(template.New("manual").Parse(`
 </head>
 <body>
 
-<nav class="top-nav light-green">
+<nav class="top-nav {{.Color}}">
 
 	<div class="container">
 		<div class="nav-wrapper">
-			<a href="/" class="brand-logo">./fabio</a>
+			<a href="/" class="brand-logo">./fabio{{if .Title}} - {{.Title}}{{end}}</a>
 			<ul id="nav-mobile" class="right hide-on-med-and-down">
 				<li><a href="/routes">Routes</a></li>
 				<li><a href="https://github.com/eBay/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
