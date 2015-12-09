@@ -83,10 +83,6 @@ func initDynamicRoutes() {
 			case mancfg = <-man:
 			}
 
-			if svccfg == "" && mancfg == "" {
-				continue
-			}
-
 			// manual config overrides service config
 			// order matters
 			next := svccfg + "\n" + mancfg
