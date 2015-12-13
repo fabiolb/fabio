@@ -52,7 +52,7 @@ ui.title = fabfab
 			TLSHeaderValue:        "tls-true",
 		},
 		Listen: []Listen{
-			Listen{
+			{
 				Addr: ":1234",
 			},
 		},
@@ -66,7 +66,7 @@ ui.title = fabfab
 			CheckTimeout:  10 * time.Second,
 		},
 		Metrics: []Metrics{
-			Metrics{
+			{
 				Target:   "graphite",
 				Prefix:   "someprefix",
 				Interval: 5 * time.Second,
@@ -113,28 +113,28 @@ func TestParseAddr(t *testing.T) {
 		{
 			":123",
 			[]Listen{
-				Listen{Addr: ":123"},
+				{Addr: ":123"},
 			},
 			"",
 		},
 		{
 			":123;cert.pem",
 			[]Listen{
-				Listen{Addr: ":123", CertFile: "cert.pem", KeyFile: "cert.pem", TLS: true},
+				{Addr: ":123", CertFile: "cert.pem", KeyFile: "cert.pem", TLS: true},
 			},
 			"",
 		},
 		{
 			":123;cert.pem;key.pem",
 			[]Listen{
-				Listen{Addr: ":123", CertFile: "cert.pem", KeyFile: "key.pem", TLS: true},
+				{Addr: ":123", CertFile: "cert.pem", KeyFile: "key.pem", TLS: true},
 			},
 			"",
 		},
 		{
 			":123;cert.pem;key.pem;client.pem",
 			[]Listen{
-				Listen{Addr: ":123", CertFile: "cert.pem", KeyFile: "key.pem", ClientAuthFile: "client.pem", TLS: true},
+				{Addr: ":123", CertFile: "cert.pem", KeyFile: "key.pem", ClientAuthFile: "client.pem", TLS: true},
 			},
 			"",
 		},
