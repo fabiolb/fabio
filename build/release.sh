@@ -8,7 +8,7 @@ basedir=$(cd $prgdir/..; pwd)
 v=$1
 
 if [[ "$v" == "" ]]; then
-	echo "Usage: $0 <version>"
+	echo "Usage: $0 <version> (e.g. 1.0.4)"
 	exit 1
 fi
 
@@ -18,7 +18,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 	exit 1
 fi
 
-sed -i '' -e "s|^var version .*$|var version = \"$v\"|" $basedir/main.go
+sed -i -e "s|^var version .*$|var version = \"$v\"|" $basedir/main.go
 git add $basedir/main.go
 git commit -m "Release v$v"
 git commit --amend
