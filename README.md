@@ -1,6 +1,6 @@
 # ./fabio [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio)
 
-##### Current version: 1.0.6
+##### Current version: 1.0.7
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) router
 for deploying microservices managed by consul.
