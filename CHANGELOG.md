@@ -1,5 +1,12 @@
 ## Changelog
 
+### [v1.0.7](https://github.com/eBay/fabio/releases/tag/v1.0.7) - 13 Dec 2015
+
+ * [Issue #22](https://github.com/eBay/fabio/issues/22): fabio route not removed after consul deregister
+ * [Issue #23](https://github.com/eBay/fabio/issues/23): routes not removed when passing empty string
+ * [Issue #26](https://github.com/eBay/fabio/issues/26): Detect when consul agent is down
+ * Allow to override title and color UI
+
 ### [v1.0.6](https://github.com/eBay/fabio/releases/tag/v1.0.6) - 01 Dec 2015
 
  * [Issue #9](https://github.com/eBay/fabio/issues/9): Enabled raw websocket proxy by default
