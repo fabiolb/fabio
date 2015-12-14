@@ -12,7 +12,7 @@ func TestPassingServices(t *testing.T) {
 		serfPass     = &api.HealthCheck{Node: "node", CheckID: "serfHealth", Status: "passing"}
 		serfFail     = &api.HealthCheck{Node: "node", CheckID: "serfHealth", Status: "critical"}
 		svc1Pass     = &api.HealthCheck{Node: "node", CheckID: "service:abc", Status: "passing", ServiceName: "abc", ServiceID: "abc-1"}
-		svc2Pass     = &api.HealthCheck{Node: "node", CheckID: "service:def", Status: "passing", ServiceName: "def", ServiceID: "def-1"}
+		svc2Pass     = &api.HealthCheck{Node: "node", CheckID: "my-check-id", Status: "passing", ServiceName: "def", ServiceID: "def-1"}
 		svc1Maint    = &api.HealthCheck{Node: "node", CheckID: "_service_maintenance:abc-1", Status: "critical", ServiceName: "abc", ServiceID: "abc-1"}
 		svc1ID2Maint = &api.HealthCheck{Node: "node", CheckID: "_service_maintenance:abc-2", Status: "critical", ServiceName: "abc", ServiceID: "abc-2"}
 		nodeMaint    = &api.HealthCheck{Node: "node", CheckID: "_node_maintenance", Status: "critical"}

@@ -13,16 +13,18 @@ import (
 func passingServices(checks []*api.HealthCheck) []*api.HealthCheck {
 	var p []*api.HealthCheck
 	for _, svc := range checks {
-		// look at service checks only
-		if !strings.HasPrefix(svc.CheckID, "service:") {
+		// first filter out non-service checks
+		if svc.ServiceID == "" || svc.CheckID == "serfHealth" || svc.CheckID == "_node_maintenance" || strings.HasPrefix("_service_maintenance:", svc.CheckID) {
 			continue
 		}
 
+		// then make sure the service health check is passing
 		if svc.Status != "passing" {
 			continue
 		}
 
-		// node or service in maintenance mode?
+		// then check whether the agent is still alive and both the
+		// node and the service are not in maintenance mode.
 		for _, c := range checks {
 			if c.CheckID == "serfHealth" && c.Node == svc.Node && c.Status == "critical" {
 				log.Printf("[INFO] consul: Skipping service %q since agent on node %q is down: %s", svc.ServiceID, svc.Node, c.Output)
