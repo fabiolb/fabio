@@ -17,7 +17,7 @@ func serviceRegistration(addr, name string, interval, timeout time.Duration) (*a
 	if err != nil {
 		return nil, err
 	}
-	_, portstr, err := net.SplitHostPort(addr)
+	ipstr, portstr, err := net.SplitHostPort(addr)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,11 @@ func serviceRegistration(addr, name string, interval, timeout time.Duration) (*a
 		return nil, err
 	}
 	if ip == nil {
-		return nil, errors.New("no local ip")
+		givenip := net.ParseIP(ipstr)
+                if givenip == nil {
+                        return nil, errors.New("no local ip")
+                }
+                ip = givenip
 	}
 
 	serviceID := fmt.Sprintf("%s-%s-%d", name, hostname, port)
