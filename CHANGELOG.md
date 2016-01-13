@@ -1,5 +1,11 @@
 ## Changelog
 
+### [v1.0.8](Unreleased)
+
+ * [Issue #29](https://github.com/eBay/fabio/issues/29): Include service with check ids other than 'service:*'
+ * [Issue #30](https://github.com/eBay/fabio/issues/30): Register fabio with local ip address as fallback
+ * [Issue #36](https://github.com/eBay/fabio/issues/36): Add support for consul ACL token
+
 ### [v1.0.7](https://github.com/eBay/fabio/releases/tag/v1.0.7) - 13 Dec 2015
 
  * [Issue #22](https://github.com/eBay/fabio/issues/22): fabio route not removed after consul deregister
