@@ -23,6 +23,7 @@ proxy.header.clientip = clientip
 proxy.header.tls = tls
 proxy.header.tls.value = tls-true
 consul.addr = 1.2.3.4:5678
+consul.token = consul-token
 consul.kvpath = /some/path
 consul.tagprefix = p-
 consul.register.name = fab
@@ -59,6 +60,7 @@ ui.title = fabfab
 		Routes: "route add svc / http://127.0.0.1:6666/",
 		Consul: Consul{
 			Addr:          "1.2.3.4:5678",
+			Token:         "consul-token",
 			KVPath:        "/some/path",
 			TagPrefix:     "p-",
 			ServiceName:   "fab",

@@ -55,6 +55,7 @@ type Metrics struct {
 
 type Consul struct {
 	Addr          string
+	Token         string
 	KVPath        string
 	TagPrefix     string
 	ServiceName   string

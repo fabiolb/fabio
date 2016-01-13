@@ -57,6 +57,7 @@ func FromProperties(p *properties.Properties) (cfg *Config, err error) {
 
 	cfg.Consul = Consul{
 		Addr:          p.GetString("consul.addr", DefaultConfig.Consul.Addr),
+		Token:         p.GetString("consul.token", DefaultConfig.Consul.Token),
 		KVPath:        p.GetString("consul.kvpath", DefaultConfig.Consul.KVPath),
 		TagPrefix:     p.GetString("consul.tagprefix", DefaultConfig.Consul.TagPrefix),
 		ServiceName:   p.GetString("consul.register.name", DefaultConfig.Consul.ServiceName),
