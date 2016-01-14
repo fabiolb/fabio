@@ -10,3 +10,5 @@ fabio.sublime-*
 build/fabio-*
 *.un~
 *.swp
+.vagrant
+*-amd64
