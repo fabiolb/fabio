@@ -1,5 +1,10 @@
 Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/trusty64"
+  config.vm.provider "virtualbox" do |v|
+    v.name = "fabio-build"
+    v.memory = 2048
+    v.cpus = 4
+  end
   config.vm.network "forwarded_port", guest: 443, host: 8443
   config.vm.network "private_network", ip: "192.168.33.10"
   config.vm.provision "shell", inline: <<-SHELL
@@ -49,6 +54,7 @@ EOF
     sudo -i -u vagrant git config --global push.default simple
     sudo -i -u vagrant git config --global user.email "frschroeder@ebay.com"
     sudo -i -u vagrant git config --global user.name "Frank Schroeder"
+    sudo usermod -a -G docker vagrant
 
     chown -R vagrant:vagrant /home/vagrant
     echo "Done"
