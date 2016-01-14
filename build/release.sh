@@ -12,6 +12,9 @@ if [[ "$v" == "" ]]; then
 	exit 1
 fi
 
+grep -q "$v" README.md || ( echo "README.md not updated"; exit 1 )
+grep -q "$v" CHANGELOG.md || ( echo "CHANGELOG.md not updated"; exit 1 )
+
 read -p "Release fabio version $v? (y/N) " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -24,9 +27,8 @@ git commit -m "Release v$v"
 git commit --amend
 git tag v$v
 
-go=~/go1.5.3/bin/go
 arch=amd64
 for os in darwin linux ; do
 	echo "Building release packages for $v $os"
-	( cd $prgdir/.. ; GOOS=${os} GOARCH=${arch} ${go} build -a -tags netgo -o build/fabio-${v}_${os}-${arch} )
+	( cd $prgdir/.. ; GOOS=${os} GOARCH=${arch} go build -a -tags netgo -o /vagrant/fabio-${v}_${os}-${arch} )
 done

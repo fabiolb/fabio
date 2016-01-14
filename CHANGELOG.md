@@ -1,6 +1,6 @@
 ## Changelog
 
-### [v1.0.8](Unreleased)
+### [v1.0.8](https://github.com/eBay/fabio/releases/tag/v1.0.8) - 14 Jan 2015
 
  * Upgrade to Go 1.5.3
  * [Issue #29](https://github.com/eBay/fabio/issues/29): Include service with check ids other than 'service:*'
