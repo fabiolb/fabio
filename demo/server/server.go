@@ -44,12 +44,13 @@ import (
 )
 
 func main() {
-	var addr, consul, name, prefix, proto string
+	var addr, consul, name, prefix, proto, token string
 	flag.StringVar(&addr, "addr", "127.0.0.1:5000", "host:port of the service")
 	flag.StringVar(&consul, "consul", "127.0.0.1:8500", "host:port of the consul agent")
 	flag.StringVar(&name, "name", filepath.Base(os.Args[0]), "name of the service")
 	flag.StringVar(&prefix, "prefix", "", "comma-sep list of host/path prefixes to register")
 	flag.StringVar(&proto, "proto", "http", "protocol for endpoints: http or ws")
+	flag.StringVar(&token, "token", "", "consul ACL token")
 	flag.Parse()
 
 	if prefix == "" {
@@ -117,7 +118,7 @@ func main() {
 		},
 	}
 
-	config := &api.Config{Address: consul, Scheme: "http"}
+	config := &api.Config{Address: consul, Scheme: "http", Token:token}
 	client, err := api.NewClient(config)
 	if err != nil {
 		log.Fatal(err)
