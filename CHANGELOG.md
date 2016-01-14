@@ -1,5 +1,9 @@
 ## Changelog
 
+### [v1.0.9] - Unreleased
+
+ * [Issue #37](https://github.com/eBay/fabio/issues/37): Add support for consul ACL token to demo server
+
 ### [v1.0.8](https://github.com/eBay/fabio/releases/tag/v1.0.8) - 14 Jan 2015
 
  * Upgrade to Go 1.5.3
