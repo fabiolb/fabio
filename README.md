@@ -119,7 +119,7 @@ The `fabio-example` project is now in the `demo/server` directory.
 
 ## Installation
 
-To install fabio run (you need Go 1.4 or higher)
+To install fabio run (you need Go 1.4 or higher but Go 1.5.3 or higher is recommended)
 
     go get github.com/eBay/fabio
 

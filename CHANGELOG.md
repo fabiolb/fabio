@@ -2,6 +2,7 @@
 
 ### [v1.0.8](Unreleased)
 
+ * Upgrade to Go 1.5.3
  * [Issue #29](https://github.com/eBay/fabio/issues/29): Include service with check ids other than 'service:*'
  * [Issue #30](https://github.com/eBay/fabio/issues/30): Register fabio with local ip address as fallback
  * [Issue #36](https://github.com/eBay/fabio/issues/36): Add support for consul ACL token
