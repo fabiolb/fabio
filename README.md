@@ -35,10 +35,16 @@ pre-party in Paris  on 9 Nov 2015. You can watch it
 [here](https://www.youtube.com/watch?v=82UAB3qEe54).
 
 fabio was developed at the [eBay Classifieds Group](http://www.ebayclassifiedsgroup.com)
-in Amsterdam and routes traffic for [marktplaats.nl](http://www.marktplaats.nl) and
-[kijiji.it](http://www.kijiji.it). Marktplaats is running all of its traffic
-through fabio which is several thousand requests per second distributed over
-several fabio instances. We don't observe any measurable additional latency.
+in Amsterdam and routes in total roughly 15.000 req/sec for the following sites without
+any measurable latency impact.
+
+* [marktplaats.nl](http://www.marktplaats.nl)
+* [admarkt.marktplaats.nl](http://admarkt.marktplaats.nl)
+* [topannoncer.dbabusiness.dk](http://topannoncer.dbabusiness.dk)
+* [cas.kijiji.ca](http://cas.kijiji.ca)
+* [www.kijiji.ij](http://www.kijiji.it)
+
+(drop me a note if you want to have your site listed here)
 
 ## Features
 
