@@ -25,4 +25,7 @@ type Target struct {
 
 	// Timer measures throughput and latency of this target
 	Timer gometrics.Timer
+
+	// timerName is the name of the timer in the metrics registry
+	timerName string
 }

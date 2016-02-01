@@ -18,6 +18,11 @@ import (
 
 var pfx string
 
+// ServiceRegistry contains a separate metrics registry for
+// the timers for all targets to avoid conflicts
+// with globally registered timers.
+var ServiceRegistry = gometrics.NewRegistry()
+
 func Init(cfgs []config.Metrics) error {
 	for _, cfg := range cfgs {
 		if err := initMetrics(cfg); err != nil {
@@ -85,6 +90,7 @@ func defaultPrefix() string {
 func initStdout(interval time.Duration) error {
 	logger := log.New(os.Stderr, "localhost: ", log.Lmicroseconds)
 	go gometrics.Log(gometrics.DefaultRegistry, interval, logger)
+	go gometrics.Log(ServiceRegistry, interval, logger)
 	return nil
 }
 
@@ -95,5 +101,6 @@ func initGraphite(addr string, interval time.Duration) error {
 	}
 
 	go graphite.Graphite(gometrics.DefaultRegistry, interval, pfx, a)
+	go graphite.Graphite(ServiceRegistry, interval, pfx, a)
 	return nil
 }

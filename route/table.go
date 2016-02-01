@@ -8,31 +8,79 @@ import (
 	"net/url"
 	"sort"
 	"strings"
+	"sync"
 	"sync/atomic"
-)
 
-// active stores the current routing table. Should never be nil.
-var active atomic.Value
+	"github.com/eBay/fabio/metrics"
+)
 
 var errInvalidPrefix = errors.New("route: prefix must not be empty")
 var errInvalidTarget = errors.New("route: target must not be empty")
 var errNoMatch = errors.New("route: no target match")
 
+// table stores the active routing table. Must never be nil.
+var table atomic.Value
+
+// init initializes the routing table.
 func init() {
-	active.Store(make(Table))
+	table.Store(make(Table))
 }
 
+// GetTable returns the active routing table. The function
+// is safe to be called from multiple goroutines and the
+// value is never nil.
 func GetTable() Table {
-	return active.Load().(Table)
+	return table.Load().(Table)
 }
 
+// mu guards table and registry in SetTable.
+var mu sync.Mutex
+
+// SetTable sets the active routing table. A nil value
+// logs a warning and is ignored. The function is safe
+// to be called from multiple goroutines.
 func SetTable(t Table) {
 	if t == nil {
 		log.Print("[WARN] Ignoring nil routing table")
 		return
 	}
-	active.Store(t)
+	mu.Lock()
+	table.Store(t)
+	syncRegistry(t)
+	mu.Unlock()
 	log.Printf("[INFO] Updated config to\n%s", t)
+}
+
+// syncRegistry unregisters all inactive timers.
+// It assumes that all timers of the table have
+// already been registered.
+func syncRegistry(t Table) {
+	timers := map[string]bool{}
+
+	// get all registered timers
+	metrics.ServiceRegistry.Each(func(name string, m interface{}) {
+		timers[name] = false
+	})
+
+	// mark the ones from this table as active.
+	// this can also add new entries but we do not
+	// really care since we are only interested in the
+	// inactive ones.
+	for _, routes := range t {
+		for _, r := range routes {
+			for _, tg := range r.Targets {
+				timers[tg.timerName] = true
+			}
+		}
+	}
+
+	// unregister inactive timers
+	for name, active := range timers {
+		if !active {
+			metrics.ServiceRegistry.Unregister(name)
+			log.Printf("[INFO] Unregistered timer %s", name)
+		}
+	}
 }
 
 // Table contains a set of routes grouped by host.

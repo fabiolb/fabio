@@ -49,9 +49,9 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 	}
 
 	name := metrics.TargetName(service, r.Host, r.Path, targetURL)
-	timer := gometrics.GetOrRegisterTimer(name, gometrics.DefaultRegistry)
+	timer := gometrics.GetOrRegisterTimer(name, metrics.ServiceRegistry)
 
-	t := &Target{Service: service, Tags: tags, URL: targetURL, FixedWeight: fixedWeight, Timer: timer}
+	t := &Target{Service: service, Tags: tags, URL: targetURL, FixedWeight: fixedWeight, Timer: timer, timerName: name}
 	r.Targets = append(r.Targets, t)
 	r.weighTargets()
 }

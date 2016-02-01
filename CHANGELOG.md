@@ -4,6 +4,7 @@
 
  * [Issue #32](https://github.com/eBay/fabio/issues/32): HTTP2 support with latest Go
  * [Issue #37](https://github.com/eBay/fabio/issues/37): Add support for consul ACL token to demo server
+ * [Issue #41](https://github.com/eBay/fabio/issues/41): Cleanup metrics for deleted routes
 
 ### [v1.0.8](https://github.com/eBay/fabio/releases/tag/v1.0.8) - 14 Jan 2015
 
