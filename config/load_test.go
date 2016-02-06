@@ -20,17 +20,20 @@ proxy.shutdownwait = 500ms
 proxy.timeout     = 3s
 proxy.dialtimeout = 60s
 proxy.maxconn = 666
-proxy.routes = route add svc / http://127.0.0.1:6666/
 proxy.header.clientip = clientip
 proxy.header.tls = tls
 proxy.header.tls.value = tls-true
-consul.addr = 1.2.3.4:5678
-consul.token = consul-token
-consul.kvpath = /some/path
-consul.tagprefix = p-
-consul.register.name = fab
-consul.register.checkInterval = 5s
-consul.register.checkTimeout = 10s
+registry.backend = something
+registry.file.path = /foo/bar
+registry.static.routes = route add svc / http://127.0.0.1:6666/
+registry.consul.addr = 1.2.3.4:5678
+registry.consul.token = consul-token
+registry.consul.kvpath = /some/path
+registry.consul.tagprefix = p-
+registry.consul.register.addr = 6.6.6.6:7777
+registry.consul.register.name = fab
+registry.consul.register.checkInterval = 5s
+registry.consul.register.checkTimeout = 10s
 metrics.target = graphite
 metrics.prefix = someprefix
 metrics.interval = 5s
@@ -54,20 +57,29 @@ ui.title = fabfab
 			TLSHeader:             "tls",
 			TLSHeaderValue:        "tls-true",
 		},
+		Registry: Registry{
+			Backend: "something",
+			File: File{
+				Path: "/foo/bar",
+			},
+			Static: Static{
+				Routes: "route add svc / http://127.0.0.1:6666/",
+			},
+			Consul: Consul{
+				Addr:          "1.2.3.4:5678",
+				Token:         "consul-token",
+				KVPath:        "/some/path",
+				TagPrefix:     "p-",
+				ServiceAddr:   "6.6.6.6:7777",
+				ServiceName:   "fab",
+				CheckInterval: 5 * time.Second,
+				CheckTimeout:  10 * time.Second,
+			},
+		},
 		Listen: []Listen{
 			{
 				Addr: ":1234",
 			},
-		},
-		Routes: "route add svc / http://127.0.0.1:6666/",
-		Consul: Consul{
-			Addr:          "1.2.3.4:5678",
-			Token:         "consul-token",
-			KVPath:        "/some/path",
-			TagPrefix:     "p-",
-			ServiceName:   "fab",
-			CheckInterval: 5 * time.Second,
-			CheckTimeout:  10 * time.Second,
 		},
 		Metrics: []Metrics{
 			{

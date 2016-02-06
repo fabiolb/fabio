@@ -3,11 +3,13 @@
 ### [v1.0.9] - Unreleased
 
  * Drop support for Go 1.4
+ * [Issue #12](https://github.com/eBay/fabio/issues/12): Support additional backends
  * [Issue #32](https://github.com/eBay/fabio/issues/32): HTTP2 support with latest Go
  * [Issue #37](https://github.com/eBay/fabio/issues/37): Add support for consul ACL token to demo server
  * [Issue #41](https://github.com/eBay/fabio/issues/41): Cleanup metrics for deleted routes
  * [Issue #43](https://github.com/eBay/fabio/issues/43): Allow configuration via env vars
  * [Issue #47](https://github.com/eBay/fabio/issues/47): Move dependencies to vendor path
+ * [Issue #48](https://github.com/eBay/fabio/issues/48): Allow configuration of serviceip used during consul registration
 
 ### [v1.0.8](https://github.com/eBay/fabio/releases/tag/v1.0.8) - 14 Jan 2015
 

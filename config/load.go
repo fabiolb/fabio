@@ -35,48 +35,6 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 		}
 	}
 
-	// gets string value first from env vars and then from properties
-	getString := func(def string, keys ...string) string {
-		for _, key := range keys {
-			key = strings.Replace(key, ".", "_", -1)
-			if v := os.Getenv(key); v != "" {
-				return v
-			}
-		}
-		for _, key := range keys {
-			if v, ok := p.Get(key); ok {
-				return v
-			}
-		}
-		return def
-	}
-
-	getInt := func(def int, keys ...string) int {
-		v := getString("", keys...)
-		if v == "" {
-			return def
-		}
-		n, err := strconv.Atoi(v)
-		if err != nil {
-			log.Printf("[WARN] Invalid value %s for %v", v, keys)
-			return def
-		}
-		return n
-	}
-
-	getDuration := func(def time.Duration, keys ...string) time.Duration {
-		v := getString("", keys...)
-		if v == "" {
-			return def
-		}
-		d, err := time.ParseDuration(v)
-		if err != nil {
-			log.Printf("[WARN] Invalid duration %s for %v", v, keys)
-			return def
-		}
-		return d
-	}
-
 	cfg.Proxy = Proxy{
 		MaxConn:               intVal(p, Default.Proxy.MaxConn, "proxy.maxconn"),
 		Strategy:              stringVal(p, Default.Proxy.Strategy, "proxy.strategy"),
@@ -95,8 +53,6 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 		return nil, err
 	}
 
-	cfg.Routes = stringVal(p, Default.Routes, "proxy.routes")
-
 	cfg.Metrics = parseMetrics(
 		stringVal(p, Default.Metrics[0].Target, "metrics.target"),
 		stringVal(p, Default.Metrics[0].Prefix, "metrics.prefix"),
@@ -104,16 +60,44 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 		durationVal(p, Default.Metrics[0].Interval, "metrics.interval"),
 	)
 
-	cfg.Consul = Consul{
-		Addr:          stringVal(p, Default.Consul.Addr, "consul.addr"),
-		Token:         stringVal(p, Default.Consul.Token, "consul.token"),
-		KVPath:        stringVal(p, Default.Consul.KVPath, "consul.kvpath"),
-		TagPrefix:     stringVal(p, Default.Consul.TagPrefix, "consul.tagprefix"),
-		ServiceName:   stringVal(p, Default.Consul.ServiceName, "consul.register.name"),
-		CheckInterval: durationVal(p, Default.Consul.CheckInterval, "consul.register.checkInterval"),
-		CheckTimeout:  durationVal(p, Default.Consul.CheckTimeout, "consul.register.checkTimeout"),
+	cfg.Registry = Registry{
+		Backend: stringVal(p, Default.Registry.Backend, "registry.backend"),
+		File: File{
+			Path: stringVal(p, Default.Registry.File.Path, "registry.file.path"),
+		},
+		Static: Static{
+			Routes: stringVal(p, Default.Registry.Static.Routes, "registry.static.routes"),
+		},
+		Consul: Consul{
+			Addr:          stringVal(p, Default.Registry.Consul.Addr, "registry.consul.addr", "consul.addr"),
+			Token:         stringVal(p, Default.Registry.Consul.Token, "registry.consul.token", "consul.token"),
+			KVPath:        stringVal(p, Default.Registry.Consul.KVPath, "registry.consul.kvpath", "consul.kvpath"),
+			TagPrefix:     stringVal(p, Default.Registry.Consul.TagPrefix, "registry.consul.tagprefix", "consul.tagprefix"),
+			ServiceAddr:   stringVal(p, Default.Registry.Consul.ServiceAddr, "registry.consul.register.addr"),
+			ServiceName:   stringVal(p, Default.Registry.Consul.ServiceName, "registry.consul.register.name", "consul.register.name"),
+			CheckInterval: durationVal(p, Default.Registry.Consul.CheckInterval, "registry.consul.register.checkInterval", "consul.register.checkInterval"),
+			CheckTimeout:  durationVal(p, Default.Registry.Consul.CheckTimeout, "registry.consul.register.checkTimeout", "consul.register.checkTimeout"),
+		},
 	}
+	deprecate("consul.addr", "consul.addr has been replaced by registry.consul.addr")
+	deprecate("consul.token", "consul.token has been replaced by registry.consul.token")
+	deprecate("consul.kvpath", "consul.kvpath has been replaced by registry.consul.kvpath")
+	deprecate("consul.tagprefix", "consul.tagprefix has been replaced by registry.consul.tagprefix")
+	deprecate("consul.register.name", "consul.register.name has been replaced by registry.consul.register.name")
+	deprecate("consul.register.checkInterval", "consul.register.checkInterval has been replaced by registry.consul.register.checkInterval")
+	deprecate("consul.register.checkTimeout", "consul.register.checkTimeout has been replaced by registry.consul.register.checkTimeout")
 	deprecate("consul.url", "consul.url is obsolete. Please remove it.")
+
+	proxyRoutes := stringVal(p, "", "proxy.routes")
+	if strings.HasPrefix(proxyRoutes, "@") {
+		cfg.Registry.Backend = "file"
+		cfg.Registry.File.Path = proxyRoutes[1:]
+		deprecate("proxy.routes", "Please use registry.backend=file and registry.file.path=<path> instead of proxy.routes=@<path>")
+	} else if proxyRoutes != "" {
+		cfg.Registry.Backend = "static"
+		cfg.Registry.Static.Routes = proxyRoutes
+		deprecate("proxy.routes", "Please use registry.backend=static and registry.static.routes=<routes> instead of proxy.routes=<routes>")
+	}
 
 	cfg.Runtime = Runtime{
 		GOGC:       intVal(p, Default.Runtime.GOGC, "runtime.gogc"),

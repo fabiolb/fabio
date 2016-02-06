@@ -3,13 +3,12 @@ package config
 import "time"
 
 type Config struct {
-	Proxy   Proxy
-	Listen  []Listen
-	Routes  string
-	Metrics []Metrics
-	Consul  Consul
-	UI      UI
-	Runtime Runtime
+	Proxy    Proxy
+	Registry Registry
+	Listen   []Listen
+	Metrics  []Metrics
+	UI       UI
+	Runtime  Runtime
 }
 
 type Listen struct {
@@ -53,11 +52,27 @@ type Metrics struct {
 	Addr     string
 }
 
+type Registry struct {
+	Backend string
+	Static  Static
+	File    File
+	Consul  Consul
+}
+
+type Static struct {
+	Routes string
+}
+
+type File struct {
+	Path string
+}
+
 type Consul struct {
 	Addr          string
 	Token         string
 	KVPath        string
 	TagPrefix     string
+	ServiceAddr   string
 	ServiceName   string
 	CheckInterval time.Duration
 	CheckTimeout  time.Duration
