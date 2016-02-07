@@ -1,11 +1,13 @@
 package config
 
 import (
+	"os"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/magiconair/properties"
+	"github.com/pascaldekloe/goe/verify"
 )
 
 // TODO(fs): refactor with struct merging
@@ -91,13 +93,73 @@ ui.title = fabfab
 		t.Fatalf("got %v want nil", err)
 	}
 
-	cfg, err := FromProperties(p)
+	cfg, err := fromProperties(p)
 	if err != nil {
 		t.Fatalf("got %v want nil", err)
 	}
 
-	if got, want := cfg, out; !reflect.DeepEqual(got, want) {
-		t.Fatalf("got %+v want %+v", got, want)
+	got, want := cfg, out
+	verify.Values(t, "cfg", got, want)
+}
+
+func TestStringVal(t *testing.T) {
+	props := func(s string) *properties.Properties {
+		p, err := properties.Load([]byte(s), properties.UTF8)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return p
+	}
+
+	tests := []struct {
+		env   map[string]string
+		props *properties.Properties
+		keys  []string
+		val   string
+		def   string
+	}{
+		{
+			env:   nil,
+			props: nil,
+			keys:  []string{"key"}, val: "default", def: "default",
+		},
+		{
+			env:   map[string]string{"key": "env"},
+			props: nil,
+			keys:  []string{"key"}, val: "env",
+		},
+		{
+			env:   nil,
+			props: props("key=props"),
+			keys:  []string{"key"}, val: "props",
+		},
+		{
+			env:   map[string]string{"key": "env"},
+			props: props("key=props"),
+			keys:  []string{"key"}, val: "env",
+		},
+		{
+			env:   map[string]string{"key": "env"},
+			props: props("other=props"),
+			keys:  []string{"other"}, val: "props",
+		},
+		{
+			env:   map[string]string{"key": "env"},
+			props: props("other=props"),
+			keys:  []string{"key", "other"}, val: "env",
+		},
+	}
+
+	for i, tt := range tests {
+		for k, v := range tt.env {
+			os.Setenv(k, v)
+		}
+		if got, want := stringVal(tt.props, tt.def, tt.keys...), tt.val; got != want {
+			t.Errorf("%d: got %s want %s", i, got, want)
+		}
+		for k := range tt.env {
+			os.Unsetenv(k)
+		}
 	}
 }
 

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var DefaultConfig = &Config{
+var Default = &Config{
 	Proxy: Proxy{
 		MaxConn:     10000,
 		Strategy:    "rnd",
@@ -25,6 +25,7 @@ var DefaultConfig = &Config{
 		CheckInterval: time.Second,
 		CheckTimeout:  3 * time.Second,
 	},
+	Routes: "",
 	Runtime: Runtime{
 		GOGC:       800,
 		GOMAXPROCS: runtime.NumCPU(),
@@ -32,5 +33,13 @@ var DefaultConfig = &Config{
 	UI: UI{
 		Addr:  ":9998",
 		Color: "light-green",
+	},
+	Metrics: []Metrics{
+		{
+			Target:   "",
+			Prefix:   "default",
+			Addr:     "",
+			Interval: 30 * time.Second,
+		},
 	},
 }

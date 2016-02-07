@@ -70,8 +70,8 @@ any measurable latency impact.
 
 * [Installation](#installation)
 * [Quickstart](#quickstart)
+* [Configuration](#configuration)
 * [Deployment](#deployment)
-* [Configuration](https://raw.githubusercontent.com/eBay/fabio/master/fabio.properties) (documented fabio.properties file)
 * [Performance](#performance)
 * [Service configuration](#service-configuration)
 * [Manual overrides](#manual-overrides)
@@ -155,6 +155,26 @@ the entire directory, e.g.
 
 The official Docker image contains the root CA certificates from a recent and updated
 Ubuntu 12.04.5 LTS installation.
+
+## Configuration
+
+fabio is configured to listen on port 9999 for HTTP traffic and uses
+consul on `localhost:8500` as the default registry backend. To configure
+additional listeners, different backends, enable metrics reporting or
+change other configuration parameters please check the well documented
+[fabio.properties](https://raw.githubusercontent.com/eBay/fabio/master/fabio.properties)
+file. Each property value can also be configured via a corresponding
+environment variable which has the dots replaced with underscores. 
+
+Example:
+
+```
+# fabio.properties
+metrics.target = stdout
+
+# correspondig env var
+metrics_target=stdout ./fabio
+```
 
 ## Deployment
 

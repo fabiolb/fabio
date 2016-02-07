@@ -14,14 +14,6 @@ import (
 	"github.com/eBay/fabio/route"
 )
 
-func loadConfig(filename string) *config.Config {
-	cfg, err := config.FromFile(filename)
-	if err != nil {
-		log.Fatal("[FATAL] ", err)
-	}
-	return cfg
-}
-
 func initBackend(cfg *config.Config) {
 	var err error
 	registry.Default, err = consul.NewBackend(&cfg.Consul, cfg.UI.Addr)

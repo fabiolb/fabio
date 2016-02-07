@@ -1,24 +1,31 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/magiconair/properties"
 )
 
-func FromFile(filename string) (*Config, error) {
+func Load(filename string) (*Config, error) {
+	if filename == "" {
+		return fromProperties(properties.NewProperties())
+	}
+
 	p, err := properties.LoadFile(filename, properties.UTF8)
 	if err != nil {
 		return nil, err
 	}
-	return FromProperties(p)
+	return fromProperties(p)
 }
 
-func FromProperties(p *properties.Properties) (cfg *Config, err error) {
+func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 	cfg = &Config{}
 
 	deprecate := func(key, msg string) {
@@ -29,58 +36,112 @@ func FromProperties(p *properties.Properties) (cfg *Config, err error) {
 	}
 
 	cfg.Proxy = Proxy{
-		MaxConn:               p.GetInt("proxy.maxconn", DefaultConfig.Proxy.MaxConn),
-		Strategy:              p.GetString("proxy.strategy", DefaultConfig.Proxy.Strategy),
-		ShutdownWait:          p.GetParsedDuration("proxy.shutdownwait", DefaultConfig.Proxy.ShutdownWait),
-		DialTimeout:           p.GetParsedDuration("proxy.dialtimeout", DefaultConfig.Proxy.DialTimeout),
-		ResponseHeaderTimeout: p.GetParsedDuration("proxy.timeout", DefaultConfig.Proxy.ResponseHeaderTimeout),
-		KeepAliveTimeout:      p.GetParsedDuration("proxy.timeout", DefaultConfig.Proxy.KeepAliveTimeout),
-		LocalIP:               p.GetString("proxy.localip", DefaultConfig.Proxy.LocalIP),
-		ClientIPHeader:        p.GetString("proxy.header.clientip", DefaultConfig.Proxy.ClientIPHeader),
-		TLSHeader:             p.GetString("proxy.header.tls", DefaultConfig.Proxy.TLSHeader),
-		TLSHeaderValue:        p.GetString("proxy.header.tls.value", DefaultConfig.Proxy.TLSHeaderValue),
+		MaxConn:               intVal(p, Default.Proxy.MaxConn, "proxy.maxconn"),
+		Strategy:              stringVal(p, Default.Proxy.Strategy, "proxy.strategy"),
+		ShutdownWait:          durationVal(p, Default.Proxy.ShutdownWait, "proxy.shutdownwait"),
+		DialTimeout:           durationVal(p, Default.Proxy.DialTimeout, "proxy.dialtimeout"),
+		ResponseHeaderTimeout: durationVal(p, Default.Proxy.ResponseHeaderTimeout, "proxy.timeout"),
+		KeepAliveTimeout:      durationVal(p, Default.Proxy.KeepAliveTimeout, "proxy.timeout"),
+		LocalIP:               stringVal(p, Default.Proxy.LocalIP, "proxy.localip"),
+		ClientIPHeader:        stringVal(p, Default.Proxy.ClientIPHeader, "proxy.header.clientip"),
+		TLSHeader:             stringVal(p, Default.Proxy.TLSHeader, "proxy.header.tls"),
+		TLSHeaderValue:        stringVal(p, Default.Proxy.TLSHeaderValue, "proxy.header.tls.value"),
 	}
 
-	cfg.Listen, err = parseListen(p.GetString("proxy.addr", DefaultConfig.Listen[0].Addr))
+	cfg.Listen, err = parseListen(stringVal(p, Default.Listen[0].Addr, "proxy.addr"))
 	if err != nil {
 		return nil, err
 	}
 
-	cfg.Routes = p.GetString("proxy.routes", "")
+	cfg.Routes = stringVal(p, Default.Routes, "proxy.routes")
 
 	cfg.Metrics = parseMetrics(
-		p.GetString("metrics.target", ""),
-		p.GetString("metrics.prefix", "default"),
-		p.GetString("metrics.graphite.addr", ""),
-		p.GetParsedDuration("metrics.interval", 30*time.Second),
+		stringVal(p, Default.Metrics[0].Target, "metrics.target"),
+		stringVal(p, Default.Metrics[0].Prefix, "metrics.prefix"),
+		stringVal(p, Default.Metrics[0].Addr, "metrics.graphite.addr"),
+		durationVal(p, Default.Metrics[0].Interval, "metrics.interval"),
 	)
 
 	cfg.Consul = Consul{
-		Addr:          p.GetString("consul.addr", DefaultConfig.Consul.Addr),
-		Token:         p.GetString("consul.token", DefaultConfig.Consul.Token),
-		KVPath:        p.GetString("consul.kvpath", DefaultConfig.Consul.KVPath),
-		TagPrefix:     p.GetString("consul.tagprefix", DefaultConfig.Consul.TagPrefix),
-		ServiceName:   p.GetString("consul.register.name", DefaultConfig.Consul.ServiceName),
-		CheckInterval: p.GetParsedDuration("consul.register.checkInterval", DefaultConfig.Consul.CheckInterval),
-		CheckTimeout:  p.GetParsedDuration("consul.register.checkTimeout", DefaultConfig.Consul.CheckTimeout),
+		Addr:          stringVal(p, Default.Consul.Addr, "consul.addr"),
+		Token:         stringVal(p, Default.Consul.Token, "consul.token"),
+		KVPath:        stringVal(p, Default.Consul.KVPath, "consul.kvpath"),
+		TagPrefix:     stringVal(p, Default.Consul.TagPrefix, "consul.tagprefix"),
+		ServiceName:   stringVal(p, Default.Consul.ServiceName, "consul.register.name"),
+		CheckInterval: durationVal(p, Default.Consul.CheckInterval, "consul.register.checkInterval"),
+		CheckTimeout:  durationVal(p, Default.Consul.CheckTimeout, "consul.register.checkTimeout"),
 	}
 	deprecate("consul.url", "consul.url is obsolete. Please remove it.")
 
 	cfg.Runtime = Runtime{
-		GOGC:       p.GetInt("runtime.gogc", DefaultConfig.Runtime.GOGC),
-		GOMAXPROCS: p.GetInt("runtime.gomaxprocs", DefaultConfig.Runtime.GOMAXPROCS),
+		GOGC:       intVal(p, Default.Runtime.GOGC, "runtime.gogc"),
+		GOMAXPROCS: intVal(p, Default.Runtime.GOMAXPROCS, "runtime.gomaxprocs"),
 	}
 	if cfg.Runtime.GOMAXPROCS == -1 {
 		cfg.Runtime.GOMAXPROCS = runtime.NumCPU()
 	}
 
 	cfg.UI = UI{
-		Addr:  p.GetString("ui.addr", DefaultConfig.UI.Addr),
-		Color: p.GetString("ui.color", DefaultConfig.UI.Color),
-		Title: p.GetString("ui.title", DefaultConfig.UI.Title),
+		Addr:  stringVal(p, Default.UI.Addr, "ui.addr"),
+		Color: stringVal(p, Default.UI.Color, "ui.color"),
+		Title: stringVal(p, Default.UI.Title, "ui.title"),
 	}
 
+	dump(cfg)
 	return cfg, nil
+}
+
+// stringVal returns the first non-empty value found or the default value.
+// Keys are checked in order and environment variables take precedence over
+// properties values.  Environment varaible names are derived from property
+// names by replacing the dots with underscores.
+func stringVal(p *properties.Properties, def string, keys ...string) string {
+	for _, key := range keys {
+		if v := os.Getenv(strings.Replace(key, ".", "_", -1)); v != "" {
+			return v
+		}
+		if p == nil {
+			continue
+		}
+		if v, ok := p.Get(key); ok {
+			return v
+		}
+	}
+	return def
+}
+
+func intVal(p *properties.Properties, def int, keys ...string) int {
+	v := stringVal(p, "", keys...)
+	if v == "" {
+		return def
+	}
+	n, err := strconv.Atoi(v)
+	if err != nil {
+		log.Printf("[WARN] Invalid value %s for %v", v, keys)
+		return def
+	}
+	return n
+}
+
+func durationVal(p *properties.Properties, def time.Duration, keys ...string) time.Duration {
+	v := stringVal(p, "", keys...)
+	if v == "" {
+		return def
+	}
+	d, err := time.ParseDuration(v)
+	if err != nil {
+		log.Printf("[WARN] Invalid duration %s for %v", v, keys)
+		return def
+	}
+	return d
+}
+
+func dump(cfg *Config) {
+	data, err := json.MarshalIndent(cfg, "", "    ")
+	if err != nil {
+		log.Fatal("[FATAL] Cannot dump runtime config. ", err)
+	}
+	log.Println("[INFO] Runtime config\n" + string(data))
 }
 
 func parseMetrics(target, prefix, graphiteAddr string, interval time.Duration) []Metrics {

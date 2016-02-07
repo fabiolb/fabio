@@ -37,9 +37,9 @@ func main() {
 	}
 	log.Printf("[INFO] Version %s starting", version)
 
-	cfg := config.DefaultConfig
-	if filename != "" {
-		cfg = loadConfig(filename)
+	cfg, err := config.Load(filename)
+	if err != nil {
+		log.Fatal("[FATAL] ", err)
 	}
 
 	initBackend(cfg)
