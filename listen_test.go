@@ -38,7 +38,6 @@ func TestNewServer(t *testing.T) {
 				Addr:    ":123",
 				Handler: h,
 				TLSConfig: &tls.Config{
-					NextProtos:   []string{"http/1.1"},
 					Certificates: []tls.Certificate{cert},
 				},
 			},

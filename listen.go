@@ -80,7 +80,6 @@ func newServer(l config.Listen, h http.Handler) (*http.Server, error) {
 		}
 
 		srv.TLSConfig = &tls.Config{
-			NextProtos:   []string{"http/1.1"},
 			Certificates: []tls.Certificate{cert},
 		}
 
