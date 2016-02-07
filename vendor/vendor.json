@@ -18,6 +18,11 @@
 			"revisionTime": "2015-07-31T22:42:12+02:00"
 		},
 		{
+			"path": "github.com/pascaldekloe/goe/verify",
+			"revision": "f99183613f483cd9b8c79359d572836e243e0763",
+			"revisionTime": "2015-07-19T21:56:08+02:00"
+		},
+		{
 			"path": "github.com/rcrowley/go-metrics",
 			"revision": "3e5e593311103d49927c8d2b0fd93ccdfe4a525c",
 			"revisionTime": "2015-07-19T09:56:14-07:00"
