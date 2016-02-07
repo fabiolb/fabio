@@ -68,8 +68,9 @@ any measurable latency impact.
 
 ## Documentation
 
-* [Installation](#installation)
 * [Quickstart](#quickstart)
+* [Installation](#installation)
+* [Contribution](#contribute-to-fabio)
 * [Configuration](#configuration)
 * [Deployment](#deployment)
 * [Performance](#performance)
@@ -156,6 +157,43 @@ the entire directory, e.g.
 The official Docker image contains the root CA certificates from a recent and updated
 Ubuntu 12.04.5 LTS installation.
 
+## Contribute to fabio
+
+Contributions to fabio of any kind are welcome including documentation, examples,
+feature requests, bug reports, discussions, helping with issues, etc.
+
+If you have a question on how or what to contribute just open an issue and
+indicate that it is a question.
+
+### Code Contribution Guideline
+
+Your contribution is welcome. To make merging code as seamless as possible
+we ask for the following:
+
+* For small changes and bug fixes go ahead, fork the project, make your changes
+  and send a pull request.
+* Larger changes should start with a proposal in an issue. This should ensure
+  that the requested change is in line with the project and similar work is not
+  already underway.
+* Only add libraries if they provide significant value. Consider copying the code
+  (attribution) or writing it yourself.
+* Manage dependencies in the vendor path via `govendor` as separate commits per library.
+  Please make sure your commit message has the following format:
+
+```
+Vendoring in version <git hash> of <pkgname>
+```
+
+Once you are ready to send in a pull request, be sure to:
+
+* Sign the [CLA](https://cla-assistant.io/eBay/fabio)
+* Provide test cases for the critical code which test correctness. If your code
+  is in a performance critical path make sure you have performed some real world
+  measurements to ensure that performance is not degregated.
+* `go fmt` and `make test` your code
+* Squash your change into a single commit with the exception of additional libraries.
+* Write a good commit message.
+
 ## Configuration
 
 fabio is configured to listen on port 9999 for HTTP traffic and uses
@@ -164,7 +202,7 @@ additional listeners, different backends, enable metrics reporting or
 change other configuration parameters please check the well documented
 [fabio.properties](https://raw.githubusercontent.com/eBay/fabio/master/fabio.properties)
 file. Each property value can also be configured via a corresponding
-environment variable which has the dots replaced with underscores. 
+environment variable which has the dots replaced with underscores.
 
 Example:
 
