@@ -13,6 +13,11 @@
 			"revisionTime": "2015-05-15T08:25:02-07:00"
 		},
 		{
+			"path": "github.com/magiconair/properties",
+			"revision": "337395e44efb4affc8bf11971e22acbd4e27a32d",
+			"revisionTime": "2015-07-31T22:42:12+02:00"
+		},
+		{
 			"path": "github.com/rcrowley/go-metrics",
 			"revision": "3e5e593311103d49927c8d2b0fd93ccdfe4a525c",
 			"revisionTime": "2015-07-19T09:56:14-07:00"
