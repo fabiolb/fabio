@@ -35,6 +35,48 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 		}
 	}
 
+	// gets string value first from env vars and then from properties
+	getString := func(def string, keys ...string) string {
+		for _, key := range keys {
+			key = strings.Replace(key, ".", "_", -1)
+			if v := os.Getenv(key); v != "" {
+				return v
+			}
+		}
+		for _, key := range keys {
+			if v, ok := p.Get(key); ok {
+				return v
+			}
+		}
+		return def
+	}
+
+	getInt := func(def int, keys ...string) int {
+		v := getString("", keys...)
+		if v == "" {
+			return def
+		}
+		n, err := strconv.Atoi(v)
+		if err != nil {
+			log.Printf("[WARN] Invalid value %s for %v", v, keys)
+			return def
+		}
+		return n
+	}
+
+	getDuration := func(def time.Duration, keys ...string) time.Duration {
+		v := getString("", keys...)
+		if v == "" {
+			return def
+		}
+		d, err := time.ParseDuration(v)
+		if err != nil {
+			log.Printf("[WARN] Invalid duration %s for %v", v, keys)
+			return def
+		}
+		return d
+	}
+
 	cfg.Proxy = Proxy{
 		MaxConn:               intVal(p, Default.Proxy.MaxConn, "proxy.maxconn"),
 		Strategy:              stringVal(p, Default.Proxy.Strategy, "proxy.strategy"),
