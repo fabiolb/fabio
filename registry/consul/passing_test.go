@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/eBay/fabio/_third_party/github.com/hashicorp/consul/api"
+	"github.com/hashicorp/consul/api"
 )
 
 func TestPassingServices(t *testing.T) {

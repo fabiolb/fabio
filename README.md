@@ -126,9 +126,9 @@ The `fabio-example` project is now in the `demo/server` directory.
 
 ## Installation
 
-To install fabio run (you need Go 1.4 or higher but Go 1.5.3 or higher is recommended)
+To install fabio you need Go 1.5.3 or higher. Run
 
-    go get github.com/eBay/fabio
+    GO15VENDOREXPERIMENT=1 go get github.com/eBay/fabio
 
 To start fabio run
 

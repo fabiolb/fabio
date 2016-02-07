@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/eBay/fabio/_third_party/golang.org/x/net/websocket"
+	"golang.org/x/net/websocket"
 )
 
 // newWSProxy returns a websocket handler which forwards

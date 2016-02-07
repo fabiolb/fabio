@@ -7,7 +7,7 @@ import (
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/registry"
 
-	"github.com/eBay/fabio/_third_party/github.com/hashicorp/consul/api"
+	"github.com/hashicorp/consul/api"
 )
 
 // be is an implementation of a registry backend for consul.

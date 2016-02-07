@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/eBay/fabio/_third_party/github.com/cyberdelia/go-metrics-graphite"
-	gometrics "github.com/eBay/fabio/_third_party/github.com/rcrowley/go-metrics"
+	"github.com/cyberdelia/go-metrics-graphite"
+	gometrics "github.com/rcrowley/go-metrics"
 	"github.com/eBay/fabio/config"
 )
 

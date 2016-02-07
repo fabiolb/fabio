@@ -3,6 +3,9 @@
 # Script for replacing the version number
 # in main.go, committing and tagging the code
 
+# use vendor path
+export GO15VENDOREXPERIMENT=1
+
 prgdir=$(cd $(dirname $0); pwd)
 basedir=$(cd $prgdir/..; pwd)
 v=$1

@@ -8,7 +8,7 @@ import (
 
 	"github.com/eBay/fabio/metrics"
 
-	gometrics "github.com/eBay/fabio/_third_party/github.com/rcrowley/go-metrics"
+	gometrics "github.com/rcrowley/go-metrics"
 )
 
 // Route maps a path prefix to one or more target URLs.

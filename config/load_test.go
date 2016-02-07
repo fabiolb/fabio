@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/eBay/fabio/_third_party/github.com/magiconair/properties"
+	"github.com/magiconair/properties"
 )
 
 // TODO(fs): refactor with struct merging

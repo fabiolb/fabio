@@ -39,8 +39,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/eBay/fabio/_third_party/github.com/hashicorp/consul/api"
-	"github.com/eBay/fabio/_third_party/golang.org/x/net/websocket"
+	"github.com/hashicorp/consul/api"
+	"golang.org/x/net/websocket"
 )
 
 func main() {

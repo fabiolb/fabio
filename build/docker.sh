@@ -8,13 +8,16 @@ export PATH=/usr/local/go/bin:$PATH
 # set gopath
 export GOPATH=~/go
 
+# use vendor path
+export GO15VENDOREXPERIMENT=1
+
 v=`git describe --tags`
 v=${v/v/}
 tag=magiconair/fabio
 
 # check go version
-if [[ `go version` != 'go version go1.5.1 linux/amd64' ]]; then
-	echo "Invalid go version. Want go 1.5.1"
+if [[ `go version` != 'go version go1.5.3 linux/amd64' ]]; then
+	echo "Invalid go version. Want go 1.5.3"
 	exit 1
 fi
 

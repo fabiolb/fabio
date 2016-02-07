@@ -1,22 +1,23 @@
 
+GO = GODEBUG=sbrk=1 GO15VENDOREXPERIMENT=1 go
 GOFLAGS = -tags netgo -ldflags "-X main.version=$(shell git describe --tags)"
 
-.PHONY: build
 build:
-	go build $(GOFLAGS)
+	$(GO) build -i $(GOFLAGS)
 
-.PHONY: linux
+test:
+	$(GO) test ./...
+
 linux:
-	GOOS=linux GOARCH=amd64 go build $(GOFLAGS)
+	GOOS=linux GOARCH=amd64 $(GO) build -i $(GOFLAGS)
 
-.PHONY: install
 install:
-	go install $(GOFLAGS)
+	$(GO) install $(GOFLAGS)
 
-.PHONY: release
-release:
+release: test
 	build/release.sh $(filter-out $@,$(MAKECMDGOALS))
 
-.PHONY: docker
-docker: build
+docker: build test
 	build/docker.sh
+
+.PHONY: build linux install release docker test

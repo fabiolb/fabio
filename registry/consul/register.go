@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/eBay/fabio/_third_party/github.com/hashicorp/consul/api"
+	"github.com/hashicorp/consul/api"
 	"github.com/eBay/fabio/config"
 )
 

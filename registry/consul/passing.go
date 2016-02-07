@@ -4,7 +4,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/eBay/fabio/_third_party/github.com/hashicorp/consul/api"
+	"github.com/hashicorp/consul/api"
 )
 
 // passingServices filters out health checks for services which have

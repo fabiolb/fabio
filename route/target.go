@@ -3,7 +3,7 @@ package route
 import (
 	"net/url"
 
-	gometrics "github.com/eBay/fabio/_third_party/github.com/rcrowley/go-metrics"
+	gometrics "github.com/rcrowley/go-metrics"
 )
 
 type Target struct {

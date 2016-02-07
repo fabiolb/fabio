@@ -6,7 +6,7 @@ import (
 
 	"github.com/eBay/fabio/config"
 
-	gometrics "github.com/eBay/fabio/_third_party/github.com/rcrowley/go-metrics"
+	gometrics "github.com/rcrowley/go-metrics"
 )
 
 // Proxy is a dynamic reverse proxy.

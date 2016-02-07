@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/eBay/fabio/_third_party/github.com/magiconair/properties"
+	"github.com/magiconair/properties"
 )
 
 func FromFile(filename string) (*Config, error) {
