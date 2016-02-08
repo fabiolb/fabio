@@ -10,6 +10,7 @@
  * [Issue #43](https://github.com/eBay/fabio/issues/43): Allow configuration via env vars
  * [Issue #47](https://github.com/eBay/fabio/issues/47): Move dependencies to vendor path
  * [Issue #48](https://github.com/eBay/fabio/issues/48): Allow configuration of serviceip used during consul registration
+ * [PR #49](https://github.com/eBay/fabio/pull/49): Fix up use of addr in service registration
 
 ### [v1.0.8](https://github.com/eBay/fabio/releases/tag/v1.0.8) - 14 Jan 2015
 
