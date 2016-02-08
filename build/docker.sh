@@ -6,7 +6,7 @@
 export PATH=/usr/local/go/bin:$PATH
 
 # set gopath
-export GOPATH=~/go
+export GOPATH=~/gopath
 
 # use vendor path
 export GO15VENDOREXPERIMENT=1
