@@ -12,20 +12,22 @@ var Default = &Config{
 		DialTimeout: 30 * time.Second,
 		LocalIP:     LocalIPString(),
 	},
+	Registry: Registry{
+		Backend: "consul",
+		Consul: Consul{
+			Addr:          "localhost:8500",
+			KVPath:        "/fabio/config",
+			TagPrefix:     "urlprefix-",
+			ServiceName:   "fabio",
+			CheckInterval: time.Second,
+			CheckTimeout:  3 * time.Second,
+		},
+	},
 	Listen: []Listen{
 		{
 			Addr: ":9999",
 		},
 	},
-	Consul: Consul{
-		Addr:          "localhost:8500",
-		KVPath:        "/fabio/config",
-		TagPrefix:     "urlprefix-",
-		ServiceName:   "fabio",
-		CheckInterval: time.Second,
-		CheckTimeout:  3 * time.Second,
-	},
-	Routes: "",
 	Runtime: Runtime{
 		GOGC:       800,
 		GOMAXPROCS: runtime.NumCPU(),

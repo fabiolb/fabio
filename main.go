@@ -6,11 +6,18 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"runtime"
+	"runtime/debug"
 
 	"github.com/eBay/fabio/admin"
 	"github.com/eBay/fabio/config"
+	"github.com/eBay/fabio/metrics"
 	"github.com/eBay/fabio/proxy"
 	"github.com/eBay/fabio/registry"
+	"github.com/eBay/fabio/registry/consul"
+	"github.com/eBay/fabio/registry/file"
+	"github.com/eBay/fabio/registry/static"
 	"github.com/eBay/fabio/route"
 )
 
@@ -42,10 +49,10 @@ func main() {
 		log.Fatal("[FATAL] ", err)
 	}
 
-	initBackend(cfg)
-	initMetrics(cfg)
 	initRuntime(cfg)
-	initRoutes(cfg)
+	initMetrics(cfg)
+	initBackend(cfg)
+	go watchBackend()
 	startAdmin(cfg)
 	startListeners(cfg.Listen, cfg.Proxy.ShutdownWait, newProxy(cfg))
 	registry.Default.Deregister()
@@ -76,4 +83,82 @@ func startAdmin(cfg *config.Config) {
 			log.Fatal("[FATAL] ui: ", err)
 		}
 	}()
+}
+
+func initMetrics(cfg *config.Config) {
+	if err := metrics.Init(cfg.Metrics); err != nil {
+		log.Fatal("[FATAL] ", err)
+	}
+}
+
+func initRuntime(cfg *config.Config) {
+	if os.Getenv("GOGC") == "" {
+		log.Print("[INFO] Setting GOGC=", cfg.Runtime.GOGC)
+		debug.SetGCPercent(cfg.Runtime.GOGC)
+	} else {
+		log.Print("[INFO] Using GOGC=", os.Getenv("GOGC"), " from env")
+	}
+
+	if os.Getenv("GOMAXPROCS") == "" {
+		log.Print("[INFO] Setting GOMAXPROCS=", cfg.Runtime.GOMAXPROCS)
+		runtime.GOMAXPROCS(cfg.Runtime.GOMAXPROCS)
+	} else {
+		log.Print("[INFO] Using GOMAXPROCS=", os.Getenv("GOMAXPROCS"), " from env")
+	}
+}
+
+func initBackend(cfg *config.Config) {
+	var err error
+
+	switch cfg.Registry.Backend {
+	case "file":
+		registry.Default, err = file.NewBackend(cfg.Registry.File.Path)
+	case "static":
+		registry.Default, err = static.NewBackend(cfg.Registry.Static.Routes)
+	case "consul":
+		registry.Default, err = consul.NewBackend(&cfg.Registry.Consul, cfg.UI.Addr)
+	default:
+		log.Fatal("[FATAL] Unknown registry backend ", cfg.Registry.Backend)
+	}
+
+	if err != nil {
+		log.Fatal("[FATAL] Error initializing backend. ", err)
+	}
+	if err := registry.Default.Register(); err != nil {
+		log.Fatal("[FATAL] Error registering backend. ", err)
+	}
+}
+
+func watchBackend() {
+	var (
+		last   string
+		svccfg string
+		mancfg string
+	)
+
+	svc := registry.Default.WatchServices()
+	man := registry.Default.WatchManual()
+
+	for {
+		select {
+		case svccfg = <-svc:
+		case mancfg = <-man:
+		}
+
+		// manual config overrides service config
+		// order matters
+		next := svccfg + "\n" + mancfg
+		if next == last {
+			continue
+		}
+
+		t, err := route.ParseString(next)
+		if err != nil {
+			log.Printf("[WARN] %s", err)
+			continue
+		}
+		route.SetTable(t)
+
+		last = next
+	}
 }

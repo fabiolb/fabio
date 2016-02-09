@@ -3,6 +3,7 @@
 ### [v1.0.9] - Unreleased
 
  * Drop support for Go 1.4
+ * [Issue #12](https://github.com/eBay/fabio/issues/12): Support additional backends
  * [Issue #32](https://github.com/eBay/fabio/issues/32): HTTP2 support with latest Go
  * [Issue #37](https://github.com/eBay/fabio/issues/37): Add support for consul ACL token to demo server
  * [Issue #41](https://github.com/eBay/fabio/issues/41): Cleanup metrics for deleted routes
