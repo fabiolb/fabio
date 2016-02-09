@@ -15,11 +15,10 @@ type be struct {
 	c         *api.Client
 	dc        string
 	cfg       *config.Consul
-	apiAddr   string
 	serviceID string
 }
 
-func NewBackend(cfg *config.Consul, apiAddr string) (registry.Backend, error) {
+func NewBackend(cfg *config.Consul) (registry.Backend, error) {
 	// create a reusable client
 	c, err := api.NewClient(&api.Config{Address: cfg.Addr, Scheme: "http", Token: cfg.Token})
 	if err != nil {
@@ -34,11 +33,11 @@ func NewBackend(cfg *config.Consul, apiAddr string) (registry.Backend, error) {
 
 	// we're good
 	log.Printf("[INFO] consul: Connecting to %q in datacenter %q", cfg.Addr, dc)
-	return &be{c: c, dc: dc, cfg: cfg, apiAddr: apiAddr}, nil
+	return &be{c: c, dc: dc, cfg: cfg}, nil
 }
 
 func (b *be) Register() error {
-	service, err := serviceRegistration(b.apiAddr, b.cfg.ServiceName, b.cfg.CheckInterval, b.cfg.CheckTimeout)
+	service, err := serviceRegistration(b.cfg.ServiceAddr, b.cfg.ServiceName, b.cfg.CheckInterval, b.cfg.CheckTimeout)
 	if err != nil {
 		return err
 	}
@@ -46,7 +45,7 @@ func (b *be) Register() error {
 		return err
 	}
 
-	log.Printf("[INFO] consul: Registered fabio as %q", service.ID)
+	log.Printf("[INFO] consul: Registered fabio as %q with address %q", service.ID, b.cfg.ServiceAddr)
 	b.serviceID = service.ID
 	return nil
 }

@@ -73,6 +73,7 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 			Token:         stringVal(p, Default.Registry.Consul.Token, "registry.consul.token", "consul.token"),
 			KVPath:        stringVal(p, Default.Registry.Consul.KVPath, "registry.consul.kvpath", "consul.kvpath"),
 			TagPrefix:     stringVal(p, Default.Registry.Consul.TagPrefix, "registry.consul.tagprefix", "consul.tagprefix"),
+			ServiceAddr:   stringVal(p, Default.Registry.Consul.ServiceAddr, "registry.consul.register.addr"),
 			ServiceName:   stringVal(p, Default.Registry.Consul.ServiceName, "registry.consul.register.name", "consul.register.name"),
 			CheckInterval: durationVal(p, Default.Registry.Consul.CheckInterval, "registry.consul.register.checkInterval", "consul.register.checkInterval"),
 			CheckTimeout:  durationVal(p, Default.Registry.Consul.CheckTimeout, "registry.consul.register.checkTimeout", "consul.register.checkTimeout"),

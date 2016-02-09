@@ -30,6 +30,7 @@ registry.consul.addr = 1.2.3.4:5678
 registry.consul.token = consul-token
 registry.consul.kvpath = /some/path
 registry.consul.tagprefix = p-
+registry.consul.register.addr = 6.6.6.6:7777
 registry.consul.register.name = fab
 registry.consul.register.checkInterval = 5s
 registry.consul.register.checkTimeout = 10s
@@ -69,6 +70,7 @@ ui.title = fabfab
 				Token:         "consul-token",
 				KVPath:        "/some/path",
 				TagPrefix:     "p-",
+				ServiceAddr:   "6.6.6.6:7777",
 				ServiceName:   "fab",
 				CheckInterval: 5 * time.Second,
 				CheckTimeout:  10 * time.Second,

@@ -116,7 +116,7 @@ func initBackend(cfg *config.Config) {
 	case "static":
 		registry.Default, err = static.NewBackend(cfg.Registry.Static.Routes)
 	case "consul":
-		registry.Default, err = consul.NewBackend(&cfg.Registry.Consul, cfg.UI.Addr)
+		registry.Default, err = consul.NewBackend(&cfg.Registry.Consul)
 	default:
 		log.Fatal("[FATAL] Unknown registry backend ", cfg.Registry.Backend)
 	}

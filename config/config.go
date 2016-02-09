@@ -72,6 +72,7 @@ type Consul struct {
 	Token         string
 	KVPath        string
 	TagPrefix     string
+	ServiceAddr   string
 	ServiceName   string
 	CheckInterval time.Duration
 	CheckTimeout  time.Duration

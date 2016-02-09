@@ -9,6 +9,7 @@
  * [Issue #41](https://github.com/eBay/fabio/issues/41): Cleanup metrics for deleted routes
  * [Issue #43](https://github.com/eBay/fabio/issues/43): Allow configuration via env vars
  * [Issue #47](https://github.com/eBay/fabio/issues/47): Move dependencies to vendor path
+ * [Issue #48](https://github.com/eBay/fabio/issues/48): Allow configuration of serviceip used during consul registration
 
 ### [v1.0.8](https://github.com/eBay/fabio/releases/tag/v1.0.8) - 14 Jan 2015
 

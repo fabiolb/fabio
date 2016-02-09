@@ -18,6 +18,7 @@ var Default = &Config{
 			Addr:          "localhost:8500",
 			KVPath:        "/fabio/config",
 			TagPrefix:     "urlprefix-",
+			ServiceAddr:   ":9998",
 			ServiceName:   "fabio",
 			CheckInterval: time.Second,
 			CheckTimeout:  3 * time.Second,
