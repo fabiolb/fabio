@@ -8,6 +8,9 @@ build:
 test:
 	$(GO) test ./...
 
+gofmt:
+	gofmt -w `find . -type f -name '*.go' | grep -v vendor`
+
 linux:
 	GOOS=linux GOARCH=amd64 $(GO) build -i $(GOFLAGS)
 
@@ -20,4 +23,4 @@ release: test
 docker: build test
 	build/docker.sh
 
-.PHONY: build linux install release docker test
+.PHONY: build linux gofmt install release docker test

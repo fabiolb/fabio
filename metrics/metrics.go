@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/cyberdelia/go-metrics-graphite"
-	gometrics "github.com/rcrowley/go-metrics"
 	"github.com/eBay/fabio/config"
+	gometrics "github.com/rcrowley/go-metrics"
 )
 
 var pfx string

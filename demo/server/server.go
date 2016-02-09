@@ -118,7 +118,7 @@ func main() {
 		},
 	}
 
-	config := &api.Config{Address: consul, Scheme: "http", Token:token}
+	config := &api.Config{Address: consul, Scheme: "http", Token: token}
 	client, err := api.NewClient(config)
 	if err != nil {
 		log.Fatal(err)

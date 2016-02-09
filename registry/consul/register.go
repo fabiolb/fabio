@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/consul/api"
 	"github.com/eBay/fabio/config"
+	"github.com/hashicorp/consul/api"
 )
 
 func serviceRegistration(addr, name string, interval, timeout time.Duration) (*api.AgentServiceRegistration, error) {
@@ -32,10 +32,10 @@ func serviceRegistration(addr, name string, interval, timeout time.Duration) (*a
 	}
 	if ip == nil {
 		givenip := net.ParseIP(ipstr)
-                if givenip == nil {
-                        return nil, errors.New("no local ip")
-                }
-                ip = givenip
+		if givenip == nil {
+			return nil, errors.New("no local ip")
+		}
+		ip = givenip
 	}
 
 	serviceID := fmt.Sprintf("%s-%s-%d", name, hostname, port)
