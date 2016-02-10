@@ -69,6 +69,9 @@ func syncRegistry(t Table) {
 	for _, routes := range t {
 		for _, r := range routes {
 			for _, tg := range r.Targets {
+				if tg.Deleted {
+					continue
+				}
 				timers[tg.timerName] = true
 			}
 		}
@@ -240,6 +243,9 @@ func (t Table) doLookup(host, path, trace string) *Target {
 				return nil
 			}
 			if n == 1 {
+				if r.Targets[0].Deleted {
+					return nil
+				}
 				return r.Targets[0]
 			}
 			if trace != "" {

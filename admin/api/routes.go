@@ -12,6 +12,7 @@ type route struct {
 	Path    string   `json:"path"`
 	Dst     string   `json:"dst"`
 	Weight  float64  `json:"weight"`
+	Deleted bool     `json:"deleted"`
 	Tags    []string `json:"tags,omitempty"`
 	Cmd     string   `json:"cmd"`
 	Rate1   float64  `json:"rate1"`
@@ -37,6 +38,7 @@ func HandleRoutes(w http.ResponseWriter, r *http.Request) {
 					Path:    tr.Path,
 					Dst:     tg.URL.String(),
 					Weight:  tg.Weight,
+					Deleted: tg.Deleted,
 					Tags:    tg.Tags,
 					Cmd:     tr.TargetConfig(tg, true),
 					Rate1:   tg.Timer.Rate1(),

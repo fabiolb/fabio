@@ -27,6 +27,7 @@ var tmplRoutes = template.Must(template.New("routes").Parse(`
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 	<style type="text/css">
+		tr.deleted { color: gray; text-decoration: line-through; }
 		td.tags { display: none; }
 
 		/*
@@ -84,7 +85,11 @@ $(function(){
 		tbl += '<tbody>'
 		for (var i=0; i < routes.length; i++) {
 			var r = routes[i];
-			tbl += '<tr>';
+			if (r.deleted) {
+				tbl += '<tr class="deleted">';
+			} else {
+				tbl += '<tr>';
+			}
 			tbl += '<td>' + (i+1) + '</td>';
 			tbl += '<td>' + r.service + '</td>';
 			tbl += '<td>' + r.host + '</td>';

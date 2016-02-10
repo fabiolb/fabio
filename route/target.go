@@ -23,6 +23,9 @@ type Target struct {
 	// Weight is the actual weight for this service in percent.
 	Weight float64
 
+	// Deleted stores whether the target was removed.
+	Deleted bool
+
 	// Timer measures throughput and latency of this target
 	Timer gometrics.Timer
 

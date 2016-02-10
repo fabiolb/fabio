@@ -57,26 +57,20 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 }
 
 func (r *Route) delService(service string) {
-	var clone []*Target
 	for _, t := range r.Targets {
 		if t.Service == service {
-			continue
+			t.Deleted = true
 		}
-		clone = append(clone, t)
 	}
-	r.Targets = clone
 	r.weighTargets()
 }
 
 func (r *Route) delTarget(service string, targetURL *url.URL) {
-	var clone []*Target
 	for _, t := range r.Targets {
 		if t.Service == service && t.URL.String() == targetURL.String() {
-			continue
+			t.Deleted = true
 		}
-		clone = append(clone, t)
 	}
-	r.Targets = clone
 	r.weighTargets()
 }
 
@@ -84,6 +78,9 @@ func (r *Route) setWeight(service string, weight float64, tags []string) int {
 	loop := func(w float64) int {
 		n := 0
 		for _, t := range r.Targets {
+			if t.Deleted {
+				continue
+			}
 			if service != "" && t.Service != service {
 				continue
 			}
@@ -130,6 +127,9 @@ func contains(src, dst []string) bool {
 // targetWeight returns how often target is in wTargets.
 func (r *Route) targetWeight(targetURL string) (n int) {
 	for _, t := range r.wTargets {
+		if t.Deleted {
+			continue
+		}
 		if t.URL.String() == targetURL {
 			n++
 		}
@@ -138,6 +138,9 @@ func (r *Route) targetWeight(targetURL string) (n int) {
 }
 
 func (r *Route) TargetConfig(t *Target, addWeight bool) string {
+	if t.Deleted {
+		return ""
+	}
 	s := fmt.Sprintf("route add %s %s %s", t.Service, r.Host+r.Path, t.URL)
 	if addWeight {
 		s += fmt.Sprintf(" weight %2.2f", t.Weight)
@@ -155,6 +158,9 @@ func (r *Route) TargetConfig(t *Target, addWeight bool) string {
 func (r *Route) config(addWeight bool) []string {
 	var cfg []string
 	for _, t := range r.Targets {
+		if t.Deleted {
+			continue
+		}
 		if t.Weight <= 0 {
 			continue
 		}
@@ -175,27 +181,33 @@ func (r *Route) weighTargets() {
 	// how big is the fixed weighted traffic?
 	var nFixed int
 	var sumFixed float64
+	var activeTargets []*Target
 	for _, t := range r.Targets {
+		if t.Deleted {
+			t.Weight = 0
+			continue
+		}
 		if t.FixedWeight > 0 {
 			nFixed++
 			sumFixed += t.FixedWeight
 		}
+		activeTargets = append(activeTargets, t)
 	}
 
 	// normalize fixed weights up (sumFixed < 1) or down (sumFixed > 1)
 	scale := 1.0
-	if sumFixed > 1 || (nFixed == len(r.Targets) && sumFixed < 1) {
+	if sumFixed > 1 || (nFixed == len(activeTargets) && sumFixed < 1) {
 		scale = 1 / sumFixed
 	}
 
 	// compute the weight for the targets with dynamic weights
-	dynamic := (1 - sumFixed) / float64(len(r.Targets)-nFixed)
+	dynamic := (1 - sumFixed) / float64(len(activeTargets)-nFixed)
 	if dynamic < 0 {
 		dynamic = 0
 	}
 
 	// assign the actual weight to each target
-	for _, t := range r.Targets {
+	for _, t := range activeTargets {
 		if t.FixedWeight > 0 {
 			t.Weight = t.FixedWeight * scale
 		} else {
@@ -218,8 +230,8 @@ func (r *Route) weighTargets() {
 	// because of rounding errors
 	gotSlots, wantSlots := 0, 100
 
-	slotCount := make(byN, len(r.Targets))
-	for i, t := range r.Targets {
+	slotCount := make(byN, len(activeTargets))
+	for i, t := range activeTargets {
 		slotCount[i].i = i
 		slotCount[i].n = int(float64(wantSlots)*t.Weight + 0.5)
 		gotSlots += slotCount[i].n
@@ -240,7 +252,7 @@ func (r *Route) weighTargets() {
 			}
 
 			// use slot and move to next one
-			slots[next] = r.Targets[c.i]
+			slots[next] = activeTargets[c.i]
 			next = (next + step) % gotSlots
 		}
 	}
