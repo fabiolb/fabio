@@ -1,6 +1,7 @@
 # ![./fabio](https://github.com/eBay/fabio/blob/master/fabio.png)
 
-##### Current version: 1.0.8
+##### Current stable version: 1.0.9
+##### Current tip version: 1.1rc1
 
 [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio) [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/eBay/fabio/master/LICENSE)
 
@@ -63,10 +64,11 @@ any measurable latency impact.
 * v1.0.5: `X-Forwarded-For` and `Forwarded` header support
 * v1.0.5: Websocket support (experimental)
 * v1.0.6: Raw websocket support as default
-* v1.0.6: Experimental HTTP api
+* v1.0.6: Experimental HTTP API
 * v1.0.6: Improved UI
 * v1.0.6: fabio registers itself in consul
-* v1.0.8: support consul ACL token
+* v1.0.8: Support consul ACL token
+* v1.0.9: Make read and write timeout configurable
 
 ## Documentation
 

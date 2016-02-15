@@ -1,6 +1,6 @@
 ## Changelog
 
-### [v1.0.9] - Unreleased
+### [v1.1] - Unreleased
 
  * Drop support for Go 1.4
  * [Issue #12](https://github.com/eBay/fabio/issues/12): Support additional backends
@@ -11,6 +11,10 @@
  * [Issue #47](https://github.com/eBay/fabio/issues/47): Move dependencies to vendor path
  * [Issue #48](https://github.com/eBay/fabio/issues/48): Allow configuration of serviceip used during consul registration
  * [PR #49](https://github.com/eBay/fabio/pull/49): Fix up use of addr in service registration
+
+### [v1.0.9](https://github.com/eBay/fabio/releases/branch/v1.0.9) - 16 Jan 2015
+
+ * [Issue #53](https://github.com/eBay/fabio/issues/53): Make read and write timeout configurable
 
 ### [v1.0.8](https://github.com/eBay/fabio/releases/tag/v1.0.8) - 14 Jan 2015
 

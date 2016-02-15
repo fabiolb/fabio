@@ -12,3 +12,4 @@ build/fabio-*
 *.swp
 .vagrant
 *-amd64
+.vagrant
