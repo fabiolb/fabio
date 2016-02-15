@@ -10,15 +10,16 @@ import (
 	"github.com/pascaldekloe/goe/verify"
 )
 
-// TODO(fs): refactor with struct merging
 func TestFromProperties(t *testing.T) {
 	in := `
 proxy.addr = :1234
 proxy.localip = 4.4.4.4
 proxy.strategy = rr
 proxy.shutdownwait = 500ms
-proxy.timeout     = 3s
+proxy.timeout = 3s
 proxy.dialtimeout = 60s
+proxy.readtimeout = 5s
+proxy.writetimeout = 10s
 proxy.maxconn = 666
 proxy.header.clientip = clientip
 proxy.header.tls = tls
@@ -78,7 +79,9 @@ ui.title = fabfab
 		},
 		Listen: []Listen{
 			{
-				Addr: ":1234",
+				Addr:         ":1234",
+				ReadTimeout:  5 * time.Second,
+				WriteTimeout: 10 * time.Second,
 			},
 		},
 		Metrics: []Metrics{
@@ -222,7 +225,7 @@ func TestParseAddr(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		l, err := parseListen(tt.in)
+		l, err := parseListen(tt.in, time.Duration(0), time.Duration(0))
 		if got, want := err, tt.err; (got != nil || want != "") && got.Error() != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
