@@ -41,7 +41,10 @@ func FromProperties(p *properties.Properties) (cfg *Config, err error) {
 		TLSHeaderValue:        p.GetString("proxy.header.tls.value", DefaultConfig.Proxy.TLSHeaderValue),
 	}
 
-	cfg.Listen, err = parseListen(p.GetString("proxy.addr", DefaultConfig.Listen[0].Addr))
+	readTimeout := p.GetParsedDuration("proxy.readtimeout", time.Duration(0))
+	writeTimeout := p.GetParsedDuration("proxy.writetimeout", time.Duration(0))
+
+	cfg.Listen, err = parseListen(p.GetString("proxy.addr", DefaultConfig.Listen[0].Addr), readTimeout, writeTimeout)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +94,7 @@ func parseMetrics(target, prefix, graphiteAddr string, interval time.Duration) [
 	return []Metrics{m}
 }
 
-func parseListen(addrs string) ([]Listen, error) {
+func parseListen(addrs string, readTimeout, writeTimeout time.Duration) ([]Listen, error) {
 	listen := []Listen{}
 	for _, addr := range strings.Split(addrs, ",") {
 		addr = strings.TrimSpace(addr)
@@ -113,6 +116,8 @@ func parseListen(addrs string) ([]Listen, error) {
 		default:
 			return nil, fmt.Errorf("invalid address %s", addr)
 		}
+		l.ReadTimeout = readTimeout
+		l.WriteTimeout = writeTimeout
 		listen = append(listen, l)
 	}
 	return listen, nil

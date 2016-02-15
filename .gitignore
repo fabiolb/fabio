@@ -10,3 +10,4 @@ fabio.sublime-*
 build/fabio-*
 *.un~
 *.swp
+.vagrant
