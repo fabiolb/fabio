@@ -1,5 +1,9 @@
 ## Changelog
 
+### [v1.0.9](https://github.com/eBay/fabio/releases/tag/v1.0.9) - 16 Jan 2015
+
+ * [Issue #53](https://github.com/eBay/fabio/issues/53): Make read and write timeout configurable
+
 ### [v1.0.8](https://github.com/eBay/fabio/releases/tag/v1.0.8) - 14 Jan 2015
 
  * Upgrade to Go 1.5.3

@@ -1,6 +1,6 @@
 # ./fabio [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio)
 
-##### Current version: 1.0.8
+##### Current version: 1.0.9
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) router
 for deploying microservices managed by consul.
@@ -59,6 +59,7 @@ several fabio instances. We don't observe any measurable additional latency.
 * v1.0.6: Improved UI
 * v1.0.6: fabio registers itself in consul
 * v1.0.8: support consul ACL token
+* v1.0.9: Make read and write timeout configurable
 
 ## Documentation
 
