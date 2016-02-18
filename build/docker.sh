@@ -1,32 +1,33 @@
 #!/bin/bash -e
 #
-# Docker image build script
-
-# set path
-export PATH=/usr/local/go/bin:$PATH
-
-# set gopath
-export GOPATH=~/gopath
-
-# use vendor path
-export GO15VENDOREXPERIMENT=1
-
-v=`git describe --tags`
-v=${v/v/}
+# docker.sh will build docker images from
+# the versions provided on the command line.
+# The binaries must already exist in the /vagrant
+# directory and are usually built with the build.sh
+# or the release.sh script. The last specified
+# version will be used as the 'latest' image.
+#
+# Example:
+#
+#   build/docker.sh 1.1-go1.5.3 1.1-go1.6
+#
+# will build three containers
+#
+# * magiconair/fabio:1.1-go1.5.3
+# * magiconair/fabio:1.1-go1.6
+# * magiconair/fabio (which contains 1.1-go1.6)
+#
 tag=magiconair/fabio
 
-# check go version
-if [[ `go version` != 'go version go1.5.3 linux/amd64' ]]; then
-	echo "Invalid go version. Want go 1.5.3"
+if [[ $# = 0 ]]; then
+	echo "Usage: docker.sh <version> <version>"
 	exit 1
 fi
 
-echo "Building fabio $v with `go version`"
-go clean
-go build -tags netgo -ldflags "-X main.version=$v"
-
-echo "Building docker image $tag:$v"
-docker build -q -t $tag:$v .
+for v in "$@" ; do
+	echo "Building docker image $tag:$v"
+	( cp /vagrant/fabio-${v}_linux-amd64 fabio ; docker build -q -t ${tag}:${v} )
+done
 
 echo "Building docker image $tag"
 docker build -q -t $tag .
