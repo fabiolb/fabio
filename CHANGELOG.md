@@ -1,8 +1,8 @@
 ## Changelog
 
-### [v1.1] - Unreleased
+### [v1.1](https://github.com/eBay/fabio/releases/tag/v1.1) - 18 Feb 2016
 
- * Drop support for Go 1.4
+ * Drop support for Go 1.4 and build for both Go 1.5.3 and Go 1.6
  * [Issue #12](https://github.com/eBay/fabio/issues/12): Support additional backends
  * [Issue #32](https://github.com/eBay/fabio/issues/32): HTTP2 support with latest Go
  * [Issue #37](https://github.com/eBay/fabio/issues/37): Add support for consul ACL token to demo server
@@ -12,11 +12,11 @@
  * [Issue #48](https://github.com/eBay/fabio/issues/48): Allow configuration of serviceip used during consul registration
  * [PR #49](https://github.com/eBay/fabio/pull/49): Fix up use of addr in service registration
 
-### [v1.0.9](https://github.com/eBay/fabio/releases/branch/v1.0.9) - 16 Jan 2015
+### [v1.0.9](https://github.com/eBay/fabio/releases/branch/v1.0.9) - 16 Jan 2016
 
  * [Issue #53](https://github.com/eBay/fabio/issues/53): Make read and write timeout configurable
 
-### [v1.0.8](https://github.com/eBay/fabio/releases/tag/v1.0.8) - 14 Jan 2015
+### [v1.0.8](https://github.com/eBay/fabio/releases/tag/v1.0.8) - 14 Jan 2016
 
  * Upgrade to Go 1.5.3
  * [Issue #29](https://github.com/eBay/fabio/issues/29): Include service with check ids other than 'service:*'
