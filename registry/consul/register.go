@@ -28,7 +28,7 @@ func serviceRegistration(addr, name string, interval, timeout time.Duration) (*a
 
 	ip := net.ParseIP(ipstr)
 	if ip == nil {
-		ip, err := config.LocalIP()
+		ip, err = config.LocalIP()
 		if err != nil {
 			return nil, err
 		}
