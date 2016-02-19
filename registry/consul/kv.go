@@ -9,7 +9,7 @@ import (
 )
 
 // watchKV monitors a key in the KV store for changes.
-// The intended use case is to add addtional route commands to the routing table.
+// The intended use case is to add additional route commands to the routing table.
 func watchKV(client *api.Client, path string, config chan string) {
 	var lastIndex uint64
 	var lastValue string
