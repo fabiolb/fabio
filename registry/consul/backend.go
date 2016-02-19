@@ -45,7 +45,7 @@ func (b *be) Register() error {
 		return err
 	}
 
-	log.Printf("[INFO] consul: Registered fabio as %q with address %q", service.ID, b.cfg.ServiceAddr)
+	log.Printf("[INFO] consul: Registered fabio as %q with address %q and health check to %q", service.ID, b.cfg.ServiceAddr, service.Check.HTTP)
 	b.serviceID = service.ID
 	return nil
 }
