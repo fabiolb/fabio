@@ -87,8 +87,10 @@ type parser struct {
 	line       string
 }
 
+type cmdFn func(s string) error
+
 func (p *parser) parse(r io.Reader) error {
-	cmds := map[string]func(s string) error{
+	cmds := map[string]cmdFn{
 		"route add ":    p.routeAdd,
 		"route del ":    p.routeDel,
 		"route weight ": p.routeWeight,
@@ -101,14 +103,18 @@ func (p *parser) parse(r io.Reader) error {
 		if p.line == "" || strings.HasPrefix(p.line, "#") {
 			continue
 		}
-		for cmd, fn := range cmds {
-			if !strings.HasPrefix(p.line, cmd) {
-				continue
+		var fn cmdFn
+		for cmd := range cmds {
+			if strings.HasPrefix(p.line, cmd) {
+				fn = cmds[cmd]
+				break
 			}
-			if err := fn(p.line); err != nil {
-				return err
-			}
-			break
+		}
+		if fn == nil {
+			return p.syntaxError()
+		}
+		if err := fn(p.line); err != nil {
+			return err
 		}
 	}
 	return nil
