@@ -161,7 +161,7 @@ func (t Table) AddRouteWeight(service, prefix string, weight float64, tags []str
 // for this service and prefix are removed. This removes all active
 // instances of the service from the route. If only the service is
 // provided then all routes for this service are removed. The service
-// will no longer receive traffic.
+// will no longer receive traffic. Routes with no targets are removed.
 func (t Table) DelRoute(service, prefix, target string) error {
 	switch {
 	case prefix == "" && target == "":
@@ -189,6 +189,25 @@ func (t Table) DelRoute(service, prefix, target string) error {
 			return nil
 		}
 		r.delTarget(service, targetURL)
+	}
+
+	// remove all routes without targets
+	for host, routes := range t {
+		var clone Routes
+		for _, r := range routes {
+			if len(r.Targets) == 0 {
+				continue
+			}
+			clone = append(clone, r)
+		}
+		t[host] = clone
+	}
+
+	// remove all hosts without routes
+	for host, routes := range t {
+		if len(routes) == 0 {
+			delete(t, host)
+		}
 	}
 
 	return nil
@@ -228,12 +247,7 @@ func (t Table) Lookup(req *http.Request, trace string) *Target {
 }
 
 func (t Table) doLookup(host, path, trace string) *Target {
-	routes := t[host]
-	if routes == nil {
-		return nil
-	}
-
-	for _, r := range routes {
+	for _, r := range t[host] {
 		if match(path, r) {
 			n := len(r.Targets)
 			if n == 0 {
