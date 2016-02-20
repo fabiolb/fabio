@@ -220,8 +220,8 @@ func (t Table) Lookup(req *http.Request, trace string) *Target {
 		target = t.doLookup("", req.RequestURI, trace)
 	}
 
-	if trace != "" {
-		log.Printf("[TRACE] %s Routing to %s", trace, target.URL)
+	if target != nil && trace != "" {
+		log.Printf("[TRACE] %s Routing to service %s on %s", trace, target.Service, target.URL)
 	}
 
 	return target
@@ -239,13 +239,17 @@ func (t Table) doLookup(host, path, trace string) *Target {
 			if n == 0 {
 				return nil
 			}
+
+			var target *Target
 			if n == 1 {
-				return r.Targets[0]
+				target = r.Targets[0]
+			} else {
+				target = pick(r)
 			}
 			if trace != "" {
 				log.Printf("[TRACE] %s Match %s%s", trace, r.Host, r.Path)
 			}
-			return pick(r)
+			return target
 		}
 		if trace != "" {
 			log.Printf("[TRACE] %s No match %s%s", trace, r.Host, r.Path)
