@@ -165,8 +165,8 @@ func (t Table) AddRouteWeight(service, prefix string, weight float64, tags []str
 func (t Table) DelRoute(service, prefix, target string) error {
 	switch {
 	case prefix == "" && target == "":
-		for _, hr := range t {
-			for _, r := range hr {
+		for _, routes := range t {
+			for _, r := range routes {
 				r.delService(service)
 			}
 		}
@@ -196,11 +196,11 @@ func (t Table) DelRoute(service, prefix, target string) error {
 
 // route finds the route for host/path or returns nil if none exists.
 func (t Table) route(host, path string) *Route {
-	hr := t[host]
-	if hr == nil {
+	routes := t[host]
+	if routes == nil {
 		return nil
 	}
-	return hr.find(path)
+	return routes.find(path)
 }
 
 // Lookup finds a target url based on the current matcher and picker
@@ -215,25 +215,25 @@ func (t Table) Lookup(req *http.Request, trace string) *Target {
 		log.Printf("[TRACE] %s Tracing %s%s", trace, req.Host, req.RequestURI)
 	}
 
-	u := t.doLookup(strings.ToLower(req.Host), req.RequestURI, trace)
-	if u == nil {
-		u = t.doLookup("", req.RequestURI, trace)
+	target := t.doLookup(strings.ToLower(req.Host), req.RequestURI, trace)
+	if target == nil {
+		target = t.doLookup("", req.RequestURI, trace)
 	}
 
 	if trace != "" {
-		log.Printf("[TRACE] %s Routing to %s", trace, u.URL)
+		log.Printf("[TRACE] %s Routing to %s", trace, target.URL)
 	}
 
-	return u
+	return target
 }
 
 func (t Table) doLookup(host, path, trace string) *Target {
-	hr := t[host]
-	if hr == nil {
+	routes := t[host]
+	if routes == nil {
 		return nil
 	}
 
-	for _, r := range hr {
+	for _, r := range routes {
 		if match(path, r) {
 			n := len(r.Targets)
 			if n == 0 {
@@ -256,9 +256,9 @@ func (t Table) doLookup(host, path, trace string) *Target {
 
 func (t Table) Config(addWeight bool) []string {
 	var hosts []string
-	for h := range t {
-		if h != "" {
-			hosts = append(hosts, h)
+	for host := range t {
+		if host != "" {
+			hosts = append(hosts, host)
 		}
 	}
 	sort.Strings(hosts)
@@ -266,13 +266,13 @@ func (t Table) Config(addWeight bool) []string {
 	// entries without host come last
 	hosts = append(hosts, "")
 
-	var routes []string
-	for _, h := range hosts {
-		for _, r := range t[h] {
-			routes = append(routes, r.config(addWeight)...)
+	var cfg []string
+	for _, host := range hosts {
+		for _, routes := range t[host] {
+			cfg = append(cfg, routes.config(addWeight)...)
 		}
 	}
-	return routes
+	return cfg
 }
 
 // String returns the routing table as config file which can
