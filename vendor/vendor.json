@@ -67,6 +67,11 @@
 			"path": "google.golang.org/api/googleapi",
 			"revision": "e6294e63a06b2be522ff3d328d8cacded0b1bd31",
 			"revisionTime": "2016-02-19T16:41:36+11:00"
+		},
+		{
+			"path": "google.golang.org/cloud/compute/metadata",
+			"revision": "872c736f496c2ba12786bedbb8325576bbdb33cf",
+			"revisionTime": "2016-02-19T16:30:36+11:00"
 		}
 	]
 }
