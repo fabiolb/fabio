@@ -8,6 +8,11 @@
 			"revisionTime": "2015-08-25T20:22:00-07:00"
 		},
 		{
+			"path": "github.com/golang/protobuf/proto",
+			"revision": "3c84672111d91bb5ac31719e112f9f7126a0e26e",
+			"revisionTime": "2016-02-22T08:49:41+11:00"
+		},
+		{
 			"path": "github.com/hashicorp/consul/api",
 			"revision": "16de0a909bc4c28d879ef1977b46dcdd57b71af3",
 			"revisionTime": "2015-05-15T08:25:02-07:00"
