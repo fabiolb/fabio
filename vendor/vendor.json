@@ -72,6 +72,11 @@
 			"path": "google.golang.org/cloud/compute/metadata",
 			"revision": "872c736f496c2ba12786bedbb8325576bbdb33cf",
 			"revisionTime": "2016-02-19T16:30:36+11:00"
+		},
+		{
+			"path": "google.golang.org/cloud/internal",
+			"revision": "872c736f496c2ba12786bedbb8325576bbdb33cf",
+			"revisionTime": "2016-02-19T16:30:36+11:00"
 		}
 	]
 }
