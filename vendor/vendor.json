@@ -33,6 +33,11 @@
 			"revisionTime": "2015-07-19T09:56:14-07:00"
 		},
 		{
+			"path": "golang.org/x/net/context",
+			"revision": "b6d7b1396ec874c3b00f6c84cd4301a17c56c8ed",
+			"revisionTime": "2016-02-16T22:16:06+09:00"
+		},
+		{
 			"path": "golang.org/x/net/websocket",
 			"revision": "9946ad7d5eae91d8edca4f54d1a1e130a052e823",
 			"revisionTime": "2015-10-20T22:50:55Z"
