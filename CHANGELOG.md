@@ -1,5 +1,11 @@
 ## Changelog
 
+### [v1.1.1](https://github.com/eBay/fabio/releases/tag/v1.1.1) - 22 Feb 2016
+
+ * [Issue #57](https://github.com/eBay/fabio/issues/57): Deleted routes hide visible routes
+ * [Issue #59](https://github.com/eBay/fabio/issues/59): Latest fabio docker image fails consul check
+ * [PR #58](https://github.com/eBay/fabio/pull/58): Fix use of local ip in consul service registration
+
 ### [v1.1](https://github.com/eBay/fabio/releases/tag/v1.1) - 18 Feb 2016
 
  * Drop support for Go 1.4 and build for both Go 1.5.3 and Go 1.6
