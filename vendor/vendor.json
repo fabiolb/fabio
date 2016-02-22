@@ -46,6 +46,12 @@
 			"path": "golang.org/x/net/websocket",
 			"revision": "9946ad7d5eae91d8edca4f54d1a1e130a052e823",
 			"revisionTime": "2015-10-20T22:50:55Z"
+		},
+		{
+			"path": "golang.org/x/oauth2",
+			"revision": "2cd4472c321b6cba78e029d99f0e7fe51032fd21",
+			"revisionTime": "2016-02-22T14:00:05+11:00",
+			"tree": true
 		}
 	]
 }
