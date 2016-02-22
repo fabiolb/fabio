@@ -52,6 +52,11 @@
 			"revision": "2cd4472c321b6cba78e029d99f0e7fe51032fd21",
 			"revisionTime": "2016-02-22T14:00:05+11:00",
 			"tree": true
+		},
+		{
+			"path": "google.golang.org/api/compute/v1",
+			"revision": "e6294e63a06b2be522ff3d328d8cacded0b1bd31",
+			"revisionTime": "2016-02-19T16:41:36+11:00"
 		}
 	]
 }
