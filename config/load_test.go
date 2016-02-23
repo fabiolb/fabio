@@ -35,6 +35,9 @@ registry.consul.register.addr = 6.6.6.6:7777
 registry.consul.register.name = fab
 registry.consul.register.checkInterval = 5s
 registry.consul.register.checkTimeout = 10s
+registry.gcp.checkInterval = 30s
+registry.gcp.zone = europe-west1-b
+registry.gcp.project = ubanita.com
 metrics.target = graphite
 metrics.prefix = someprefix
 metrics.interval = 5s
@@ -75,6 +78,11 @@ ui.title = fabfab
 				ServiceName:   "fab",
 				CheckInterval: 5 * time.Second,
 				CheckTimeout:  10 * time.Second,
+			},
+			GoogleCloudPlatform: GoogleCloudPlatform{
+				CheckInterval: 30 * time.Second,
+				Zone:          "europe-west1-b",
+				Project:       "ubanita.com",
 			},
 		},
 		Listen: []Listen{

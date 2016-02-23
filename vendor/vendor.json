@@ -8,6 +8,11 @@
 			"revisionTime": "2015-08-25T20:22:00-07:00"
 		},
 		{
+			"path": "github.com/golang/protobuf/proto",
+			"revision": "3c84672111d91bb5ac31719e112f9f7126a0e26e",
+			"revisionTime": "2016-02-22T08:49:41+11:00"
+		},
+		{
 			"path": "github.com/hashicorp/consul/api",
 			"revision": "16de0a909bc4c28d879ef1977b46dcdd57b71af3",
 			"revisionTime": "2015-05-15T08:25:02-07:00"
@@ -28,9 +33,55 @@
 			"revisionTime": "2015-07-19T09:56:14-07:00"
 		},
 		{
+			"path": "golang.org/x/net/context",
+			"revision": "b6d7b1396ec874c3b00f6c84cd4301a17c56c8ed",
+			"revisionTime": "2016-02-16T22:16:06+09:00"
+		},
+		{
+			"path": "golang.org/x/net/context/ctxhttp",
+			"revision": "b6d7b1396ec874c3b00f6c84cd4301a17c56c8ed",
+			"revisionTime": "2016-02-16T22:16:06+09:00"
+		},
+		{
 			"path": "golang.org/x/net/websocket",
 			"revision": "9946ad7d5eae91d8edca4f54d1a1e130a052e823",
 			"revisionTime": "2015-10-20T22:50:55Z"
+		},
+		{
+			"path": "golang.org/x/oauth2",
+			"revision": "2cd4472c321b6cba78e029d99f0e7fe51032fd21",
+			"revisionTime": "2016-02-22T14:00:05+11:00",
+			"tree": true
+		},
+		{
+			"path": "google.golang.org/api/compute/v1",
+			"revision": "e6294e63a06b2be522ff3d328d8cacded0b1bd31",
+			"revisionTime": "2016-02-19T16:41:36+11:00"
+		},
+		{
+			"path": "google.golang.org/api/gensupport",
+			"revision": "e6294e63a06b2be522ff3d328d8cacded0b1bd31",
+			"revisionTime": "2016-02-19T16:41:36+11:00"
+		},
+		{
+			"path": "google.golang.org/api/googleapi",
+			"revision": "e6294e63a06b2be522ff3d328d8cacded0b1bd31",
+			"revisionTime": "2016-02-19T16:41:36+11:00"
+		},
+		{
+			"path": "google.golang.org/api/googleapi/internal/uritemplates",
+			"revision": "e6294e63a06b2be522ff3d328d8cacded0b1bd31",
+			"revisionTime": "2016-02-19T16:41:36+11:00"
+		},
+		{
+			"path": "google.golang.org/cloud/compute/metadata",
+			"revision": "872c736f496c2ba12786bedbb8325576bbdb33cf",
+			"revisionTime": "2016-02-19T16:30:36+11:00"
+		},
+		{
+			"path": "google.golang.org/cloud/internal",
+			"revision": "872c736f496c2ba12786bedbb8325576bbdb33cf",
+			"revisionTime": "2016-02-19T16:30:36+11:00"
 		}
 	]
 }

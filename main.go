@@ -17,6 +17,7 @@ import (
 	"github.com/eBay/fabio/registry"
 	"github.com/eBay/fabio/registry/consul"
 	"github.com/eBay/fabio/registry/file"
+	"github.com/eBay/fabio/registry/gcp"
 	"github.com/eBay/fabio/registry/static"
 	"github.com/eBay/fabio/route"
 )
@@ -117,6 +118,8 @@ func initBackend(cfg *config.Config) {
 		registry.Default, err = static.NewBackend(cfg.Registry.Static.Routes)
 	case "consul":
 		registry.Default, err = consul.NewBackend(&cfg.Registry.Consul)
+	case "gcp":
+		registry.Default, err = gcp.NewBackend(&cfg.Registry.GoogleCloudPlatform)
 	default:
 		log.Fatal("[FATAL] Unknown registry backend ", cfg.Registry.Backend)
 	}
