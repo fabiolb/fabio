@@ -81,6 +81,11 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 			CheckInterval: durationVal(p, Default.Registry.Consul.CheckInterval, "registry.consul.register.checkInterval", "consul.register.checkInterval"),
 			CheckTimeout:  durationVal(p, Default.Registry.Consul.CheckTimeout, "registry.consul.register.checkTimeout", "consul.register.checkTimeout"),
 		},
+		GoogleCloudPlatform: GoogleCloudPlatform{
+			CheckInterval: durationVal(p, Default.Registry.GoogleCloudPlatform.CheckInterval, "registry.gcp.updateEvery"),
+			Project:       stringVal(p, Default.Registry.GoogleCloudPlatform.Project, "registry.gcp.project"),
+			Zone:          stringVal(p, Default.Registry.GoogleCloudPlatform.Zone, "registry.gcp.zone"),
+		},
 	}
 	deprecate("consul.addr", "consul.addr has been replaced by registry.consul.addr")
 	deprecate("consul.token", "consul.token has been replaced by registry.consul.token")

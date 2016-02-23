@@ -53,10 +53,11 @@ type Metrics struct {
 }
 
 type Registry struct {
-	Backend string
-	Static  Static
-	File    File
-	Consul  Consul
+	Backend             string
+	Static              Static
+	File                File
+	Consul              Consul
+	GoogleCloudPlatform GoogleCloudPlatform
 }
 
 type Static struct {
@@ -76,4 +77,10 @@ type Consul struct {
 	ServiceName   string
 	CheckInterval time.Duration
 	CheckTimeout  time.Duration
+}
+
+type GoogleCloudPlatform struct {
+	CheckInterval time.Duration
+	Project       string
+	Zone          string
 }
