@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"runtime"
 	"time"
 )
@@ -22,6 +23,11 @@ var Default = &Config{
 			ServiceName:   "fabio",
 			CheckInterval: time.Second,
 			CheckTimeout:  3 * time.Second,
+		},
+		GoogleCloudPlatform: GoogleCloudPlatform{
+			CheckInterval: 30 * time.Second,
+			Project:       os.Getenv("GCP_PROJECT"),
+			Zone:          os.Getenv("GCP_ZONE"),
 		},
 	},
 	Listen: []Listen{
