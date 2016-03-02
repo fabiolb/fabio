@@ -45,6 +45,10 @@ func FromViper(v *viper.Viper) (cfg *Config, err error) {
 	v.SetDefault("", Default)
 	v.SetDefault("Listen", defaultListen)
 
+	v.SetEnvPrefix("FABIO")
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.AutomaticEnv()
+
 	v.Unmarshal(cfg)
 
 	if cfg.Metrics[0].Target == "graphite" {
