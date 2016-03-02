@@ -165,9 +165,8 @@ func unmarshallConfigReader(in io.Reader, c map[string]interface{}, configType s
 		if p, err = properties.Load(buf.Bytes(), properties.UTF8); err != nil {
 			return ConfigParseError{err}
 		}
-		for _, key := range p.Keys() {
-			value, _ := p.Get(key)
-			c[key] = value
+		if err = p.Decode(&c); err != nil {
+			return ConfigParseError{err}
 		}
 	}
 
