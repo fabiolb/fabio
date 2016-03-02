@@ -48,8 +48,8 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 		TLSHeaderValue:        stringVal(p, Default.Proxy.TLSHeaderValue, "proxy.header.tls.value"),
 	}
 
-	readTimeout := durationVal(p, time.Duration(0), "proxy.readtimeout")
-	writeTimeout := durationVal(p, time.Duration(0), "proxy.writetimeout")
+	readTimeout := durationVal(p, Default.Proxy.ReadTimeout, "proxy.readtimeout")
+	writeTimeout := durationVal(p, Default.Proxy.WriteTimeout, "proxy.writetimeout")
 
 	cfg.Listen, err = parseListen(stringVal(p, Default.Listen[0].Addr, "proxy.addr"), readTimeout, writeTimeout)
 	if err != nil {
