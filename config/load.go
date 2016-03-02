@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"path"
@@ -9,11 +8,48 @@ import (
 	"strings"
 	"time"
 
+	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
-func Load(filename string) (*Config, error) {
-	v    := viper.New()
+func Load(args []string) (cfg *Config, showVersion bool) {
+	showVersion, filename, configdebug, v := FromFlags(args)
+	if showVersion {
+		return nil, true
+	}
+
+	cfg, err := FromFile(v, filename)
+	if err != nil {
+		log.Fatal("[FATAL] ", err)
+	}
+	if configdebug {
+		v.Debug()
+	}
+	return cfg, false
+}
+
+func FromFlags(args []string) (showVersion bool, cfgPath string, configdebug bool, v *viper.Viper) {
+	v = viper.New()
+	fs := flag.NewFlagSet("default", flag.ExitOnError)
+
+	fs.StringVarP(&cfgPath, "cfg", "c", "", "path to config file")
+	fs.BoolVarP(&showVersion, "version", "v", false, "show version")
+	fs.BoolVarP(&configdebug, "configdebug", "D", false, "print config to console for debugging")
+
+	fs.String("registry.consul.addr", "", "Consul address")
+	fs.String("registry.consul.token", "", "Consul token")
+	fs.String("registry.consul.serviceaddr", "", "Consul service registration address")
+	fs.String("proxy.addr", "", "proxy address")
+	fs.String("proxy.localip", "", "proxy local IP")
+	fs.String("proxy.header.clientip", "", "proxy header client IP")
+	fs.String("ui.addr", "", "UI address")
+
+	v.BindPFlags(fs)
+	fs.Parse(args)
+	return showVersion, cfgPath, configdebug, v
+}
+
+func FromFile(v *viper.Viper, filename string) (*Config, error) {
 	base := path.Base(filename)
 	ext := path.Ext(filename)
 	name := strings.TrimSuffix(base, ext)
@@ -84,16 +120,7 @@ func FromViper(v *viper.Viper) (cfg *Config, err error) {
 		cfg.Runtime.GOMAXPROCS = runtime.NumCPU()
 	}
 
-	dump(cfg)
 	return cfg, nil
-}
-
-func dump(cfg *Config) {
-	data, err := json.MarshalIndent(cfg, "", "    ")
-	if err != nil {
-		log.Fatal("[FATAL] Cannot dump runtime config. ", err)
-	}
-	log.Println("[INFO] Runtime config\n" + string(data))
 }
 
 func parseMetrics(target, prefix, graphiteAddr string, interval time.Duration) []Metrics {
