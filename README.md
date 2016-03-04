@@ -22,8 +22,7 @@ Managing the routing table can be automated via API calls or tools like
 requires configuration and/or tools. In the case of consul-template the config
 file template itself has to be kept in sync with the actual setup of the
 application. Finally, updating the routing table without loss of existing
-connections can be [challenging](http://engineeringblog.yelp.com/2015/04/true-
-zero-downtime-haproxy-reloads.html).
+connections can be [challenging](http://engineeringblog.yelp.com/2015/04/true-zero-downtime-haproxy-reloads.html).
 
 fabio solves this problem by making the services themselves responsible for
 updating the routing table. Services already know which routes they serve since
