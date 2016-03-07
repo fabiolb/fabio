@@ -13,3 +13,4 @@ build/fabio-*
 .vagrant
 *-amd64
 .vagrant
+*.sha256
