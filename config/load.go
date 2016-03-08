@@ -1,6 +1,7 @@
 package config
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"path"
@@ -8,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	flag "github.com/spf13/pflag"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
@@ -28,9 +29,37 @@ func Load(args []string) (cfg *Config, showVersion bool) {
 	return cfg, false
 }
 
+func filterGoFlags(args []string, prefixes map[string]bool) ([]string, []string) {
+	var goFlags []string
+	for i := 0; 0 < len(args) && i < len(args); i++ {
+		for prefix, hasValue := range prefixes {
+			if strings.HasPrefix(args[i], "-"+prefix) {
+				goFlags = append(goFlags, args[i])
+				skip := 1
+				if hasValue && i+1 < len(args) {
+					goFlags = append(goFlags, args[i+1])
+					skip = 2
+				}
+				if i+skip <= len(args) {
+					args = append(args[:i], args[i+skip:]...)
+				}
+				i--
+				break
+			}
+		}
+	}
+
+	return args, goFlags
+}
+
 func FromFlags(args []string) (showVersion bool, cfgPath string, configdebug bool, v *viper.Viper) {
 	v = viper.New()
-	fs := flag.NewFlagSet("default", flag.ExitOnError)
+	fs := pflag.NewFlagSet("default", pflag.ExitOnError)
+
+	var cfgPathOld string
+	flag.StringVar(&cfgPathOld, "cfg", "", "path to config file")
+	args, goFlags := filterGoFlags(args, map[string]bool{"cfg": true})
+	flag.CommandLine.Parse(goFlags)
 
 	fs.StringVarP(&cfgPath, "cfg", "c", "", "path to config file")
 	fs.BoolVarP(&showVersion, "version", "v", false, "show version")
@@ -46,6 +75,11 @@ func FromFlags(args []string) (showVersion bool, cfgPath string, configdebug boo
 
 	v.BindPFlags(fs)
 	fs.Parse(args)
+	if cfgPathOld != "" {
+		log.Print("[WARN] flag: -cfg has been replaced by --cfg")
+		cfgPath = cfgPathOld
+	}
+
 	return showVersion, cfgPath, configdebug, v
 }
 
