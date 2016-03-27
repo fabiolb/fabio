@@ -8,30 +8,47 @@ import (
 
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/route"
+	"strings"
 )
 
 // addHeaders adds/updates headers in request
-//
-// * add/update `Forwarded` header
-// * ClientIPHeader == "X-Forwarded-For": add/update `X-Forwarded-For` header
-// * ClientIPHeader != "": Set header with that name to <remote ip>
-// * TLS connection: Set header with name from `cfg.TLSHeader` to `cfg.TLSHeaderValue`
-//
 func addHeaders(r *http.Request, cfg config.Proxy) error {
 	remoteIP, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return errors.New("cannot parse " + r.RemoteAddr)
 	}
 
-	if cfg.ClientIPHeader != "" {
+	addRemoteIpHeaders(r, cfg, remoteIP)
+	addXForwardedHeaders(r, cfg, remoteIP)
+	addForwardedHeader(r, cfg, remoteIP)
+	addTLSHeader(r, cfg, remoteIP)
+
+	return nil
+}
+
+// Set Configurable ClientIPHeader here, but
+// don't set X-Forwarded-For here, because it will be set by the Golang Reverse Proxy Handler, later
+func addRemoteIpHeaders(r *http.Request, cfg config.Proxy, remoteIP string) {
+	if cfg.ClientIPHeader != "" && cfg.ClientIPHeader != "X-Forwarded-For" {
 		r.Header.Set(cfg.ClientIPHeader, remoteIP)
 	}
-
-	xff := r.Header.Get("X-Forwarded-For")
-	if xff != "" && cfg.LocalIP != "" {
-		r.Header.Set("X-Forwarded-For", xff+", "+cfg.LocalIP)
+	if cfg.ClientIPHeader != "X-Real-Ip" {
+		r.Header.Set("X-Real-Ip", remoteIP)
 	}
+}
 
+// Sets X-Forwarded-Host, X-Forwarded-Proto
+func addXForwardedHeaders(r *http.Request, cfg config.Proxy, remoteIP string) {
+	r.Header.Set("X-Forwarded-Host", r.Host)
+	if r.TLS != nil {
+		r.Header.Set("X-Forwarded-Proto", "https")
+	} else {
+		r.Header.Set("X-Forwarded-Proto", "http")
+	}
+}
+
+// * add/update `Forwarded` header defined by rfc7239
+func addForwardedHeader(r *http.Request, cfg config.Proxy, remoteIP string) {
 	fwd := r.Header.Get("Forwarded")
 	if fwd == "" {
 		fwd = "for=" + remoteIP
@@ -44,13 +61,18 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 	if cfg.LocalIP != "" {
 		fwd += "; by=" + cfg.LocalIP
 	}
-	r.Header.Set("Forwarded", fwd)
+	if !strings.Contains(fwd, "host=") {
+		fwd += "; host=" + r.Host
+	}
 
+	r.Header.Set("Forwarded", fwd)
+}
+
+// * TLS connection: Set header with name from `cfg.TLSHeader` to `cfg.TLSHeaderValue`
+func addTLSHeader(r *http.Request, cfg config.Proxy, remoteIP string) {
 	if cfg.TLSHeader != "" && r.TLS != nil {
 		r.Header.Set(cfg.TLSHeader, cfg.TLSHeaderValue)
 	}
-
-	return nil
 }
 
 // target looks up a target URL for the request from the current routing table.
