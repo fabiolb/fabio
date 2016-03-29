@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/eBay/fabio/config"
@@ -50,6 +51,16 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// h = newWSProxy(t.URL)
 	default:
 		h = newHTTPProxy(t.URL, p.tr)
+	}
+
+	// strip the prefix, if the target was tagged properly
+	if t.StripPrefix {
+		pieces := strings.SplitN(r.URL.Path, "/", 3)
+		if len(pieces) == 3 {
+			r.URL.Path = pieces[2]
+		} else {
+			r.URL.Path = "/"
+		}
 	}
 
 	start := time.Now()

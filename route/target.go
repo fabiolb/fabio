@@ -16,6 +16,9 @@ type Target struct {
 	// URL is the endpoint the service instance listens on
 	URL *url.URL
 
+	// whether or not to strip the service prefix
+	StripPrefix bool
+
 	// FixedWeight is the weight assigned to this target.
 	// If the value is 0 the targets weight is dynamic.
 	FixedWeight float64
