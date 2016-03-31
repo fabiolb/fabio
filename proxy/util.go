@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/route"
@@ -13,6 +14,7 @@ import (
 // addHeaders adds/updates headers in request
 //
 // * add/update `Forwarded` header
+// * add X-Forwarded-Host header if not present
 // * ClientIPHeader != "": Set header with that name to <remote ip>
 // * TLS connection: Set header with name from `cfg.TLSHeader` to `cfg.TLSHeaderValue`
 //
@@ -28,6 +30,10 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 		r.Header.Set(cfg.ClientIPHeader, remoteIP)
 	}
 
+	if r.Header.Get("X-Forwarded-Host") == "" {
+		r.Header.Set("X-Forwarded-Host", r.Host)
+	}
+
 	fwd := r.Header.Get("Forwarded")
 	if fwd == "" {
 		fwd = "for=" + remoteIP
@@ -39,6 +45,9 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 	}
 	if cfg.LocalIP != "" {
 		fwd += "; by=" + cfg.LocalIP
+	}
+	if !strings.Contains(fwd, "host=") {
+		fwd += "; host=" + r.Host
 	}
 	r.Header.Set("Forwarded", fwd)
 
