@@ -13,7 +13,6 @@ import (
 // addHeaders adds/updates headers in request
 //
 // * add/update `Forwarded` header
-// * ClientIPHeader == "X-Forwarded-For": add/update `X-Forwarded-For` header
 // * ClientIPHeader != "": Set header with that name to <remote ip>
 // * TLS connection: Set header with name from `cfg.TLSHeader` to `cfg.TLSHeaderValue`
 //
@@ -23,13 +22,10 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 		return errors.New("cannot parse " + r.RemoteAddr)
 	}
 
-	if cfg.ClientIPHeader != "" {
+	// Set configurable ClientIPHeader here, but no if it is X-Forwarded-For here,
+	// because X-Forwarded-For will be set by the Golang reverse proxy handler, later.
+	if cfg.ClientIPHeader != "" && cfg.ClientIPHeader != "X-Forwarded-For" {
 		r.Header.Set(cfg.ClientIPHeader, remoteIP)
-	}
-
-	xff := r.Header.Get("X-Forwarded-For")
-	if xff != "" && cfg.LocalIP != "" {
-		r.Header.Set("X-Forwarded-For", xff+", "+cfg.LocalIP)
 	}
 
 	fwd := r.Header.Get("Forwarded")

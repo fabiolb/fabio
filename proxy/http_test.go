@@ -13,7 +13,6 @@ import (
 // and not with the ip of the request to the proxy itself
 func TestCorrectHostHeader(t *testing.T) {
 	got := "not called"
-
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		got = r.Host
 	}))
@@ -33,9 +32,8 @@ func TestCorrectHostHeader(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res := httptest.NewRecorder()
 
-	proxy.ServeHTTP(res, req)
+	proxy.ServeHTTP(httptest.NewRecorder(), req)
 
 	if want := serverURL.Host; want != got {
 		t.Errorf("want host %q, but got %q", want, got)
