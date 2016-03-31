@@ -8,29 +8,36 @@ import (
 	"testing"
 )
 
-// Test, that the proxy calls the target
+// TestCorrectHostHeader checks that the proxy calls the target
 // with the target host as host header,
 // and not with the ip of the request to the proxy itself
 func TestCorrectHostHeader(t *testing.T) {
+	got := "not called"
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(r.Host))
+		got = r.Host
 	}))
-
 	defer server.Close()
-	serverUrl, _ := url.Parse(server.URL)
+
+	serverURL, err := url.Parse(server.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	tr := &http.Transport{
 		Dial: (&net.Dialer{}).Dial,
 	}
-	proxy := newHTTPProxy(serverUrl, tr)
+	proxy := newHTTPProxy(serverURL, tr)
 
-	req, _ := http.NewRequest("GET", "http://example.com:666", nil)
+	req, err := http.NewRequest("GET", "http://example.com:666", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	res := httptest.NewRecorder()
 
 	proxy.ServeHTTP(res, req)
 
-	if serverUrl.Host != res.Body.String() {
-		t.Errorf("expected host was %v, but got %v", serverUrl.Host, res.Body.String())
+	if want := serverURL.Host; want != got {
+		t.Errorf("want host %q, but got %q", want, got)
 	}
 }
