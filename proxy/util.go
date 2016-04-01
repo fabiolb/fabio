@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/route"
@@ -13,7 +14,9 @@ import (
 // addHeaders adds/updates headers in request
 //
 // * add/update `Forwarded` header
-// * ClientIPHeader == "X-Forwarded-For": add/update `X-Forwarded-For` header
+// * add X-Forwarded-Host header, if not present
+// * add X-Forwarded-Proto header, if not present
+// * add X-Real-Ip, if not present
 // * ClientIPHeader != "": Set header with that name to <remote ip>
 // * TLS connection: Set header with name from `cfg.TLSHeader` to `cfg.TLSHeaderValue`
 //
@@ -23,13 +26,26 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 		return errors.New("cannot parse " + r.RemoteAddr)
 	}
 
-	if cfg.ClientIPHeader != "" {
+	// Set configurable ClientIPHeader here, but no if it is X-Forwarded-For here,
+	// because X-Forwarded-For will be set by the Golang reverse proxy handler, later.
+	if cfg.ClientIPHeader != "" && cfg.ClientIPHeader != "X-Forwarded-For" && cfg.ClientIPHeader != "X-Real-Ip" {
 		r.Header.Set(cfg.ClientIPHeader, remoteIP)
 	}
 
-	xff := r.Header.Get("X-Forwarded-For")
-	if xff != "" && cfg.LocalIP != "" {
-		r.Header.Set("X-Forwarded-For", xff+", "+cfg.LocalIP)
+	if r.Header.Get("X-Real-Ip") == "" {
+		r.Header.Set("X-Real-Ip", remoteIP)
+	}
+
+	if r.Header.Get("X-Forwarded-Host") == "" {
+		r.Header.Set("X-Forwarded-Host", r.Host)
+	}
+
+	if r.Header.Get("X-Forwarded-Proto") == "" {
+		if r.TLS != nil {
+			r.Header.Set("X-Forwarded-Proto", "https")
+		} else {
+			r.Header.Set("X-Forwarded-Proto", "http")
+		}
 	}
 
 	fwd := r.Header.Get("Forwarded")
@@ -43,6 +59,9 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 	}
 	if cfg.LocalIP != "" {
 		fwd += "; by=" + cfg.LocalIP
+	}
+	if !strings.Contains(fwd, "host=") {
+		fwd += "; host=" + r.Host
 	}
 	r.Header.Set("Forwarded", fwd)
 

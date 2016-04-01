@@ -3,7 +3,6 @@ package proxy
 import (
 	"crypto/tls"
 	"net/http"
-	"reflect"
 	"testing"
 
 	"github.com/eBay/fabio/config"
@@ -11,92 +10,109 @@ import (
 
 func TestAddHeaders(t *testing.T) {
 	tests := []struct {
+		desc string
 		r    *http.Request
 		cfg  config.Proxy
 		hdrs http.Header
 		err  string
 	}{
-		{ // error
+		{"error",
 			&http.Request{RemoteAddr: "1.2.3.4"},
 			config.Proxy{},
 			http.Header{},
 			"cannot parse 1.2.3.4",
 		},
 
-		{ // set remote ip header
+		{"set remote ip header",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{ClientIPHeader: "Client-IP"},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=http"}, "Client-Ip": []string{"1.2.3.4"}},
+			http.Header{"Client-Ip": []string{"1.2.3.4"}},
 			"",
 		},
 
-		{ // set remote ip header with local ip (no change expected)
+		{"set remote ip header with local ip (no change expected)",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{LocalIP: "5.6.7.8", ClientIPHeader: "Client-IP"},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=http; by=5.6.7.8"}, "Client-Ip": []string{"1.2.3.4"}},
+			http.Header{"Client-Ip": []string{"1.2.3.4"}},
 			"",
 		},
 
-		{ // set X-Forwarded-For
-			&http.Request{RemoteAddr: "1.2.3.4:5555"},
-			config.Proxy{ClientIPHeader: "X-Forwarded-For"},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=http"}, "X-Forwarded-For": []string{"1.2.3.4"}},
+		{"set Forwarded",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Host: "example.com:8080"},
+			config.Proxy{},
+			http.Header{"Forwarded": {"for=1.2.3.4; proto=http; host=example.com:8080"}},
 			"",
 		},
 
-		{ // set X-Forwarded-For with local ip
-			&http.Request{RemoteAddr: "1.2.3.4:5555"},
-			config.Proxy{LocalIP: "5.6.7.8", ClientIPHeader: "X-Forwarded-For"},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=http; by=5.6.7.8"}, "X-Forwarded-For": []string{"1.2.3.4, 5.6.7.8"}},
-			"",
-		},
-
-		{ // extend X-Forwarded-For with local ip
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"X-Forwarded-For": []string{"9.9.9.9"}}},
+		{"set Forwarded with localIP",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Host: "example.com:8080"},
 			config.Proxy{LocalIP: "5.6.7.8"},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=http; by=5.6.7.8"}, "X-Forwarded-For": []string{"9.9.9.9, 5.6.7.8"}},
+			http.Header{"Forwarded": {"for=1.2.3.4; proto=http; by=5.6.7.8; host=example.com:8080"}},
 			"",
 		},
 
-		{ // set Forwarded
+		{"set Forwarded with localIP and HTTPS",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}, Host: "example.com:8080"},
+			config.Proxy{LocalIP: "5.6.7.8"},
+			http.Header{"Forwarded": {"for=1.2.3.4; proto=https; by=5.6.7.8; host=example.com:8080"}},
+			"",
+		},
+
+		{"extend Forwarded with localIP",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Forwarded": {"for=9.9.9.9; proto=http; by=8.8.8.8"}}, Host: "example.com:8080"},
+			config.Proxy{LocalIP: "5.6.7.8"},
+			http.Header{"Forwarded": {"for=9.9.9.9; proto=http; by=8.8.8.8; by=5.6.7.8; host=example.com:8080"}},
+			"",
+		},
+
+		{"set tls header",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
+			config.Proxy{TLSHeader: "Secure"},
+			http.Header{"Secure": {""}},
+			"",
+		},
+
+		{"set tls header with value",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
+			config.Proxy{TLSHeader: "Secure", TLSHeaderValue: "true"},
+			http.Header{"Secure": {"true"}},
+			"",
+		},
+
+		{"set X-Forwarded Host and Proto",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Host: "example.com:8080"},
+			config.Proxy{},
+			http.Header{"X-Forwarded-Host": {"example.com:8080"}, "X-Forwarded-Proto": {"http"}},
+			"",
+		},
+		{"set X-Forwarded Host and Proto with TLS",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Host: "example.com:8080", TLS: &tls.ConnectionState{}},
+			config.Proxy{},
+			http.Header{"X-Forwarded-Host": {"example.com:8080"}, "X-Forwarded-Proto": {"https"}},
+			"",
+		},
+		{"don't overwrite X-Forwarded-Host header, if present",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Host: "example.com:8080", Header: http.Header{"X-Forwarded-Host": {"original.com"}}},
+			config.Proxy{},
+			http.Header{"X-Forwarded-Host": {"original.com"}},
+			"",
+		},
+		{"don't overwrite X-Forwarded-Proto header, if present",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"X-Forwarded-Proto": {"https"}}},
+			config.Proxy{},
+			http.Header{"X-Forwarded-Proto": {"https"}},
+			"",
+		},
+		{"set X-Real-Ip header, if not present",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=http"}},
+			http.Header{"X-Real-Ip": {"1.2.3.4"}},
 			"",
 		},
-
-		{ // set Forwarded with localIP
-			&http.Request{RemoteAddr: "1.2.3.4:5555"},
-			config.Proxy{LocalIP: "5.6.7.8"},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=http; by=5.6.7.8"}},
-			"",
-		},
-
-		{ // set Forwarded with localIP and HTTPS
-			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
-			config.Proxy{LocalIP: "5.6.7.8"},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=https; by=5.6.7.8"}},
-			"",
-		},
-
-		{ // extend Forwarded with localIP
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Forwarded": {"for=9.9.9.9; proto=http; by=8.8.8.8"}}},
-			config.Proxy{LocalIP: "5.6.7.8"},
-			http.Header{"Forwarded": {"for=9.9.9.9; proto=http; by=8.8.8.8; by=5.6.7.8"}},
-			"",
-		},
-
-		{ // set tls header
-			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
-			config.Proxy{LocalIP: "5.6.7.8", TLSHeader: "Secure"},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=https; by=5.6.7.8"}, "Secure": {""}},
-			"",
-		},
-
-		{ // set tls header with value
-			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
-			config.Proxy{LocalIP: "5.6.7.8", TLSHeader: "Secure", TLSHeaderValue: "true"},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=https; by=5.6.7.8"}, "Secure": {"true"}},
+		{"don't overwrite X-Real-Ip header, if present",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"X-Real-Ip": {"6.6.6.6"}}},
+			config.Proxy{},
+			http.Header{"X-Real-Ip": {"6.6.6.6"}},
 			"",
 		},
 	}
@@ -109,7 +125,7 @@ func TestAddHeaders(t *testing.T) {
 		err := addHeaders(tt.r, tt.cfg)
 		if err != nil {
 			if got, want := err.Error(), tt.err; got != want {
-				t.Errorf("%d: got %q want %q", i, got, want)
+				t.Errorf("%d: %s\ngot  %q\nwant %q", i, tt.desc, got, want)
 			}
 			continue
 		}
@@ -117,8 +133,12 @@ func TestAddHeaders(t *testing.T) {
 			t.Errorf("%d: got nil want %q", i, tt.err)
 			continue
 		}
-		if got, want := tt.r.Header, tt.hdrs; !reflect.DeepEqual(got, want) {
-			t.Errorf("%d: got %v want %v", i, got, want)
+		for headerName, _ := range tt.hdrs {
+			got := tt.r.Header.Get(headerName)
+			want := tt.hdrs.Get(headerName)
+			if got != want {
+				t.Errorf("%d: %s \nWrong value for Header: %s \ngot  %q \nwant %q", i, tt.desc, headerName, got, want)
+			}
 		}
 	}
 }
