@@ -13,12 +13,15 @@ import (
 
 func TestProxyProducesCorrectXffHeader(t *testing.T) {
 	got := "not called"
-	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		got = r.Header.Get("X-Forwarded-For")
 	}))
-	defer mockServer.Close()
+	defer server.Close()
 
-	setRoutingTable(mockServer.URL)
+	table := make(route.Table)
+	table.AddRoute("mock", "/", targetURL, 1, nil)
+	route.SetTable(table)
+
 	tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
 	proxy := New(tr, config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"})
 
@@ -31,13 +34,7 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 
 	proxy.ServeHTTP(httptest.NewRecorder(), req)
 
-	if want := "3.3.3.3, 2.2.2.2"; want != got {
-		t.Errorf("want %v, but got %v", want, got)
+	if want := "3.3.3.3, 2.2.2.2"; got != want {
+		t.Errorf("got %v, but want %v", got, want)
 	}
-}
-
-func setRoutingTable(targetURL string) {
-	table := make(route.Table)
-	table.AddRoute("mock", "/", targetURL, 1, nil)
-	route.SetTable(table)
 }

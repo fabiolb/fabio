@@ -103,7 +103,7 @@ func TestAddHeaders(t *testing.T) {
 			http.Header{"X-Forwarded-Proto": {"https"}},
 			"",
 		},
-		{"set X-Real-Ip header, if not presen",
+		{"set X-Real-Ip header, if not present",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{},
 			http.Header{"X-Real-Ip": {"1.2.3.4"}},

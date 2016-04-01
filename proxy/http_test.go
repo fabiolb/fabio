@@ -23,9 +23,7 @@ func TestCorrectHostHeader(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tr := &http.Transport{
-		Dial: (&net.Dialer{}).Dial,
-	}
+	tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
 	proxy := newHTTPProxy(serverURL, tr)
 
 	req, err := http.NewRequest("GET", "http://example.com:666", nil)
@@ -35,7 +33,7 @@ func TestCorrectHostHeader(t *testing.T) {
 
 	proxy.ServeHTTP(httptest.NewRecorder(), req)
 
-	if want := serverURL.Host; want != got {
-		t.Errorf("want host %q, but got %q", want, got)
+	if want := serverURL.Host; got != want {
+		t.Errorf("got host %q, but want %q", got, want)
 	}
 }
