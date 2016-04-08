@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -32,22 +31,13 @@ import (
 var version = "1.1.1"
 
 func main() {
-	var filename string
-	var v bool
-	flag.StringVar(&filename, "cfg", "", "path to config file")
-	flag.BoolVar(&v, "v", false, "show version")
-	flag.Parse()
+	cfg, v := config.Load(os.Args[1:])
 
 	if v {
 		fmt.Println(version)
 		return
 	}
 	log.Printf("[INFO] Version %s starting", version)
-
-	cfg, err := config.Load(filename)
-	if err != nil {
-		log.Fatal("[FATAL] ", err)
-	}
 
 	initRuntime(cfg)
 	initMetrics(cfg)

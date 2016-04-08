@@ -1,87 +1,135 @@
 package config
 
 import (
-	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
-	"os"
+	"path"
 	"runtime"
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/magiconair/properties"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
-func Load(filename string) (*Config, error) {
-	if filename == "" {
-		return fromProperties(properties.NewProperties())
+func Load(args []string) (cfg *Config, showVersion bool) {
+	showVersion, filename, configdebug, v := FromFlags(args)
+	if showVersion {
+		return nil, true
 	}
 
-	p, err := properties.LoadFile(filename, properties.UTF8)
+	cfg, err := FromFile(v, filename)
+	if err != nil {
+		log.Fatal("[FATAL] ", err)
+	}
+	if configdebug {
+		v.Debug()
+	}
+	return cfg, false
+}
+
+func filterGoFlags(args []string, prefixes map[string]bool) ([]string, []string) {
+	var goFlags []string
+	for i := 0; 0 < len(args) && i < len(args); i++ {
+		for prefix, hasValue := range prefixes {
+			if strings.HasPrefix(args[i], "-"+prefix) {
+				goFlags = append(goFlags, args[i])
+				skip := 1
+				if hasValue && i+1 < len(args) {
+					goFlags = append(goFlags, args[i+1])
+					skip = 2
+				}
+				if i+skip <= len(args) {
+					args = append(args[:i], args[i+skip:]...)
+				}
+				i--
+				break
+			}
+		}
+	}
+
+	return args, goFlags
+}
+
+func FromFlags(args []string) (showVersion bool, cfgPath string, configdebug bool, v *viper.Viper) {
+	v = viper.New()
+	fs := pflag.NewFlagSet("default", pflag.ExitOnError)
+
+	var cfgPathOld string
+	flag.StringVar(&cfgPathOld, "cfg", "", "path to config file")
+	args, goFlags := filterGoFlags(args, map[string]bool{"cfg": true})
+	flag.CommandLine.Parse(goFlags)
+
+	fs.StringVarP(&cfgPath, "cfg", "c", "", "path to config file")
+	fs.BoolVarP(&showVersion, "version", "v", false, "show version")
+	fs.BoolVarP(&configdebug, "configdebug", "D", false, "print config to console for debugging")
+
+	fs.String("registry.consul.addr", "", "Consul address")
+	fs.String("registry.consul.token", "", "Consul token")
+	fs.String("registry.consul.serviceaddr", "", "Consul service registration address")
+	fs.String("proxy.addr", "", "proxy address")
+	fs.String("proxy.localip", "", "proxy local IP")
+	fs.String("proxy.header.clientip", "", "proxy header client IP")
+	fs.String("ui.addr", "", "UI address")
+
+	v.BindPFlags(fs)
+	fs.Parse(args)
+	if cfgPathOld != "" {
+		log.Print("[WARN] flag: -cfg has been replaced by --cfg")
+		cfgPath = cfgPathOld
+	}
+
+	return showVersion, cfgPath, configdebug, v
+}
+
+func FromFile(v *viper.Viper, filename string) (*Config, error) {
+	base := path.Base(filename)
+	ext := path.Ext(filename)
+	name := strings.TrimSuffix(base, ext)
+
+	v.SetConfigName(name)
+	v.AddConfigPath(path.Dir(filename))
+	err := v.ReadInConfig()
 	if err != nil {
 		return nil, err
 	}
-	return fromProperties(p)
+	return FromViper(v)
 }
 
-func fromProperties(p *properties.Properties) (cfg *Config, err error) {
+func FromViper(v *viper.Viper) (cfg *Config, err error) {
 	cfg = &Config{}
 
 	deprecate := func(key, msg string) {
-		_, exists := p.Get(key)
-		if exists {
+		exists := v.Get(key)
+		if exists != nil {
 			log.Print("[WARN] config: ", msg)
 		}
 	}
 
-	cfg.Proxy = Proxy{
-		MaxConn:               intVal(p, Default.Proxy.MaxConn, "proxy.maxconn"),
-		Strategy:              stringVal(p, Default.Proxy.Strategy, "proxy.strategy"),
-		ShutdownWait:          durationVal(p, Default.Proxy.ShutdownWait, "proxy.shutdownwait"),
-		DialTimeout:           durationVal(p, Default.Proxy.DialTimeout, "proxy.dialtimeout"),
-		ResponseHeaderTimeout: durationVal(p, Default.Proxy.ResponseHeaderTimeout, "proxy.timeout"),
-		KeepAliveTimeout:      durationVal(p, Default.Proxy.KeepAliveTimeout, "proxy.timeout"),
-		LocalIP:               stringVal(p, Default.Proxy.LocalIP, "proxy.localip"),
-		ClientIPHeader:        stringVal(p, Default.Proxy.ClientIPHeader, "proxy.header.clientip"),
-		TLSHeader:             stringVal(p, Default.Proxy.TLSHeader, "proxy.header.tls"),
-		TLSHeaderValue:        stringVal(p, Default.Proxy.TLSHeaderValue, "proxy.header.tls.value"),
-	}
-
-	readTimeout := durationVal(p, time.Duration(0), "proxy.readtimeout")
-	writeTimeout := durationVal(p, time.Duration(0), "proxy.writetimeout")
-
-	cfg.Listen, err = parseListen(stringVal(p, Default.Listen[0].Addr, "proxy.addr"), readTimeout, writeTimeout)
+	defaultListen, err := parseListen(Default.Listen[0].Addr, Default.Proxy.ReadTimeout, Default.Proxy.WriteTimeout)
 	if err != nil {
 		return nil, err
 	}
 
-	cfg.Metrics = parseMetrics(
-		stringVal(p, Default.Metrics[0].Target, "metrics.target"),
-		stringVal(p, Default.Metrics[0].Prefix, "metrics.prefix"),
-		stringVal(p, Default.Metrics[0].Addr, "metrics.graphite.addr"),
-		durationVal(p, Default.Metrics[0].Interval, "metrics.interval"),
-	)
+	v.SetDefault("", Default)
+	v.SetDefault("Listen", defaultListen)
 
-	cfg.Registry = Registry{
-		Backend: stringVal(p, Default.Registry.Backend, "registry.backend"),
-		File: File{
-			Path: stringVal(p, Default.Registry.File.Path, "registry.file.path"),
-		},
-		Static: Static{
-			Routes: stringVal(p, Default.Registry.Static.Routes, "registry.static.routes"),
-		},
-		Consul: Consul{
-			Addr:          stringVal(p, Default.Registry.Consul.Addr, "registry.consul.addr", "consul.addr"),
-			Token:         stringVal(p, Default.Registry.Consul.Token, "registry.consul.token", "consul.token"),
-			KVPath:        stringVal(p, Default.Registry.Consul.KVPath, "registry.consul.kvpath", "consul.kvpath"),
-			TagPrefix:     stringVal(p, Default.Registry.Consul.TagPrefix, "registry.consul.tagprefix", "consul.tagprefix"),
-			ServiceAddr:   stringVal(p, Default.Registry.Consul.ServiceAddr, "registry.consul.register.addr"),
-			ServiceName:   stringVal(p, Default.Registry.Consul.ServiceName, "registry.consul.register.name", "consul.register.name"),
-			CheckInterval: durationVal(p, Default.Registry.Consul.CheckInterval, "registry.consul.register.checkInterval", "consul.register.checkInterval"),
-			CheckTimeout:  durationVal(p, Default.Registry.Consul.CheckTimeout, "registry.consul.register.checkTimeout", "consul.register.checkTimeout"),
-		},
+	v.SetEnvPrefix("FABIO")
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.AutomaticEnv()
+
+	v.Unmarshal(cfg)
+
+	if cfg.Metrics[0].Target == "graphite" {
+		cfg.Metrics[0].Addr = v.GetString("metrics.graphite.addr")
 	}
+
+	cfg.Listen, err = parseListen(v.GetString("proxy.addr"), v.GetDuration("proxy.readtimeout"), v.GetDuration("proxy.writetimeout"))
+	if err != nil {
+		return nil, err
+	}
+
 	deprecate("consul.addr", "consul.addr has been replaced by registry.consul.addr")
 	deprecate("consul.token", "consul.token has been replaced by registry.consul.token")
 	deprecate("consul.kvpath", "consul.kvpath has been replaced by registry.consul.kvpath")
@@ -91,7 +139,7 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 	deprecate("consul.register.checkTimeout", "consul.register.checkTimeout has been replaced by registry.consul.register.checkTimeout")
 	deprecate("consul.url", "consul.url is obsolete. Please remove it.")
 
-	proxyRoutes := stringVal(p, "", "proxy.routes")
+	proxyRoutes := v.GetString("proxy.routes")
 	if strings.HasPrefix(proxyRoutes, "@") {
 		cfg.Registry.Backend = "file"
 		cfg.Registry.File.Path = proxyRoutes[1:]
@@ -102,75 +150,11 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 		deprecate("proxy.routes", "Please use registry.backend=static and registry.static.routes=<routes> instead of proxy.routes=<routes>")
 	}
 
-	cfg.Runtime = Runtime{
-		GOGC:       intVal(p, Default.Runtime.GOGC, "runtime.gogc"),
-		GOMAXPROCS: intVal(p, Default.Runtime.GOMAXPROCS, "runtime.gomaxprocs"),
-	}
 	if cfg.Runtime.GOMAXPROCS == -1 {
 		cfg.Runtime.GOMAXPROCS = runtime.NumCPU()
 	}
 
-	cfg.UI = UI{
-		Addr:  stringVal(p, Default.UI.Addr, "ui.addr"),
-		Color: stringVal(p, Default.UI.Color, "ui.color"),
-		Title: stringVal(p, Default.UI.Title, "ui.title"),
-	}
-
-	dump(cfg)
 	return cfg, nil
-}
-
-// stringVal returns the first non-empty value found or the default value.
-// Keys are checked in order and environment variables take precedence over
-// properties values.  Environment varaible names are derived from property
-// names by replacing the dots with underscores.
-func stringVal(p *properties.Properties, def string, keys ...string) string {
-	for _, key := range keys {
-		if v := os.Getenv(strings.Replace(key, ".", "_", -1)); v != "" {
-			return v
-		}
-		if p == nil {
-			continue
-		}
-		if v, ok := p.Get(key); ok {
-			return v
-		}
-	}
-	return def
-}
-
-func intVal(p *properties.Properties, def int, keys ...string) int {
-	v := stringVal(p, "", keys...)
-	if v == "" {
-		return def
-	}
-	n, err := strconv.Atoi(v)
-	if err != nil {
-		log.Printf("[WARN] Invalid value %s for %v", v, keys)
-		return def
-	}
-	return n
-}
-
-func durationVal(p *properties.Properties, def time.Duration, keys ...string) time.Duration {
-	v := stringVal(p, "", keys...)
-	if v == "" {
-		return def
-	}
-	d, err := time.ParseDuration(v)
-	if err != nil {
-		log.Printf("[WARN] Invalid duration %s for %v", v, keys)
-		return def
-	}
-	return d
-}
-
-func dump(cfg *Config) {
-	data, err := json.MarshalIndent(cfg, "", "    ")
-	if err != nil {
-		log.Fatal("[FATAL] Cannot dump runtime config. ", err)
-	}
-	log.Println("[INFO] Runtime config\n" + string(data))
 }
 
 func parseMetrics(target, prefix, graphiteAddr string, interval time.Duration) []Metrics {
