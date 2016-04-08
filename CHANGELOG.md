@@ -1,5 +1,10 @@
 ## Changelog
 
+### [v1.1.2](https://github.com/eBay/fabio/releases/tag/v1.1.2) - Not released
+
+ * [PR #74](https://github.com/eBay/fabio/pull/74): Improve forward header handling
+ * [Issue #77](https://github.com/eBay/fabio/issues/77): Fix registry.consul.register.addr example in properties
+
 ### [v1.1.1](https://github.com/eBay/fabio/releases/tag/v1.1.1) - 22 Feb 2016
 
  * [Issue #57](https://github.com/eBay/fabio/issues/57): Deleted routes hide visible routes
