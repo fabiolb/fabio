@@ -41,4 +41,5 @@ var Default = &Config{
 		Prefix:   "default",
 		Interval: 30 * time.Second,
 	},
+	CertSources: map[string]CertSource{},
 }

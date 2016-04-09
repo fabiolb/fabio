@@ -1,6 +1,7 @@
 package config
 
 import (
+	"net/http"
 	"reflect"
 	"testing"
 	"time"
@@ -11,6 +12,7 @@ import (
 
 func TestFromProperties(t *testing.T) {
 	in := `
+proxy.cs = cs=name;type=path;cert=foo;clientca=bar;refresh=99s;hdr=a: b
 proxy.addr = :1234
 proxy.localip = 4.4.4.4
 proxy.strategy = rr
@@ -50,6 +52,16 @@ ui.color = fonzy
 ui.title = fabfab
 	`
 	out := &Config{
+		CertSources: map[string]CertSource{
+			"name": CertSource{
+				Name:         "name",
+				Type:         "path",
+				CertPath:     "foo",
+				ClientCAPath: "bar",
+				Refresh:      99 * time.Second,
+				Header:       http.Header{"A": []string{"b"}},
+			},
+		},
 		Proxy: Proxy{
 			MaxConn:               666,
 			LocalIP:               "4.4.4.4",
@@ -66,6 +78,7 @@ ui.title = fabfab
 			TLSHeader:             "tls",
 			TLSHeaderValue:        "tls-true",
 			ListenerAddr:          ":1234",
+			CertSources:           "cs=name;type=path;cert=foo;clientca=bar;refresh=99s;hdr=a: b",
 		},
 		Registry: Registry{
 			Backend: "something",
@@ -92,6 +105,7 @@ ui.title = fabfab
 		Listen: []Listen{
 			{
 				Addr:         ":1234",
+				Scheme:       "http",
 				ReadTimeout:  5 * time.Second,
 				WriteTimeout: 10 * time.Second,
 			},
@@ -149,59 +163,65 @@ func TestParseScheme(t *testing.T) {
 	}
 }
 
-func TestParseAddr(t *testing.T) {
+func TestParseListen(t *testing.T) {
+	cs := map[string]CertSource{
+		"name": CertSource{Type: "foo"},
+	}
+
 	tests := []struct {
 		in  string
-		out []Listen
+		out Listen
 		err string
 	}{
 		{
 			"",
-			[]Listen{},
+			Listen{},
 			"",
 		},
 		{
 			":123",
-			[]Listen{
-				{Addr: ":123"},
+			Listen{Addr: ":123", Scheme: "http"},
+			"",
+		},
+		{
+			":123;rt=5s;wt=5s",
+			Listen{Addr: ":123", Scheme: "http", ReadTimeout: 5 * time.Second, WriteTimeout: 5 * time.Second},
+			"",
+		},
+		{
+			":123;pathA;pathB;pathC",
+			Listen{
+				Addr:   ":123",
+				Scheme: "https",
+				CertSource: CertSource{
+					Type:         "file",
+					CertPath:     "pathA",
+					KeyPath:      "pathB",
+					ClientCAPath: "pathC",
+				},
 			},
 			"",
 		},
 		{
-			":123;cert.pem",
-			[]Listen{
-				{Addr: ":123", CertFile: "cert.pem", KeyFile: "cert.pem", TLS: true},
+			":123;cs=name",
+			Listen{
+				Addr:   ":123",
+				Scheme: "https",
+				CertSource: CertSource{
+					Type: "foo",
+				},
 			},
 			"",
-		},
-		{
-			":123;cert.pem;key.pem",
-			[]Listen{
-				{Addr: ":123", CertFile: "cert.pem", KeyFile: "key.pem", TLS: true},
-			},
-			"",
-		},
-		{
-			":123;cert.pem;key.pem;client.pem",
-			[]Listen{
-				{Addr: ":123", CertFile: "cert.pem", KeyFile: "key.pem", ClientAuthFile: "client.pem", TLS: true},
-			},
-			"",
-		},
-		{
-			":123;cert.pem;key.pem;client.pem;",
-			nil,
-			"invalid address :123;cert.pem;key.pem;client.pem;",
 		},
 	}
 
 	for i, tt := range tests {
-		l, err := parseListen(tt.in, time.Duration(0), time.Duration(0))
+		l, err := parseListen(tt.in, cs, time.Duration(0), time.Duration(0))
 		if got, want := err, tt.err; (got != nil || want != "") && got.Error() != want {
-			t.Errorf("%d: got %v want %v", i, got, want)
+			t.Errorf("%d: got %+v want %+v", i, got, want)
 		}
 		if got, want := l, tt.out; !reflect.DeepEqual(got, want) {
-			t.Errorf("%d: got %v want %v", i, got, want)
+			t.Errorf("%d: got %+v want %+v", i, got, want)
 		}
 	}
 }

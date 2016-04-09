@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"runtime"
 	"strings"
@@ -67,6 +68,7 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	f.StringVar(&cfg.Proxy.TLSHeader, "proxy.header.tls", Default.Proxy.TLSHeader, "header for TLS connections")
 	f.StringVar(&cfg.Proxy.TLSHeaderValue, "proxy.header.tls.value", Default.Proxy.TLSHeaderValue, "value for TLS connection header")
 	f.StringVar(&cfg.Proxy.ListenerAddr, "proxy.addr", Default.Proxy.ListenerAddr, "listener config")
+	f.StringVar(&cfg.Proxy.CertSources, "proxy.cs", Default.Proxy.CertSources, "certificate sources")
 	f.DurationVar(&cfg.Proxy.ReadTimeout, "proxy.readtimeout", Default.Proxy.ReadTimeout, "read timeout for incoming requests")
 	f.DurationVar(&cfg.Proxy.WriteTimeout, "proxy.writetimeout", Default.Proxy.WriteTimeout, "write timeout for outgoing responses")
 	f.StringVar(&cfg.Metrics.Target, "metrics.target", Default.Metrics.Target, "metrics backend")
@@ -95,9 +97,18 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	var proxyTimeout time.Duration
 	f.DurationVar(&proxyTimeout, "proxy.timeout", time.Duration(0), "deprecated")
 
+	// filter out -test flags
+	var args []string
+	for _, a := range os.Args[1:] {
+		if strings.HasPrefix(a, "-test.") {
+			continue
+		}
+		args = append(args, a)
+	}
+
 	// parse configuration
 	prefixes := []string{"FABIO_", ""}
-	if err := f.ParseFlags(os.Args[1:], os.Environ(), prefixes, p); err != nil {
+	if err := f.ParseFlags(args, os.Environ(), prefixes, p); err != nil {
 		return nil, err
 	}
 
@@ -108,7 +119,12 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 
 	cfg.Registry.Consul.Scheme, cfg.Registry.Consul.Addr = parseScheme(cfg.Registry.Consul.Addr)
 
-	cfg.Listen, err = parseListen(cfg.Proxy.ListenerAddr, cfg.Proxy.ReadTimeout, cfg.Proxy.WriteTimeout)
+	cfg.CertSources, err = parseCertSources(cfg.Proxy.CertSources)
+	if err != nil {
+		return nil, err
+	}
+
+	cfg.Listen, err = parseListeners(cfg.Proxy.ListenerAddr, cfg.CertSources, cfg.Proxy.ReadTimeout, cfg.Proxy.WriteTimeout)
 	if err != nil {
 		return nil, err
 	}
@@ -141,6 +157,8 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	return cfg, nil
 }
 
+// parseScheme splits a url into scheme and address and defaults
+// to "http" if no scheme was given.
 func parseScheme(s string) (scheme, addr string) {
 	s = strings.ToLower(s)
 	if strings.HasPrefix(s, "https://") {
@@ -152,33 +170,178 @@ func parseScheme(s string) (scheme, addr string) {
 	return "http", s
 }
 
-func parseListen(addrs string, readTimeout, writeTimeout time.Duration) ([]Listen, error) {
-	listen := []Listen{}
-	for _, addr := range strings.Split(addrs, ",") {
-		addr = strings.TrimSpace(addr)
-		if addr == "" {
+// parseKV converts a "key1=val1;key2=val2;..." string into a map.
+func parseKV(cfg string) map[string]string {
+	m := map[string]string{}
+	for _, s := range strings.Split(cfg, ";") {
+		p := strings.SplitN(s, "=", 2)
+		if len(p) == 1 {
+			m[p[0]] = ""
+		} else {
+			m[p[0]] = p[1]
+		}
+	}
+	return m
+}
+
+func parseListeners(cfgs string, cs map[string]CertSource, readTimeout, writeTimeout time.Duration) (listen []Listen, err error) {
+	for _, cfg := range strings.Split(cfgs, ",") {
+		cfg = strings.TrimSpace(cfg)
+		if cfg == "" {
 			continue
 		}
 
-		var l Listen
-		p := strings.Split(addr, ";")
-		switch len(p) {
-		case 1:
-			l.Addr = p[0]
-		case 2:
-			l.Addr, l.CertFile, l.KeyFile, l.TLS = p[0], p[1], p[1], true
-		case 3:
-			l.Addr, l.CertFile, l.KeyFile, l.TLS = p[0], p[1], p[2], true
-		case 4:
-			l.Addr, l.CertFile, l.KeyFile, l.ClientAuthFile, l.TLS = p[0], p[1], p[2], p[3], true
-		default:
-			return nil, fmt.Errorf("invalid address %s", addr)
+		l, err := parseListen(cfg, cs, readTimeout, writeTimeout)
+		if err != nil {
+			return nil, err
 		}
-		l.ReadTimeout = readTimeout
-		l.WriteTimeout = writeTimeout
+
 		listen = append(listen, l)
 	}
-	return listen, nil
+	return
+}
+
+func parseListen(cfg string, cs map[string]CertSource, readTimeout, writeTimeout time.Duration) (l Listen, err error) {
+	if cfg == "" {
+		return Listen{}, nil
+	}
+
+	opts := strings.Split(cfg, ";")
+	if len(opts) > 1 && !strings.Contains(opts[1], "=") {
+		return parseLegacyListen(cfg, readTimeout, writeTimeout)
+	}
+
+	l = Listen{
+		Addr:         opts[0],
+		Scheme:       "http",
+		ReadTimeout:  readTimeout,
+		WriteTimeout: writeTimeout,
+	}
+
+	for k, v := range parseKV(cfg) {
+		switch k {
+		case "rt": // read timeout
+			d, err := time.ParseDuration(v)
+			if err != nil {
+				return Listen{}, err
+			}
+			l.ReadTimeout = d
+		case "wt": // write timeout
+			d, err := time.ParseDuration(v)
+			if err != nil {
+				return Listen{}, err
+			}
+			l.WriteTimeout = d
+		case "cs": // cert source
+			c, ok := cs[v]
+			if !ok {
+				return Listen{}, fmt.Errorf("unknown certificate source %s", v)
+			}
+			l.CertSource = c
+			l.Scheme = "https"
+		}
+	}
+	return
+}
+
+func parseLegacyListen(cfg string, readTimeout, writeTimeout time.Duration) (l Listen, err error) {
+	opts := strings.Split(cfg, ";")
+
+	l = Listen{
+		Addr:         opts[0],
+		Scheme:       "http",
+		ReadTimeout:  readTimeout,
+		WriteTimeout: writeTimeout,
+	}
+
+	if len(opts) > 1 {
+		l.Scheme = "https"
+		l.CertSource.Type = "file"
+		l.CertSource.CertPath = opts[1]
+	}
+	if len(opts) > 2 {
+		l.CertSource.KeyPath = opts[2]
+	}
+	if len(opts) > 3 {
+		l.CertSource.ClientCAPath = opts[3]
+	}
+	if len(opts) > 4 {
+		return Listen{}, fmt.Errorf("invalid listener configuration")
+	}
+
+	log.Printf("[WARN] proxy.addr legacy configuration for certificates is deprecated. Use cs=path configuration")
+	return l, nil
+}
+
+func parseCertSources(cfgs string) (cs map[string]CertSource, err error) {
+	cs = map[string]CertSource{}
+	for _, cfg := range strings.Split(cfgs, ",") {
+		cfg = strings.TrimSpace(cfg)
+		if cfg == "" {
+			continue
+		}
+
+		src, err := parseCertSource(cfg)
+		if err != nil {
+			return nil, err
+		}
+		cs[src.Name] = src
+	}
+	return
+}
+
+func parseCertSource(cfg string) (c CertSource, err error) {
+	if cfg == "" {
+		return CertSource{}, nil
+	}
+
+	c.Refresh = 3 * time.Second
+
+	for k, v := range parseKV(cfg) {
+		switch k {
+		case "cs":
+			c.Name = v
+		case "type":
+			c.Type = v
+		case "cert":
+			c.CertPath = v
+		case "key":
+			c.KeyPath = v
+		case "clientca":
+			c.ClientCAPath = v
+		case "refresh":
+			d, err := time.ParseDuration(v)
+			if err != nil {
+				return CertSource{}, err
+			}
+			c.Refresh = d
+		case "hdr":
+			p := strings.SplitN(v, ": ", 2)
+			if len(p) != 2 {
+				return CertSource{}, fmt.Errorf("invalid header %s", v)
+			}
+			if c.Header == nil {
+				c.Header = http.Header{}
+			}
+			c.Header.Set(p[0], p[1])
+		}
+	}
+	if c.Name == "" {
+		return CertSource{}, fmt.Errorf("missing 'cs' in %s", cfg)
+	}
+	if c.Type == "" {
+		return CertSource{}, fmt.Errorf("missing 'type' in %s", cfg)
+	}
+	if c.CertPath == "" {
+		return CertSource{}, fmt.Errorf("missing 'cert' in %s", cfg)
+	}
+	if c.Type != "file" && c.Type != "path" && c.Type != "http" && c.Type != "consul" && c.Type != "vault" {
+		return CertSource{}, fmt.Errorf("unknown cert source type %s", c.Type)
+	}
+	if c.Type == "file" {
+		c.Refresh = 0
+	}
+	return
 }
 
 type tags []string

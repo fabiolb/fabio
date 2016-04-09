@@ -2,9 +2,7 @@ package main
 
 import (
 	"crypto/tls"
-	"crypto/x509"
-	"errors"
-	"io/ioutil"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -13,6 +11,7 @@ import (
 	"time"
 
 	"github.com/armon/go-proxyproto"
+	"github.com/eBay/fabio/cert"
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/exit"
 	"github.com/eBay/fabio/proxy"
@@ -45,15 +44,29 @@ func startListeners(listen []config.Listen, wait time.Duration, h http.Handler) 
 }
 
 func listenAndServe(l config.Listen, h http.Handler) {
-	srv, err := newServer(l, h)
-	if err != nil {
-		log.Fatal("[FATAL] ", err)
+	srv := &http.Server{
+		Handler:      h,
+		Addr:         l.Addr,
+		ReadTimeout:  l.ReadTimeout,
+		WriteTimeout: l.WriteTimeout,
+	}
+
+	if l.Scheme == "https" {
+		src, err := makeCertSource(l.CertSource)
+		if err != nil {
+			log.Fatal("[FATAL] ", err)
+		}
+
+		srv.TLSConfig, err = cert.TLSConfig(src)
+		if err != nil {
+			log.Fatal("[FATAL] ", err)
+		}
 	}
 
 	if srv.TLSConfig != nil {
-		log.Printf("[INFO] HTTPS proxy listening on %s with certificate %s", l.Addr, l.CertFile)
+		log.Printf("[INFO] HTTPS proxy listening on %s", l.Addr)
 		if srv.TLSConfig.ClientAuth == tls.RequireAndVerifyClientCert {
-			log.Printf("[INFO] Client certificate authentication enabled on %s with certificates from %s", l.Addr, l.ClientAuthFile)
+			log.Printf("[INFO] Client certificate authentication enabled on %s", l.Addr)
 		}
 	} else {
 		log.Printf("[INFO] HTTP proxy listening on %s", l.Addr)
@@ -64,41 +77,46 @@ func listenAndServe(l config.Listen, h http.Handler) {
 	}
 }
 
-var tlsLoadX509KeyPair = tls.LoadX509KeyPair
+func makeCertSource(cfg config.CertSource) (cert.Source, error) {
+	switch cfg.Type {
+	case "file":
+		return cert.FileSource{
+			CertFile:       cfg.CertPath,
+			KeyFile:        cfg.KeyPath,
+			ClientAuthFile: cfg.ClientCAPath,
+		}, nil
 
-func newServer(l config.Listen, h http.Handler) (*http.Server, error) {
-	srv := &http.Server{
-		Addr:         l.Addr,
-		Handler:      h,
-		ReadTimeout:  l.ReadTimeout,
-		WriteTimeout: l.WriteTimeout,
+	case "path":
+		return cert.PathSource{
+			CertPath:     cfg.CertPath,
+			ClientCAPath: cfg.ClientCAPath,
+			Refresh:      cfg.Refresh,
+		}, nil
+
+	case "http":
+		return cert.HTTPSource{
+			CertURL:     cfg.CertPath,
+			ClientCAURL: cfg.ClientCAPath,
+			Refresh:     cfg.Refresh,
+		}, nil
+
+	case "consul":
+		return cert.ConsulSource{
+			CertURL:     cfg.CertPath,
+			ClientCAURL: cfg.ClientCAPath,
+		}, nil
+
+	case "vault":
+		return cert.VaultSource{
+			// TODO(fs): configure Addr but not token
+			CertPath:     cfg.CertPath,
+			ClientCAPath: cfg.ClientCAPath,
+			Refresh:      cfg.Refresh,
+		}, nil
+
+	default:
+		return nil, fmt.Errorf("invalid certificate source %q", cfg.Type)
 	}
-
-	if l.CertFile != "" {
-		cert, err := tlsLoadX509KeyPair(l.CertFile, l.KeyFile)
-		if err != nil {
-			return nil, err
-		}
-
-		srv.TLSConfig = &tls.Config{
-			Certificates: []tls.Certificate{cert},
-		}
-
-		if l.ClientAuthFile != "" {
-			pemBlock, err := ioutil.ReadFile(l.ClientAuthFile)
-			if err != nil {
-				return nil, err
-			}
-			pool := x509.NewCertPool()
-			if !pool.AppendCertsFromPEM(pemBlock) {
-				return nil, errors.New("failed to add client auth certs")
-			}
-			srv.TLSConfig.ClientCAs = pool
-			srv.TLSConfig.ClientAuth = tls.RequireAndVerifyClientCert
-		}
-	}
-
-	return srv, nil
 }
 
 func serve(srv *http.Server) error {
