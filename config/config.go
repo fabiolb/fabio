@@ -6,7 +6,7 @@ type Config struct {
 	Proxy    Proxy
 	Registry Registry
 	Listen   []Listen
-	Metrics  []Metrics
+	Metrics  Metrics
 	UI       UI
 	Runtime  Runtime
 }
@@ -37,10 +37,14 @@ type Proxy struct {
 	DialTimeout           time.Duration
 	ResponseHeaderTimeout time.Duration
 	KeepAliveTimeout      time.Duration
+	ReadTimeout           time.Duration
+	WriteTimeout          time.Duration
 	LocalIP               string
 	ClientIPHeader        string
 	TLSHeader             string
 	TLSHeaderValue        string
+	ListenerAddr          string
+	AWSApiGWCertCN        string
 }
 
 type Runtime struct {
@@ -49,10 +53,10 @@ type Runtime struct {
 }
 
 type Metrics struct {
-	Target   string
-	Prefix   string
-	Interval time.Duration
-	Addr     string
+	Target       string
+	Prefix       string
+	Interval     time.Duration
+	GraphiteAddr string
 }
 
 type Registry struct {
@@ -72,6 +76,7 @@ type File struct {
 
 type Consul struct {
 	Addr          string
+	Scheme        string
 	Token         string
 	KVPath        string
 	TagPrefix     string
