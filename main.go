@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -33,18 +31,7 @@ import (
 var version = "1.1.4"
 
 func main() {
-	var filename string
-	var v bool
-	flag.StringVar(&filename, "cfg", "", "path to config file")
-	flag.BoolVar(&v, "v", false, "show version")
-	flag.Parse()
-
-	if v {
-		fmt.Println(version)
-		return
-	}
-
-	cfg, err := config.Load(filename)
+	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("[FATAL] %s. %s", version, err)
 	}

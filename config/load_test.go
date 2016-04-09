@@ -1,7 +1,6 @@
 package config
 
 import (
-	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -18,7 +17,8 @@ proxy.strategy = rr
 proxy.matcher = prefix
 proxy.noroutestatus = 929
 proxy.shutdownwait = 500ms
-proxy.timeout = 3s
+proxy.responseheadertimeout = 3s
+proxy.keepalivetimeout = 4s
 proxy.dialtimeout = 60s
 proxy.readtimeout = 5s
 proxy.writetimeout = 10s
@@ -29,7 +29,7 @@ proxy.header.tls.value = tls-true
 registry.backend = something
 registry.file.path = /foo/bar
 registry.static.routes = route add svc / http://127.0.0.1:6666/
-registry.consul.addr = 1.2.3.4:5678
+registry.consul.addr = https://1.2.3.4:5678
 registry.consul.token = consul-token
 registry.consul.kvpath = /some/path
 registry.consul.tagprefix = p-
@@ -58,11 +58,14 @@ ui.title = fabfab
 			NoRouteStatus:         929,
 			ShutdownWait:          500 * time.Millisecond,
 			DialTimeout:           60 * time.Second,
-			KeepAliveTimeout:      3 * time.Second,
 			ResponseHeaderTimeout: 3 * time.Second,
+			KeepAliveTimeout:      4 * time.Second,
+			ReadTimeout:           5 * time.Second,
+			WriteTimeout:          10 * time.Second,
 			ClientIPHeader:        "clientip",
 			TLSHeader:             "tls",
 			TLSHeaderValue:        "tls-true",
+			ListenerAddr:          ":1234",
 		},
 		Registry: Registry{
 			Backend: "something",
@@ -74,6 +77,7 @@ ui.title = fabfab
 			},
 			Consul: Consul{
 				Addr:          "1.2.3.4:5678",
+				Scheme:        "https",
 				Token:         "consul-token",
 				KVPath:        "/some/path",
 				TagPrefix:     "p-",
@@ -92,13 +96,11 @@ ui.title = fabfab
 				WriteTimeout: 10 * time.Second,
 			},
 		},
-		Metrics: []Metrics{
-			{
-				Target:   "graphite",
-				Prefix:   "someprefix",
-				Interval: 5 * time.Second,
-				Addr:     "5.6.7.8:9999",
-			},
+		Metrics: Metrics{
+			Target:       "graphite",
+			Prefix:       "someprefix",
+			Interval:     5 * time.Second,
+			GraphiteAddr: "5.6.7.8:9999",
 		},
 		Runtime: Runtime{
 			GOGC:       666,
@@ -116,7 +118,7 @@ ui.title = fabfab
 		t.Fatalf("got %v want nil", err)
 	}
 
-	cfg, err := fromProperties(p)
+	cfg, err := load(p)
 	if err != nil {
 		t.Fatalf("got %v want nil", err)
 	}
@@ -125,63 +127,24 @@ ui.title = fabfab
 	verify.Values(t, "cfg", got, want)
 }
 
-func TestStringVal(t *testing.T) {
-	props := func(s string) *properties.Properties {
-		p, err := properties.Load([]byte(s), properties.UTF8)
-		if err != nil {
-			t.Fatal(err)
-		}
-		return p
-	}
-
+func TestParseScheme(t *testing.T) {
 	tests := []struct {
-		env   map[string]string
-		props *properties.Properties
-		keys  []string
-		val   string
-		def   string
+		in           string
+		scheme, addr string
 	}{
-		{
-			env:   nil,
-			props: nil,
-			keys:  []string{"key"}, val: "default", def: "default",
-		},
-		{
-			env:   map[string]string{"key": "env"},
-			props: nil,
-			keys:  []string{"key"}, val: "env",
-		},
-		{
-			env:   nil,
-			props: props("key=props"),
-			keys:  []string{"key"}, val: "props",
-		},
-		{
-			env:   map[string]string{"key": "env"},
-			props: props("key=props"),
-			keys:  []string{"key"}, val: "env",
-		},
-		{
-			env:   map[string]string{"key": "env"},
-			props: props("other=props"),
-			keys:  []string{"other"}, val: "props",
-		},
-		{
-			env:   map[string]string{"key": "env"},
-			props: props("other=props"),
-			keys:  []string{"key", "other"}, val: "env",
-		},
+		{"foo:bar", "http", "foo:bar"},
+		{"http://foo:bar", "http", "foo:bar"},
+		{"https://foo:bar", "https", "foo:bar"},
+		{"HTTPS://FOO:bar", "https", "foo:bar"},
 	}
 
 	for i, tt := range tests {
-		for k, v := range tt.env {
-			os.Setenv(k, v)
+		scheme, addr := parseScheme(tt.in)
+		if got, want := scheme, tt.scheme; got != want {
+			t.Errorf("%d: got %v want %v", i, got, want)
 		}
-		if got, want := stringVal(tt.props, tt.def, tt.keys...), tt.val; got != want {
-			t.Errorf("%d: got %s want %s", i, got, want)
-		}
-		for k := range tt.env {
-			os.Unsetenv(k)
+		if got, want := addr, tt.addr; got != want {
+			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}
 }

@@ -23,16 +23,7 @@ var pfx string
 // with globally registered timers.
 var ServiceRegistry = gometrics.NewRegistry()
 
-func Init(cfgs []config.Metrics) error {
-	for _, cfg := range cfgs {
-		if err := initMetrics(cfg); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func initMetrics(cfg config.Metrics) error {
+func Init(cfg config.Metrics) error {
 	pfx = cfg.Prefix
 	if pfx == "default" {
 		pfx = defaultPrefix()
@@ -43,12 +34,12 @@ func initMetrics(cfg config.Metrics) error {
 		log.Printf("[INFO] Sending metrics to stdout")
 		return initStdout(cfg.Interval)
 	case "graphite":
-		if cfg.Addr == "" {
+		if cfg.GraphiteAddr == "" {
 			return errors.New("metrics: graphite addr missing")
 		}
 
-		log.Printf("[INFO] Sending metrics to Graphite on %s as %q", cfg.Addr, pfx)
-		return initGraphite(cfg.Addr, cfg.Interval)
+		log.Printf("[INFO] Sending metrics to Graphite on %s as %q", cfg.GraphiteAddr, pfx)
+		return initGraphite(cfg.GraphiteAddr, cfg.Interval)
 	case "":
 		log.Printf("[INFO] Metrics disabled")
 	default:

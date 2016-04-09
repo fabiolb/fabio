@@ -7,17 +7,19 @@ import (
 
 var Default = &Config{
 	Proxy: Proxy{
-		MaxConn:       10000,
-		Strategy:      "rnd",
-		Matcher:       "prefix",
+		MaxConn:      10000,
+		Strategy:     "rnd",
+		Matcher:      "prefix",
 		NoRouteStatus: 404,
-		DialTimeout:   30 * time.Second,
-		LocalIP:       LocalIPString(),
+		DialTimeout:  30 * time.Second,
+		LocalIP:      LocalIPString(),
+		ListenerAddr: ":9999",
 	},
 	Registry: Registry{
 		Backend: "consul",
 		Consul: Consul{
 			Addr:          "localhost:8500",
+			Scheme:        "http",
 			KVPath:        "/fabio/config",
 			TagPrefix:     "urlprefix-",
 			Register:      true,
@@ -25,11 +27,6 @@ var Default = &Config{
 			ServiceName:   "fabio",
 			CheckInterval: time.Second,
 			CheckTimeout:  3 * time.Second,
-		},
-	},
-	Listen: []Listen{
-		{
-			Addr: ":9999",
 		},
 	},
 	Runtime: Runtime{
@@ -40,12 +37,8 @@ var Default = &Config{
 		Addr:  ":9998",
 		Color: "light-green",
 	},
-	Metrics: []Metrics{
-		{
-			Target:   "",
-			Prefix:   "default",
-			Addr:     "",
-			Interval: 30 * time.Second,
-		},
+	Metrics: Metrics{
+		Prefix:   "default",
+		Interval: 30 * time.Second,
 	},
 }
