@@ -19,8 +19,8 @@
 		},
 		{
 			"path": "github.com/magiconair/properties",
-			"revision": "337395e44efb4affc8bf11971e22acbd4e27a32d",
-			"revisionTime": "2015-07-31T22:42:12+02:00"
+			"revision": "c265cfa48dda6474e208715ca93e987829f572f8",
+			"revisionTime": "2016-03-20T21:54:47+01:00"
 		},
 		{
 			"path": "github.com/pascaldekloe/goe/verify",
