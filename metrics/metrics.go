@@ -34,8 +34,8 @@ func Init(cfgs []config.Metrics) error {
 
 func initMetrics(cfg config.Metrics) error {
 	pfx = cfg.Prefix
-	if pfx == "default" {
-		pfx = defaultPrefix()
+	if strings.Contains(pfx, "default") {
+		pfx = strings.Replace(pfx, "default", defaultPrefix(), 1)
 	}
 
 	switch cfg.Target {
