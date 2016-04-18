@@ -44,10 +44,9 @@ func Init(cfgs []config.Metrics) error {
 func initMetrics(cfg config.Metrics) error {
 	pfx = cfg.Prefix
 	prefix := initPrefixTemplate()
-	if strings.Contains(pfx, "default") {
-		pfx = strings.Replace(pfx, "default", defaultPrefix(), 1)
+	if pfx == "default" {
+		pfx = defaultPrefix()
 	} else {
-
 		t := template.New("Prefix template")
 		t, err := t.Parse(pfx)
 		if err != nil {
