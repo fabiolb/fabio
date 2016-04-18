@@ -1,14 +1,17 @@
 package metrics
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"log"
 	"net"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/cyberdelia/go-metrics-graphite"
@@ -17,6 +20,12 @@ import (
 )
 
 var pfx string
+
+type Prefix struct {
+	Fqdn     string
+	Hostname string
+	Exe      string
+}
 
 // ServiceRegistry contains a separate metrics registry for
 // the timers for all targets to avoid conflicts
@@ -34,8 +43,20 @@ func Init(cfgs []config.Metrics) error {
 
 func initMetrics(cfg config.Metrics) error {
 	pfx = cfg.Prefix
+	prefix := initPrefixTemplate()
 	if strings.Contains(pfx, "default") {
 		pfx = strings.Replace(pfx, "default", defaultPrefix(), 1)
+	} else {
+
+		t := template.New("Prefix template")
+		t, err := t.Parse(pfx)
+		if err != nil {
+			fmt.Println("Fatal error ", err.Error())
+			os.Exit(1)
+		}
+		var doc bytes.Buffer
+		t.Execute(&doc, prefix)
+		pfx = doc.String()
 	}
 
 	switch cfg.Target {
@@ -85,6 +106,31 @@ func defaultPrefix() string {
 	}
 	exe := filepath.Base(os.Args[0])
 	return clean(host) + "." + clean(exe)
+}
+
+func initPrefixTemplate() *Prefix {
+	// Init Template variables
+	var fqdn string
+	hostname, err := hostname()
+	if err != nil {
+		log.Fatal("[FATAL] ", err)
+	}
+	out, err := exec.Command("hostname", "-f").Output()
+	if err != nil {
+		log.Printf("[WARN] Couldn't determine hostname fqdn, failing back to os.Hostname()", err)
+		fqdn = hostname
+	} else {
+		fqdn = strings.Trim(string(out), "\n\r\t")
+	}
+	exe := filepath.Base(os.Args[0])
+
+	// Assign template variables to Prefix structure
+	prefix := Prefix{
+		Fqdn:     clean(fqdn),
+		Hostname: clean(hostname),
+		Exe:      clean(exe),
+	}
+	return &prefix
 }
 
 func initStdout(interval time.Duration) error {
