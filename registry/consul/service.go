@@ -80,9 +80,11 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 		for _, tag := range svc.ServiceTags {
 			if host, path, ok := parseURLPrefixTag(tag, tagPrefix); ok {
 				name, addr, port := svc.ServiceName, svc.ServiceAddress, svc.ServicePort
-				if runtime.GOOS == "darwin" && !strings.Contains(addr, ".") {
+				// add .local suffix on OSX for simple host names w/o domain
+				if runtime.GOOS == "darwin" && !strings.Contains(addr, ".") && !strings.HasSuffix(addr, ".local") {
 					addr += ".local"
 				}
+
 				config = append(config, fmt.Sprintf("route add %s %s%s http://%s:%d/ tags %q", name, host, path, addr, port, strings.Join(svc.ServiceTags, ",")))
 			}
 		}
