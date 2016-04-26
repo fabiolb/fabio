@@ -222,6 +222,19 @@ func (t Table) route(host, path string) *Route {
 	return routes.find(path)
 }
 
+// normalizeHost returns the hostname from the request
+// and removes the default port if present.
+func normalizeHost(req *http.Request) string {
+	host := strings.ToLower(req.Host)
+	if req.TLS == nil && strings.HasSuffix(host, ":80") {
+		return host[:len(host)-3]
+	}
+	if req.TLS != nil && strings.HasSuffix(host, ":443") {
+		return host[:len(host)-4]
+	}
+	return host
+}
+
 // Lookup finds a target url based on the current matcher and picker
 // or nil if there is none. It first checks the routes for the host
 // and if none matches then it falls back to generic routes without
@@ -234,7 +247,7 @@ func (t Table) Lookup(req *http.Request, trace string) *Target {
 		log.Printf("[TRACE] %s Tracing %s%s", trace, req.Host, req.RequestURI)
 	}
 
-	target := t.doLookup(strings.ToLower(req.Host), req.RequestURI, trace)
+	target := t.doLookup(normalizeHost(req), req.RequestURI, trace)
 	if target == nil {
 		target = t.doLookup("", req.RequestURI, trace)
 	}
