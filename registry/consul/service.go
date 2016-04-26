@@ -80,6 +80,12 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 		for _, tag := range svc.ServiceTags {
 			if host, path, ok := parseURLPrefixTag(tag, tagPrefix); ok {
 				name, addr, port := svc.ServiceName, svc.ServiceAddress, svc.ServicePort
+
+				// use consul node address if service address is not set
+				if addr == "" {
+					addr = svc.Address
+				}
+
 				// add .local suffix on OSX for simple host names w/o domain
 				if runtime.GOOS == "darwin" && !strings.Contains(addr, ".") && !strings.HasSuffix(addr, ".local") {
 					addr += ".local"
