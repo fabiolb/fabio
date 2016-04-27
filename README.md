@@ -1,6 +1,6 @@
 # ![./fabio](https://github.com/eBay/fabio/blob/master/fabio.png)
 
-##### Current stable version: 1.1.1
+##### Current stable version: 1.1.2
 
 [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio) [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/eBay/fabio/master/LICENSE)
 
@@ -60,7 +60,7 @@ any measurable latency impact.
 * Fast
 * v1.0.4: SSL client certificate authentication support (see `proxy.addr` in [fabio.properties](https://raw.githubusercontent.com/eBay/fabio/master/fabio.properties))
 * v1.0.5: `X-Forwarded-For` and `Forwarded` header support
-* v1.0.5: Websocket support (experimental)
+* v1.0.5: Websocket support
 * v1.0.6: Raw websocket support as default
 * v1.0.6: Experimental HTTP API
 * v1.0.6: Improved UI
