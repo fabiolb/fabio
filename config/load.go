@@ -38,6 +38,7 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 	cfg.Proxy = Proxy{
 		MaxConn:               intVal(p, Default.Proxy.MaxConn, "proxy.maxconn"),
 		Strategy:              stringVal(p, Default.Proxy.Strategy, "proxy.strategy"),
+		Matcher:               stringVal(p, Default.Proxy.Matcher, "proxy.matcher"),
 		ShutdownWait:          durationVal(p, Default.Proxy.ShutdownWait, "proxy.shutdownwait"),
 		DialTimeout:           durationVal(p, Default.Proxy.DialTimeout, "proxy.dialtimeout"),
 		ResponseHeaderTimeout: durationVal(p, Default.Proxy.ResponseHeaderTimeout, "proxy.timeout"),

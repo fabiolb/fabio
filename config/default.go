@@ -9,6 +9,7 @@ var Default = &Config{
 	Proxy: Proxy{
 		MaxConn:     10000,
 		Strategy:    "rnd",
+		Matcher:     "prefix",
 		DialTimeout: 30 * time.Second,
 		LocalIP:     LocalIPString(),
 	},
