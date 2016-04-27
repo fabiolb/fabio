@@ -5,6 +5,7 @@
  * [PR #74](https://github.com/eBay/fabio/pull/74): Improve forward header handling
  * [Issue #77](https://github.com/eBay/fabio/issues/77): Fix registry.consul.register.addr example in properties
  * [Issue #88](https://github.com/eBay/fabio/issues/88): Use consul node address
+ * [Issue #90](https://github.com/eBay/fabio/issues/90): Drop default port from request
 
 ### [v1.1.1](https://github.com/eBay/fabio/releases/tag/v1.1.1) - 22 Feb 2016
 
