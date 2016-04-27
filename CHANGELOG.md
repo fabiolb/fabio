@@ -2,6 +2,7 @@
 
 ### [v1.1.2](https://github.com/eBay/fabio/releases/tag/v1.1.2) - Not released
 
+ * Upgrade to Go 1.5.4 and Go 1.6.2
  * [PR #74](https://github.com/eBay/fabio/pull/74): Improve forward header handling
  * [Issue #77](https://github.com/eBay/fabio/issues/77): Fix registry.consul.register.addr example in properties
  * [Issue #88](https://github.com/eBay/fabio/issues/88): Use consul node address

@@ -9,13 +9,13 @@
 #
 # Example:
 #
-#   build/docker.sh 1.1-go1.5.3 1.1-go1.6
+#   build/docker.sh 1.1-go1.5.4 1.1-go1.6
 #
 # will build three containers
 #
-# * magiconair/fabio:1.1-go1.5.3
-# * magiconair/fabio:1.1-go1.6
-# * magiconair/fabio (which contains 1.1-go1.6)
+# * magiconair/fabio:1.1-go1.5.4
+# * magiconair/fabio:1.1-go1.6.2
+# * magiconair/fabio (which contains 1.1-go1.6.2)
 #
 tag=magiconair/fabio
 
