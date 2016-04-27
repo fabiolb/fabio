@@ -1,6 +1,6 @@
 ## Changelog
 
-### [v1.1.2](https://github.com/eBay/fabio/releases/tag/v1.1.2) - Not released
+### [v1.1.2](https://github.com/eBay/fabio/releases/tag/v1.1.2) - 27 Apr 2016
 
  * Upgrade to Go 1.5.4 and Go 1.6.2
  * [PR #74](https://github.com/eBay/fabio/pull/74): Improve forward header handling
