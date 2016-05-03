@@ -319,6 +319,25 @@ A background process watches for service definition and health status changes
 in consul. When a change is detected a new routing table is constructed using
 the commands described in [Config Commands](#Config Commands).
 
+### Consul and the `${DC}` Variable
+
+Consul allows to discover services by two different names:
+
+* `mysvc.service.consul`
+* `mysvc.service.dc1.consul`
+
+Assuming that `dc1` is the datacenter of the local agent during service
+discovery the first name may return instances from a different datacenter
+whereas the second name will only return instances from `dc1`.
+
+If you have multiple environments with separate consul servers and distinguish
+them via datacenter then you can use `${DC}` in the `urlprefix-` tag to simplify
+the registration.
+
+This way you can always register your service with the same set of tags
+`urlprefix-mysvc.service.consul,urlprefix-mysvc.service.${DC}.consul` without
+knowing the consul configuration.
+
 ## Manual overrides
 
 Since an automatically generated routing table can only be changed with a

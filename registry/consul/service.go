@@ -63,11 +63,21 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 		return nil
 	}
 
+	dc, err := datacenter(client)
+	if err != nil {
+		log.Printf("[WARN] consul: Error getting datacenter. %s", err)
+		return nil
+	}
+
 	q := &api.QueryOptions{RequireConsistent: true}
 	svcs, _, err := client.Catalog().Service(name, "", q)
 	if err != nil {
 		log.Printf("[WARN] consul: Error getting catalog service %s. %v", name, err)
 		return nil
+	}
+
+	env := map[string]string{
+		"DC": dc,
 	}
 
 	for _, svc := range svcs {
@@ -78,7 +88,7 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 		}
 
 		for _, tag := range svc.ServiceTags {
-			if host, path, ok := parseURLPrefixTag(tag, tagPrefix); ok {
+			if host, path, ok := parseURLPrefixTag(tag, tagPrefix, env); ok {
 				name, addr, port := svc.ServiceName, svc.ServiceAddress, svc.ServicePort
 
 				// use consul node address if service address is not set

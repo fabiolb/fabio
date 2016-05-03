@@ -2,13 +2,14 @@ package consul
 
 import (
 	"log"
+	"os"
 	"strings"
 )
 
 // parseURLPrefixTag expects an input in the form of 'tag-host/path'
 // and returns the lower cased host plus the path unaltered if the
 // prefix matches the tag.
-func parseURLPrefixTag(s, prefix string) (host, path string, ok bool) {
+func parseURLPrefixTag(s, prefix string, env map[string]string) (host, path string, ok bool) {
 	if !strings.HasPrefix(s, prefix) {
 		return "", "", false
 	}
@@ -20,6 +21,18 @@ func parseURLPrefixTag(s, prefix string) (host, path string, ok bool) {
 		return "", "", false
 	}
 
-	host, path = strings.ToLower(strings.TrimSpace(p[0])), "/"+strings.TrimSpace(p[1])
+	// expand $x or ${x} to env[x] or ""
+	expand := func(s string) string {
+		return os.Expand(s, func(x string) string {
+			if env == nil {
+				return ""
+			}
+			return env[x]
+		})
+	}
+
+	host = strings.ToLower(expand(strings.TrimSpace(p[0])))
+	path = "/" + expand(strings.TrimSpace(p[1]))
+
 	return host, path, true
 }
