@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	fabioroute "github.com/eBay/fabio/route"
@@ -21,6 +22,12 @@ type route struct {
 // HandleRoutes provides a fetch handler for the current routing table.
 func HandleRoutes(w http.ResponseWriter, r *http.Request) {
 	t := fabioroute.GetTable()
+
+	if _, ok := r.URL.Query()["raw"]; ok {
+		w.Header().Set("Content-Type", "text/plain")
+		fmt.Fprintln(w, t.String())
+		return
+	}
 
 	var hosts []string
 	for host := range t {
