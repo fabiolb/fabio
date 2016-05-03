@@ -1,5 +1,5 @@
 
-GO = GODEBUG=sbrk=1 GO15VENDOREXPERIMENT=1 go
+GO = GOGC=off GO15VENDOREXPERIMENT=1 go
 GOFLAGS = -tags netgo -ldflags "-X main.version=$(shell git describe --tags)"
 
 build:
