@@ -1,5 +1,9 @@
 ## Changelog
 
+### [v1.1.3](https://github.com/eBay/fabio/releases/tag/v1.1.3) - Unreleased
+
+ * [Issue #95](https://github.com/eBay/fabio/issues/95): Expand experimental HTTP API
+
 ### [v1.1.2](https://github.com/eBay/fabio/releases/tag/v1.1.2) - 27 Apr 2016
 
  * Upgrade to Go 1.5.4 and Go 1.6.2
