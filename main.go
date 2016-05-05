@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -42,12 +43,15 @@ func main() {
 		fmt.Println(version)
 		return
 	}
-	log.Printf("[INFO] Version %s starting", version)
 
 	cfg, err := config.Load(filename)
 	if err != nil {
-		log.Fatal("[FATAL] ", err)
+		log.Fatalf("[FATAL] %s. %s", version, err)
 	}
+
+	log.Printf("[INFO] Runtime config\n" + toJSON(cfg))
+	log.Printf("[INFO] Version %s starting", version)
+	log.Printf("[INFO] Go runtime is %s", runtime.Version())
 
 	initRuntime(cfg)
 	initMetrics(cfg)
@@ -166,4 +170,12 @@ func watchBackend() {
 
 		last = next
 	}
+}
+
+func toJSON(v interface{}) string {
+	data, err := json.MarshalIndent(v, "", "    ")
+	if err != nil {
+		panic("json: " + err.Error())
+	}
+	return string(data)
 }

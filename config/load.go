@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -116,8 +115,6 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 		Color: stringVal(p, Default.UI.Color, "ui.color"),
 		Title: stringVal(p, Default.UI.Title, "ui.title"),
 	}
-
-	dump(cfg)
 	return cfg, nil
 }
 
@@ -164,14 +161,6 @@ func durationVal(p *properties.Properties, def time.Duration, keys ...string) ti
 		return def
 	}
 	return d
-}
-
-func dump(cfg *Config) {
-	data, err := json.MarshalIndent(cfg, "", "    ")
-	if err != nil {
-		log.Fatal("[FATAL] Cannot dump runtime config. ", err)
-	}
-	log.Println("[INFO] Runtime config\n" + string(data))
 }
 
 func parseMetrics(target, prefix, graphiteAddr string, interval time.Duration) []Metrics {
