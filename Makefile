@@ -1,5 +1,5 @@
 
-GO = GOGC=off GO15VENDOREXPERIMENT=1 go
+GO = GOGC=off ~/go1.6.2/bin/go
 GOFLAGS = -tags netgo -ldflags "-X main.version=$(shell git describe --tags)"
 
 build:
