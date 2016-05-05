@@ -29,6 +29,7 @@ type UI struct {
 
 type Proxy struct {
 	Strategy              string
+	Matcher               string
 	MaxConn               int
 	ShutdownWait          time.Duration
 	DialTimeout           time.Duration

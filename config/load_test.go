@@ -15,6 +15,7 @@ func TestFromProperties(t *testing.T) {
 proxy.addr = :1234
 proxy.localip = 4.4.4.4
 proxy.strategy = rr
+proxy.matcher = prefix
 proxy.shutdownwait = 500ms
 proxy.timeout = 3s
 proxy.dialtimeout = 60s
@@ -50,6 +51,7 @@ ui.title = fabfab
 			MaxConn:               666,
 			LocalIP:               "4.4.4.4",
 			Strategy:              "rr",
+			Matcher:               "prefix",
 			ShutdownWait:          500 * time.Millisecond,
 			DialTimeout:           60 * time.Second,
 			KeepAliveTimeout:      3 * time.Second,

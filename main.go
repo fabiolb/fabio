@@ -64,6 +64,11 @@ func newProxy(cfg *config.Config) *proxy.Proxy {
 	}
 	log.Printf("[INFO] Using routing strategy %q", cfg.Proxy.Strategy)
 
+	if err := route.SetMatcher(cfg.Proxy.Matcher); err != nil {
+		log.Fatal("[FATAL] ", err)
+	}
+	log.Printf("[INFO] Using routing matching %q", cfg.Proxy.Matcher)
+
 	tr := &http.Transport{
 		ResponseHeaderTimeout: cfg.Proxy.ResponseHeaderTimeout,
 		MaxIdleConnsPerHost:   cfg.Proxy.MaxConn,
