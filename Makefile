@@ -1,5 +1,6 @@
 
-GO = GOGC=off ~/go1.6.2/bin/go
+# do not specify a full path for go since travis will fail
+GO = GOGC=off go
 GOFLAGS = -tags netgo -ldflags "-X main.version=$(shell git describe --tags)"
 
 build:
