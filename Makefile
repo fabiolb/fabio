@@ -3,10 +3,13 @@
 GO = GOGC=off go
 GOFLAGS = -tags netgo -ldflags "-X main.version=$(shell git describe --tags)"
 
+all: build test
+
 build:
 	$(GO) build -i $(GOFLAGS)
 
 test:
+	$(GO) test -i ./...
 	$(GO) test ./...
 
 gofmt:
