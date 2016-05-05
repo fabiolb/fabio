@@ -2,6 +2,7 @@
 
 ### [v1.1.3](https://github.com/eBay/fabio/releases/tag/v1.1.3) - Unreleased
 
+ * [Issue #55](https://github.com/eBay/fabio/issues/55): Expand ${DC} to consul datacenter
  * [Issue #95](https://github.com/eBay/fabio/issues/95): Expand experimental HTTP API
  * [PR #93](https://github.com/eBay/fabio/pull/93): Add glob path matching
 
