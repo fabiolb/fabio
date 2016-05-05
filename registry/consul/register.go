@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/consul/api"
 )
 
-func serviceRegistration(addr, name string, interval, timeout time.Duration) (*api.AgentServiceRegistration, error) {
+func serviceRegistration(addr, name string, tags []string, interval, timeout time.Duration) (*api.AgentServiceRegistration, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return nil, err
@@ -49,6 +49,7 @@ func serviceRegistration(addr, name string, interval, timeout time.Duration) (*a
 		Name:    name,
 		Address: ip.String(),
 		Port:    port,
+		Tags:    tags,
 		Check: &api.AgentServiceCheck{
 			HTTP:     checkURL,
 			Interval: interval.String(),

@@ -3,6 +3,7 @@ package consul
 import (
 	"errors"
 	"log"
+	"strings"
 
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/registry"
@@ -37,7 +38,7 @@ func NewBackend(cfg *config.Consul) (registry.Backend, error) {
 }
 
 func (b *be) Register() error {
-	service, err := serviceRegistration(b.cfg.ServiceAddr, b.cfg.ServiceName, b.cfg.CheckInterval, b.cfg.CheckTimeout)
+	service, err := serviceRegistration(b.cfg.ServiceAddr, b.cfg.ServiceName, b.cfg.ServiceTags, b.cfg.CheckInterval, b.cfg.CheckTimeout)
 	if err != nil {
 		return err
 	}
@@ -45,7 +46,11 @@ func (b *be) Register() error {
 		return err
 	}
 
-	log.Printf("[INFO] consul: Registered fabio as %q with address %q and health check to %q", service.ID, b.cfg.ServiceAddr, service.Check.HTTP)
+	log.Printf("[INFO] consul: Registered fabio with id %q", service.ID)
+	log.Printf("[INFO] consul: Registered fabio with address %q", b.cfg.ServiceAddr)
+	log.Printf("[INFO] consul: Registered fabio with tags %q", strings.Join(b.cfg.ServiceTags, ","))
+	log.Printf("[INFO] consul: Registered fabio with health check to %q", service.Check.HTTP)
+
 	b.serviceID = service.ID
 	return nil
 }

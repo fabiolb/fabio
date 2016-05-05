@@ -78,6 +78,7 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 			TagPrefix:     stringVal(p, Default.Registry.Consul.TagPrefix, "registry.consul.tagprefix", "consul.tagprefix"),
 			ServiceAddr:   stringVal(p, Default.Registry.Consul.ServiceAddr, "registry.consul.register.addr"),
 			ServiceName:   stringVal(p, Default.Registry.Consul.ServiceName, "registry.consul.register.name", "consul.register.name"),
+			ServiceTags:   stringAVal(p, Default.Registry.Consul.ServiceTags, "registry.consul.register.tags"),
 			CheckInterval: durationVal(p, Default.Registry.Consul.CheckInterval, "registry.consul.register.checkInterval", "consul.register.checkInterval"),
 			CheckTimeout:  durationVal(p, Default.Registry.Consul.CheckTimeout, "registry.consul.register.checkTimeout", "consul.register.checkTimeout"),
 		},
@@ -135,6 +136,25 @@ func stringVal(p *properties.Properties, def string, keys ...string) string {
 		}
 	}
 	return def
+}
+
+func stringAVal(p *properties.Properties, def []string, keys ...string) []string {
+	v := stringVal(p, "", keys...)
+	if v == "" {
+		return def
+	}
+	return splitSkipEmpty(v, ",")
+}
+
+func splitSkipEmpty(s, sep string) (vals []string) {
+	for _, v := range strings.Split(s, sep) {
+		v = strings.TrimSpace(v)
+		if v == "" {
+			continue
+		}
+		vals = append(vals, v)
+	}
+	return vals
 }
 
 func intVal(p *properties.Properties, def int, keys ...string) int {

@@ -34,6 +34,7 @@ registry.consul.kvpath = /some/path
 registry.consul.tagprefix = p-
 registry.consul.register.addr = 6.6.6.6:7777
 registry.consul.register.name = fab
+registry.consul.register.tags = a, b, c ,
 registry.consul.register.checkInterval = 5s
 registry.consul.register.checkTimeout = 10s
 metrics.target = graphite
@@ -75,6 +76,7 @@ ui.title = fabfab
 				TagPrefix:     "p-",
 				ServiceAddr:   "6.6.6.6:7777",
 				ServiceName:   "fab",
+				ServiceTags:   []string{"a", "b", "c"},
 				CheckInterval: 5 * time.Second,
 				CheckTimeout:  10 * time.Second,
 			},

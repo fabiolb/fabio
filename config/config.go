@@ -75,6 +75,7 @@ type Consul struct {
 	TagPrefix     string
 	ServiceAddr   string
 	ServiceName   string
+	ServiceTags   []string
 	CheckInterval time.Duration
 	CheckTimeout  time.Duration
 }
