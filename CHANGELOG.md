@@ -72,7 +72,7 @@
 
 ### [v1.0.2](https://github.com/eBay/fabio/releases/tag/v1.0.2) - 23 Oct 2015
 
- * [Pull Request #3](https://github.com/eBay/fabio/pull/3): Honor consul.url and consul.addr from config file (@jeinwag)
+ * [PR #3](https://github.com/eBay/fabio/pull/3): Honor consul.url and consul.addr from config file (@jeinwag)
 
 ### [v1.0.1](https://github.com/eBay/fabio/releases/tag/v1.0.1) - 21 Oct 2015
 
