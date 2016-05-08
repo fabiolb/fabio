@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/armon/go-proxyproto"
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/exit"
 	"github.com/eBay/fabio/proxy"
@@ -112,7 +113,7 @@ func serve(srv *http.Server) error {
 		ln = tls.NewListener(ln, srv.TLSConfig)
 	}
 
-	return srv.Serve(ln)
+	return srv.Serve(&proxyproto.Listener{ln})
 }
 
 // copied from http://golang.org/src/net/http/server.go?s=54604:54695#L1967
