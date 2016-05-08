@@ -3,6 +3,11 @@
 	"ignore": "test",
 	"package": [
 		{
+			"path": "github.com/armon/go-proxyproto",
+			"revision": "609d6338d3a76ec26ac3fe7045a164d9a58436e7",
+			"revisionTime": "2015-02-06T18:58:55-08:00"
+		},
+		{
 			"path": "github.com/cyberdelia/go-metrics-graphite",
 			"revision": "b8345b7f01d571b05366d5791a034d872f1bb36f",
 			"revisionTime": "2015-08-25T20:22:00-07:00"
