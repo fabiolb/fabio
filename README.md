@@ -67,6 +67,7 @@ any measurable latency impact.
 * v1.0.6: fabio registers itself in consul
 * v1.0.8: Support consul ACL token
 * v1.0.9: Make read and write timeout configurable
+* v1.1.3: HAProxy PROXY protocol support
 
 ## Documentation
 
