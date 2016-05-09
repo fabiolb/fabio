@@ -19,14 +19,17 @@ import (
 // * TLS connection: Set header with name from `cfg.TLSHeader` to `cfg.TLSHeaderValue`
 //
 func addHeaders(r *http.Request, cfg config.Proxy) error {
-	remoteIP, _, err := net.SplitHostPort(r.RemoteAddr)
+	remoteIP, remotePort, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return errors.New("cannot parse " + r.RemoteAddr)
 	}
 
-	// Set configurable ClientIPHeader here, but no if it is X-Forwarded-For here,
-	// because X-Forwarded-For will be set by the Golang reverse proxy handler, later.
-	if cfg.ClientIPHeader != "" && cfg.ClientIPHeader != "X-Forwarded-For" && cfg.ClientIPHeader != "X-Real-Ip" {
+	// set configurable ClientIPHeader
+	// X-Real-Ip is set later and X-Forwarded-For is set
+	// by the Go HTTP reverse proxy.
+	if cfg.ClientIPHeader != "" &&
+		cfg.ClientIPHeader != "X-Forwarded-For" &&
+		cfg.ClientIPHeader != "X-Real-Ip" {
 		r.Header.Set(cfg.ClientIPHeader, remoteIP)
 	}
 
@@ -34,20 +37,42 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 		r.Header.Set("X-Real-Ip", remoteIP)
 	}
 
+	// set the X-Forwarded-For header for websocket
+	// connections since they aren't handled by the
+	// http proxy which sets it.
+	ws := r.Header.Get("Upgrade") == "websocket"
+	if ws {
+		r.Header.Set("X-Forwarded-For", remoteIP)
+	}
+
 	if r.Header.Get("X-Forwarded-Proto") == "" {
-		if r.TLS != nil {
+		switch {
+		case ws && r.TLS != nil:
+			r.Header.Set("X-Forwarded-Proto", "wss")
+		case ws && r.TLS == nil:
+			r.Header.Set("X-Forwarded-Proto", "ws")
+		case r.TLS != nil:
 			r.Header.Set("X-Forwarded-Proto", "https")
-		} else {
+		default:
 			r.Header.Set("X-Forwarded-Proto", "http")
 		}
+	}
+
+	if r.Header.Get("X-Forwarded-Port") == "" {
+		r.Header.Set("X-Forwarded-Port", remotePort)
 	}
 
 	fwd := r.Header.Get("Forwarded")
 	if fwd == "" {
 		fwd = "for=" + remoteIP
-		if r.TLS != nil {
+		switch {
+		case ws && r.TLS != nil:
+			fwd += "; proto=wss"
+		case ws && r.TLS == nil:
+			fwd += "; proto=ws"
+		case r.TLS != nil:
 			fwd += "; proto=https"
-		} else {
+		default:
 			fwd += "; proto=http"
 		}
 	}
