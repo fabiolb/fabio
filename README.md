@@ -1,6 +1,7 @@
 # ![./fabio](https://github.com/eBay/fabio/blob/master/fabio.png)
 
 ##### Current stable version: 1.1.2
+##### Current release candidate: 1.1.3rc1
 
 [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio) [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/eBay/fabio/master/LICENSE)
 
@@ -67,6 +68,7 @@ any measurable latency impact.
 * v1.0.6: fabio registers itself in consul
 * v1.0.8: Support consul ACL token
 * v1.0.9: Make read and write timeout configurable
+* v1.1.3: HAProxy PROXY protocol support
 
 ## Documentation
 
