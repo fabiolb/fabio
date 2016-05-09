@@ -2,6 +2,7 @@
 
 ### [v1.1.3](https://github.com/eBay/fabio/releases/tag/v1.1.3) - Unreleased
 
+ * Drop support for Go 1.5
  * [Issue #55](https://github.com/eBay/fabio/issues/55): Expand ${DC} to consul datacenter
  * [Issue #95](https://github.com/eBay/fabio/issues/95): Expand experimental HTTP API
  * [Issue #96](https://github.com/eBay/fabio/issues/96): Allow tags for fabio service registration
