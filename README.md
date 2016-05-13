@@ -3,6 +3,14 @@
 ##### Current stable version: 1.1.2
 ##### Current release candidate: 1.1.3rc1
 
+### 1.1.3rc1 TLS detection broken
+
+The change for [Issue #97](https://github.com/eBay/fabio/issues/97)
+introduced a bug where fabio can no longer detect HTTPS sessions. 
+**This only affects users who terminate TLS on fabio** and 
+this functionality is broken in `1.1.3rc1`. I will investigate
+and provide a fix as soon as I have one.
+
 [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio) [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/eBay/fabio/master/LICENSE)
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) router
