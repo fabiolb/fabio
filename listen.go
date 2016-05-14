@@ -107,13 +107,13 @@ func serve(srv *http.Server) error {
 		log.Fatal("[FATAL] ", err)
 	}
 
-	ln = tcpKeepAliveListener{ln.(*net.TCPListener)}
+	ln = &proxyproto.Listener{tcpKeepAliveListener{ln.(*net.TCPListener)}}
 
 	if srv.TLSConfig != nil {
 		ln = tls.NewListener(ln, srv.TLSConfig)
 	}
 
-	return srv.Serve(&proxyproto.Listener{ln})
+	return srv.Serve(ln)
 }
 
 // copied from http://golang.org/src/net/http/server.go?s=54604:54695#L1967
