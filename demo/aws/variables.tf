@@ -3,7 +3,7 @@ variable "public_key_path" {
 }
 
 variable "key_name" {
-  description = "terraform"
+  default = "terraform"
 }
 
 variable "aws_region" {
