@@ -1,7 +1,7 @@
 # ![./fabio](https://github.com/eBay/fabio/blob/master/fabio.png)
 
 ##### Current stable version: 1.1.2
-##### Current release candidate: 1.1.3rc1
+##### Current release candidate: 1.1.3rc2
 
 ### 1.1.3rc1 TLS detection broken
 
