@@ -38,6 +38,11 @@ func NewBackend(cfg *config.Consul) (registry.Backend, error) {
 }
 
 func (b *be) Register() error {
+	if !b.cfg.Register {
+		log.Printf("[INFO] consul: Not registering fabio in consul")
+		return nil
+	}
+
 	service, err := serviceRegistration(b.cfg.ServiceAddr, b.cfg.ServiceName, b.cfg.ServiceTags, b.cfg.CheckInterval, b.cfg.CheckTimeout)
 	if err != nil {
 		return err

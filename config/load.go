@@ -76,6 +76,7 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 			Token:         stringVal(p, Default.Registry.Consul.Token, "registry.consul.token", "consul.token"),
 			KVPath:        stringVal(p, Default.Registry.Consul.KVPath, "registry.consul.kvpath", "consul.kvpath"),
 			TagPrefix:     stringVal(p, Default.Registry.Consul.TagPrefix, "registry.consul.tagprefix", "consul.tagprefix"),
+			Register:      boolVal(p, Default.Registry.Consul.Register, "registry.consul.register.enabled"),
 			ServiceAddr:   stringVal(p, Default.Registry.Consul.ServiceAddr, "registry.consul.register.addr"),
 			ServiceName:   stringVal(p, Default.Registry.Consul.ServiceName, "registry.consul.register.name", "consul.register.name"),
 			ServiceTags:   stringAVal(p, Default.Registry.Consul.ServiceTags, "registry.consul.register.tags"),
@@ -155,6 +156,15 @@ func splitSkipEmpty(s, sep string) (vals []string) {
 		vals = append(vals, v)
 	}
 	return vals
+}
+
+func boolVal(p *properties.Properties, def bool, keys ...string) bool {
+	v := stringVal(p, "", keys...)
+	if v == "" {
+		return def
+	}
+	v = strings.TrimSpace(strings.ToLower(v))
+	return v == "true"
 }
 
 func intVal(p *properties.Properties, def int, keys ...string) int {

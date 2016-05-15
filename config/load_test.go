@@ -32,6 +32,7 @@ registry.consul.addr = 1.2.3.4:5678
 registry.consul.token = consul-token
 registry.consul.kvpath = /some/path
 registry.consul.tagprefix = p-
+registry.consul.register.enabled = false
 registry.consul.register.addr = 6.6.6.6:7777
 registry.consul.register.name = fab
 registry.consul.register.tags = a, b, c ,
@@ -74,6 +75,7 @@ ui.title = fabfab
 				Token:         "consul-token",
 				KVPath:        "/some/path",
 				TagPrefix:     "p-",
+				Register:      false,
 				ServiceAddr:   "6.6.6.6:7777",
 				ServiceName:   "fab",
 				ServiceTags:   []string{"a", "b", "c"},

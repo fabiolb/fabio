@@ -73,6 +73,7 @@ type Consul struct {
 	Token         string
 	KVPath        string
 	TagPrefix     string
+	Register      bool
 	ServiceAddr   string
 	ServiceName   string
 	ServiceTags   []string
