@@ -10,6 +10,7 @@ import (
 // and returns the lower cased host plus the path unaltered if the
 // prefix matches the tag.
 func parseURLPrefixTag(s, prefix string, env map[string]string) (host, path string, ok bool) {
+	s = strings.TrimSpace(s)
 	if !strings.HasPrefix(s, prefix) {
 		return "", "", false
 	}

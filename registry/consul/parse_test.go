@@ -15,6 +15,7 @@ func TestParseTag(t *testing.T) {
 		{tag: "p-", host: "", path: "", ok: false},
 		{tag: "p- ", host: "", path: "", ok: false},
 		{tag: "p-/", host: "", path: "/", ok: true},
+		{tag: " p-/", host: "", path: "/", ok: true},
 		{tag: "p-/ ", host: "", path: "/", ok: true},
 		{tag: "p- / ", host: "", path: "/", ok: true},
 		{tag: "p-/foo", host: "", path: "/foo", ok: true},
