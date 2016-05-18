@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"sort"
 
 	fabioroute "github.com/eBay/fabio/route"
 )
@@ -33,6 +34,7 @@ func HandleRoutes(w http.ResponseWriter, r *http.Request) {
 	for host := range t {
 		hosts = append(hosts, host)
 	}
+	sort.Strings(hosts)
 
 	var routes []route
 	for _, host := range hosts {
