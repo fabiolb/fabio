@@ -9,6 +9,7 @@
  * [Issue #97](https://github.com/eBay/fabio/issues/97): Support PROXY protocol
  * [Issue #98](https://github.com/eBay/fabio/issues/98): Improve forward header
  * [Issue #103](https://github.com/eBay/fabio/issues/103): Trim whitespace around tag
+ * [Issue #104](https://github.com/eBay/fabio/issues/104): Keep sort order in UI stable
  * [PR #93](https://github.com/eBay/fabio/pull/93): Add glob path matching
 
 ### [v1.1.2](https://github.com/eBay/fabio/releases/tag/v1.1.2) - 27 Apr 2016
