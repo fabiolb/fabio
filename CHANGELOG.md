@@ -8,6 +8,7 @@
  * [Issue #96](https://github.com/eBay/fabio/issues/96): Allow tags for fabio service registration
  * [Issue #97](https://github.com/eBay/fabio/issues/97): Support PROXY protocol
  * [Issue #98](https://github.com/eBay/fabio/issues/98): Improve forward header
+ * [Issue #103](https://github.com/eBay/fabio/issues/103): Trim whitespace around tag
  * [PR #93](https://github.com/eBay/fabio/pull/93): Add glob path matching
 
 ### [v1.1.2](https://github.com/eBay/fabio/releases/tag/v1.1.2) - 27 Apr 2016
