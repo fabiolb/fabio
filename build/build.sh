@@ -13,3 +13,4 @@ for os in darwin linux ; do
 	done
 done
 
+shasum -a 256 fabio-${v}-* > fabio-${v}.sha256
