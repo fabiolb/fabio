@@ -1,6 +1,6 @@
 ## Changelog
 
-### [v1.1.3](https://github.com/eBay/fabio/releases/tag/v1.1.3) - Unreleased
+### [v1.1.3](https://github.com/eBay/fabio/releases/tag/v1.1.3) - 20 May 2016
 
  * Drop support for Go 1.5
  * [Issue #55](https://github.com/eBay/fabio/issues/55): Expand ${DC} to consul datacenter
