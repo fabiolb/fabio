@@ -3,7 +3,6 @@ package consul
 import (
 	"errors"
 	"log"
-	"strings"
 
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/registry"
@@ -13,10 +12,10 @@ import (
 
 // be is an implementation of a registry backend for consul.
 type be struct {
-	c         *api.Client
-	dc        string
-	cfg       *config.Consul
-	serviceID string
+	c     *api.Client
+	dc    string
+	cfg   *config.Consul
+	dereg chan bool
 }
 
 func NewBackend(cfg *config.Consul) (registry.Backend, error) {
@@ -47,22 +46,17 @@ func (b *be) Register() error {
 	if err != nil {
 		return err
 	}
-	if err := b.c.Agent().ServiceRegister(service); err != nil {
-		return err
-	}
 
-	log.Printf("[INFO] consul: Registered fabio with id %q", service.ID)
-	log.Printf("[INFO] consul: Registered fabio with address %q", b.cfg.ServiceAddr)
-	log.Printf("[INFO] consul: Registered fabio with tags %q", strings.Join(b.cfg.ServiceTags, ","))
-	log.Printf("[INFO] consul: Registered fabio with health check to %q", service.Check.HTTP)
-
-	b.serviceID = service.ID
+	b.dereg = register(b.c, service)
 	return nil
 }
 
 func (b *be) Deregister() error {
-	log.Printf("[INFO] consul: Deregistering fabio")
-	return b.c.Agent().ServiceDeregister(b.serviceID)
+	if b.dereg != nil {
+		b.dereg <- true // trigger deregistration
+		<-b.dereg       // wait for completion
+	}
+	return nil
 }
 
 func (b *be) ReadManual() (value string, version uint64, err error) {
