@@ -32,7 +32,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	t := target(r)
 	if t == nil {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(p.cfg.NoRouteStatus)
 		return
 	}
 

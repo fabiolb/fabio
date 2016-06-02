@@ -16,6 +16,7 @@ proxy.addr = :1234
 proxy.localip = 4.4.4.4
 proxy.strategy = rr
 proxy.matcher = prefix
+proxy.noroutestatus = 929
 proxy.shutdownwait = 500ms
 proxy.timeout = 3s
 proxy.dialtimeout = 60s
@@ -54,6 +55,7 @@ ui.title = fabfab
 			LocalIP:               "4.4.4.4",
 			Strategy:              "rr",
 			Matcher:               "prefix",
+			NoRouteStatus:         929,
 			ShutdownWait:          500 * time.Millisecond,
 			DialTimeout:           60 * time.Second,
 			KeepAliveTimeout:      3 * time.Second,

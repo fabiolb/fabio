@@ -38,3 +38,20 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 		t.Errorf("got %v, but want %v", got, want)
 	}
 }
+
+func TestProxyNoRouteStaus(t *testing.T) {
+	route.SetTable(make(route.Table))
+	tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
+	cfg := config.Proxy{NoRouteStatus: 999}
+	proxy := New(tr, cfg)
+	req := &http.Request{
+		RequestURI: "/",
+		URL:        &url.URL{},
+	}
+
+	rec := httptest.NewRecorder()
+	proxy.ServeHTTP(rec, req)
+	if got, want := rec.Code, cfg.NoRouteStatus; got != want {
+		t.Fatalf("got %d want %d", got, want)
+	}
+}
