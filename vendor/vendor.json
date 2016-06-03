@@ -13,14 +13,99 @@
 			"revisionTime": "2015-08-25T20:22:00-07:00"
 		},
 		{
+			"path": "github.com/fatih/structs",
+			"revision": "5ada2f449b108d87dbd8c1e60c32cdd065c27886",
+			"revisionTime": "2016-06-01T12:31:17+03:00"
+		},
+		{
 			"path": "github.com/hashicorp/consul/api",
 			"revision": "16de0a909bc4c28d879ef1977b46dcdd57b71af3",
 			"revisionTime": "2015-05-15T08:25:02-07:00"
 		},
 		{
+			"path": "github.com/hashicorp/errwrap",
+			"revision": "7554cd9344cec97297fa6649b055a8c98c2a1e55",
+			"revisionTime": "2014-10-27T22:47:10-07:00"
+		},
+		{
+			"path": "github.com/hashicorp/go-cleanhttp",
+			"revision": "ce617e79981a8fff618bb643d155133a8f38db96",
+			"revisionTime": "2015-12-17T15:04:12-05:00"
+		},
+		{
+			"path": "github.com/hashicorp/go-multierror",
+			"revision": "d30f09973e19c1dfcd120b2d9c4f168e68d6b5d5",
+			"revisionTime": "2015-09-16T13:57:42-07:00"
+		},
+		{
+			"path": "github.com/hashicorp/go-rootcerts",
+			"revision": "6bb64b370b90e7ef1fa532be9e591a81c3493e00",
+			"revisionTime": "2016-05-03T09:34:40-05:00"
+		},
+		{
+			"path": "github.com/hashicorp/hcl",
+			"revision": "2604f3bda7e8960c1be1063709e7d7f0765048d0",
+			"revisionTime": "2016-03-21T14:46:21Z"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/hcl/ast",
+			"revision": "2604f3bda7e8960c1be1063709e7d7f0765048d0",
+			"revisionTime": "2016-03-21T14:46:21Z"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/hcl/parser",
+			"revision": "2604f3bda7e8960c1be1063709e7d7f0765048d0",
+			"revisionTime": "2016-03-21T14:46:21Z"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/hcl/scanner",
+			"revision": "2604f3bda7e8960c1be1063709e7d7f0765048d0",
+			"revisionTime": "2016-03-21T14:46:21Z"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/hcl/strconv",
+			"revision": "2604f3bda7e8960c1be1063709e7d7f0765048d0",
+			"revisionTime": "2016-03-21T14:46:21Z"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/hcl/token",
+			"revision": "2604f3bda7e8960c1be1063709e7d7f0765048d0",
+			"revisionTime": "2016-03-21T14:46:21Z"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/json/parser",
+			"revision": "2604f3bda7e8960c1be1063709e7d7f0765048d0",
+			"revisionTime": "2016-03-21T14:46:21Z"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/json/scanner",
+			"revision": "2604f3bda7e8960c1be1063709e7d7f0765048d0",
+			"revisionTime": "2016-03-21T14:46:21Z"
+		},
+		{
+			"path": "github.com/hashicorp/hcl/json/token",
+			"revision": "2604f3bda7e8960c1be1063709e7d7f0765048d0",
+			"revisionTime": "2016-03-21T14:46:21Z"
+		},
+		{
+			"path": "github.com/hashicorp/vault/api",
+			"revision": "29c78f6512f7a447eb5b026dd6350c9fdb70a6b2",
+			"revisionTime": "2016-06-01T22:09:28-04:00"
+		},
+		{
 			"path": "github.com/magiconair/properties",
 			"revision": "c265cfa48dda6474e208715ca93e987829f572f8",
 			"revisionTime": "2016-03-20T21:54:47+01:00"
+		},
+		{
+			"path": "github.com/mitchellh/go-homedir",
+			"revision": "d682a8f0cf139663a984ff12528da460ca963de9",
+			"revisionTime": "2015-10-24T22:24:27-07:00"
+		},
+		{
+			"path": "github.com/mitchellh/mapstructure",
+			"revision": "d2dd0262208475919e1a362f675cfc0e7c10e905",
+			"revisionTime": "2016-02-11T19:18:39-08:00"
 		},
 		{
 			"path": "github.com/pascaldekloe/goe/verify",
