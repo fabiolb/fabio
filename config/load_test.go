@@ -49,6 +49,7 @@ runtime.gomaxprocs = 12
 ui.addr = 7.8.9.0:1234
 ui.color = fonzy
 ui.title = fabfab
+aws.apigw.cert.cn = furb
 	`
 	out := &Config{
 		Proxy: Proxy{
@@ -89,9 +90,10 @@ ui.title = fabfab
 		},
 		Listen: []Listen{
 			{
-				Addr:         ":1234",
-				ReadTimeout:  5 * time.Second,
-				WriteTimeout: 10 * time.Second,
+				Addr:           ":1234",
+				ReadTimeout:    5 * time.Second,
+				WriteTimeout:   10 * time.Second,
+				AWSApiGWCertCN: "furb",
 			},
 		},
 		Metrics: []Metrics{
@@ -235,7 +237,7 @@ func TestParseAddr(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		l, err := parseListen(tt.in, time.Duration(0), time.Duration(0))
+		l, err := parseListen(tt.in)
 		if got, want := err, tt.err; (got != nil || want != "") && got.Error() != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}

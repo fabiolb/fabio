@@ -51,10 +51,16 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 
 	readTimeout := durationVal(p, time.Duration(0), "proxy.readtimeout")
 	writeTimeout := durationVal(p, time.Duration(0), "proxy.writetimeout")
+	awsApiGwCertCN := stringVal(p, "", "aws.apigw.cert.cn")
 
-	cfg.Listen, err = parseListen(stringVal(p, Default.Listen[0].Addr, "proxy.addr"), readTimeout, writeTimeout)
+	cfg.Listen, err = parseListen(stringVal(p, Default.Listen[0].Addr, "proxy.addr"))
 	if err != nil {
 		return nil, err
+	}
+	for i := range cfg.Listen {
+		cfg.Listen[i].ReadTimeout = readTimeout
+		cfg.Listen[i].WriteTimeout = writeTimeout
+		cfg.Listen[i].AWSApiGWCertCN = awsApiGwCertCN
 	}
 
 	cfg.Metrics = parseMetrics(
@@ -119,6 +125,7 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 		Color: stringVal(p, Default.UI.Color, "ui.color"),
 		Title: stringVal(p, Default.UI.Title, "ui.title"),
 	}
+
 	return cfg, nil
 }
 
@@ -203,7 +210,7 @@ func parseMetrics(target, prefix, graphiteAddr string, interval time.Duration) [
 	return []Metrics{m}
 }
 
-func parseListen(addrs string, readTimeout, writeTimeout time.Duration) ([]Listen, error) {
+func parseListen(addrs string) ([]Listen, error) {
 	listen := []Listen{}
 	for _, addr := range strings.Split(addrs, ",") {
 		addr = strings.TrimSpace(addr)
@@ -225,8 +232,6 @@ func parseListen(addrs string, readTimeout, writeTimeout time.Duration) ([]Liste
 		default:
 			return nil, fmt.Errorf("invalid address %s", addr)
 		}
-		l.ReadTimeout = readTimeout
-		l.WriteTimeout = writeTimeout
 		listen = append(listen, l)
 	}
 	return listen, nil

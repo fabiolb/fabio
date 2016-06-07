@@ -19,6 +19,7 @@ type Listen struct {
 	TLS            bool
 	ReadTimeout    time.Duration
 	WriteTimeout   time.Duration
+	AWSApiGWCertCN string
 }
 
 type UI struct {
