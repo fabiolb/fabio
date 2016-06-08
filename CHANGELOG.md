@@ -4,6 +4,7 @@
 
  * [Issue #99](https://github.com/eBay/fabio/issues/99): Disable fabio health check in consul
  * [Issue #100](https://github.com/eBay/fabio/issues/100): Keep fabio registered in consul
+ * [Issue #107](https://github.com/eBay/fabio/issues/107): Custom status code when no route found
 
 ### [v1.1.3](https://github.com/eBay/fabio/releases/tag/v1.1.3) - 20 May 2016
 
