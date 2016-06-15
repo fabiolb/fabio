@@ -1,6 +1,6 @@
 ## Changelog
 
-### [v1.1.4](https://github.com/eBay/fabio/releases/tag/v1.1.4) - Unreleased
+### [v1.1.4](https://github.com/eBay/fabio/releases/tag/v1.1.4) - 15 Jun 2016
 
  * [Issue #99](https://github.com/eBay/fabio/issues/99): Disable fabio health check in consul
  * [Issue #100](https://github.com/eBay/fabio/issues/100): Keep fabio registered in consul
