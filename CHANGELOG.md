@@ -1,5 +1,13 @@
 ## Changelog
 
+### [v1.2rc1](https://github.com/eBay/fabio/releases/tag/v1.2rc1) - 15 Jun 2016
+
+ * [Issue #27](https://github.com/eBay/fabio/issues/27): Change certificates via API
+ * [Issue #28](https://github.com/eBay/fabio/issues/28): Refactor listener config
+ * [Issue #70](https://github.com/eBay/fabio/issues/70): Support Vault
+ * [Issue #79](https://github.com/eBay/fabio/issues/79): Refactor config loading to use flag sets
+ * [Issue #85](https://github.com/eBay/fabio/issues/85): SNI support
+
 ### [v1.1.4](https://github.com/eBay/fabio/releases/tag/v1.1.4) - 15 Jun 2016
 
  * [Issue #99](https://github.com/eBay/fabio/issues/99): Disable fabio health check in consul
