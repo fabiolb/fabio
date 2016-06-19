@@ -2,4 +2,4 @@ language: go
 
 go:
     - 1.6.2
-    - 1.7beta1
+    - 1.7beta2
