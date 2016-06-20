@@ -70,14 +70,15 @@ type File struct {
 }
 
 type Consul struct {
-	Addr          string
-	Token         string
-	KVPath        string
-	TagPrefix     string
-	Register      bool
-	ServiceAddr   string
-	ServiceName   string
-	ServiceTags   []string
-	CheckInterval time.Duration
-	CheckTimeout  time.Duration
+	Addr             string
+	Token            string
+	KVPath           string
+	TagPrefix        string
+	Register         bool
+	ServiceAddr      string
+	ServiceName      string
+	ServiceTags      []string
+	AcceptableStatus []string
+	CheckInterval    time.Duration
+	CheckTimeout     time.Duration
 }
