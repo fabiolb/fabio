@@ -17,14 +17,15 @@ var Default = &Config{
 	Registry: Registry{
 		Backend: "consul",
 		Consul: Consul{
-			Addr:          "localhost:8500",
-			KVPath:        "/fabio/config",
-			TagPrefix:     "urlprefix-",
-			Register:      true,
-			ServiceAddr:   ":9998",
-			ServiceName:   "fabio",
-			CheckInterval: time.Second,
-			CheckTimeout:  3 * time.Second,
+			Addr:             "localhost:8500",
+			KVPath:           "/fabio/config",
+			TagPrefix:        "urlprefix-",
+			Register:         true,
+			ServiceAddr:      ":9998",
+			ServiceName:      "fabio",
+			AcceptableStatus: []string{"passing"},
+			CheckInterval:    time.Second,
+			CheckTimeout:     3 * time.Second,
 		},
 	},
 	Listen: []Listen{
