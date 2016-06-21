@@ -10,7 +10,7 @@ import (
 // passingServices filters out health checks for services which have
 // passing health checks and where the neither the service instance itself
 // nor the node is in maintenance mode.
-func passingServices(checks []*api.HealthCheck) []*api.HealthCheck {
+func passingServices(checks []*api.HealthCheck, status []string) []*api.HealthCheck {
 	var p []*api.HealthCheck
 	for _, svc := range checks {
 		// first filter out non-service checks
@@ -19,7 +19,7 @@ func passingServices(checks []*api.HealthCheck) []*api.HealthCheck {
 		}
 
 		// then make sure the service health check is passing
-		if svc.Status != "passing" {
+		if !contains(status, svc.Status) {
 			continue
 		}
 
@@ -46,4 +46,13 @@ func passingServices(checks []*api.HealthCheck) []*api.HealthCheck {
 	}
 
 	return p
+}
+
+func contains(slice []string, item string) bool {
+	for _, a := range slice {
+		if a == item {
+			return true
+		}
+	}
+	return false
 }

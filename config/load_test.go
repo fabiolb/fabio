@@ -41,6 +41,7 @@ registry.consul.register.name = fab
 registry.consul.register.tags = a, b, c ,
 registry.consul.register.checkInterval = 5s
 registry.consul.register.checkTimeout = 10s
+registry.consul.service.status = a,b
 metrics.target = graphite
 metrics.prefix = someprefix
 metrics.interval = 5s
@@ -98,6 +99,7 @@ ui.title = fabfab
 				ServiceAddr:   "6.6.6.6:7777",
 				ServiceName:   "fab",
 				ServiceTags:   []string{"a", "b", "c"},
+				ServiceStatus: []string{"a", "b"},
 				CheckInterval: 5 * time.Second,
 				CheckTimeout:  10 * time.Second,
 			},

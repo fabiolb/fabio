@@ -86,6 +86,7 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	f.StringVar(&cfg.Registry.Consul.ServiceAddr, "registry.consul.register.addr", Default.Registry.Consul.ServiceAddr, "service registration address")
 	f.StringVar(&cfg.Registry.Consul.ServiceName, "registry.consul.register.name", Default.Registry.Consul.ServiceName, "service registration name")
 	f.Var((*tags)(&cfg.Registry.Consul.ServiceTags), "registry.consul.register.tags", "service registration tags")
+	f.Var((*tags)(&cfg.Registry.Consul.ServiceStatus), "registry.consul.service.status", "valid service status values")
 	f.DurationVar(&cfg.Registry.Consul.CheckInterval, "registry.consul.register.checkInterval", Default.Registry.Consul.CheckInterval, "service check interval")
 	f.DurationVar(&cfg.Registry.Consul.CheckTimeout, "registry.consul.register.checkTimeout", Default.Registry.Consul.CheckTimeout, "service check timeout")
 	f.IntVar(&cfg.Runtime.GOGC, "runtime.gogc", Default.Runtime.GOGC, "sets runtime.GOGC")

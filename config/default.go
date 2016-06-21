@@ -25,6 +25,7 @@ var Default = &Config{
 			Register:      true,
 			ServiceAddr:   ":9998",
 			ServiceName:   "fabio",
+			ServiceStatus: []string{"passing"},
 			CheckInterval: time.Second,
 			CheckTimeout:  3 * time.Second,
 		},

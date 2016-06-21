@@ -80,7 +80,7 @@ func (b *be) WatchServices() chan string {
 	log.Printf("[INFO] consul: Using tag prefix %q", b.cfg.TagPrefix)
 
 	svc := make(chan string)
-	go watchServices(b.c, b.cfg.TagPrefix, svc)
+	go watchServices(b.c, b.cfg.TagPrefix, b.cfg.ServiceStatus, svc)
 	return svc
 }
 
