@@ -1,10 +1,10 @@
 package route
 
 import (
-	"strings"
-	"path"
 	"fmt"
 	"log"
+	"path"
+	"strings"
 )
 
 // match contains the matcher function
@@ -30,13 +30,13 @@ func globMatcher(uri string, r *Route) bool {
 
 // SetMatcher sets the matcher function for the proxy.
 func SetMatcher(s string) error {
-    switch s {
-    case "prefix":
-        match = prefixMatcher
-    case "glob":
-        match = globMatcher
-    default:
-        return fmt.Errorf("route: invalid matcher: %s", s)
-    }
-    return nil
+	switch s {
+	case "prefix":
+		match = prefixMatcher
+	case "glob":
+		match = globMatcher
+	default:
+		return fmt.Errorf("route: invalid matcher: %s", s)
+	}
+	return nil
 }
