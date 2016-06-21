@@ -81,6 +81,7 @@ func fromProperties(p *properties.Properties) (cfg *Config, err error) {
 			ServiceAddr:   stringVal(p, Default.Registry.Consul.ServiceAddr, "registry.consul.register.addr"),
 			ServiceName:   stringVal(p, Default.Registry.Consul.ServiceName, "registry.consul.register.name", "consul.register.name"),
 			ServiceTags:   stringAVal(p, Default.Registry.Consul.ServiceTags, "registry.consul.register.tags"),
+			ServiceStatus: stringAVal(p, Default.Registry.Consul.ServiceStatus, "registry.consul.service.status"),
 			CheckInterval: durationVal(p, Default.Registry.Consul.CheckInterval, "registry.consul.register.checkInterval", "consul.register.checkInterval"),
 			CheckTimeout:  durationVal(p, Default.Registry.Consul.CheckTimeout, "registry.consul.register.checkTimeout", "consul.register.checkTimeout"),
 		},

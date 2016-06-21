@@ -13,7 +13,7 @@ import (
 
 // watchServices monitors the consul health checks and creates a new configuration
 // on every change.
-func watchServices(client *api.Client, tagPrefix string, config chan string) {
+func watchServices(client *api.Client, tagPrefix string, status []string, config chan string) {
 	var lastIndex uint64
 
 	for {
@@ -26,7 +26,7 @@ func watchServices(client *api.Client, tagPrefix string, config chan string) {
 		}
 
 		log.Printf("[INFO] consul: Health changed to #%d", meta.LastIndex)
-		config <- servicesConfig(client, passingServices(checks), tagPrefix)
+		config <- servicesConfig(client, passingServices(checks, status), tagPrefix)
 		lastIndex = meta.LastIndex
 	}
 }
