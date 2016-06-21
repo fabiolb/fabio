@@ -1,5 +1,9 @@
 ## Changelog
 
+### [v1.1.5](https://github.com/eBay/fabio/releases/tag/v1.1.5) - Unreleased
+
+ * [PR #117](https://github.com/eBay/fabio/pull/117): Allow routes to a service in warning status
+
 ### [v1.2rc1](https://github.com/eBay/fabio/releases/tag/v1.2rc1) - 15 Jun 2016
 
  * [Issue #27](https://github.com/eBay/fabio/issues/27): Change certificates via API
