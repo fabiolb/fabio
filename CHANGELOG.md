@@ -1,5 +1,9 @@
 ## Changelog
 
+### [v1.2rc2](https://github.com/eBay/fabio/releases/tag/v1.2rc2) - 23 Jun 2016
+
+ * [PR #117](https://github.com/eBay/fabio/pull/117): Allow routes to a service in warning status
+
 ### [v1.1.6](https://github.com/eBay/fabio/releases/tag/v1.1.6) - Unreleased
 
  * [Issue #122](https://github.com/eBay/fabio/issues/122): X-Forwarded-Port should use local port
