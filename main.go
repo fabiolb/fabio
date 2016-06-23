@@ -30,7 +30,7 @@ import (
 // It is also set by the linker when fabio
 // is built via the Makefile or the build/docker.sh
 // script to ensure the correct version nubmer
-var version = "1.1.4"
+var version = "1.1.5"
 
 func main() {
 	var filename string
