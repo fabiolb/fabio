@@ -7,13 +7,13 @@ import (
 
 var Default = &Config{
 	Proxy: Proxy{
-		MaxConn:      10000,
-		Strategy:     "rnd",
-		Matcher:      "prefix",
+		MaxConn:       10000,
+		Strategy:      "rnd",
+		Matcher:       "prefix",
 		NoRouteStatus: 404,
-		DialTimeout:  30 * time.Second,
-		LocalIP:      LocalIPString(),
-		ListenerAddr: ":9999",
+		DialTimeout:   30 * time.Second,
+		LocalIP:       LocalIPString(),
+		ListenerAddr:  ":9999",
 	},
 	Registry: Registry{
 		Backend: "consul",
