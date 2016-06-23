@@ -8,9 +8,9 @@ func TestPrefixMatcher(t *testing.T) {
 	routeFoo := newRoute("www.example.com", "/foo")
 
 	tests := []struct {
-		uri     string
-		want	bool
-		route	*Route
+		uri   string
+		want  bool
+		route *Route
 	}{
 		{"/fo", false, routeFoo},
 		{"/foo", true, routeFoo},
@@ -30,9 +30,9 @@ func TestGlobMatcher(t *testing.T) {
 	routeFooWild := newRoute("www.example.com", "/foo.*")
 
 	tests := []struct {
-		uri     string
-		want	bool
-		route	*Route
+		uri   string
+		want  bool
+		route *Route
 	}{
 		{"/fo", false, routeFoo},
 		{"/foo", true, routeFoo},
