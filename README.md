@@ -1,6 +1,6 @@
 # ![./fabio](https://github.com/eBay/fabio/blob/master/fabio.png)
 
-##### Current stable version: 1.1.4
+##### Current stable version: 1.1.5
 
 ##### Next version: 1.2rc1
 
