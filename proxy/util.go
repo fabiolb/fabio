@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/route"
@@ -19,7 +20,7 @@ import (
 // * TLS connection: Set header with name from `cfg.TLSHeader` to `cfg.TLSHeaderValue`
 //
 func addHeaders(r *http.Request, cfg config.Proxy) error {
-	remoteIP, remotePort, err := net.SplitHostPort(r.RemoteAddr)
+	remoteIP, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return errors.New("cannot parse " + r.RemoteAddr)
 	}
@@ -59,7 +60,7 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 	}
 
 	if r.Header.Get("X-Forwarded-Port") == "" {
-		r.Header.Set("X-Forwarded-Port", remotePort)
+		r.Header.Set("X-Forwarded-Port", localPort(r))
 	}
 
 	fwd := r.Header.Get("Forwarded")
@@ -95,4 +96,18 @@ func target(r *http.Request) *route.Target {
 		log.Print("[WARN] No route for ", r.Host, r.URL)
 	}
 	return t
+}
+
+func localPort(r *http.Request) string {
+	if r == nil {
+		return ""
+	}
+	n := strings.Index(r.Host, ":")
+	if n > 0 && n < len(r.Host)-1 {
+		return r.Host[n+1:]
+	}
+	if r.TLS != nil {
+		return "443"
+	}
+	return "80"
 }

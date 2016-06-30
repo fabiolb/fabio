@@ -163,10 +163,31 @@ func TestAddHeaders(t *testing.T) {
 			"",
 		},
 
-		{"set X-Forwarded-Port",
+		{"set X-Forwarded-Port for HTTP",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{},
-			http.Header{"X-Forwarded-Port": {"5555"}},
+			http.Header{"X-Forwarded-Port": {"80"}},
+			"",
+		},
+
+		{"set X-Forwarded-Port for HTTPS",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
+			config.Proxy{},
+			http.Header{"X-Forwarded-Port": {"443"}},
+			"",
+		},
+
+		{"set X-Forwarded-Port from Host",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Host: "5.6.7.8:1234"},
+			config.Proxy{},
+			http.Header{"X-Forwarded-Port": {"1234"}},
+			"",
+		},
+
+		{"set X-Forwarded-Port from Host for HTTPS",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Host: "5.6.7.8:1234", TLS: &tls.ConnectionState{}},
+			config.Proxy{},
+			http.Header{"X-Forwarded-Port": {"1234"}},
 			"",
 		},
 
@@ -214,6 +235,28 @@ func TestAddHeaders(t *testing.T) {
 			if got != want {
 				t.Errorf("%d: %s \nWrong value for Header: %s \ngot  %q \nwant %q", i, tt.desc, headerName, got, want)
 			}
+		}
+	}
+}
+
+func TestLocalPort(t *testing.T) {
+	tests := []struct {
+		r    *http.Request
+		port string
+	}{
+		{nil, ""},
+		{&http.Request{Host: ""}, "80"},
+		{&http.Request{Host: ":"}, "80"},
+		{&http.Request{Host: "1.2.3.4:5678"}, "5678"},
+		{&http.Request{Host: "1.2.3.4"}, "80"},
+		{&http.Request{Host: "1.2.3.4", TLS: &tls.ConnectionState{}}, "443"},
+		{&http.Request{Host: "1.2.3.4:"}, "80"},
+		{&http.Request{Host: "1.2.3.4:", TLS: &tls.ConnectionState{}}, "443"},
+	}
+
+	for i, tt := range tests {
+		if got, want := localPort(tt.r), tt.port; got != want {
+			t.Errorf("%d: got %q want %q", i, got, want)
 		}
 	}
 }
