@@ -2,6 +2,7 @@
 
 ### [v1.1.6](https://github.com/eBay/fabio/releases/tag/v1.1.6) - Unreleased
 
+ * [Issue #108](https://github.com/eBay/fabio/issues/108): TLS handshake error: failed to verify client's certificate
  * [Issue #122](https://github.com/eBay/fabio/issues/122): X-Forwarded-Port should use local port
 
 ### [v1.1.5](https://github.com/eBay/fabio/releases/tag/v1.1.5) - 23 Jun 2016
