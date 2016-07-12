@@ -21,6 +21,7 @@ type CertSource struct {
 	CertPath     string
 	KeyPath      string
 	ClientCAPath string
+	CAUpgradeCN  string
 	Refresh      time.Duration
 	Header       http.Header
 }
@@ -55,7 +56,6 @@ type Proxy struct {
 	TLSHeader             string
 	TLSHeaderValue        string
 	ListenerAddr          string
-	AWSApiGWCertCN        string
 	CertSources           string
 }
 

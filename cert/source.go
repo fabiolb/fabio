@@ -3,6 +3,9 @@ package cert
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
+
+	"github.com/eBay/fabio/config"
 )
 
 // Source provides the interface for dynamic certificate sources.
@@ -17,6 +20,54 @@ import (
 type Source interface {
 	Certificates() chan []tls.Certificate
 	LoadClientCAs() (*x509.CertPool, error)
+}
+
+// NewSource generates a cert source from the config options.
+func NewSource(cfg config.CertSource) (Source, error) {
+	switch cfg.Type {
+	case "file":
+		return FileSource{
+			CertFile:       cfg.CertPath,
+			KeyFile:        cfg.KeyPath,
+			ClientAuthFile: cfg.ClientCAPath,
+			CAUpgradeCN:    cfg.CAUpgradeCN,
+		}, nil
+
+	case "path":
+		return PathSource{
+			CertPath:     cfg.CertPath,
+			ClientCAPath: cfg.ClientCAPath,
+			CAUpgradeCN:  cfg.CAUpgradeCN,
+			Refresh:      cfg.Refresh,
+		}, nil
+
+	case "http":
+		return HTTPSource{
+			CertURL:     cfg.CertPath,
+			ClientCAURL: cfg.ClientCAPath,
+			CAUpgradeCN: cfg.CAUpgradeCN,
+			Refresh:     cfg.Refresh,
+		}, nil
+
+	case "consul":
+		return ConsulSource{
+			CertURL:     cfg.CertPath,
+			ClientCAURL: cfg.ClientCAPath,
+			CAUpgradeCN: cfg.CAUpgradeCN,
+		}, nil
+
+	case "vault":
+		return VaultSource{
+			// TODO(fs): configure Addr but not token
+			CertPath:     cfg.CertPath,
+			ClientCAPath: cfg.ClientCAPath,
+			CAUpgradeCN:  cfg.CAUpgradeCN,
+			Refresh:      cfg.Refresh,
+		}, nil
+
+	default:
+		return nil, fmt.Errorf("invalid certificate source %q", cfg.Type)
+	}
 }
 
 // TLSConfig creates a tls.Config which sets the

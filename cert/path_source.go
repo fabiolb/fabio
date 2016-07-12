@@ -16,12 +16,13 @@ type PathSource struct {
 	Path         string
 	CertPath     string
 	ClientCAPath string
+	CAUpgradeCN  string
 	Refresh      time.Duration
 }
 
 func (s PathSource) LoadClientCAs() (*x509.CertPool, error) {
 	path := makePath(s.Path, s.ClientCAPath, DefaultClientCAPath)
-	return newCertPool(path, loadPath)
+	return newCertPool(path, s.CAUpgradeCN, loadPath)
 }
 
 func (s PathSource) Certificates() chan []tls.Certificate {

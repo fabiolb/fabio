@@ -21,6 +21,7 @@ import (
 type ConsulSource struct {
 	CertURL     string
 	ClientCAURL string
+	CAUpgradeCN string
 }
 
 const kvURLPrefix = "/v1/kv/"
@@ -56,7 +57,7 @@ func (s ConsulSource) LoadClientCAs() (*x509.CertPool, error) {
 		pemBlocks, _, err := getCerts(client, key, 0)
 		return pemBlocks, err
 	}
-	return newCertPool(key, load)
+	return newCertPool(key, s.CAUpgradeCN, load)
 }
 
 func (s ConsulSource) Certificates() chan []tls.Certificate {

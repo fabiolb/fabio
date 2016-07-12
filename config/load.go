@@ -71,7 +71,6 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	f.StringVar(&cfg.Proxy.CertSources, "proxy.cs", Default.Proxy.CertSources, "certificate sources")
 	f.DurationVar(&cfg.Proxy.ReadTimeout, "proxy.readtimeout", Default.Proxy.ReadTimeout, "read timeout for incoming requests")
 	f.DurationVar(&cfg.Proxy.WriteTimeout, "proxy.writetimeout", Default.Proxy.WriteTimeout, "write timeout for outgoing responses")
-	f.StringVar(&cfg.Proxy.AWSApiGWCertCN, "aws.apigw.cert.cn", Default.Proxy.AWSApiGWCertCN, "upgrade cert with this cn to CA cert")
 	f.StringVar(&cfg.Metrics.Target, "metrics.target", Default.Metrics.Target, "metrics backend")
 	f.StringVar(&cfg.Metrics.Prefix, "metrics.prefix", Default.Metrics.Prefix, "prefix for reported metrics")
 	f.DurationVar(&cfg.Metrics.Interval, "metrics.interval", Default.Metrics.Interval, "metrics reporting interval")
@@ -96,8 +95,8 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	f.StringVar(&cfg.UI.Color, "ui.color", Default.UI.Color, "background color of the UI")
 	f.StringVar(&cfg.UI.Title, "ui.title", Default.UI.Title, "optional title for the UI")
 
-	var proxyTimeout time.Duration
-	f.DurationVar(&proxyTimeout, "proxy.timeout", time.Duration(0), "deprecated")
+	var awsApiGWCertCN string
+	f.StringVar(&awsApiGWCertCN, "aws.apigw.cert.cn", "", "deprecated. use caupgcn=<CN> for cert source")
 
 	// filter out -test flags
 	var args []string
@@ -132,29 +131,11 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	}
 
 	// handle deprecations
-	deprecate := func(name, msg string) {
-		if f.IsSet(name) {
-			log.Print("[WARN] ", msg)
-		}
-	}
-	deprecate("proxy.timeout", "proxy.timeout has been replaced by proxy.responseheadertimeout and proxy.keepalivetimeout")
-	deprecate("consul.addr", "consul.addr has been replaced by registry.consul.addr")
-	deprecate("consul.token", "consul.token has been replaced by registry.consul.token")
-	deprecate("consul.kvpath", "consul.kvpath has been replaced by registry.consul.kvpath")
-	deprecate("consul.tagprefix", "consul.tagprefix has been replaced by registry.consul.tagprefix")
-	deprecate("consul.register.name", "consul.register.name has been replaced by registry.consul.register.name")
-	deprecate("consul.register.checkInterval", "consul.register.checkInterval has been replaced by registry.consul.register.checkInterval")
-	deprecate("consul.register.checkTimeout", "consul.register.checkTimeout has been replaced by registry.consul.register.checkTimeout")
-	deprecate("consul.url", "consul.url is obsolete. Please remove it.")
-
-	if proxyTimeout > 0 {
-		if cfg.Proxy.ResponseHeaderTimeout == 0 {
-			cfg.Proxy.ResponseHeaderTimeout = proxyTimeout
-		}
-		if cfg.Proxy.KeepAliveTimeout == 0 {
-			cfg.Proxy.KeepAliveTimeout = proxyTimeout
-		}
-	}
+	// deprecate := func(name, msg string) {
+	// 	if f.IsSet(name) {
+	// 		log.Print("[WARN] ", msg)
+	// 	}
+	// }
 
 	return cfg, nil
 }
@@ -311,6 +292,8 @@ func parseCertSource(cfg string) (c CertSource, err error) {
 			c.KeyPath = v
 		case "clientca":
 			c.ClientCAPath = v
+		case "caupgcn":
+			c.CAUpgradeCN = v
 		case "refresh":
 			d, err := time.ParseDuration(v)
 			if err != nil {

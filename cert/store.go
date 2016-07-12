@@ -12,23 +12,23 @@ import (
 // Store provides a dynamic certificate store which can be updated at
 // runtime and is safe for concurrent use.
 type Store struct {
-	cfg atomic.Value
+	cs atomic.Value
 }
 
 // NewStore creates an empty certificate store.
 func NewStore() *Store {
 	s := new(Store)
-	s.cfg.Store(config{})
+	s.cs.Store(certstore{})
 	return s
 }
 
 // SetCertificates replaces the certificates of the store.
 func (s *Store) SetCertificates(certs []tls.Certificate) {
-	cfg := config{Certificates: certs}
-	cfg.BuildNameToCertificate()
-	s.cfg.Store(cfg)
+	cs := certstore{Certificates: certs}
+	cs.BuildNameToCertificate()
+	s.cs.Store(cs)
 	var names []string
-	for name := range cfg.NameToCertificate {
+	for name := range cs.NameToCertificate {
 		names = append(names, name)
 	}
 	log.Printf("[INFO] cert: Store has certificates for [%q]", strings.Join(names, ","))
@@ -37,17 +37,17 @@ func (s *Store) SetCertificates(certs []tls.Certificate) {
 // GetCertificate returns a matching certificate for the given clientHello if possible
 // or the first certificate from the store.
 func (s *Store) GetCertificate(clientHello *tls.ClientHelloInfo) (cert *tls.Certificate, err error) {
-	return getCertificate(s.cfg.Load().(config), clientHello)
+	return getCertificate(s.cs.Load().(certstore), clientHello)
 }
 
-func getCertificate(cfg config, clientHello *tls.ClientHelloInfo) (cert *tls.Certificate, err error) {
-	if len(cfg.Certificates) == 0 {
-		return nil, errors.New("cert: no certificates configured")
+func getCertificate(cs certstore, clientHello *tls.ClientHelloInfo) (cert *tls.Certificate, err error) {
+	if len(cs.Certificates) == 0 {
+		return nil, errors.New("cert: no certificates certstoreured")
 	}
 
-	if len(cfg.Certificates) == 1 || cfg.NameToCertificate == nil {
+	if len(cs.Certificates) == 1 || cs.NameToCertificate == nil {
 		// There's only one choice, so no point doing any work.
-		return &cfg.Certificates[0], nil
+		return &cs.Certificates[0], nil
 	}
 
 	name := strings.ToLower(clientHello.ServerName)
@@ -55,7 +55,7 @@ func getCertificate(cfg config, clientHello *tls.ClientHelloInfo) (cert *tls.Cer
 		name = name[:len(name)-1]
 	}
 
-	if cert, ok := cfg.NameToCertificate[name]; ok {
+	if cert, ok := cs.NameToCertificate[name]; ok {
 		return cert, nil
 	}
 
@@ -65,16 +65,16 @@ func getCertificate(cfg config, clientHello *tls.ClientHelloInfo) (cert *tls.Cer
 	for i := range labels {
 		labels[i] = "*"
 		candidate := strings.Join(labels, ".")
-		if cert, ok := cfg.NameToCertificate[candidate]; ok {
+		if cert, ok := cs.NameToCertificate[candidate]; ok {
 			return cert, nil
 		}
 	}
 
 	// If nothing matches, return the first certificate.
-	return &cfg.Certificates[0], nil
+	return &cs.Certificates[0], nil
 }
 
-type config struct {
+type certstore struct {
 	Certificates      []tls.Certificate
 	NameToCertificate map[string]*tls.Certificate
 }
@@ -82,7 +82,7 @@ type config struct {
 // BuildNameToCertificate parses Certificates and builds NameToCertificate
 // from the CommonName and SubjectAlternateName fields of each of the leaf
 // certificates.
-func (c *config) BuildNameToCertificate() {
+func (c *certstore) BuildNameToCertificate() {
 	c.NameToCertificate = make(map[string]*tls.Certificate)
 	for i := range c.Certificates {
 		cert := &c.Certificates[i]

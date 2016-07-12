@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/tls"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -52,7 +51,7 @@ func listenAndServe(l config.Listen, h http.Handler) {
 	}
 
 	if l.Scheme == "https" {
-		src, err := makeCertSource(l.CertSource)
+		src, err := cert.NewSource(l.CertSource)
 		if err != nil {
 			log.Fatal("[FATAL] ", err)
 		}
@@ -74,48 +73,6 @@ func listenAndServe(l config.Listen, h http.Handler) {
 
 	if err := serve(srv); err != nil {
 		log.Fatal("[FATAL] ", err)
-	}
-}
-
-func makeCertSource(cfg config.CertSource) (cert.Source, error) {
-	switch cfg.Type {
-	case "file":
-		return cert.FileSource{
-			CertFile:       cfg.CertPath,
-			KeyFile:        cfg.KeyPath,
-			ClientAuthFile: cfg.ClientCAPath,
-		}, nil
-
-	case "path":
-		return cert.PathSource{
-			CertPath:     cfg.CertPath,
-			ClientCAPath: cfg.ClientCAPath,
-			Refresh:      cfg.Refresh,
-		}, nil
-
-	case "http":
-		return cert.HTTPSource{
-			CertURL:     cfg.CertPath,
-			ClientCAURL: cfg.ClientCAPath,
-			Refresh:     cfg.Refresh,
-		}, nil
-
-	case "consul":
-		return cert.ConsulSource{
-			CertURL:     cfg.CertPath,
-			ClientCAURL: cfg.ClientCAPath,
-		}, nil
-
-	case "vault":
-		return cert.VaultSource{
-			// TODO(fs): configure Addr but not token
-			CertPath:     cfg.CertPath,
-			ClientCAPath: cfg.ClientCAPath,
-			Refresh:      cfg.Refresh,
-		}, nil
-
-	default:
-		return nil, fmt.Errorf("invalid certificate source %q", cfg.Type)
 	}
 }
 

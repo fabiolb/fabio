@@ -12,7 +12,7 @@ import (
 
 func TestFromProperties(t *testing.T) {
 	in := `
-proxy.cs = cs=name;type=path;cert=foo;clientca=bar;refresh=99s;hdr=a: b
+proxy.cs = cs=name;type=path;cert=foo;clientca=bar;refresh=99s;hdr=a: b;caupgcn=furb
 proxy.addr = :1234
 proxy.localip = 4.4.4.4
 proxy.strategy = rr
@@ -60,6 +60,7 @@ aws.apigw.cert.cn = furb
 				Type:         "path",
 				CertPath:     "foo",
 				ClientCAPath: "bar",
+				CAUpgradeCN:  "furb",
 				Refresh:      99 * time.Second,
 				Header:       http.Header{"A": []string{"b"}},
 			},
@@ -80,8 +81,7 @@ aws.apigw.cert.cn = furb
 			TLSHeader:             "tls",
 			TLSHeaderValue:        "tls-true",
 			ListenerAddr:          ":1234",
-			AWSApiGWCertCN:        "furb",
-			CertSources:           "cs=name;type=path;cert=foo;clientca=bar;refresh=99s;hdr=a: b",
+			CertSources:           "cs=name;type=path;cert=foo;clientca=bar;refresh=99s;hdr=a: b;caupgcn=furb",
 		},
 		Registry: Registry{
 			Backend: "something",

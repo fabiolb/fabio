@@ -17,10 +17,11 @@ type FileSource struct {
 	CertFile       string
 	KeyFile        string
 	ClientAuthFile string
+	CAUpgradeCN    string
 }
 
 func (s FileSource) LoadClientCAs() (*x509.CertPool, error) {
-	return newCertPool(s.ClientAuthFile, func(path string) (map[string][]byte, error) {
+	return newCertPool(s.ClientAuthFile, s.CAUpgradeCN, func(path string) (map[string][]byte, error) {
 		if s.ClientAuthFile == "" {
 			return nil, nil
 		}

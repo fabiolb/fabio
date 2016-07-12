@@ -21,9 +21,96 @@ import (
 	"testing"
 	"time"
 
+	"github.com/eBay/fabio/config"
 	consulapi "github.com/hashicorp/consul/api"
 	vaultapi "github.com/hashicorp/vault/api"
+	"github.com/pascaldekloe/goe/verify"
 )
+
+func TestNewSource(t *testing.T) {
+	certsource := func(typ string) config.CertSource {
+		return config.CertSource{
+			Type:         typ,
+			Name:         "name",
+			CertPath:     "cert",
+			KeyPath:      "key",
+			ClientCAPath: "clientca",
+			CAUpgradeCN:  "upgcn",
+			Refresh:      3 * time.Second,
+			Header:       http.Header{"A": []string{"b"}},
+		}
+	}
+	tests := []struct {
+		cfg config.CertSource
+		src Source
+		err string
+	}{
+		{
+			cfg: config.CertSource{
+				Type: "invalid",
+			},
+			src: nil,
+			err: `invalid certificate source "invalid"`,
+		},
+		{
+			cfg: certsource("file"),
+			src: FileSource{
+				CertFile:       "cert",
+				KeyFile:        "key",
+				ClientAuthFile: "clientca",
+				CAUpgradeCN:    "upgcn",
+			},
+		},
+		{
+			cfg: certsource("path"),
+			src: PathSource{
+				CertPath:     "cert",
+				ClientCAPath: "clientca",
+				CAUpgradeCN:  "upgcn",
+				Refresh:      3 * time.Second,
+			},
+		},
+		{
+			cfg: certsource("http"),
+			src: HTTPSource{
+				CertURL:     "cert",
+				ClientCAURL: "clientca",
+				CAUpgradeCN: "upgcn",
+				Refresh:     3 * time.Second,
+			},
+		},
+		{
+			cfg: certsource("consul"),
+			src: ConsulSource{
+				CertURL:     "cert",
+				ClientCAURL: "clientca",
+				CAUpgradeCN: "upgcn",
+			},
+		},
+		{
+			cfg: certsource("vault"),
+			src: VaultSource{
+				CertPath:     "cert",
+				ClientCAPath: "clientca",
+				CAUpgradeCN:  "upgcn",
+				Refresh:      3 * time.Second,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		var errmsg string
+		src, err := NewSource(tt.cfg)
+		if err != nil {
+			errmsg = err.Error()
+		}
+		if got, want := errmsg, tt.err; got != want {
+			t.Fatalf("%d: got %q want %q", i, got, want)
+		}
+		got, want := src, tt.src
+		verify.Values(t, "src", got, want)
+	}
+}
 
 type StaticSource struct {
 	cert tls.Certificate

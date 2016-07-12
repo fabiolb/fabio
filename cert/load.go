@@ -3,6 +3,7 @@ package cert
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -174,7 +175,7 @@ func replaceSuffix(s string, oldSuffix, newSuffix string) string {
 
 // newCertPool creates a new x509.CertPool by loading the
 // PEM blocks from loadFn(path) and adding them to a CertPool.
-func newCertPool(path string, loadFn func(path string) (pemBlocks map[string][]byte, err error)) (*x509.CertPool, error) {
+func newCertPool(path string, caUpgradeCN string, loadFn func(path string) (pemBlocks map[string][]byte, err error)) (*x509.CertPool, error) {
 	pemBlocks, err := loadFn(path)
 	if err != nil {
 		return nil, err
@@ -184,14 +185,29 @@ func newCertPool(path string, loadFn func(path string) (pemBlocks map[string][]b
 		return nil, nil
 	}
 
-	x := x509.NewCertPool()
-	for name, pemBlock := range pemBlocks {
-		if !x.AppendCertsFromPEM(pemBlock) {
-			log.Printf("[WARN] cert: Could not add client CA certificate from %s", name)
-			continue
+	pool := x509.NewCertPool()
+	for _, pemBlock := range pemBlocks {
+		for p, rest := pem.Decode(pemBlock); p != nil; p, rest = pem.Decode(rest) {
+			cert, err := x509.ParseCertificate(p.Bytes)
+			if err != nil {
+				return nil, err
+			}
+			upgradeCACertificate(cert, caUpgradeCN)
+			pool.AddCert(cert)
 		}
 	}
 
 	log.Printf("[INFO] cert: Load client CA certs from %s", path)
-	return x, nil
+	return pool, nil
+}
+
+// upgradeCACertificate upgrades a certificate to a self-signing CA certificate if the CN matches.
+// Issue #108: Allow generated AWS API Gateway certs to be used for client cert authentication
+func upgradeCACertificate(cert *x509.Certificate, caUpgradeCN string) {
+	if caUpgradeCN != "" && caUpgradeCN == cert.Issuer.CommonName {
+		cert.BasicConstraintsValid = true
+		cert.IsCA = true
+		cert.KeyUsage = x509.KeyUsageCertSign
+		log.Print("[INFO] cert: Upgrading cert %s to CA cert", cert.Issuer.CommonName)
+	}
 }

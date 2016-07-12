@@ -17,11 +17,12 @@ import (
 type HTTPSource struct {
 	CertURL     string
 	ClientCAURL string
+	CAUpgradeCN string
 	Refresh     time.Duration
 }
 
 func (s HTTPSource) LoadClientCAs() (*x509.CertPool, error) {
-	return newCertPool(s.ClientCAURL, loadURL)
+	return newCertPool(s.ClientCAURL, s.CAUpgradeCN, loadURL)
 }
 
 func (s HTTPSource) Certificates() chan []tls.Certificate {

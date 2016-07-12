@@ -23,6 +23,7 @@ type VaultSource struct {
 	Addr         string
 	CertPath     string
 	ClientCAPath string
+	CAUpgradeCN  string
 	Refresh      time.Duration
 
 	token string
@@ -54,7 +55,7 @@ func (s VaultSource) client() (*api.Client, error) {
 }
 
 func (s VaultSource) LoadClientCAs() (*x509.CertPool, error) {
-	return newCertPool(s.ClientCAPath, s.load)
+	return newCertPool(s.ClientCAPath, s.CAUpgradeCN, s.load)
 }
 
 func (s VaultSource) Certificates() chan []tls.Certificate {
