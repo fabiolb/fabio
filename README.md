@@ -32,6 +32,7 @@ The full documentation is on the [Wiki](https://github.com/eBay/fabio/wiki).
     go get github.com/eBay/fabio                        (>= go1.6)
 
     brew install fabio                                  (OSX/macOS)
+    brew install --devel fabio                          (install devel release)
 
     docker pull magiconair/fabio                        (Docker)
 
