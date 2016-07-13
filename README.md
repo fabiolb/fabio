@@ -2,7 +2,7 @@
 
 ##### Current stable version: 1.1.6
 
-##### Next version: 1.2rc3
+##### Next version: 1.2rc4
 
 [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/eBay/fabio/master/LICENSE)
