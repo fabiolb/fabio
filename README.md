@@ -31,8 +31,8 @@ The full documentation is on the [Wiki](https://github.com/eBay/fabio/wiki).
 
     go get github.com/eBay/fabio                        (>= go1.6)
 
-    brew install fabio                                  (OSX/macOS)
-    brew install --devel fabio                          (install devel release)
+    brew install fabio                                  (OSX/macOS stable 1.1.x)
+    brew install --devel fabio                          (OSX/macOS devel  1.2.x)
 
     docker pull magiconair/fabio                        (Docker)
 
