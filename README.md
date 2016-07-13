@@ -25,8 +25,8 @@ The full documentation is on the [Wiki](https://github.com/eBay/fabio/wiki).
 
 ## Getting started
 
-0. Install from source, binary, Docker or Homebrew
-``` 
+1. Install from source, binary, Docker or Homebrew
+    ``` 
     GO15VENDOREXPERIMENT=1 go get github.com/eBay/fabio (go1.5.x)
 
     go get github.com/eBay/fabio                        (>= go1.6)
@@ -36,17 +36,18 @@ The full documentation is on the [Wiki](https://github.com/eBay/fabio/wiki).
     docker pull magiconair/fabio                        (Docker)
 
     https://github.com/eBay/fabio/releases              (pre-built binaries)
-```
-1. Register your service in [consul](https://consul.io/).
+    ```
+
+2. Register your service in [consul](https://consul.io/).
 
    Make sure that each instance registers with a **unique ServiceID**.
 
-2. Register a **health check** in consul as described [here](https://consul.io/docs/agent/checks.html).
+3. Register a **health check** in consul as described [here](https://consul.io/docs/agent/checks.html).
 
    Make sure the health check is **passing** since fabio will only watch services
    which have a passing health check.
 
-3. Register one `urlprefix-` tag per `host/path` prefix it serves, e.g.:
+4. Register one `urlprefix-` tag per `host/path` prefix it serves, e.g.:
 
    * `urlprefix-/css`
    * `urlprefix-i.com/static`
@@ -54,13 +55,13 @@ The full documentation is on the [Wiki](https://github.com/eBay/fabio/wiki).
 
    Make sure the prefix contains **at least one slash** (`/`).
 
-4. Start fabio without a config file (assuming a running consul agent on `localhost:8500`)
+5. Start fabio without a config file (assuming a running consul agent on `localhost:8500`)
    Watch the log output how fabio picks up the route to your service.
    Try starting/stopping your service to see how the routing table changes instantly.
 
-5. Send all your HTTP traffic to fabio on port `9999`
+6. Send all your HTTP traffic to fabio on port `9999`
 
-6. Done
+7. Done
 
 ## License
 
