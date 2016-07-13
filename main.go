@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -34,6 +35,10 @@ func main() {
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("[FATAL] %s. %s", version, err)
+	}
+	if cfg == nil {
+		fmt.Println(version)
+		return
 	}
 
 	log.Printf("[INFO] Runtime config\n" + toJSON(cfg))
@@ -88,6 +93,7 @@ func initMetrics(cfg *config.Config) {
 }
 
 func initRuntime(cfg *config.Config) {
+	fmt.Println("%+v\n", cfg)
 	if os.Getenv("GOGC") == "" {
 		log.Print("[INFO] Setting GOGC=", cfg.Runtime.GOGC)
 		debug.SetGCPercent(cfg.Runtime.GOGC)
