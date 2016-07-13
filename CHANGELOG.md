@@ -1,5 +1,9 @@
 ## Changelog
 
+### [v1.2rc4](https://github.com/eBay/fabio/releases/tag/v1.2rc4) - 13 Jul 2016
+
+ * [Issue #128](https://github.com/eBay/fabio/issues/128): fabio 1.2rc3 panics with -v
+
 ### [v1.2rc3](https://github.com/eBay/fabio/releases/tag/v1.2rc3) - 12 Jul 2016
 
  * [Issue #108](https://github.com/eBay/fabio/issues/108): TLS handshake error: failed to verify client's certificate
