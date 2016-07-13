@@ -25,6 +25,18 @@ The full documentation is on the [Wiki](https://github.com/eBay/fabio/wiki).
 
 ## Getting started
 
+0. Install from source, binary, Docker or Homebrew
+``` 
+    GO15VENDOREXPERIMENT=1 go get github.com/eBay/fabio (go1.5.x)
+
+    go get github.com/eBay/fabio                        (>= go1.6)
+
+    brew install fabio                                  (OSX/macOS)
+
+    docker pull magiconair/fabio                        (Docker)
+
+    https://github.com/eBay/fabio/releases              (pre-built binaries)
+```
 1. Register your service in [consul](https://consul.io/).
 
    Make sure that each instance registers with a **unique ServiceID**.
