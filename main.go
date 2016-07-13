@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -30,23 +29,16 @@ import (
 // It is also set by the linker when fabio
 // is built via the Makefile or the build/docker.sh
 // script to ensure the correct version nubmer
-var version = "1.1.6"
+var version = "1.2rc4"
 
 func main() {
-	var filename string
-	var v bool
-	flag.StringVar(&filename, "cfg", "", "path to config file")
-	flag.BoolVar(&v, "v", false, "show version")
-	flag.Parse()
-
-	if v {
-		fmt.Println(version)
-		return
-	}
-
-	cfg, err := config.Load(filename)
+	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("[FATAL] %s. %s", version, err)
+	}
+	if cfg == nil {
+		fmt.Println(version)
+		return
 	}
 
 	log.Printf("[INFO] Runtime config\n" + toJSON(cfg))

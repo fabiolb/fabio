@@ -20,7 +20,7 @@ type be struct {
 
 func NewBackend(cfg *config.Consul) (registry.Backend, error) {
 	// create a reusable client
-	c, err := api.NewClient(&api.Config{Address: cfg.Addr, Scheme: "http", Token: cfg.Token})
+	c, err := api.NewClient(&api.Config{Address: cfg.Addr, Scheme: cfg.Scheme, Token: cfg.Token})
 	if err != nil {
 		return nil, err
 	}
