@@ -73,36 +73,36 @@ n/iFVG4Y6zyXQY2RzTt+ZB2VPR72X4wqS9fBeQ==
 
 	// check that cert does not have the flags set
 	if got, want := cert.BasicConstraintsValid, false; got != want {
-		t.Fatal("got %v want %v", got, want)
+		t.Fatalf("got %v want %v", got, want)
 	}
 	if got, want := cert.IsCA, false; got != want {
-		t.Fatal("got %v want %v", got, want)
+		t.Fatalf("got %v want %v", got, want)
 	}
 	if got, want := cert.KeyUsage, x509.KeyUsage(0); got != want {
-		t.Fatal("got %v want %v", got, want)
+		t.Fatalf("got %v want %v", got, want)
 	}
 
 	// run upgrade with not-matching CN expecting no change
 	upgradeCACertificate(cert, "no match")
 	if got, want := cert.BasicConstraintsValid, false; got != want {
-		t.Fatal("got %v want %v", got, want)
+		t.Fatalf("got %v want %v", got, want)
 	}
 	if got, want := cert.IsCA, false; got != want {
-		t.Fatal("got %v want %v", got, want)
+		t.Fatalf("got %v want %v", got, want)
 	}
 	if got, want := cert.KeyUsage, x509.KeyUsage(0); got != want {
-		t.Fatal("got %v want %v", got, want)
+		t.Fatalf("got %v want %v", got, want)
 	}
 
 	// run upgrade with matching CN
 	upgradeCACertificate(cert, "ApiGateway")
 	if got, want := cert.BasicConstraintsValid, true; got != want {
-		t.Fatal("got %v want %v", got, want)
+		t.Fatalf("got %v want %v", got, want)
 	}
 	if got, want := cert.IsCA, true; got != want {
-		t.Fatal("got %v want %v", got, want)
+		t.Fatalf("got %v want %v", got, want)
 	}
 	if got, want := cert.KeyUsage, x509.KeyUsageCertSign; got != want {
-		t.Fatal("got %v want %v", got, want)
+		t.Fatalf("got %v want %v", got, want)
 	}
 }

@@ -84,7 +84,7 @@ func loadPath(root string) (pemBlocks map[string][]byte, err error) {
 		}
 
 		if info.Size() > MaxSize {
-			log.Print("[WARN] cert: File too large %s", info.Name)
+			log.Printf("[WARN] cert: File too large %s", info.Name())
 			return nil
 		}
 

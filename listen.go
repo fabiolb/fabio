@@ -82,7 +82,7 @@ func serve(srv *http.Server) error {
 		log.Fatal("[FATAL] ", err)
 	}
 
-	ln = &proxyproto.Listener{tcpKeepAliveListener{ln.(*net.TCPListener)}}
+	ln = &proxyproto.Listener{Listener: tcpKeepAliveListener{ln.(*net.TCPListener)}}
 
 	if srv.TLSConfig != nil {
 		ln = tls.NewListener(ln, srv.TLSConfig)
