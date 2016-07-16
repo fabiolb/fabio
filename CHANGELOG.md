@@ -1,34 +1,21 @@
 ## Changelog
 
-### [v1.2rc4](https://github.com/eBay/fabio/releases/tag/v1.2rc4) - 13 Jul 2016
-
- * [Issue #128](https://github.com/eBay/fabio/issues/128): fabio 1.2rc3 panics with -v
-
-### [v1.2rc3](https://github.com/eBay/fabio/releases/tag/v1.2rc3) - 12 Jul 2016
-
- * [Issue #108](https://github.com/eBay/fabio/issues/108): TLS handshake error: failed to verify client's certificate
- * [Issue #122](https://github.com/eBay/fabio/issues/122): X-Forwarded-Port should use local port
-
-### [v1.1.6](https://github.com/eBay/fabio/releases/tag/v1.1.6) - 12 Jul 2016
-
- * [Issue #108](https://github.com/eBay/fabio/issues/108): TLS handshake error: failed to verify client's certificate
- * [Issue #122](https://github.com/eBay/fabio/issues/122): X-Forwarded-Port should use local port
-
-### [v1.2rc2](https://github.com/eBay/fabio/releases/tag/v1.2rc2) - 23 Jun 2016
-
- * [PR #117](https://github.com/eBay/fabio/pull/117): Allow routes to a service in warning status
-
-### [v1.1.5](https://github.com/eBay/fabio/releases/tag/v1.1.5) - 23 Jun 2016
-
- * [PR #117](https://github.com/eBay/fabio/pull/117): Allow routes to a service in warning status
-
-### [v1.2rc1](https://github.com/eBay/fabio/releases/tag/v1.2rc1) - 15 Jun 2016
+### [v1.2](https://github.com/eBay/fabio/releases/tag/v1.2) - 16 Jul 2016
 
  * [Issue #27](https://github.com/eBay/fabio/issues/27): Change certificates via API
  * [Issue #28](https://github.com/eBay/fabio/issues/28): Refactor listener config
  * [Issue #70](https://github.com/eBay/fabio/issues/70): Support Vault
  * [Issue #79](https://github.com/eBay/fabio/issues/79): Refactor config loading to use flag sets
  * [Issue #85](https://github.com/eBay/fabio/issues/85): SNI support
+
+### [v1.1.6](https://github.com/eBay/fabio/releases/tag/v1.1.6) - 12 Jul 2016
+
+ * [Issue #108](https://github.com/eBay/fabio/issues/108): TLS handshake error: failed to verify client's certificate
+ * [Issue #122](https://github.com/eBay/fabio/issues/122): X-Forwarded-Port should use local port
+
+### [v1.1.5](https://github.com/eBay/fabio/releases/tag/v1.1.5) - 23 Jun 2016
+
+ * [PR #117](https://github.com/eBay/fabio/pull/117): Allow routes to a service in warning status
 
 ### [v1.1.4](https://github.com/eBay/fabio/releases/tag/v1.1.4) - 15 Jun 2016
 

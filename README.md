@@ -1,8 +1,6 @@
 # ![./fabio](https://github.com/eBay/fabio/blob/master/fabio.png)
 
-##### Current stable version: 1.1.6
-
-##### Next version: 1.2rc4
+##### Current stable version: 1.2
 
 [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/eBay/fabio/master/LICENSE)
@@ -26,13 +24,13 @@ The full documentation is on the [Wiki](https://github.com/eBay/fabio/wiki).
 ## Getting started
 
 1. Install from source, [binary](https://github.com/eBay/fabio/releases), [Docker](https://hub.docker.com/r/magiconair/fabio/) or [Homebrew](http://brew.sh).
-    ``` 
+    ```
     GO15VENDOREXPERIMENT=1 go get github.com/eBay/fabio (go1.5.x)
 
     go get github.com/eBay/fabio                        (>= go1.6)
 
-    brew install fabio                                  (OSX/macOS stable 1.1.x)
-    brew install --devel fabio                          (OSX/macOS devel  1.2.x)
+    brew install fabio                                  (OSX/macOS stable)
+    brew install --devel fabio                          (OSX/macOS devel)
 
     docker pull magiconair/fabio                        (Docker)
 
