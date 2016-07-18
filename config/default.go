@@ -6,6 +6,7 @@ import (
 )
 
 var Default = &Config{
+	ListenerValue: []string{":9999"},
 	Proxy: Proxy{
 		MaxConn:       10000,
 		Strategy:      "rnd",
@@ -13,7 +14,6 @@ var Default = &Config{
 		NoRouteStatus: 404,
 		DialTimeout:   30 * time.Second,
 		LocalIP:       LocalIPString(),
-		ListenerAddr:  ":9999",
 	},
 	Registry: Registry{
 		Backend: "consul",

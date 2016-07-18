@@ -13,6 +13,9 @@ type Config struct {
 	Metrics     Metrics
 	UI          UI
 	Runtime     Runtime
+
+	ListenerValue    []string
+	CertSourcesValue []map[string]string
 }
 
 type CertSource struct {
@@ -55,8 +58,6 @@ type Proxy struct {
 	ClientIPHeader        string
 	TLSHeader             string
 	TLSHeaderValue        string
-	ListenerAddr          string
-	CertSources           string
 }
 
 type Runtime struct {

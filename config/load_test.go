@@ -54,6 +54,8 @@ ui.title = fabfab
 aws.apigw.cert.cn = furb
 `
 	out := &Config{
+		ListenerValue:    []string{":1234"},
+		CertSourcesValue: []map[string]string{{"cs": "name", "type": "path", "cert": "foo", "clientca": "bar", "refresh": "99s", "hdr": "a: b", "caupgcn": "furb"}},
 		CertSources: map[string]CertSource{
 			"name": CertSource{
 				Name:         "name",
@@ -80,8 +82,6 @@ aws.apigw.cert.cn = furb
 			ClientIPHeader:        "clientip",
 			TLSHeader:             "tls",
 			TLSHeaderValue:        "tls-true",
-			ListenerAddr:          ":1234",
-			CertSources:           "cs=name;type=path;cert=foo;clientca=bar;refresh=99s;hdr=a: b;caupgcn=furb",
 		},
 		Registry: Registry{
 			Backend: "something",

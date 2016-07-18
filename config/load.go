@@ -100,8 +100,8 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	f.StringVar(&cfg.Proxy.ClientIPHeader, "proxy.header.clientip", Default.Proxy.ClientIPHeader, "header for the request ip")
 	f.StringVar(&cfg.Proxy.TLSHeader, "proxy.header.tls", Default.Proxy.TLSHeader, "header for TLS connections")
 	f.StringVar(&cfg.Proxy.TLSHeaderValue, "proxy.header.tls.value", Default.Proxy.TLSHeaderValue, "value for TLS connection header")
-	f.StringVar(&cfg.Proxy.ListenerAddr, "proxy.addr", Default.Proxy.ListenerAddr, "listener config")
-	f.StringVar(&cfg.Proxy.CertSources, "proxy.cs", Default.Proxy.CertSources, "certificate sources")
+	f.StringSliceVar(&cfg.ListenerValue, "proxy.addr", Default.ListenerValue, "listener config")
+	f.KVSliceVar(&cfg.CertSourcesValue, "proxy.cs", Default.CertSourcesValue, "certificate sources")
 	f.DurationVar(&cfg.Proxy.ReadTimeout, "proxy.readtimeout", Default.Proxy.ReadTimeout, "read timeout for incoming requests")
 	f.DurationVar(&cfg.Proxy.WriteTimeout, "proxy.writetimeout", Default.Proxy.WriteTimeout, "write timeout for outgoing responses")
 	f.StringVar(&cfg.Metrics.Target, "metrics.target", Default.Metrics.Target, "metrics backend")
@@ -118,6 +118,8 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	f.BoolVar(&cfg.Registry.Consul.Register, "registry.consul.register.enabled", Default.Registry.Consul.Register, "register fabio in consul")
 	f.StringVar(&cfg.Registry.Consul.ServiceAddr, "registry.consul.register.addr", Default.Registry.Consul.ServiceAddr, "service registration address")
 	f.StringVar(&cfg.Registry.Consul.ServiceName, "registry.consul.register.name", Default.Registry.Consul.ServiceName, "service registration name")
+	f.StringSliceVar(&cfg.Registry.Consul.ServiceTags, "registry.consul.register.tags", Default.Registry.Consul.ServiceTags, "service registration tags")
+	f.StringSliceVar(&cfg.Registry.Consul.ServiceStatus, "registry.consul.service.status", Default.Registry.Consul.ServiceStatus, "valid service status values")
 	f.DurationVar(&cfg.Registry.Consul.CheckInterval, "registry.consul.register.checkInterval", Default.Registry.Consul.CheckInterval, "service check interval")
 	f.DurationVar(&cfg.Registry.Consul.CheckTimeout, "registry.consul.register.checkTimeout", Default.Registry.Consul.CheckTimeout, "service check timeout")
 	f.IntVar(&cfg.Runtime.GOGC, "runtime.gogc", Default.Runtime.GOGC, "sets runtime.GOGC")
@@ -125,12 +127,6 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	f.StringVar(&cfg.UI.Addr, "ui.addr", Default.UI.Addr, "address the UI/API is listening on")
 	f.StringVar(&cfg.UI.Color, "ui.color", Default.UI.Color, "background color of the UI")
 	f.StringVar(&cfg.UI.Title, "ui.title", Default.UI.Title, "optional title for the UI")
-
-	cfg.Registry.Consul.ServiceTags = Default.Registry.Consul.ServiceTags
-	f.Var((*tags)(&cfg.Registry.Consul.ServiceTags), "registry.consul.register.tags", "service registration tags")
-
-	cfg.Registry.Consul.ServiceStatus = Default.Registry.Consul.ServiceStatus
-	f.Var((*tags)(&cfg.Registry.Consul.ServiceStatus), "registry.consul.service.status", "valid service status values")
 
 	var awsApiGWCertCN string
 	f.StringVar(&awsApiGWCertCN, "aws.apigw.cert.cn", "", "deprecated. use caupgcn=<CN> for cert source")
@@ -157,12 +153,12 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 
 	cfg.Registry.Consul.Scheme, cfg.Registry.Consul.Addr = parseScheme(cfg.Registry.Consul.Addr)
 
-	cfg.CertSources, err = parseCertSources(cfg.Proxy.CertSources)
+	cfg.CertSources, err = parseCertSources(cfg.CertSourcesValue)
 	if err != nil {
 		return nil, err
 	}
 
-	cfg.Listen, err = parseListeners(cfg.Proxy.ListenerAddr, cfg.CertSources, cfg.Proxy.ReadTimeout, cfg.Proxy.WriteTimeout)
+	cfg.Listen, err = parseListeners(cfg.ListenerValue, cfg.CertSources, cfg.Proxy.ReadTimeout, cfg.Proxy.WriteTimeout)
 	if err != nil {
 		return nil, err
 	}
@@ -190,32 +186,12 @@ func parseScheme(s string) (scheme, addr string) {
 	return "http", s
 }
 
-// parseKV converts a "key1=val1;key2=val2;..." string into a map.
-func parseKV(cfg string) map[string]string {
-	m := map[string]string{}
-	for _, s := range strings.Split(cfg, ";") {
-		p := strings.SplitN(s, "=", 2)
-		if len(p) == 1 {
-			m[p[0]] = ""
-		} else {
-			m[p[0]] = p[1]
-		}
-	}
-	return m
-}
-
-func parseListeners(cfgs string, cs map[string]CertSource, readTimeout, writeTimeout time.Duration) (listen []Listen, err error) {
-	for _, cfg := range strings.Split(cfgs, ",") {
-		cfg = strings.TrimSpace(cfg)
-		if cfg == "" {
-			continue
-		}
-
+func parseListeners(cfgs []string, cs map[string]CertSource, readTimeout, writeTimeout time.Duration) (listen []Listen, err error) {
+	for _, cfg := range cfgs {
 		l, err := parseListen(cfg, cs, readTimeout, writeTimeout)
 		if err != nil {
 			return nil, err
 		}
-
 		listen = append(listen, l)
 	}
 	return
@@ -238,7 +214,7 @@ func parseListen(cfg string, cs map[string]CertSource, readTimeout, writeTimeout
 		WriteTimeout: writeTimeout,
 	}
 
-	for k, v := range parseKV(cfg) {
+	for k, v := range kvParse(cfg) {
 		switch k {
 		case "rt": // read timeout
 			d, err := time.ParseDuration(v)
@@ -293,14 +269,9 @@ func parseLegacyListen(cfg string, readTimeout, writeTimeout time.Duration) (l L
 	return l, nil
 }
 
-func parseCertSources(cfgs string) (cs map[string]CertSource, err error) {
+func parseCertSources(cfgs []map[string]string) (cs map[string]CertSource, err error) {
 	cs = map[string]CertSource{}
-	for _, cfg := range strings.Split(cfgs, ",") {
-		cfg = strings.TrimSpace(cfg)
-		if cfg == "" {
-			continue
-		}
-
+	for _, cfg := range cfgs {
 		src, err := parseCertSource(cfg)
 		if err != nil {
 			return nil, err
@@ -310,14 +281,14 @@ func parseCertSources(cfgs string) (cs map[string]CertSource, err error) {
 	return
 }
 
-func parseCertSource(cfg string) (c CertSource, err error) {
-	if cfg == "" {
+func parseCertSource(cfg map[string]string) (c CertSource, err error) {
+	if cfg == nil {
 		return CertSource{}, nil
 	}
 
 	c.Refresh = 3 * time.Second
 
-	for k, v := range parseKV(cfg) {
+	for k, v := range cfg {
 		switch k {
 		case "cs":
 			c.Name = v
@@ -364,29 +335,4 @@ func parseCertSource(cfg string) (c CertSource, err error) {
 		c.Refresh = 0
 	}
 	return
-}
-
-type tags []string
-
-func (t *tags) String() string {
-	return strings.Join(*t, ",")
-}
-
-func (t *tags) Set(value string) error {
-	*t = nil // clobber default
-	for _, v := range splitSkipEmpty(value, ",") {
-		*t = append(*t, v)
-	}
-	return nil
-}
-
-func splitSkipEmpty(s, sep string) (vals []string) {
-	for _, v := range strings.Split(s, sep) {
-		v = strings.TrimSpace(v)
-		if v == "" {
-			continue
-		}
-		vals = append(vals, v)
-	}
-	return vals
 }
