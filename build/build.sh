@@ -12,7 +12,7 @@ fi
 
 arch=amd64
 for os in darwin linux ; do
-	for go in go1.6.2; do
+	for go in go1.6.3; do
 		f=build/builds/fabio-${v}-${go}_${os}-${arch}
 		echo "Building $f"
 		( cd $basedir ; GOOS=${os} GOARCH=${arch} ~/$go/bin/go build -a -tags netgo -o $f )
