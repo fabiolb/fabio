@@ -48,8 +48,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// To use the filtered proxy use
 		// h = newWSProxy(t.URL)
+
+	case r.Header.Get("Accept") == "text/event-stream":
+		// use the flush interval for SSE (server-sent events)
+		// must be > 0s to be effective
+		h = newHTTPProxy(t.URL, p.tr, p.cfg.FlushInterval)
+
 	default:
-		h = newHTTPProxy(t.URL, p.tr)
+		h = newHTTPProxy(t.URL, p.tr, time.Duration(0))
 	}
 
 	start := time.Now()

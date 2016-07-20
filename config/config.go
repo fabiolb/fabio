@@ -54,6 +54,7 @@ type Proxy struct {
 	KeepAliveTimeout      time.Duration
 	ReadTimeout           time.Duration
 	WriteTimeout          time.Duration
+	FlushInterval         time.Duration
 	LocalIP               string
 	ClientIPHeader        string
 	TLSHeader             string

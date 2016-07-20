@@ -24,6 +24,7 @@ proxy.keepalivetimeout = 4s
 proxy.dialtimeout = 60s
 proxy.readtimeout = 5s
 proxy.writetimeout = 10s
+proxy.flushinterval = 15s
 proxy.maxconn = 666
 proxy.header.clientip = clientip
 proxy.header.tls = tls
@@ -79,6 +80,7 @@ aws.apigw.cert.cn = furb
 			KeepAliveTimeout:      4 * time.Second,
 			ReadTimeout:           5 * time.Second,
 			WriteTimeout:          10 * time.Second,
+			FlushInterval:         15 * time.Second,
 			ClientIPHeader:        "clientip",
 			TLSHeader:             "tls",
 			TLSHeaderValue:        "tls-true",

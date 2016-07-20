@@ -13,6 +13,7 @@ var Default = &Config{
 		Matcher:       "prefix",
 		NoRouteStatus: 404,
 		DialTimeout:   30 * time.Second,
+		FlushInterval: time.Second,
 		LocalIP:       LocalIPString(),
 	},
 	Registry: Registry{
