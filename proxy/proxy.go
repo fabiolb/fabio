@@ -48,6 +48,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// To use the filtered proxy use
 		// h = newWSProxy(t.URL)
+	case r.Header.Get("Accept") == "text/event-stream":
+		h = newHTTPSSEProxy(t.URL, p.tr)
+
 	default:
 		h = newHTTPProxy(t.URL, p.tr)
 	}
