@@ -69,7 +69,13 @@ func BenchmarkProxyLogger(b *testing.B) {
 	route.SetTable(table)
 
 	tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
-	proxy := New(tr, config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"})
+	proxy := New(tr, config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For", Log: config.Log{
+		Enable: true,
+		Format: "$remote_addr $time $request $body_bytes_sent $http_referer $http_user_agent $server_name $upstream_addr $upstream_response_time $request_args",
+		File: config.File{
+			Path: "access.log",
+		},
+	}})
 
 	req := &http.Request{
 		RequestURI: "/",
