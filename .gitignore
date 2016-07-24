@@ -1,5 +1,6 @@
 *-amd64
 *.out
+*.orig
 *.p12
 *.pem
 *.pprof

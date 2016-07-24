@@ -45,16 +45,7 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 	}
 
 	if r.Header.Get("X-Forwarded-Proto") == "" {
-		switch {
-		case ws && r.TLS != nil:
-			r.Header.Set("X-Forwarded-Proto", "wss")
-		case ws && r.TLS == nil:
-			r.Header.Set("X-Forwarded-Proto", "ws")
-		case r.TLS != nil:
-			r.Header.Set("X-Forwarded-Proto", "https")
-		default:
-			r.Header.Set("X-Forwarded-Proto", "http")
-		}
+		r.Header.Set("X-Forwarded-Proto", scheme(r))
 	}
 
 	if r.Header.Get("X-Forwarded-Port") == "" {
@@ -89,6 +80,20 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 	}
 
 	return nil
+}
+
+func scheme(r *http.Request) string {
+	ws := r.Header.Get("Upgrade") == "websocket"
+	switch {
+	case ws && r.TLS != nil:
+		return "wss"
+	case ws && r.TLS == nil:
+		return "ws"
+	case r.TLS != nil:
+		return "https"
+	default:
+		return "http"
+	}
 }
 
 func localPort(r *http.Request) string {

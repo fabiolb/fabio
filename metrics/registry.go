@@ -45,6 +45,9 @@ type Timer interface {
 	// Rate1 returns the 1min rate.
 	Rate1() float64
 
+	// Update counts an event and records the duration.
+	Update(time.Duration)
+
 	// UpdateSince counts an event and records the duration
 	// as the delta between 'start' and the function is called.
 	UpdateSince(start time.Time)

@@ -27,7 +27,9 @@ var noopTimer = NoopTimer{}
 // NoopTimer is a stub implementation of the Timer interface.
 type NoopTimer struct{}
 
-func (t NoopTimer) UpdateSince(start time.Time) {}
+func (t NoopTimer) Update(time.Duration) {}
+
+func (t NoopTimer) UpdateSince(time.Time) {}
 
 func (t NoopTimer) Rate1() float64 { return 0 }
 

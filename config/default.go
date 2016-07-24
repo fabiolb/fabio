@@ -17,6 +17,18 @@ var defaultValues = struct {
 }
 
 var defaultConfig = &Config{
+	Log: Log{
+		AccessFormat: "common",
+		RoutesFormat: "delta",
+	},
+	Metrics: Metrics{
+		Prefix:   "{{clean .Hostname}}.{{clean .Exec}}",
+		Names:    "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
+		Interval: 30 * time.Second,
+		Circonus: Circonus{
+			APIApp: "fabio",
+		},
+	},
 	Proxy: Proxy{
 		MaxConn:       10000,
 		Strategy:      "rnd",
@@ -25,7 +37,6 @@ var defaultConfig = &Config{
 		DialTimeout:   30 * time.Second,
 		FlushInterval: time.Second,
 		LocalIP:       LocalIPString(),
-		LogRoutes:     "delta",
 	},
 	Registry: Registry{
 		Backend: "consul",
@@ -51,13 +62,5 @@ var defaultConfig = &Config{
 	UI: UI{
 		Addr:  ":9998",
 		Color: "light-green",
-	},
-	Metrics: Metrics{
-		Prefix:   "{{clean .Hostname}}.{{clean .Exec}}",
-		Names:    "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
-		Interval: 30 * time.Second,
-		Circonus: Circonus{
-			APIApp: "fabio",
-		},
 	},
 }

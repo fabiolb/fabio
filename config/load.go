@@ -131,7 +131,9 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.DurationVar(&readTimeout, "proxy.readtimeout", defaultValues.ReadTimeout, "read timeout for incoming requests")
 	f.DurationVar(&writeTimeout, "proxy.writetimeout", defaultValues.WriteTimeout, "write timeout for outgoing responses")
 	f.DurationVar(&cfg.Proxy.FlushInterval, "proxy.flushinterval", defaultConfig.Proxy.FlushInterval, "flush interval for streaming responses")
-	f.StringVar(&cfg.Proxy.LogRoutes, "proxy.log.routes", defaultConfig.Proxy.LogRoutes, "log format of routing table updates")
+	f.StringVar(&cfg.Log.AccessFormat, "log.access.format", defaultConfig.Log.AccessFormat, "access log format")
+	f.StringVar(&cfg.Log.AccessTarget, "log.access.target", defaultConfig.Log.AccessTarget, "access log target")
+	f.StringVar(&cfg.Log.RoutesFormat, "log.routes.format", defaultConfig.Log.RoutesFormat, "log format of routing table updates")
 	f.StringVar(&cfg.Metrics.Target, "metrics.target", defaultConfig.Metrics.Target, "metrics backend")
 	f.StringVar(&cfg.Metrics.Prefix, "metrics.prefix", defaultConfig.Metrics.Prefix, "prefix for reported metrics")
 	f.StringVar(&cfg.Metrics.Names, "metrics.names", defaultConfig.Metrics.Names, "route metric name template")
@@ -164,6 +166,10 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.UI.Addr, "ui.addr", defaultConfig.UI.Addr, "address the UI/API is listening on")
 	f.StringVar(&cfg.UI.Color, "ui.color", defaultConfig.UI.Color, "background color of the UI")
 	f.StringVar(&cfg.UI.Title, "ui.title", defaultConfig.UI.Title, "optional title for the UI")
+
+	// deprecated flags
+	var proxyLogRoutes string
+	f.StringVar(&proxyLogRoutes, "proxy.log.routes", "", "deprecated. use log.routes.format instead")
 
 	var awsApiGWCertCN string
 	f.StringVar(&awsApiGWCertCN, "aws.apigw.cert.cn", "", "deprecated. use caupgcn=<CN> for cert source")
@@ -206,11 +212,16 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	}
 
 	// handle deprecations
-	// deprecate := func(name, msg string) {
-	// 	if f.IsSet(name) {
-	// 		log.Print("[WARN] ", msg)
-	// 	}
-	// }
+	deprecate := func(name, msg string) {
+		if f.IsSet(name) {
+			log.Print("[WARN] ", msg)
+		}
+	}
+	deprecate("proxy.log.routes", "proxy.log.routes has been deprecated. Please use 'log.routes.format' instead")
+
+	if proxyLogRoutes != "" {
+		cfg.Log.RoutesFormat = proxyLogRoutes
+	}
 
 	return cfg, nil
 }

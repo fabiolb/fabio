@@ -116,6 +116,10 @@ func (t *cgmTimer) Percentile(nth float64) float64 { return 0 }
 // Rate1 is not supported by Circonus.
 func (t *cgmTimer) Rate1() float64 { return 0 }
 
+func (t *cgmTimer) Update(d time.Duration) {
+	t.metrics.Timing(t.name, float64(d))
+}
+
 // UpdateSince adds delta between start and current time as
 // a sample to a histogram. The histogram is created if it
 // does not already exist.

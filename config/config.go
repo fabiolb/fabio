@@ -10,6 +10,7 @@ type Config struct {
 	Proxy    Proxy
 	Registry Registry
 	Listen   []Listen
+	Log      Log
 	Metrics  Metrics
 	UI       UI
 	Runtime  Runtime
@@ -56,7 +57,6 @@ type Proxy struct {
 	TLSHeader             string
 	TLSHeaderValue        string
 	GZIPContentTypes      *regexp.Regexp
-	LogRoutes             string
 }
 
 type Runtime struct {
@@ -70,6 +70,12 @@ type Circonus struct {
 	APIURL   string
 	CheckID  string
 	BrokerID string
+}
+
+type Log struct {
+	AccessFormat string
+	AccessTarget string
+	RoutesFormat string
 }
 
 type Metrics struct {
