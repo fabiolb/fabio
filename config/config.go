@@ -58,11 +58,18 @@ type Proxy struct {
 	ClientIPHeader        string
 	TLSHeader             string
 	TLSHeaderValue        string
+	Log                   Log
 }
 
 type Runtime struct {
 	GOGC       int
 	GOMAXPROCS int
+}
+
+type Log struct {
+	Enable bool
+	File   File
+	Format string
 }
 
 type Metrics struct {
