@@ -67,8 +67,7 @@ type Runtime struct {
 }
 
 type Log struct {
-	Enable bool
-	File   File
+	Target string
 	Format string
 }
 

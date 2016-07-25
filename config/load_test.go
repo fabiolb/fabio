@@ -28,9 +28,7 @@ proxy.maxconn = 666
 proxy.header.clientip = clientip
 proxy.header.tls = tls
 proxy.header.tls.value = tls-true
-proxy.log.enable = true
-proxy.log.file.path = access.log
-proxy.log.format = $remote_addr $time $request $body_bytes_sent $http_referer $http_user_agent $server_name $upstream_addr $upstream_response_time $request_args
+proxy.log.format = remote_addr time request body_bytes_sent http_referer http_user_agent server_name proxy_endpoint response_time request_args
 registry.backend = something
 registry.file.path = /foo/bar
 registry.static.routes = route add svc / http://127.0.0.1:6666/
@@ -86,11 +84,7 @@ aws.apigw.cert.cn = furb
 			TLSHeader:             "tls",
 			TLSHeaderValue:        "tls-true",
 			Log: Log{
-				Enable: true,
-				File: File{
-					Path: "access.log",
-				},
-				Format: "$remote_addr $time $request $body_bytes_sent $http_referer $http_user_agent $server_name $upstream_addr $upstream_response_time $request_args",
+				Format: "remote_addr time request body_bytes_sent http_referer http_user_agent server_name proxy_endpoint response_time request_args",
 			},
 		},
 		Registry: Registry{
