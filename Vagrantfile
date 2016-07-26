@@ -21,12 +21,12 @@ Vagrant.configure(2) do |config|
     apt-get install -y git
     apt-get -y autoremove
 
-    if [[ ! -d go1.5.3 ]] ; then
-        echo "43afe0c5017e502630b1aea4d44b8a7f059bf60d7f29dfd58db454d4e4e0ae53  go1.5.3.linux-amd64.tar.gz" > go1.5.3.linux-amd64.tar.gz.sha256
-        wget https://storage.googleapis.com/golang/go1.5.3.linux-amd64.tar.gz
-        shasum -c go1.5.3.linux-amd64.tar.gz.sha256
-        tar xzvf go1.5.3.linux-amd64.tar.gz
-        mv go go1.5.3
+    if [[ ! -d go1.6.3 ]] ; then
+        echo "cdde5e08530c0579255d6153b08fdb3b8e47caabbe717bc7bcd7561275a87aeb  go1.6.3.linux-amd64.tar.gz" > go1.6.3.linux-amd64.tar.gz.sha256
+        wget -q https://storage.googleapis.com/golang/go1.6.3.linux-amd64.tar.gz
+        shasum -c go1.6.3.linux-amd64.tar.gz.sha256
+        tar xzvf go1.6.3.linux-amd64.tar.gz
+        mv go go1.6.3
     fi
 
     if ! grep -q GOPATH ~/.bashrc ; then
@@ -36,7 +36,7 @@ export EDITOR=/usr/bin/vim
 
 # Go settings
 export GOPATH=~/gopath
-export GOROOT=~/go1.5.3
+export GOROOT=~/go1.6.3
 export PATH=$GOROOT/bin:$PATH
 
 # git aliases
