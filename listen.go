@@ -53,12 +53,12 @@ func listenAndServe(l config.Listen, h http.Handler) {
 	if l.Scheme == "https" {
 		src, err := cert.NewSource(l.CertSource)
 		if err != nil {
-			log.Fatal("[FATAL] ", err)
+			exit.Fatal("[FATAL] ", err)
 		}
 
 		srv.TLSConfig, err = cert.TLSConfig(src)
 		if err != nil {
-			log.Fatal("[FATAL] ", err)
+			exit.Fatal("[FATAL] ", err)
 		}
 	}
 
@@ -72,14 +72,14 @@ func listenAndServe(l config.Listen, h http.Handler) {
 	}
 
 	if err := serve(srv); err != nil {
-		log.Fatal("[FATAL] ", err)
+		exit.Fatal("[FATAL] ", err)
 	}
 }
 
 func serve(srv *http.Server) error {
 	ln, err := net.Listen("tcp", srv.Addr)
 	if err != nil {
-		log.Fatal("[FATAL] ", err)
+		exit.Fatal("[FATAL] ", err)
 	}
 
 	ln = &proxyproto.Listener{Listener: tcpKeepAliveListener{ln.(*net.TCPListener)}}

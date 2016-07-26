@@ -348,14 +348,14 @@ func testSource(t *testing.T, source Source, rootCAs *x509.CertPool, sleep time.
 func tempDir() string {
 	dir, err := ioutil.TempDir("", "fabio")
 	if err != nil {
-		log.Fatal(err)
+		panic(err.Error())
 	}
 	return dir
 }
 
 func writeFile(filename string, data []byte) {
 	if err := ioutil.WriteFile(filename, data, 0644); err != nil {
-		log.Fatal(err)
+		panic(err.Error())
 	}
 }
 
@@ -380,7 +380,7 @@ func makeCert(host string, validFor time.Duration) (certPEM, keyPEM []byte) {
 	const bits = 1024
 	priv, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
-		log.Fatalf("Failed to generate private key: %s", err)
+		panic("Failed to generate private key: " + err.Error())
 	}
 
 	template := x509.Certificate{
@@ -399,7 +399,7 @@ func makeCert(host string, validFor time.Duration) (certPEM, keyPEM []byte) {
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
 	if err != nil {
-		log.Fatalf("Failed to create certificate: %s", err)
+		panic("Failed to create certificate: " + err.Error())
 	}
 
 	var cert, key bytes.Buffer

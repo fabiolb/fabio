@@ -13,6 +13,7 @@ import (
 
 	"github.com/cyberdelia/go-metrics-graphite"
 	"github.com/eBay/fabio/config"
+	"github.com/eBay/fabio/exit"
 	gometrics "github.com/rcrowley/go-metrics"
 )
 
@@ -43,7 +44,7 @@ func Init(cfg config.Metrics) error {
 	case "":
 		log.Printf("[INFO] Metrics disabled")
 	default:
-		log.Fatal("[FATAL] Invalid metrics target ", cfg.Target)
+		exit.Fatal("[FATAL] Invalid metrics target ", cfg.Target)
 	}
 	return nil
 }
@@ -72,7 +73,7 @@ var hostname = os.Hostname
 func defaultPrefix() string {
 	host, err := hostname()
 	if err != nil {
-		log.Fatal("[FATAL] ", err)
+		exit.Fatal("[FATAL] ", err)
 	}
 	exe := filepath.Base(os.Args[0])
 	return clean(host) + "." + clean(exe)

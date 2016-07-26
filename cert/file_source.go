@@ -4,7 +4,8 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io/ioutil"
-	"log"
+
+	"github.com/eBay/fabio/exit"
 )
 
 // FileSource implements a certificate source for one
@@ -39,7 +40,7 @@ func (s FileSource) Certificates() chan []tls.Certificate {
 
 func loadX509KeyPair(certFile, keyFile string) tls.Certificate {
 	if certFile == "" {
-		log.Fatalf("[FATAL] cert: CertFile is required")
+		exit.Fatalf("[FATAL] cert: CertFile is required")
 	}
 
 	if keyFile == "" {
@@ -48,7 +49,7 @@ func loadX509KeyPair(certFile, keyFile string) tls.Certificate {
 
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
-		log.Fatalf("[FATAL] cert: Error loading certificate. %s", err)
+		exit.Fatalf("[FATAL] cert: Error loading certificate. %s", err)
 	}
 	return cert
 }
