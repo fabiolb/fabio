@@ -88,7 +88,7 @@ func dirUnix() (string, error) {
 	cmd.Stdout = &stdout
 	if err := cmd.Run(); err != nil {
 		// If "getent" is missing, ignore it
-		if err != exec.ErrNotFound {
+		if err == exec.ErrNotFound {
 			return "", err
 		}
 	} else {
@@ -118,6 +118,11 @@ func dirUnix() (string, error) {
 }
 
 func dirWindows() (string, error) {
+	// First prefer the HOME environmental variable
+	if home := os.Getenv("HOME"); home != "" {
+		return home, nil
+	}
+
 	drive := os.Getenv("HOMEDRIVE")
 	path := os.Getenv("HOMEPATH")
 	home := drive + path
