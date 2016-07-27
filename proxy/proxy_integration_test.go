@@ -57,7 +57,6 @@ func TestProxyNoRouteStaus(t *testing.T) {
 }
 
 func BenchmarkProxyLogger(b *testing.B) {
-
 	got := "not called"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		got = r.Header.Get("X-Forwarded-For")
@@ -70,13 +69,13 @@ func BenchmarkProxyLogger(b *testing.B) {
 
 	tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
 	proxy := New(tr, config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For", Log: config.Log{
-		Format: "remote_addr time request body_bytes_sent http_referer http_user_agent server_name proxy_endpoint response_time request_args",
+		Format: "remote_addr time request body_bytes_sent http_referer http_user_agent server_name proxy_endpoint response_time request_args ",
 		Target: "stdout",
 	}})
 
 	req := &http.Request{
 		RequestURI: "/",
-		Header:     http.Header{"X-Forwarded-For": {"3.3.3.3"}},
+		Header:     http.Header{"X-Forwarded-For": {"1.2.3.4"}},
 		RemoteAddr: "2.2.2.2:666",
 		URL:        &url.URL{},
 		Method:     "GET",
