@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"os"
 
 	"github.com/eBay/fabio/config"
 )
@@ -57,12 +58,13 @@ func NewSource(cfg config.CertSource) (Source, error) {
 		}, nil
 
 	case "vault":
-		return VaultSource{
-			// TODO(fs): configure Addr but not token
+		return &VaultSource{
+			Addr:         os.Getenv("VAULT_ADDR"),
 			CertPath:     cfg.CertPath,
 			ClientCAPath: cfg.ClientCAPath,
 			CAUpgradeCN:  cfg.CAUpgradeCN,
 			Refresh:      cfg.Refresh,
+			vaultToken:   os.Getenv("VAULT_TOKEN"),
 		}, nil
 
 	default:

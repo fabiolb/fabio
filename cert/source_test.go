@@ -89,7 +89,7 @@ func TestNewSource(t *testing.T) {
 		},
 		{
 			cfg: certsource("vault"),
-			src: VaultSource{
+			src: &VaultSource{
 				CertPath:     "cert",
 				ClientCAPath: "clientca",
 				CAUpgradeCN:  "upgcn",
@@ -219,24 +219,17 @@ func TestConsulSource(t *testing.T) {
 	testSource(t, ConsulSource{CertURL: certURL}, makeCertPool(certPEM), 50*time.Millisecond)
 }
 
-func TestVaultSource(t *testing.T) {
-	const (
-		addr      = "127.0.0.1:58421"
-		rootToken = "token"
-		certPath  = "secret/fabio/cert"
-	)
-
-	// run a vault server in dev mode
-	t.Log("Starting vault server")
-	vault := exec.Command("vault", "server", "-dev", "-dev-root-token-id="+rootToken, "-dev-listen-address="+addr)
-	if err := vault.Start(); err != nil {
+// vaultServer starts a vault server in dev mode and waits
+// until is ready.
+func vaultServer(t *testing.T, addr, rootToken string) (*exec.Cmd, *vaultapi.Client) {
+	cmd := exec.Command("vault", "server", "-dev", "-dev-root-token-id="+rootToken, "-dev-listen-address="+addr)
+	if err := cmd.Start(); err != nil {
 		t.Fatalf("Failed to start vault server. %s", err)
 	}
-	defer vault.Process.Kill()
 
-	// create a vault client for that server
 	c, err := vaultapi.NewClient(&vaultapi.Config{Address: "http://" + addr})
 	if err != nil {
+		cmd.Process.Kill()
 		t.Fatalf("NewClient failed: %s", err)
 	}
 	c.SetToken(rootToken)
@@ -246,24 +239,115 @@ func TestVaultSource(t *testing.T) {
 		return err == nil && ok
 	}
 	if !waitFor(time.Second, isUp) {
+		cmd.Process.Kill()
 		t.Fatal("Timeout waiting for vault server")
 	}
 
-	// create a renewable token since the vault source
-	// will renew the token on every request
-	tok, err := c.Auth().Token().Create(&vaultapi.TokenCreateRequest{NoParent: true, TTL: "1h"})
-	if err != nil {
-		t.Fatalf("Token.Create failed: %s", err)
+	policy := `
+	path "secret/fabio/cert" {
+	  capabilities = ["list"]
 	}
+
+	path "secret/fabio/cert/*" {
+	  capabilities = ["read"]
+	}
+	`
+
+	if err := c.Sys().PutPolicy("fabio", policy); err != nil {
+		cmd.Process.Kill()
+		t.Fatalf("Could not create policy: %s", err)
+	}
+
+	return cmd, c
+}
+
+func makeToken(t *testing.T, c *vaultapi.Client, wrapTTL string, req *vaultapi.TokenCreateRequest) string {
+	c.SetWrappingLookupFunc(func(string, string) string { return wrapTTL })
+
+	resp, err := c.Auth().Token().Create(req)
+	if err != nil {
+		t.Fatalf("Could not create a token: %s", err)
+	}
+
+	if wrapTTL != "" {
+		if resp.WrapInfo == nil || resp.WrapInfo.Token == "" {
+			t.Fatalf("Could not create a wrapped token")
+		}
+		return resp.WrapInfo.Token
+	}
+
+	if resp.WrapInfo != nil && resp.WrapInfo.Token != "" {
+		t.Fatalf("Got a wrapped token but was not expecting one")
+	}
+
+	return resp.Auth.ClientToken
+}
+
+func TestVaultSource(t *testing.T) {
+	const (
+		addr      = "127.0.0.1:58421"
+		rootToken = "token"
+		certPath  = "secret/fabio/cert"
+	)
+
+	// start a vault server
+	vault, client := vaultServer(t, addr, rootToken)
+	defer vault.Process.Kill()
 
 	// create a cert and store it in vault
 	certPEM, keyPEM := makeCert("localhost", time.Minute)
 	data := map[string]interface{}{"cert": string(certPEM), "key": string(keyPEM)}
-	if _, err := c.Logical().Write(certPath+"/localhost", data); err != nil {
+	if _, err := client.Logical().Write(certPath+"/localhost", data); err != nil {
 		t.Fatalf("logical.Write failed: %s", err)
 	}
 
-	testSource(t, VaultSource{Addr: "http://" + addr, token: tok.Auth.ClientToken, CertPath: certPath}, makeCertPool(certPEM), 50*time.Millisecond)
+	newBool := func(b bool) *bool { return &b }
+
+	// run tests
+	tests := []struct {
+		desc    string
+		wrapTTL string
+		req     *vaultapi.TokenCreateRequest
+	}{
+		{
+			desc: "renewable token",
+			req:  &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Policies: []string{"fabio"}},
+		},
+		{
+			desc: "non-renewable token",
+			req:  &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Renewable: newBool(false), Policies: []string{"fabio"}},
+		},
+		{
+			desc: "renewable orphan token",
+			req:  &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", NoParent: true, Policies: []string{"fabio"}},
+		},
+		{
+			desc: "non-renewable orphan token",
+			req:  &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", NoParent: true, Renewable: newBool(false), Policies: []string{"fabio"}},
+		},
+		{
+			desc:    "renewable wrapped token",
+			wrapTTL: "10s",
+			req:     &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Policies: []string{"fabio"}},
+		},
+		{
+			desc:    "non-renewable wrapped token",
+			wrapTTL: "10s",
+			req:     &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Renewable: newBool(false), Policies: []string{"fabio"}},
+		},
+	}
+
+	pool := makeCertPool(certPEM)
+	timeout := 50 * time.Millisecond
+	for _, tt := range tests {
+		t.Log("Test vault source with", tt.desc)
+		src := &VaultSource{
+			Addr:       "http://" + addr,
+			CertPath:   certPath,
+			vaultToken: makeToken(t, client, tt.wrapTTL, tt.req),
+		}
+		testSource(t, src, pool, timeout)
+	}
 }
 
 // testSource runs an integration test by making an HTTPS request

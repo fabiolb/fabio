@@ -3,9 +3,11 @@ package cert
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"log"
-	"os"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/hashicorp/vault/api"
@@ -26,45 +28,64 @@ type VaultSource struct {
 	CAUpgradeCN  string
 	Refresh      time.Duration
 
-	token string
+	mu         sync.Mutex
+	token      string // actual token
+	vaultToken string // VAULT_TOKEN env var. Might be wrapped.
 }
 
-func (s VaultSource) client() (*api.Client, error) {
-	addr := s.Addr
-	if addr == "" {
-		addr = os.Getenv("VAULT_ADDR")
-	}
-
-	c, err := api.NewClient(&api.Config{Address: addr})
+func (s *VaultSource) client() (*api.Client, error) {
+	c, err := api.NewClient(&api.Config{Address: s.Addr})
 	if err != nil {
 		return nil, err
 	}
-
-	// create a renewable token since the vault source
-	// will renew the token on every request
-	if s.token == "" {
-		tok, err := c.Auth().Token().Create(&api.TokenCreateRequest{NoParent: true, TTL: "1h"})
-		if err != nil {
-			return nil, err
-		}
-		s.token = tok.Auth.ClientToken
+	if err := s.setToken(c); err != nil {
+		return nil, err
 	}
-
-	c.SetToken(s.token)
 	return c, nil
 }
 
-func (s VaultSource) LoadClientCAs() (*x509.CertPool, error) {
+func (s *VaultSource) setToken(c *api.Client) error {
+	s.mu.Lock()
+	defer func() {
+		c.SetToken(s.token)
+		s.mu.Unlock()
+	}()
+
+	if s.token != "" {
+		return nil
+	}
+
+	if s.vaultToken == "" {
+		return errors.New("vault: no token")
+	}
+
+	// did we get a wrapped token?
+	resp, err := c.Logical().Unwrap(s.vaultToken)
+	if err != nil {
+		// not a wrapped token?
+		if strings.HasPrefix(err.Error(), "no value found at") {
+			s.token = s.vaultToken
+			return nil
+		}
+		return err
+	}
+	log.Printf("[INFO] vault: Unwrapped token %s", s.vaultToken)
+
+	s.token = resp.Auth.ClientToken
+	return nil
+}
+
+func (s *VaultSource) LoadClientCAs() (*x509.CertPool, error) {
 	return newCertPool(s.ClientCAPath, s.CAUpgradeCN, s.load)
 }
 
-func (s VaultSource) Certificates() chan []tls.Certificate {
+func (s *VaultSource) Certificates() chan []tls.Certificate {
 	ch := make(chan []tls.Certificate, 1)
 	go watch(ch, s.Refresh, s.CertPath, s.load)
 	return ch
 }
 
-func (s VaultSource) load(path string) (pemBlocks map[string][]byte, err error) {
+func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error) {
 	pemBlocks = map[string][]byte{}
 
 	// get will read a key=value pair from the secret
@@ -98,9 +119,12 @@ func (s VaultSource) load(path string) (pemBlocks map[string][]byte, err error) 
 	}
 
 	// renew token
-	_, err = c.Auth().Token().RenewSelf(3600)
+	// TODO(fs): make configurable
+	const oneHour = 3600
+	_, err = c.Auth().Token().RenewSelf(oneHour)
 	if err != nil {
-		return nil, fmt.Errorf("vault: renew-self: %s", err)
+		// TODO(fs): danger of filling up log since default refresh is 1s
+		log.Printf("[WARN] vault: Failed to renew token. %s", err)
 	}
 
 	// get the subkeys under 'path'.
