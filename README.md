@@ -15,7 +15,7 @@ fabio was developed by [eBay in Amsterdam](http://www.ebayclassifiedsgroup.com) 
 
 It integrates with [Consul](https://consul.io/), [Vault](https://vaultproject.io/), [Amazon ELB](https://aws.amazon.com/elasticloadbalancing), [Amazon API Gateway](https://aws.amazon.com/api-gateway/) and more.
 
-It supports SSL, [Websockets](https://github.com/eBay/fabio/wiki/Features#websocket-support), [dynamic reloading](https://github.com/eBay/fabio/wiki/Features#dynamic-reloading), [traffic shaping](https://github.com/eBay/fabio/wiki/Features#traffic-shaping) for "blue/green" deployments, [Graphite metrics](https://github.com/eBay/fabio/wiki/Features#graphite-support), [WebUI](https://github.com/eBay/fabio/wiki/Features#web-ui) and [more](https://github.com/eBay/fabio/wiki/Features).
+It supports SSL, [Websockets](https://github.com/eBay/fabio/wiki/Features#websocket-support), [SSE](https://github.com/eBay/fabio/wiki/Features#sse---server-sent-events), [dynamic reloading](https://github.com/eBay/fabio/wiki/Features#dynamic-reloading), [traffic shaping](https://github.com/eBay/fabio/wiki/Features#traffic-shaping) for "blue/green" deployments, [Graphite metrics](https://github.com/eBay/fabio/wiki/Features#graphite-support), [WebUI](https://github.com/eBay/fabio/wiki/Features#web-ui) and [more](https://github.com/eBay/fabio/wiki/Features).
 
 [Watch](https://www.youtube.com/watch?v=gf43TcWjBrE&list=PL81sUbsFNc5b-Gd59Lpz7BW0eHJBt0GvE&index=1) Kelsey Hightower demo Consul, Nomad, Vault and fabio at HashiConf EU 2016.
 
