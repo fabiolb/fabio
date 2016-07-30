@@ -1,5 +1,9 @@
 ## Changelog
 
+### Unreleased
+
+ * [Issue #136](https://github.com/eBay/fabio/issues/136): Always deregister from consul
+
 ### [v1.2](https://github.com/eBay/fabio/releases/tag/v1.2) - 16 Jul 2016
 
  * [Issue #27](https://github.com/eBay/fabio/issues/27): Change certificates via API
