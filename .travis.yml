@@ -2,7 +2,7 @@ language: go
 
 go:
     - 1.6.3
-    - 1.7rc5
+    - 1.7rc6
 
 before_script:
   - echo $HOSTNAME
