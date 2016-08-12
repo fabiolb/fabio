@@ -14,6 +14,7 @@ import (
 	"github.com/cyberdelia/go-metrics-graphite"
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/exit"
+	"github.com/pubnub/go-metrics-statsd"
 	gometrics "github.com/rcrowley/go-metrics"
 )
 
@@ -41,6 +42,14 @@ func Init(cfg config.Metrics) error {
 
 		log.Printf("[INFO] Sending metrics to Graphite on %s as %q", cfg.GraphiteAddr, pfx)
 		return initGraphite(cfg.GraphiteAddr, cfg.Interval)
+	case "statsd":
+		if cfg.StatsDAddr == "" {
+			return errors.New("metrics: statsd addr missing")
+		}
+
+		log.Printf("[INFO] Sending metrics to StatsD on %s as %q", cfg.StatsDAddr, pfx)
+		return initStatsD(cfg.StatsDAddr, cfg.Interval)
+
 	case "":
 		log.Printf("[INFO] Metrics disabled")
 	default:
@@ -94,5 +103,15 @@ func initGraphite(addr string, interval time.Duration) error {
 
 	go graphite.Graphite(gometrics.DefaultRegistry, interval, pfx, a)
 	go graphite.Graphite(ServiceRegistry, interval, pfx, a)
+	return nil
+}
+
+func initStatsD(addr string, interval time.Duration) error {
+	a, err := net.ResolveUDPAddr("udp", addr)
+	if err != nil {
+		return fmt.Errorf("metrics: cannot connect to StatsD: %s", err)
+	}
+	go statsd.StatsD(gometrics.DefaultRegistry, interval, pfx, a)
+	go statsd.StatsD(ServiceRegistry, interval, pfx, a)
 	return nil
 }
