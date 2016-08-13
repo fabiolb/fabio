@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+ * [Issue #73](https://github.com/eBay/fabio/pull/73)/[PR #139](https://github.com/eBay/fabio/pull/139): Add statsd support
  * [Issue #129](https://github.com/eBay/fabio/issues/129): Server-sent events support
  * [Issue #136](https://github.com/eBay/fabio/issues/136): Always deregister from consul
 
