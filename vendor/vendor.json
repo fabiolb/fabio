@@ -12,6 +12,11 @@
 			"revision": "b8345b7f01d571b05366d5791a034d872f1bb36f",
 			"revisionTime": "2015-08-25T20:22:00-07:00"
 		},
+        {
+        	"path": "github.com/pubnub/go-metrics-statsd",
+			"revision": "979a88f88cc815576d43a09678d3925e84ca0ed9",
+			"revisionTime": "2016-08-12T16:29:00-09:00"
+        },
 		{
 			"path": "github.com/fatih/structs",
 			"revision": "5ada2f449b108d87dbd8c1e60c32cdd065c27886",

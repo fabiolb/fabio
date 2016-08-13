@@ -71,6 +71,7 @@ type Metrics struct {
 	Prefix       string
 	Interval     time.Duration
 	GraphiteAddr string
+	StatsDAddr   string
 }
 
 type Registry struct {
