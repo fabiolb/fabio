@@ -109,7 +109,7 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	f.StringVar(&cfg.Metrics.Prefix, "metrics.prefix", Default.Metrics.Prefix, "prefix for reported metrics")
 	f.DurationVar(&cfg.Metrics.Interval, "metrics.interval", Default.Metrics.Interval, "metrics reporting interval")
 	f.StringVar(&cfg.Metrics.GraphiteAddr, "metrics.graphite.addr", Default.Metrics.GraphiteAddr, "graphite server address")
-	f.StringVar(&cfg.Metrics.StatsDAddr, "metrics.statsd.addr", Default.Metrics.StatsDAddr, "graphite server address")
+	f.StringVar(&cfg.Metrics.StatsDAddr, "metrics.statsd.addr", Default.Metrics.StatsDAddr, "statsd server address")
 	f.StringVar(&cfg.Registry.Backend, "registry.backend", Default.Registry.Backend, "registry backend")
 	f.StringVar(&cfg.Registry.File.Path, "registry.file.path", Default.Registry.File.Path, "path to file based routing table")
 	f.StringVar(&cfg.Registry.Static.Routes, "registry.static.routes", Default.Registry.Static.Routes, "static routes")
