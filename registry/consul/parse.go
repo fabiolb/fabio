@@ -18,7 +18,7 @@ func parseURLPrefixTag(s, prefix string, env map[string]string) (host, path stri
 	// split host/path
 	p := strings.SplitN(s[len(prefix):], "/", 2)
 	if len(p) != 2 {
-		log.Printf("[WARN] consul: Invalid %s tag %q", prefix, s)
+		log.Printf("[WARN] consul: Invalid %s tag %q - You need to have a trailing slash!", prefix, s)
 		return "", "", false
 	}
 
