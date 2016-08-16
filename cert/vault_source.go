@@ -89,7 +89,7 @@ func (s VaultSource) load(path string) (pemBlocks map[string][]byte, err error) 
 			return
 		}
 
-		pemBlocks[name+"-"+typ+".pem"] = []byte(b)
+		pemBlocks[name+"-"+typ+".pem"] = b
 	}
 
 	c, err := s.client()
