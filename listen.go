@@ -6,7 +6,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"regexp"
 	"time"
 
 	"github.com/armon/go-proxyproto"
@@ -17,8 +16,6 @@ import (
 )
 
 var quit = make(chan bool)
-var commas = regexp.MustCompile(`\s*,\s*`)
-var semicolons = regexp.MustCompile(`\s*;\s*`)
 
 func init() {
 	exit.Listen(func(os.Signal) { close(quit) })
