@@ -5,6 +5,7 @@
  * [Issue #73](https://github.com/eBay/fabio/pull/73)/[PR #139](https://github.com/eBay/fabio/pull/139): Add statsd support
  * [Issue #129](https://github.com/eBay/fabio/issues/129): Server-sent events support
  * [Issue #136](https://github.com/eBay/fabio/issues/136): Always deregister from consul
+ * [PR #143](https://github.com/eBay/fabio/pull/143): Improve error message on missing trailing slash
 
 ### [v1.2](https://github.com/eBay/fabio/releases/tag/v1.2) - 16 Jul 2016
 
