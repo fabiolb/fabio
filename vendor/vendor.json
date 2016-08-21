@@ -45,10 +45,12 @@
 			"revisionTime": "2016-06-01T09:31:17Z"
 		},
 		{
-			"checksumSHA1": "z8dpOCOmaolhR+Smsnh9dB4MLNs=",
+			"checksumSHA1": "/UnzPqiJuYcOLNp4Xc8GRwefJq0=",
 			"path": "github.com/hashicorp/consul/api",
-			"revision": "16de0a909bc4c28d879ef1977b46dcdd57b71af3",
-			"revisionTime": "2015-05-15T08:25:02-07:00"
+			"revision": "26a0ef8c41aa2252ab4cf0844fc6470c8e1d8256",
+			"revisionTime": "2016-03-16T16:42:48Z",
+			"version": "v0.6.4",
+			"versionExact": "v0.6.4"
 		},
 		{
 			"checksumSHA1": "cdOCt0Yb+hdErz8NAQqayxPmRsY=",
@@ -60,7 +62,7 @@
 			"checksumSHA1": "Uzyon2091lmwacNsl1hCytjhHtg=",
 			"path": "github.com/hashicorp/go-cleanhttp",
 			"revision": "ad28ea4487f05916463e2423a55166280e8254b5",
-			"revisionTime": "2015-12-17T15:04:12-05:00"
+			"revisionTime": "2016-04-07T17:41:26Z"
 		},
 		{
 			"checksumSHA1": "lrSl49G23l6NhfilxPM0XFs5rZo=",
@@ -133,6 +135,14 @@
 			"path": "github.com/hashicorp/hcl/json/token",
 			"revision": "d7400db7143f8e869812e50a53acd6c8d92af3b8",
 			"revisionTime": "2016-06-07T00:19:40Z"
+		},
+		{
+			"checksumSHA1": "o8In5byYGDCY/mnTuV4Tfmci+3w=",
+			"path": "github.com/hashicorp/serf/coordinate",
+			"revision": "0df3e3df1703f838243a7f3f12bf0b88566ade5a",
+			"revisionTime": "2015-12-21T18:49:50Z",
+			"version": "v0.6.4",
+			"versionExact": "v0.6.4"
 		},
 		{
 			"checksumSHA1": "9/RHDTjqflfK3/f2Tfvwx+82I40=",
