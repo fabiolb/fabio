@@ -250,9 +250,9 @@ func (t Table) Lookup(req *http.Request, trace string) *Target {
 		log.Printf("[TRACE] %s Tracing %s%s", trace, req.Host, req.RequestURI)
 	}
 
-	target := t.doLookup(normalizeHost(req), req.RequestURI, trace)
+	target := t.lookup(normalizeHost(req), req.RequestURI, trace)
 	if target == nil {
-		target = t.doLookup("", req.RequestURI, trace)
+		target = t.lookup("", req.RequestURI, trace)
 	}
 
 	if target != nil && trace != "" {
@@ -262,7 +262,11 @@ func (t Table) Lookup(req *http.Request, trace string) *Target {
 	return target
 }
 
-func (t Table) doLookup(host, path, trace string) *Target {
+func (t Table) LookupHost(host string) *Target {
+	return t.lookup(host, "/", "")
+}
+
+func (t Table) lookup(host, path, trace string) *Target {
 	for _, r := range t[host] {
 		if match(path, r) {
 			n := len(r.Targets)

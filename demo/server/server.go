@@ -45,12 +45,15 @@ import (
 
 func main() {
 	var addr, consul, name, prefix, proto, token string
+	var certFile, keyFile string
 	flag.StringVar(&addr, "addr", "127.0.0.1:5000", "host:port of the service")
 	flag.StringVar(&consul, "consul", "127.0.0.1:8500", "host:port of the consul agent")
 	flag.StringVar(&name, "name", filepath.Base(os.Args[0]), "name of the service")
 	flag.StringVar(&prefix, "prefix", "", "comma-sep list of host/path prefixes to register")
 	flag.StringVar(&proto, "proto", "http", "protocol for endpoints: http or ws")
 	flag.StringVar(&token, "token", "", "consul ACL token")
+	flag.StringVar(&certFile, "cert", "", "path to cert file")
+	flag.StringVar(&keyFile, "key", "", "path to key file")
 	flag.Parse()
 
 	if prefix == "" {
@@ -73,18 +76,25 @@ func main() {
 		}
 	}
 
-	// start http server
-	go func() {
-		log.Printf("Listening on %s serving %s", addr, prefix)
-		if err := http.ListenAndServe(addr, nil); err != nil {
-			log.Fatal(err)
-		}
-	}()
-
 	// register consul health check endpoint
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "OK")
 	})
+
+	// start http server
+	go func() {
+		log.Printf("Listening on %s serving %s", addr, prefix)
+
+		var err error
+		if certFile != "" {
+			err = http.ListenAndServeTLS(addr, certFile, keyFile, nil)
+		} else {
+			err = http.ListenAndServe(addr, nil)
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	// build urlprefix-host/path tag list
 	// e.g. urlprefix-/foo, urlprefix-/bar, ...
@@ -103,6 +113,21 @@ func main() {
 		log.Fatal(err)
 	}
 
+	var check *api.AgentServiceCheck
+	if certFile != "" {
+		check = &api.AgentServiceCheck{
+			TCP:      addr,
+			Interval: "2s",
+			Timeout:  "1s",
+		}
+	} else {
+		check = &api.AgentServiceCheck{
+			HTTP:     "http://" + addr + "/health",
+			Interval: "1s",
+			Timeout:  "1s",
+		}
+	}
+
 	// register service with health check
 	serviceID := name + "-" + addr
 	service := &api.AgentServiceRegistration{
@@ -111,11 +136,7 @@ func main() {
 		Port:    port,
 		Address: host,
 		Tags:    tags,
-		Check: &api.AgentServiceCheck{
-			HTTP:     "http://" + addr + "/health",
-			Interval: "1s",
-			Timeout:  "1s",
-		},
+		Check:   check,
 	}
 
 	config := &api.Config{Address: consul, Scheme: "http", Token: token}

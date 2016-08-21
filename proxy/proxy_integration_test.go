@@ -23,7 +23,7 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 	route.SetTable(table)
 
 	tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
-	proxy := New(tr, config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"})
+	proxy := NewHTTPProxy(tr, config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"})
 
 	req := &http.Request{
 		RequestURI: "/",
@@ -43,7 +43,7 @@ func TestProxyNoRouteStaus(t *testing.T) {
 	route.SetTable(make(route.Table))
 	tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
 	cfg := config.Proxy{NoRouteStatus: 999}
-	proxy := New(tr, cfg)
+	proxy := NewHTTPProxy(tr, cfg)
 	req := &http.Request{
 		RequestURI: "/",
 		URL:        &url.URL{},

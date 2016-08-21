@@ -31,7 +31,7 @@ type CertSource struct {
 
 type Listen struct {
 	Addr         string
-	Scheme       string
+	Proto        string
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
 	CertSource   CertSource

@@ -53,16 +53,19 @@ func main() {
 		registry.Default.Deregister()
 	})
 
+	httpProxy := newHTTPProxy(cfg)
+	tcpProxy := proxy.NewTCPSNIProxy(cfg.Proxy)
+
 	initRuntime(cfg)
 	initMetrics(cfg)
 	initBackend(cfg)
 	go watchBackend()
 	startAdmin(cfg)
-	startListeners(cfg.Listen, cfg.Proxy.ShutdownWait, newProxy(cfg))
+	startListeners(cfg.Listen, cfg.Proxy.ShutdownWait, httpProxy, tcpProxy)
 	exit.Wait()
 }
 
-func newProxy(cfg *config.Config) *proxy.Proxy {
+func newHTTPProxy(cfg *config.Config) http.Handler {
 	if err := route.SetPickerStrategy(cfg.Proxy.Strategy); err != nil {
 		exit.Fatal("[FATAL] ", err)
 	}
@@ -82,7 +85,7 @@ func newProxy(cfg *config.Config) *proxy.Proxy {
 		}).Dial,
 	}
 
-	return proxy.New(tr, cfg.Proxy)
+	return proxy.NewHTTPProxy(tr, cfg.Proxy)
 }
 
 func startAdmin(cfg *config.Config) {

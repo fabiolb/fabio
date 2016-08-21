@@ -13,7 +13,7 @@ import (
 func TestFromProperties(t *testing.T) {
 	in := `
 proxy.cs = cs=name;type=path;cert=foo;clientca=bar;refresh=99s;hdr=a: b;caupgcn=furb
-proxy.addr = :1234
+proxy.addr = :1234;proto=tcp+sni
 proxy.localip = 4.4.4.4
 proxy.strategy = rr
 proxy.matcher = prefix
@@ -62,7 +62,7 @@ ui.title = fabfab
 aws.apigw.cert.cn = furb
 `
 	out := &Config{
-		ListenerValue:    []string{":1234"},
+		ListenerValue:    []string{":1234;proto=tcp+sni"},
 		CertSourcesValue: []map[string]string{{"cs": "name", "type": "path", "cert": "foo", "clientca": "bar", "refresh": "99s", "hdr": "a: b", "caupgcn": "furb"}},
 		CertSources: map[string]CertSource{
 			"name": CertSource{
@@ -118,7 +118,7 @@ aws.apigw.cert.cn = furb
 		Listen: []Listen{
 			{
 				Addr:         ":1234",
-				Scheme:       "http",
+				Proto:        "tcp+sni",
 				ReadTimeout:  5 * time.Second,
 				WriteTimeout: 10 * time.Second,
 			},
@@ -185,7 +185,7 @@ func TestParseScheme(t *testing.T) {
 
 func TestParseListen(t *testing.T) {
 	cs := map[string]CertSource{
-		"name": CertSource{Type: "foo"},
+		"name": CertSource{Name: "name", Type: "foo"},
 	}
 
 	tests := []struct {
@@ -200,19 +200,29 @@ func TestParseListen(t *testing.T) {
 		},
 		{
 			":123",
-			Listen{Addr: ":123", Scheme: "http"},
+			Listen{Addr: ":123", Proto: "http"},
+			"",
+		},
+		{
+			":123;proto=http",
+			Listen{Addr: ":123", Proto: "http"},
+			"",
+		},
+		{
+			":123;proto=tcp+sni",
+			Listen{Addr: ":123", Proto: "tcp+sni"},
 			"",
 		},
 		{
 			":123;rt=5s;wt=5s",
-			Listen{Addr: ":123", Scheme: "http", ReadTimeout: 5 * time.Second, WriteTimeout: 5 * time.Second},
+			Listen{Addr: ":123", Proto: "http", ReadTimeout: 5 * time.Second, WriteTimeout: 5 * time.Second},
 			"",
 		},
 		{
 			":123;pathA;pathB;pathC",
 			Listen{
-				Addr:   ":123",
-				Scheme: "https",
+				Addr:  ":123",
+				Proto: "https",
 				CertSource: CertSource{
 					Type:         "file",
 					CertPath:     "pathA",
@@ -225,9 +235,10 @@ func TestParseListen(t *testing.T) {
 		{
 			":123;cs=name",
 			Listen{
-				Addr:   ":123",
-				Scheme: "https",
+				Addr:  ":123",
+				Proto: "https",
 				CertSource: CertSource{
+					Name: "name",
 					Type: "foo",
 				},
 			},
@@ -236,14 +247,52 @@ func TestParseListen(t *testing.T) {
 		{
 			":123;cs=name;strictmatch=true",
 			Listen{
-				Addr:   ":123",
-				Scheme: "https",
+				Addr:  ":123",
+				Proto: "https",
 				CertSource: CertSource{
+					Name: "name",
 					Type: "foo",
 				},
 				StrictMatch: true,
 			},
 			"",
+		},
+		{
+			":123;cs=name;proto=https",
+			Listen{
+				Addr:  ":123",
+				Proto: "https",
+				CertSource: CertSource{
+					Name: "name",
+					Type: "foo",
+				},
+			},
+			"",
+		},
+		{
+			":123;proto=https",
+			Listen{},
+			"proto 'https' requires cert source",
+		},
+		{
+			":123;cs=name;proto=http",
+			Listen{},
+			"cert source requires proto 'https'",
+		},
+		{
+			":123;cs=name;proto=tcp+sni",
+			Listen{},
+			"cert source requires proto 'https'",
+		},
+		{
+			":123;proto=foo",
+			Listen{},
+			"unknown protocol \"foo\"",
+		},
+		{
+			":123;cs=foo",
+			Listen{},
+			"unknown certificate source \"foo\"",
 		},
 	}
 

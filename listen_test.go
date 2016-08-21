@@ -39,11 +39,11 @@ func TestGracefulShutdown(t *testing.T) {
 	// start proxy with graceful shutdown period long enough
 	// to complete one more request.
 	var wg sync.WaitGroup
-	l := config.Listen{Addr: "127.0.0.1:57777"}
+	l := config.Listen{Addr: "127.0.0.1:57777", Proto: "http"}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		startListeners([]config.Listen{l}, 250*time.Millisecond, proxy.New(http.DefaultTransport, config.Proxy{}))
+		startListeners([]config.Listen{l}, 250*time.Millisecond, proxy.NewHTTPProxy(http.DefaultTransport, config.Proxy{}), nil)
 	}()
 
 	// trigger shutdown after some time

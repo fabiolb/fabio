@@ -22,9 +22,16 @@ func init() {
 }
 
 // startListeners runs one or more listeners for the handler
-func startListeners(listen []config.Listen, wait time.Duration, h http.Handler) {
+func startListeners(listen []config.Listen, wait time.Duration, h http.Handler, tcph proxy.TCPProxy) {
 	for _, l := range listen {
-		go listenAndServe(l, h)
+		switch l.Proto {
+		case "tcp+sni":
+			go listenAndServeTCP(l, tcph)
+		case "http", "https":
+			go listenAndServeHTTP(l, h)
+		default:
+			panic("invalid protocol: " + l.Proto)
+		}
 	}
 
 	// wait for shutdown signal
@@ -39,7 +46,35 @@ func startListeners(listen []config.Listen, wait time.Duration, h http.Handler) 
 	log.Print("[INFO] Down")
 }
 
-func listenAndServe(l config.Listen, h http.Handler) {
+func listenAndServeTCP(l config.Listen, h proxy.TCPProxy) {
+	log.Print("[INFO] TCP+SNI proxy listening on ", l.Addr)
+	ln, err := net.Listen("tcp", l.Addr)
+	if err != nil {
+		exit.Fatal("[FATAL] ", err)
+	}
+	defer ln.Close()
+
+	// close the socket on exit to terminate the accept loop
+	go func() {
+		<-quit
+		ln.Close()
+	}()
+
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			select {
+			case <-quit:
+				return
+			default:
+				exit.Fatal("[FATAL] ", err)
+			}
+		}
+		go h.Serve(conn)
+	}
+}
+
+func listenAndServeHTTP(l config.Listen, h http.Handler) {
 	srv := &http.Server{
 		Handler:      h,
 		Addr:         l.Addr,
@@ -47,7 +82,7 @@ func listenAndServe(l config.Listen, h http.Handler) {
 		WriteTimeout: l.WriteTimeout,
 	}
 
-	if l.Scheme == "https" {
+	if l.Proto == "https" {
 		src, err := cert.NewSource(l.CertSource)
 		if err != nil {
 			exit.Fatal("[FATAL] ", err)
