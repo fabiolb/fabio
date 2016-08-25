@@ -26,7 +26,7 @@ fi
 
 for v in "$@" ; do
 	echo "Building docker image $tag:$v"
-	( cp /vagrant/build/builds/fabio-${v}_linux-amd64 fabio ; docker build -q -t ${tag}:${v} . )
+	( cp build/builds/fabio-${v}_linux-amd64 fabio ; docker build -q -t ${tag}:${v} . )
 done
 
 echo "Building docker image $tag"
