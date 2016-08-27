@@ -11,7 +11,16 @@ func (p NoopRegistry) Unregister(name string) {}
 
 func (p NoopRegistry) UnregisterAll() {}
 
+func (p NoopRegistry) GetCounter(name string) Counter { return noopCounter }
+
 func (p NoopRegistry) GetTimer(name string) Timer { return noopTimer }
+
+var noopCounter = NoopCounter{}
+
+// NoopCounter is a stub implementation of the Counter interface.
+type NoopCounter struct{}
+
+func (c NoopCounter) Inc(n int64) {}
 
 var noopTimer = NoopTimer{}
 

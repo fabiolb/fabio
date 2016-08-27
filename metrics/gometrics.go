@@ -76,6 +76,10 @@ func (p *gmRegistry) UnregisterAll() {
 	p.r.UnregisterAll()
 }
 
+func (p *gmRegistry) GetCounter(name string) Counter {
+	return gm.GetOrRegisterCounter(name, p.r)
+}
+
 func (p *gmRegistry) GetTimer(name string) Timer {
 	return gm.GetOrRegisterTimer(name, p.r)
 }

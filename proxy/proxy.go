@@ -13,6 +13,7 @@ type Proxy struct {
 	tr       http.RoundTripper
 	cfg      config.Proxy
 	requests metrics.Timer
+	noroute  metrics.Counter
 }
 
 func New(tr http.RoundTripper, cfg config.Proxy) *Proxy {
@@ -20,6 +21,7 @@ func New(tr http.RoundTripper, cfg config.Proxy) *Proxy {
 		tr:       tr,
 		cfg:      cfg,
 		requests: metrics.DefaultRegistry.GetTimer("requests"),
+		noroute:  metrics.DefaultRegistry.GetCounter("notfound"),
 	}
 }
 
@@ -31,6 +33,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	t := target(r)
 	if t == nil {
+		p.noroute.Inc(1)
 		w.WriteHeader(p.cfg.NoRouteStatus)
 		return
 	}

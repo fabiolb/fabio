@@ -6,13 +6,21 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+
+	"github.com/eBay/fabio/metrics"
 )
+
+// conn measures the number of open web socket connections
+var conn = metrics.DefaultRegistry.GetCounter("ws.conn")
 
 // newRawProxy returns an HTTP handler which forwards data between
 // an incoming and outgoing TCP connection including the original request.
 // This handler establishes a new outgoing connection per request.
 func newRawProxy(t *url.URL) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		conn.Inc(1)
+		defer func() { conn.Inc(-1) }()
+
 		hj, ok := w.(http.Hijacker)
 		if !ok {
 			http.Error(w, "not a hijacker", http.StatusInternalServerError)

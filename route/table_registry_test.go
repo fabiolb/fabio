@@ -52,6 +52,11 @@ func (p *stubRegistry) UnregisterAll() {
 	p.names = map[string]bool{}
 }
 
+func (p *stubRegistry) GetCounter(name string) metrics.Counter {
+	p.names[name] = true
+	return metrics.NoopCounter{}
+}
+
 func (p *stubRegistry) GetTimer(name string) metrics.Timer {
 	p.names[name] = true
 	return metrics.NoopTimer{}

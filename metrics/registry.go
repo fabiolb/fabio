@@ -20,10 +20,21 @@ type Registry interface {
 	// reporting  them to an external backend.
 	UnregisterAll()
 
+	// GetCounter returns a counter metric for the given name.
+	// If the metric does not exist yet it should be created
+	// otherwise the existing metric should be returned.
+	GetCounter(name string) Counter
+
 	// GetTimer returns a timer metric for the given name.
 	// If the metric does not exist yet it should be created
 	// otherwise the existing metric should be returned.
 	GetTimer(name string) Timer
+}
+
+// Counter defines a metric for counting events.
+type Counter interface {
+	// Inc increases the counter value by 'n'.
+	Inc(n int64)
 }
 
 // Timer defines a metric for counting and timing durations for events.
