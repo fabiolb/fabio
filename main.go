@@ -95,7 +95,16 @@ func startAdmin(cfg *config.Config) {
 }
 
 func initMetrics(cfg *config.Config) {
-	if err := metrics.Init(cfg.Metrics); err != nil {
+	if cfg.Metrics.Target == "" {
+		log.Printf("[INFO] Metrics disabled")
+		return
+	}
+
+	var err error
+	if metrics.DefaultRegistry, err = metrics.NewRegistry(cfg.Metrics); err != nil {
+		exit.Fatal("[FATAL] ", err)
+	}
+	if route.ServiceRegistry, err = metrics.NewRegistry(cfg.Metrics); err != nil {
 		exit.Fatal("[FATAL] ", err)
 	}
 }

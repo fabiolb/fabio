@@ -7,8 +7,6 @@ import (
 	"strings"
 
 	"github.com/eBay/fabio/metrics"
-
-	gometrics "github.com/rcrowley/go-metrics"
 )
 
 // Route maps a path prefix to one or more target URLs.
@@ -49,7 +47,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 	}
 
 	name := metrics.TargetName(service, r.Host, r.Path, targetURL)
-	timer := gometrics.GetOrRegisterTimer(name, metrics.ServiceRegistry)
+	timer := ServiceRegistry.GetTimer(name)
 
 	t := &Target{Service: service, Tags: tags, URL: targetURL, FixedWeight: fixedWeight, Timer: timer, timerName: name}
 	r.Targets = append(r.Targets, t)

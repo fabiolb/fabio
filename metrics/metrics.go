@@ -1,63 +1,51 @@
+// Package metrics provides functions for collecting
+// and managing metrics through different metrics libraries.
+//
+// Metrics library implementations must implement the
+// Registry interface in the package.
 package metrics
 
 import (
-	"errors"
-	"fmt"
 	"log"
-	"net"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
-	"github.com/cyberdelia/go-metrics-graphite"
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/exit"
-	"github.com/pubnub/go-metrics-statsd"
-	gometrics "github.com/rcrowley/go-metrics"
 )
 
-var pfx string
+// DefaultRegistry stores the metrics library provider.
+var DefaultRegistry Registry = NoopRegistry{}
 
-// ServiceRegistry contains a separate metrics registry for
-// the timers for all targets to avoid conflicts
-// with globally registered timers.
-var ServiceRegistry = gometrics.NewRegistry()
-
-func Init(cfg config.Metrics) error {
-	pfx = cfg.Prefix
-	if pfx == "default" {
-		pfx = defaultPrefix()
+// NewRegistry creates a new metrics registry.
+func NewRegistry(cfg config.Metrics) (r Registry, err error) {
+	prefix := cfg.Prefix
+	if prefix == "default" {
+		prefix = defaultPrefix()
 	}
 
 	switch cfg.Target {
 	case "stdout":
 		log.Printf("[INFO] Sending metrics to stdout")
-		return initStdout(cfg.Interval)
+		return gmStdoutRegistry(cfg.Interval)
+
 	case "graphite":
-		if cfg.GraphiteAddr == "" {
-			return errors.New("metrics: graphite addr missing")
-		}
+		log.Printf("[INFO] Sending metrics to Graphite on %s as %q", cfg.GraphiteAddr, prefix)
+		return gmGraphiteRegistry(prefix, cfg.GraphiteAddr, cfg.Interval)
 
-		log.Printf("[INFO] Sending metrics to Graphite on %s as %q", cfg.GraphiteAddr, pfx)
-		return initGraphite(cfg.GraphiteAddr, cfg.Interval)
 	case "statsd":
-		if cfg.StatsDAddr == "" {
-			return errors.New("metrics: statsd addr missing")
-		}
+		log.Printf("[INFO] Sending metrics to StatsD on %s as %q", cfg.StatsDAddr, prefix)
+		return gmStatsDRegistry(prefix, cfg.StatsDAddr, cfg.Interval)
 
-		log.Printf("[INFO] Sending metrics to StatsD on %s as %q", cfg.StatsDAddr, pfx)
-		return initStatsD(cfg.StatsDAddr, cfg.Interval)
-
-	case "":
-		log.Printf("[INFO] Metrics disabled")
 	default:
 		exit.Fatal("[FATAL] Invalid metrics target ", cfg.Target)
 	}
-	return nil
+	panic("unreachable")
 }
 
+// TargetName returns the metrics name from the given parameters.
 func TargetName(service, host, path string, targetURL *url.URL) string {
 	return strings.Join([]string{
 		clean(service),
@@ -67,6 +55,9 @@ func TargetName(service, host, path string, targetURL *url.URL) string {
 	}, ".")
 }
 
+// clean creates safe names for graphite reporting by replacing
+// some characters with underscores.
+// TODO(fs): This may need updating for other metrics backends.
 func clean(s string) string {
 	if s == "" {
 		return "_"
@@ -79,6 +70,8 @@ func clean(s string) string {
 // stubbed out for testing
 var hostname = os.Hostname
 
+// defaultPrefix determines the default metrics prefix from
+// the current hostname and the name of the executable.
 func defaultPrefix() string {
 	host, err := hostname()
 	if err != nil {
@@ -86,32 +79,4 @@ func defaultPrefix() string {
 	}
 	exe := filepath.Base(os.Args[0])
 	return clean(host) + "." + clean(exe)
-}
-
-func initStdout(interval time.Duration) error {
-	logger := log.New(os.Stderr, "localhost: ", log.Lmicroseconds)
-	go gometrics.Log(gometrics.DefaultRegistry, interval, logger)
-	go gometrics.Log(ServiceRegistry, interval, logger)
-	return nil
-}
-
-func initGraphite(addr string, interval time.Duration) error {
-	a, err := net.ResolveTCPAddr("tcp", addr)
-	if err != nil {
-		return fmt.Errorf("metrics: cannot connect to Graphite: %s", err)
-	}
-
-	go graphite.Graphite(gometrics.DefaultRegistry, interval, pfx, a)
-	go graphite.Graphite(ServiceRegistry, interval, pfx, a)
-	return nil
-}
-
-func initStatsD(addr string, interval time.Duration) error {
-	a, err := net.ResolveUDPAddr("udp", addr)
-	if err != nil {
-		return fmt.Errorf("metrics: cannot connect to StatsD: %s", err)
-	}
-	go statsd.StatsD(gometrics.DefaultRegistry, interval, pfx, a)
-	go statsd.StatsD(ServiceRegistry, interval, pfx, a)
-	return nil
 }
