@@ -19,8 +19,8 @@ build:
 	$(GO) build -i $(GOFLAGS)
 
 test:
-	$(GO) test -i ./...
-	$(GO) test -test.timeout 5s `go list ./... | grep -v '/vendor/'`
+	$(GO) test -tags netgo -i ./...
+	$(GO) test -tags netgo -test.timeout 5s `go list ./... | grep -v '/vendor/'`
 
 gofmt:
 	gofmt -w `find . -type f -name '*.go' | grep -v vendor`
