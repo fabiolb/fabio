@@ -53,7 +53,7 @@ func listenAndServe(l config.Listen, h http.Handler) {
 			exit.Fatal("[FATAL] ", err)
 		}
 
-		srv.TLSConfig, err = cert.TLSConfig(src)
+		srv.TLSConfig, err = cert.TLSConfig(src, l.StrictMatch)
 		if err != nil {
 			exit.Fatal("[FATAL] ", err)
 		}

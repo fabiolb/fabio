@@ -10,16 +10,15 @@ import (
 )
 
 // Source provides the interface for dynamic certificate sources.
-//
-// Certificates() loads certificates for TLS connections.
-// The first certificate is used as the default certificate
-// if the client does not support SNI or no matching certificate
-// could be found. TLS certificates can be updated at runtime.
-//
-// LoadClientCAs() provides certificates for client certificate
-// authentication.
 type Source interface {
+	// Certificates() loads certificates for TLS connections.
+	// The first certificate is used as the default certificate
+	// if the client does not support SNI or no matching certificate
+	// could be found. TLS certificates can be updated at runtime.
 	Certificates() chan []tls.Certificate
+
+	// LoadClientCAs() provides certificates for client certificate
+	// authentication.
 	LoadClientCAs() (*x509.CertPool, error)
 }
 
@@ -80,14 +79,18 @@ func NewSource(cfg config.CertSource) (Source, error) {
 // It also sets the ClientCAs field if
 // src.LoadClientCAs returns a non-nil value
 // and sets ClientAuth to RequireAndVerifyClientCert.
-func TLSConfig(src Source) (*tls.Config, error) {
+func TLSConfig(src Source, strictMatch bool) (*tls.Config, error) {
 	clientCAs, err := src.LoadClientCAs()
 	if err != nil {
 		return nil, err
 	}
 
 	store := NewStore()
-	x := &tls.Config{GetCertificate: store.GetCertificate}
+	x := &tls.Config{
+		GetCertificate: func(clientHello *tls.ClientHelloInfo) (cert *tls.Certificate, err error) {
+			return getCertificate(store.certstore(), clientHello, strictMatch)
+		},
+	}
 
 	if clientCAs != nil {
 		x.ClientCAs = clientCAs

@@ -35,6 +35,7 @@ type Listen struct {
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
 	CertSource   CertSource
+	StrictMatch  bool
 }
 
 type UI struct {

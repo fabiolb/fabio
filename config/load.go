@@ -242,6 +242,8 @@ func parseListen(cfg string, cs map[string]CertSource, readTimeout, writeTimeout
 			}
 			l.CertSource = c
 			l.Scheme = "https"
+		case "strictmatch":
+			l.StrictMatch = (v == "true")
 		}
 	}
 	return

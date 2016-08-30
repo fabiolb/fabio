@@ -231,6 +231,18 @@ func TestParseListen(t *testing.T) {
 			},
 			"",
 		},
+		{
+			":123;cs=name;strictmatch=true",
+			Listen{
+				Addr:   ":123",
+				Scheme: "https",
+				CertSource: CertSource{
+					Type: "foo",
+				},
+				StrictMatch: true,
+			},
+			"",
+		},
 	}
 
 	for i, tt := range tests {

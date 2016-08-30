@@ -128,7 +128,7 @@ func (s StaticSource) LoadClientCAs() (*x509.CertPool, error) {
 }
 
 func TestStaticSource(t *testing.T) {
-	certPEM, keyPEM := makeCert("localhost", time.Minute)
+	certPEM, keyPEM := makePEM("localhost", time.Minute)
 	cert, err := tls.X509KeyPair(certPEM, keyPEM)
 	if err != nil {
 		t.Fatalf("X509KeyPair: got %s want nil", err)
@@ -139,7 +139,7 @@ func TestStaticSource(t *testing.T) {
 func TestFileSource(t *testing.T) {
 	dir := tempDir()
 	defer os.RemoveAll(dir)
-	certPEM, keyPEM := makeCert("localhost", time.Minute)
+	certPEM, keyPEM := makePEM("localhost", time.Minute)
 	certFile, keyFile := saveCert(dir, "localhost", certPEM, keyPEM)
 	testSource(t, FileSource{CertFile: certFile, KeyFile: keyFile}, makeCertPool(certPEM), 0)
 }
@@ -147,7 +147,7 @@ func TestFileSource(t *testing.T) {
 func TestPathSource(t *testing.T) {
 	dir := tempDir()
 	defer os.RemoveAll(dir)
-	certPEM, keyPEM := makeCert("localhost", time.Minute)
+	certPEM, keyPEM := makePEM("localhost", time.Minute)
 	saveCert(dir, "localhost", certPEM, keyPEM)
 	testSource(t, PathSource{CertPath: dir}, makeCertPool(certPEM), 0)
 }
@@ -155,7 +155,7 @@ func TestPathSource(t *testing.T) {
 func TestHTTPSource(t *testing.T) {
 	dir := tempDir()
 	defer os.RemoveAll(dir)
-	certPEM, keyPEM := makeCert("localhost", time.Minute)
+	certPEM, keyPEM := makePEM("localhost", time.Minute)
 	certFile, keyFile := saveCert(dir, "localhost", certPEM, keyPEM)
 	listFile := filepath.Base(certFile) + "\n" + filepath.Base(keyFile) + "\n"
 	writeFile(filepath.Join(dir, "list"), []byte(listFile))
@@ -212,7 +212,7 @@ func TestConsulSource(t *testing.T) {
 		}
 	}
 
-	certPEM, keyPEM := makeCert("localhost", time.Minute)
+	certPEM, keyPEM := makePEM("localhost", time.Minute)
 	write("localhost-cert.pem", certPEM)
 	write("localhost-key.pem", keyPEM)
 
@@ -295,7 +295,7 @@ func TestVaultSource(t *testing.T) {
 	defer vault.Process.Kill()
 
 	// create a cert and store it in vault
-	certPEM, keyPEM := makeCert("localhost", time.Minute)
+	certPEM, keyPEM := makePEM("localhost", time.Minute)
 	data := map[string]interface{}{"cert": string(certPEM), "key": string(keyPEM)}
 	if _, err := client.Logical().Write(certPath+"/localhost", data); err != nil {
 		t.Fatalf("logical.Write failed: %s", err)
@@ -357,7 +357,8 @@ func TestVaultSource(t *testing.T) {
 // the HTTPS client can validate the certificate presented by the
 // server.
 func testSource(t *testing.T, source Source, rootCAs *x509.CertPool, sleep time.Duration) {
-	srvConfig, err := TLSConfig(source)
+	const NoStrictMatch = false
+	srvConfig, err := TLSConfig(source, NoStrictMatch)
 	if err != nil {
 		t.Fatalf("TLSConfig: got %q want nil", err)
 	}
@@ -458,9 +459,9 @@ func saveCert(dir, host string, certPEM, keyPEM []byte) (certFile, keyFile strin
 	return certFile, keyFile
 }
 
-// makeCert creates a self-signed RSA certificate.
+// makePEM creates a self-signed RSA certificate as two PEM blocks.
 // taken from crypto/tls/generate_cert.go
-func makeCert(host string, validFor time.Duration) (certPEM, keyPEM []byte) {
+func makePEM(host string, validFor time.Duration) (certPEM, keyPEM []byte) {
 	const bits = 1024
 	priv, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
@@ -490,6 +491,15 @@ func makeCert(host string, validFor time.Duration) (certPEM, keyPEM []byte) {
 	pem.Encode(&cert, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	pem.Encode(&key, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(priv)})
 	return cert.Bytes(), key.Bytes()
+}
+
+func makeCert(host string, validFor time.Duration) tls.Certificate {
+	certPEM, keyPEM := makePEM(host, validFor)
+	cert, err := tls.X509KeyPair(certPEM, keyPEM)
+	if err != nil {
+		panic("Failed to create certificate: " + err.Error())
+	}
+	return cert
 }
 
 func waitFor(timeout time.Duration, up func() bool) bool {

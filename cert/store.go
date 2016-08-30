@@ -34,19 +34,18 @@ func (s *Store) SetCertificates(certs []tls.Certificate) {
 	log.Printf("[INFO] cert: Store has certificates for [%q]", strings.Join(names, ","))
 }
 
-// GetCertificate returns a matching certificate for the given clientHello if possible
-// or the first certificate from the store.
-func (s *Store) GetCertificate(clientHello *tls.ClientHelloInfo) (cert *tls.Certificate, err error) {
-	return getCertificate(s.cs.Load().(certstore), clientHello)
+func (s *Store) certstore() certstore {
+	return s.cs.Load().(certstore)
 }
 
-func getCertificate(cs certstore, clientHello *tls.ClientHelloInfo) (cert *tls.Certificate, err error) {
+func getCertificate(cs certstore, clientHello *tls.ClientHelloInfo, strictMatch bool) (cert *tls.Certificate, err error) {
 	if len(cs.Certificates) == 0 {
-		return nil, errors.New("cert: no certificates certstoreured")
+		return nil, errors.New("cert: no certificates stored")
 	}
 
-	if len(cs.Certificates) == 1 || cs.NameToCertificate == nil {
-		// There's only one choice, so no point doing any work.
+	// There's only one choice, so no point doing any work.
+	// However, if fallback is disabled we need to check.
+	if !strictMatch && (len(cs.Certificates) == 1 || cs.NameToCertificate == nil) {
 		return &cs.Certificates[0], nil
 	}
 
@@ -59,8 +58,7 @@ func getCertificate(cs certstore, clientHello *tls.ClientHelloInfo) (cert *tls.C
 		return cert, nil
 	}
 
-	// try replacing labels in the name with wildcards until we get a
-	// match.
+	// try replacing labels in the name with wildcards until we get a match
 	labels := strings.Split(name, ".")
 	for i := range labels {
 		labels[i] = "*"
@@ -70,7 +68,11 @@ func getCertificate(cs certstore, clientHello *tls.ClientHelloInfo) (cert *tls.C
 		}
 	}
 
-	// If nothing matches, return the first certificate.
+	// If nothing matches, return the first certificate
+	// unless fallback to the first cert is disabled.
+	if strictMatch {
+		return nil, nil
+	}
 	return &cs.Certificates[0], nil
 }
 
