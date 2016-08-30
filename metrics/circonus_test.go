@@ -9,7 +9,7 @@ import (
 func TestProvider(t *testing.T) {
 	t.Log("Testing registry provider interface")
 
-	p := &cgmProvider{}
+	p := &cgmRegistry{}
 
 	t.Log("\tNames()")
 	names := p.Names()

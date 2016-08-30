@@ -11,7 +11,7 @@ import (
 	cgm "github.com/circonus-labs/circonus-gometrics"
 )
 
-type cgmProvider struct {
+type cgmRegistry struct {
 	metrics *cgm.CirconusMetrics
 	prefix  string
 }
@@ -22,7 +22,7 @@ type cgmTimer struct {
 }
 
 var (
-	circonus *cgmProvider
+	circonus *cgmRegistry
 	once     sync.Once
 )
 
@@ -72,7 +72,7 @@ func circonusBackend(prefix string,
 		if err != nil {
 			initError = fmt.Errorf("metrics: unable to initialize Circonus %s", err)
 		} else {
-			circonus = &cgmProvider{metrics, prefix}
+			circonus = &cgmRegistry{metrics, prefix}
 		}
 
 		metrics.Start()
@@ -88,24 +88,24 @@ func circonusBackend(prefix string,
 // through the GetXXX() functions. It should return them
 // sorted in alphabetical order.
 // Unsupported by Circonus.
-func (m *cgmProvider) Names() []string { return nil }
+func (m *cgmRegistry) Names() []string { return nil }
 
 // Unregister removes the registered metric and stops
 // reporting it to an external backend.
 // Implicitly supported by Circonus, stop submitting
 // the metric and it stops being sent to Circonus.
-func (m *cgmProvider) Unregister(name string) {}
+func (m *cgmRegistry) Unregister(name string) {}
 
 // UnregisterAll removes all registered metrics and stops
 // reporting  them to an external backend.
 // Implicitly supported by Circonus, stop submitting
 // metrics and they will no longer be sent to Circonus.
-func (m *cgmProvider) UnregisterAll() {}
+func (m *cgmRegistry) UnregisterAll() {}
 
 // GetTimer returns a timer metric for the given name.
 // If the metric does not exist yet it should be created
 // otherwise the existing metric should be returned.
-func (m *cgmProvider) GetTimer(name string) Timer {
+func (m *cgmRegistry) GetTimer(name string) Timer {
 	metricName := fmt.Sprintf("%s`%s", m.prefix, name)
 	return &cgmTimer{m.metrics, metricName}
 }
