@@ -2,7 +2,10 @@
 
 ### Unreleased
 
+ * [Issue #125](https://github.com/eBay/fabio/issues/125): Extended metrics
  * [Issue #134](https://github.com/eBay/fabio/issues/134): Vault token should not require 'root' or 'sudo' privileges
+ * [Issue #147](https://github.com/eBay/fabio/issues/147): Support multiple metrics libraries
+ * [Issue #151](https://github.com/eBay/fabio/issues/151)[PR #150](https://github.com/eBay/fabio/pull/150): Add support for Circonus metrics
 
 ### [v1.2.1](https://github.com/eBay/fabio/releases/tag/v1.2.1) - 25 Aug 2016
 
