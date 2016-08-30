@@ -28,7 +28,7 @@ var (
 
 const serviceName = "fabio"
 
-// circonusBackend returns a provider that reports to Circonus.
+// circonusRegistry returns a provider that reports to Circonus.
 func circonusRegistry(prefix string,
 	circKey string,
 	circApp string,

@@ -40,7 +40,7 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 		return gmStatsDRegistry(prefix, cfg.StatsDAddr, cfg.Interval)
 
 	case "circonus":
-		return circonusBackend(prefix,
+		return circonusRegistry(prefix,
 			cfg.CirconusAPIKey,
 			cfg.CirconusAPIApp,
 			cfg.CirconusAPIURL,
