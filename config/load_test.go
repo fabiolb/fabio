@@ -47,6 +47,12 @@ metrics.target = graphite
 metrics.prefix = someprefix
 metrics.interval = 5s
 metrics.graphite.addr = 5.6.7.8:9999
+metrics.statsd.addr = 6.7.8.9:9999
+metrics.circonus.apikey = circonus-apikey
+metrics.circonus.apiapp = circonus-apiapp
+metrics.circonus.apiurl = circonus-apiurl
+metrics.circonus.brokerid = circonus-brokerid
+metrics.circonus.checkid = circonus-checkid
 runtime.gogc = 666
 runtime.gomaxprocs = 12
 ui.addr = 7.8.9.0:1234
@@ -117,10 +123,16 @@ aws.apigw.cert.cn = furb
 			},
 		},
 		Metrics: Metrics{
-			Target:       "graphite",
-			Prefix:       "someprefix",
-			Interval:     5 * time.Second,
-			GraphiteAddr: "5.6.7.8:9999",
+			Target:           "graphite",
+			Prefix:           "someprefix",
+			Interval:         5 * time.Second,
+			GraphiteAddr:     "5.6.7.8:9999",
+			StatsDAddr:       "6.7.8.9:9999",
+			CirconusAPIKey:   "circonus-apikey",
+			CirconusAPIApp:   "circonus-apiapp",
+			CirconusAPIURL:   "circonus-apiurl",
+			CirconusBrokerID: "circonus-brokerid",
+			CirconusCheckID:  "circonus-checkid",
 		},
 		Runtime: Runtime{
 			GOGC:       666,
