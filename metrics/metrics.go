@@ -39,6 +39,15 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 		log.Printf("[INFO] Sending metrics to StatsD on %s as %q", cfg.StatsDAddr, prefix)
 		return gmStatsDRegistry(prefix, cfg.StatsDAddr, cfg.Interval)
 
+	case "circonus":
+		return circonusBackend(prefix,
+			cfg.CirconusAPIKey,
+			cfg.CirconusAPIApp,
+			cfg.CirconusAPIURL,
+			cfg.CirconusBrokerID,
+			cfg.CirconusCheckID,
+			cfg.Interval)
+
 	default:
 		exit.Fatal("[FATAL] Invalid metrics target ", cfg.Target)
 	}
