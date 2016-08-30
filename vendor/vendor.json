@@ -9,6 +9,30 @@
 			"revisionTime": "2015-02-06T18:58:55-08:00"
 		},
 		{
+			"checksumSHA1": "ZAdLZ0e/hin4AXxdS9F8y0yi/bg=",
+			"path": "github.com/circonus-labs/circonus-gometrics",
+			"revision": "f8c68ed96a065c10344dcaf802f608781fc0a981",
+			"revisionTime": "2016-08-30T16:47:25Z"
+		},
+		{
+			"checksumSHA1": "2hV0W0wM75u+OJ4kGv0i7B95cmY=",
+			"path": "github.com/circonus-labs/circonus-gometrics/api",
+			"revision": "f8c68ed96a065c10344dcaf802f608781fc0a981",
+			"revisionTime": "2016-08-30T16:47:25Z"
+		},
+		{
+			"checksumSHA1": "r3XLF0s89Y7UJgS9YP3NbdyafNY=",
+			"path": "github.com/circonus-labs/circonus-gometrics/checkmgr",
+			"revision": "f8c68ed96a065c10344dcaf802f608781fc0a981",
+			"revisionTime": "2016-08-30T16:47:25Z"
+		},
+		{
+			"checksumSHA1": "C4Z7+l5GOpOCW5DcvNYzheGvQRE=",
+			"path": "github.com/circonus-labs/circonusllhist",
+			"revision": "d724266ae5270ae8b87a5d2e8081f04e307c3c18",
+			"revisionTime": "2016-05-26T04:38:13Z"
+		},
+		{
 			"checksumSHA1": "8/Q1JbAHUmL4sDURLq6yron4K/I=",
 			"path": "github.com/cyberdelia/go-metrics-graphite",
 			"revision": "b8345b7f01d571b05366d5791a034d872f1bb36f",
@@ -43,6 +67,12 @@
 			"path": "github.com/hashicorp/go-multierror",
 			"revision": "d30f09973e19c1dfcd120b2d9c4f168e68d6b5d5",
 			"revisionTime": "2015-09-16T13:57:42-07:00"
+		},
+		{
+			"checksumSHA1": "GBDE1KDl/7c5hlRPYRZ7+C0WQ0g=",
+			"path": "github.com/hashicorp/go-retryablehttp",
+			"revision": "f4ed9b0fa01a2ac614afe7c897ed2e3d8208f3e8",
+			"revisionTime": "2016-08-10T17:22:55Z"
 		},
 		{
 			"checksumSHA1": "A1PcINvF3UiwHRKn8UcgARgvGRs=",
