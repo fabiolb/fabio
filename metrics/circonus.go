@@ -29,7 +29,7 @@ var (
 const serviceName = "fabio"
 
 // circonusBackend returns a provider that reports to Circonus.
-func circonusBackend(prefix string,
+func circonusRegistry(prefix string,
 	circKey string,
 	circApp string,
 	circURL string,
@@ -71,9 +71,10 @@ func circonusBackend(prefix string,
 		metrics, err := cgm.NewCirconusMetrics(cfg)
 		if err != nil {
 			initError = fmt.Errorf("metrics: unable to initialize Circonus %s", err)
-		} else {
-			circonus = &cgmRegistry{metrics, prefix}
+			return
 		}
+
+		circonus = &cgmRegistry{metrics, prefix}
 
 		metrics.Start()
 
@@ -84,49 +85,36 @@ func circonusBackend(prefix string,
 	return circonus, initError
 }
 
-// Names returns the list of registered metrics acquired
-// through the GetXXX() functions. It should return them
-// sorted in alphabetical order.
-// Unsupported by Circonus.
+// Names is not supported by Circonus.
 func (m *cgmRegistry) Names() []string { return nil }
 
-// Unregister removes the registered metric and stops
-// reporting it to an external backend.
-// Implicitly supported by Circonus, stop submitting
-// the metric and it stops being sent to Circonus.
+// Unregister is implicitly supported by Circonus,
+// stop submitting the metric and it stops being sent to Circonus.
 func (m *cgmRegistry) Unregister(name string) {}
 
-// UnregisterAll removes all registered metrics and stops
-// reporting  them to an external backend.
-// Implicitly supported by Circonus, stop submitting
-// metrics and they will no longer be sent to Circonus.
+// UnregisterAll is implicitly supported by Circonus,
+// stop submitting metrics and they will no longer be sent to Circonus.
 func (m *cgmRegistry) UnregisterAll() {}
 
-// GetTimer returns a timer metric for the given name.
-// If the metric does not exist yet it should be created
-// otherwise the existing metric should be returned.
+// GetTimer returns a timer for the given metric name.
 func (m *cgmRegistry) GetTimer(name string) Timer {
 	metricName := fmt.Sprintf("%s`%s", m.prefix, name)
 	return &cgmTimer{m.metrics, metricName}
 }
 
-// Percentile returns the nth percentile of the duration.
-// Circonus does not support in-memory derivatives.
+// Percentile is not supported by Circonus.
 func (t cgmTimer) Percentile(nth float64) float64 {
 	return 0
 }
 
-// Rate1 returns the 1min rate.
-// Circonus does not support in-memory derivatives.
+// Rate1 is not supported by Circonus.
 func (t cgmTimer) Rate1() float64 {
 	return 0
 }
 
-// UpdateSince counts an event and records the duration
-// as the delta between 'start' and when the function is called.
-// Circonus - add another delta to the named histogram.
-// Histograms are automatically created when a new metric
-// name is encountered.
+// UpdateSince adds delta between start and current time as
+// a sample to a histogram. The histogram is created if it
+// does not already exist.
 func (t cgmTimer) UpdateSince(start time.Time) {
 	t.metrics.Timing(t.name, float64(time.Since(start)))
 }

@@ -68,7 +68,7 @@ func TestAll(t *testing.T) {
 		t.Fatalf("Unable to parse interval %+v", err)
 	}
 
-	circ, err := circonusBackend("test", apiKey, apiApp, apiURL, brokerID, checkID, interval)
+	circ, err := circonusRegistry("test", apiKey, apiApp, apiURL, brokerID, checkID, interval)
 	if err != nil {
 		t.Fatalf("Unable to initialize Circonus +%v", err)
 	}
