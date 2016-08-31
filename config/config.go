@@ -70,6 +70,7 @@ type Runtime struct {
 type Metrics struct {
 	Target           string
 	Prefix           string
+	Names            string
 	Interval         time.Duration
 	GraphiteAddr     string
 	StatsDAddr       string

@@ -2,6 +2,7 @@ package route
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 	"sort"
 	"strings"
@@ -46,7 +47,11 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		fixedWeight = 0
 	}
 
-	name := metrics.TargetName(service, r.Host, r.Path, targetURL)
+	name, err := metrics.TargetName(service, r.Host, r.Path, targetURL)
+	if err != nil {
+		log.Printf("[ERROR] Invalid metrics name: %s", err)
+		name = "unknown"
+	}
 	timer := ServiceRegistry.GetTimer(name)
 
 	t := &Target{Service: service, Tags: tags, URL: targetURL, FixedWeight: fixedWeight, Timer: timer, timerName: name}

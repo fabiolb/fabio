@@ -6,11 +6,14 @@
 package metrics
 
 import (
+	"bytes"
+	"fmt"
 	"log"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/exit"
@@ -19,11 +22,29 @@ import (
 // DefaultRegistry stores the metrics library provider.
 var DefaultRegistry Registry = NoopRegistry{}
 
+// DefaultNames contains the default template for route metric names.
+const DefaultNames = "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}"
+
+// names stores the template for the route metric names.
+var names *template.Template
+
+func init() {
+	// make sure names is initialized to something
+	var err error
+	if names, err = parseNames(DefaultNames); err != nil {
+		panic(err)
+	}
+}
+
 // NewRegistry creates a new metrics registry.
 func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 	prefix := cfg.Prefix
 	if prefix == "default" {
 		prefix = defaultPrefix()
+	}
+
+	if names, err = parseNames(cfg.Names); err != nil {
+		return nil, fmt.Errorf("metrics: invalid names template. %s", err)
 	}
 
 	switch cfg.Target {
@@ -54,14 +75,43 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 	panic("unreachable")
 }
 
+// parseNames parses the route metric name template.
+func parseNames(tmpl string) (*template.Template, error) {
+	funcMap := template.FuncMap{
+		"clean": clean,
+	}
+	t, err := template.New("names").Funcs(funcMap).Parse(tmpl)
+	if err != nil {
+		return nil, err
+	}
+	testURL, err := url.Parse("http://127.0.0.1:12345/")
+	if err != nil {
+		return nil, err
+	}
+	if _, err := TargetName("testservice", "test.example.com", "/test", testURL); err != nil {
+		return nil, err
+	}
+	return t, nil
+}
+
 // TargetName returns the metrics name from the given parameters.
-func TargetName(service, host, path string, targetURL *url.URL) string {
-	return strings.Join([]string{
-		clean(service),
-		clean(host),
-		clean(path),
-		clean(targetURL.Host),
-	}, ".")
+func TargetName(service, host, path string, targetURL *url.URL) (string, error) {
+	if names == nil {
+		return "", nil
+	}
+
+	var name bytes.Buffer
+
+	data := struct {
+		Service, Host, Path string
+		TargetURL           *url.URL
+	}{service, host, path, targetURL}
+
+	if err := names.Execute(&name, data); err != nil {
+		return "", err
+	}
+
+	return name.String(), nil
 }
 
 // clean creates safe names for graphite reporting by replacing

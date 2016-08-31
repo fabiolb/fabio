@@ -41,6 +41,7 @@ var Default = &Config{
 	},
 	Metrics: Metrics{
 		Prefix:         "default",
+		Names:          "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
 		Interval:       30 * time.Second,
 		CirconusAPIApp: "fabio",
 	},

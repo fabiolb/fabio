@@ -32,7 +32,12 @@ func TestTargetName(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%d: %v", i, err)
 		}
-		if got, want := TargetName(tt.service, tt.host, tt.path, u), tt.name; got != want {
+
+		got, err := TargetName(tt.service, tt.host, tt.path, u)
+		if err != nil {
+			t.Fatalf("%d: %v", i, err)
+		}
+		if want := tt.name; got != want {
 			t.Errorf("%d: got %q want %q", i, got, want)
 		}
 	}

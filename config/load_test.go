@@ -45,6 +45,7 @@ registry.consul.register.checkTimeout = 10s
 registry.consul.service.status = a,b
 metrics.target = graphite
 metrics.prefix = someprefix
+metrics.names = {{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}
 metrics.interval = 5s
 metrics.graphite.addr = 5.6.7.8:9999
 metrics.statsd.addr = 6.7.8.9:9999
@@ -125,6 +126,7 @@ aws.apigw.cert.cn = furb
 		Metrics: Metrics{
 			Target:           "graphite",
 			Prefix:           "someprefix",
+			Names:            "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
 			Interval:         5 * time.Second,
 			GraphiteAddr:     "5.6.7.8:9999",
 			StatsDAddr:       "6.7.8.9:9999",
