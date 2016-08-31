@@ -115,6 +115,7 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	f.StringVar(&cfg.Metrics.CirconusAPIURL, "metrics.circonus.apiurl", Default.Metrics.CirconusAPIURL, "Circonus API URL")
 	f.StringVar(&cfg.Metrics.CirconusBrokerID, "metrics.circonus.brokerid", Default.Metrics.CirconusBrokerID, "Circonus Broker ID")
 	f.StringVar(&cfg.Metrics.CirconusCheckID, "metrics.circonus.checkid", Default.Metrics.CirconusCheckID, "Circonus Check ID")
+	f.StringVar(&cfg.Metrics.RouteMetricNameTemplate, "metrics.routemetricnametemplate", Default.Metrics.RouteMetricNameTemplate, "route metric name template")
 	f.StringVar(&cfg.Registry.Backend, "registry.backend", Default.Registry.Backend, "registry backend")
 	f.StringVar(&cfg.Registry.File.Path, "registry.file.path", Default.Registry.File.Path, "path to file based routing table")
 	f.StringVar(&cfg.Registry.Static.Routes, "registry.static.routes", Default.Registry.Static.Routes, "static routes")

@@ -40,9 +40,10 @@ var Default = &Config{
 		Color: "light-green",
 	},
 	Metrics: Metrics{
-		Prefix:         "default",
-		Interval:       30 * time.Second,
-		CirconusAPIApp: "fabio",
+		Prefix:                  "default",
+		Interval:                30 * time.Second,
+		CirconusAPIApp:          "fabio",
+		RouteMetricNameTemplate: "$service$.$host$.$path$.$target$",
 	},
 	CertSources: map[string]CertSource{},
 }

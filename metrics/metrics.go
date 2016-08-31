@@ -19,12 +19,16 @@ import (
 // DefaultRegistry stores the metrics library provider.
 var DefaultRegistry Registry = NoopRegistry{}
 
+var routeMetricNameTemplate string
+
 // NewRegistry creates a new metrics registry.
 func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 	prefix := cfg.Prefix
 	if prefix == "default" {
 		prefix = defaultPrefix()
 	}
+
+	routeMetricNameTemplate = cfg.RouteMetricNameTemplate
 
 	switch cfg.Target {
 	case "stdout":
@@ -56,12 +60,13 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 
 // TargetName returns the metrics name from the given parameters.
 func TargetName(service, host, path string, targetURL *url.URL) string {
-	return strings.Join([]string{
-		clean(service),
-		clean(host),
-		clean(path),
-		clean(targetURL.Host),
-	}, ".")
+	name := routeMetricNameTemplate
+	name = strings.Replace(name, "$service$", clean(service), -1)
+	name = strings.Replace(name, "$host$", clean(host), -1)
+	name = strings.Replace(name, "$path$", clean(path), -1)
+	name = strings.Replace(name, "$target$", clean(targetURL.Host), -1)
+
+	return name
 }
 
 // clean creates safe names for graphite reporting by replacing

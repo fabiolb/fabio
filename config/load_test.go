@@ -53,6 +53,7 @@ metrics.circonus.apiapp = circonus-apiapp
 metrics.circonus.apiurl = circonus-apiurl
 metrics.circonus.brokerid = circonus-brokerid
 metrics.circonus.checkid = circonus-checkid
+metrics.routemetricnametemplate = $service$.$host$.$path$.$target$
 runtime.gogc = 666
 runtime.gomaxprocs = 12
 ui.addr = 7.8.9.0:1234
@@ -123,16 +124,17 @@ aws.apigw.cert.cn = furb
 			},
 		},
 		Metrics: Metrics{
-			Target:           "graphite",
-			Prefix:           "someprefix",
-			Interval:         5 * time.Second,
-			GraphiteAddr:     "5.6.7.8:9999",
-			StatsDAddr:       "6.7.8.9:9999",
-			CirconusAPIKey:   "circonus-apikey",
-			CirconusAPIApp:   "circonus-apiapp",
-			CirconusAPIURL:   "circonus-apiurl",
-			CirconusBrokerID: "circonus-brokerid",
-			CirconusCheckID:  "circonus-checkid",
+			Target:                  "graphite",
+			Prefix:                  "someprefix",
+			Interval:                5 * time.Second,
+			GraphiteAddr:            "5.6.7.8:9999",
+			StatsDAddr:              "6.7.8.9:9999",
+			CirconusAPIKey:          "circonus-apikey",
+			CirconusAPIApp:          "circonus-apiapp",
+			CirconusAPIURL:          "circonus-apiurl",
+			CirconusBrokerID:        "circonus-brokerid",
+			CirconusCheckID:         "circonus-checkid",
+			RouteMetricNameTemplate: "$service$.$host$.$path$.$target$",
 		},
 		Runtime: Runtime{
 			GOGC:       666,
