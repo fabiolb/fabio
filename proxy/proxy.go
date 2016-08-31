@@ -6,6 +6,7 @@ import (
 
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/metrics"
+	"github.com/eBay/fabio/proxy/gzip"
 )
 
 // httpProxy is a dynamic reverse proxy for HTTP and HTTPS protocols.
@@ -58,6 +59,10 @@ func (p *httpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	default:
 		h = newHTTPProxy(t.URL, p.tr, time.Duration(0))
+	}
+
+	if p.cfg.GZIPContentTypes != nil {
+		h = gzip.NewGzipHandler(h, p.cfg.GZIPContentTypes)
 	}
 
 	start := time.Now()

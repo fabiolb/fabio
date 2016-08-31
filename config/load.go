@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"runtime"
 	"strings"
 	"time"
@@ -100,6 +101,7 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	f.StringVar(&cfg.Proxy.ClientIPHeader, "proxy.header.clientip", Default.Proxy.ClientIPHeader, "header for the request ip")
 	f.StringVar(&cfg.Proxy.TLSHeader, "proxy.header.tls", Default.Proxy.TLSHeader, "header for TLS connections")
 	f.StringVar(&cfg.Proxy.TLSHeaderValue, "proxy.header.tls.value", Default.Proxy.TLSHeaderValue, "value for TLS connection header")
+	f.StringVar(&cfg.Proxy.GZIPContentTypesValue, "proxy.gzip.contenttype", Default.Proxy.GZIPContentTypesValue, "regexp of content types to compress")
 	f.StringSliceVar(&cfg.ListenerValue, "proxy.addr", Default.ListenerValue, "listener config")
 	f.KVSliceVar(&cfg.CertSourcesValue, "proxy.cs", Default.CertSourcesValue, "certificate sources")
 	f.DurationVar(&cfg.Proxy.ReadTimeout, "proxy.readtimeout", Default.Proxy.ReadTimeout, "read timeout for incoming requests")
@@ -169,6 +171,13 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	cfg.Listen, err = parseListeners(cfg.ListenerValue, cfg.CertSources, cfg.Proxy.ReadTimeout, cfg.Proxy.WriteTimeout)
 	if err != nil {
 		return nil, err
+	}
+
+	if cfg.Proxy.GZIPContentTypesValue != "" {
+		cfg.Proxy.GZIPContentTypes, err = regexp.Compile(cfg.Proxy.GZIPContentTypesValue)
+		if err != nil {
+			return nil, fmt.Errorf("invalid expression for content types: %s", err)
+		}
 	}
 
 	// handle deprecations

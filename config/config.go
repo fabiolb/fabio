@@ -2,6 +2,7 @@ package config
 
 import (
 	"net/http"
+	"regexp"
 	"time"
 )
 
@@ -60,6 +61,8 @@ type Proxy struct {
 	ClientIPHeader        string
 	TLSHeader             string
 	TLSHeaderValue        string
+	GZIPContentTypesValue string
+	GZIPContentTypes      *regexp.Regexp
 }
 
 type Runtime struct {

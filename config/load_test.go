@@ -3,6 +3,7 @@ package config
 import (
 	"net/http"
 	"reflect"
+	"regexp"
 	"testing"
 	"time"
 
@@ -29,6 +30,7 @@ proxy.maxconn = 666
 proxy.header.clientip = clientip
 proxy.header.tls = tls
 proxy.header.tls.value = tls-true
+proxy.gzip.contenttype = ^(text/.*|application/(javascript|json|font-woff|xml)|.*\\+(json|xml))$
 registry.backend = something
 registry.file.path = /foo/bar
 registry.static.routes = route add svc / http://127.0.0.1:6666/
@@ -91,6 +93,8 @@ aws.apigw.cert.cn = furb
 			ClientIPHeader:        "clientip",
 			TLSHeader:             "tls",
 			TLSHeaderValue:        "tls-true",
+			GZIPContentTypesValue: `^(text/.*|application/(javascript|json|font-woff|xml)|.*\+(json|xml))$`,
+			GZIPContentTypes:      regexp.MustCompile(`^(text/.*|application/(javascript|json|font-woff|xml)|.*\+(json|xml))$`),
 		},
 		Registry: Registry{
 			Backend: "something",
