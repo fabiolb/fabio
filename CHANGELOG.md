@@ -4,6 +4,7 @@
 
  * [Issue #125](https://github.com/eBay/fabio/issues/125): Extended metrics
  * [Issue #134](https://github.com/eBay/fabio/issues/134): Vault token should not require 'root' or 'sudo' privileges
+ * [Issue #138](https://github.com/eBay/fabio/issues/138): Add option to disable cert fallback
  * [Issue #147](https://github.com/eBay/fabio/issues/147): Support multiple metrics libraries
  * [Issue #151](https://github.com/eBay/fabio/issues/151)[PR #150](https://github.com/eBay/fabio/pull/150): Add support for Circonus metrics
 
