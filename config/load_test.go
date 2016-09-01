@@ -53,7 +53,7 @@ metrics.circonus.apiapp = circonus-apiapp
 metrics.circonus.apiurl = circonus-apiurl
 metrics.circonus.brokerid = circonus-brokerid
 metrics.circonus.checkid = circonus-checkid
-metrics.routemetricnametemplate = $service$.$host$.$path$.$target$
+metrics.routemetricnametemplate = {{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}
 runtime.gogc = 666
 runtime.gomaxprocs = 12
 ui.addr = 7.8.9.0:1234
@@ -134,7 +134,7 @@ aws.apigw.cert.cn = furb
 			CirconusAPIURL:          "circonus-apiurl",
 			CirconusBrokerID:        "circonus-brokerid",
 			CirconusCheckID:         "circonus-checkid",
-			RouteMetricNameTemplate: "$service$.$host$.$path$.$target$",
+			RouteMetricNameTemplate: "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
 		},
 		Runtime: Runtime{
 			GOGC:       666,

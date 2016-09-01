@@ -43,7 +43,7 @@ var Default = &Config{
 		Prefix:                  "default",
 		Interval:                30 * time.Second,
 		CirconusAPIApp:          "fabio",
-		RouteMetricNameTemplate: "$service$.$host$.$path$.$target$",
+		RouteMetricNameTemplate: "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
 	},
 	CertSources: map[string]CertSource{},
 }
