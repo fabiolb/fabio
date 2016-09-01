@@ -68,16 +68,17 @@ type Runtime struct {
 }
 
 type Metrics struct {
-	Target           string
-	Prefix           string
-	Interval         time.Duration
-	GraphiteAddr     string
-	StatsDAddr       string
-	CirconusAPIKey   string
-	CirconusAPIApp   string
-	CirconusAPIURL   string
-	CirconusCheckID  string
-	CirconusBrokerID string
+	Target                  string
+	Prefix                  string
+	Interval                time.Duration
+	GraphiteAddr            string
+	StatsDAddr              string
+	CirconusAPIKey          string
+	CirconusAPIApp          string
+	CirconusAPIURL          string
+	CirconusCheckID         string
+	CirconusBrokerID        string
+	RouteMetricNameTemplate string
 }
 
 type Registry struct {

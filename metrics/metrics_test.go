@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"os"
 	"testing"
+	"text/template"
 )
 
 func TestDefaultPrefix(t *testing.T) {
@@ -27,12 +28,28 @@ func TestTargetName(t *testing.T) {
 		{"", "", "", "http://1.2.3.4:1234/bar", "_._._.1_2_3_4_1234"},
 	}
 
+	funcMap := template.FuncMap{
+		"clean": clean,
+	}
+
+	var err error
+	ts := "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}"
+	routeMetricNameTemplate, err = template.New("routeMetricName").Funcs(funcMap).Parse(ts)
+	if err != nil {
+		t.Fatalf("Template %s: %v", ts, err)
+	}
+
 	for i, tt := range tests {
 		u, err := url.Parse(tt.target)
 		if err != nil {
 			t.Fatalf("%d: %v", i, err)
 		}
-		if got, want := TargetName(tt.service, tt.host, tt.path, u), tt.name; got != want {
+
+		got, err := TargetName(tt.service, tt.host, tt.path, u)
+		if err != nil {
+			t.Fatalf("%d: %v", i, err)
+		}
+		if want := tt.name; got != want {
 			t.Errorf("%d: got %q want %q", i, got, want)
 		}
 	}

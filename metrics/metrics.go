@@ -6,11 +6,13 @@
 package metrics
 
 import (
+	"bytes"
 	"log"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/exit"
@@ -19,11 +21,30 @@ import (
 // DefaultRegistry stores the metrics library provider.
 var DefaultRegistry Registry = NoopRegistry{}
 
+var routeMetricNameTemplate *template.Template
+
+type routeMetricNameAttributes struct {
+	Service, Host, Path string
+	TargetURL           *url.URL
+}
+
 // NewRegistry creates a new metrics registry.
 func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 	prefix := cfg.Prefix
 	if prefix == "default" {
 		prefix = defaultPrefix()
+	}
+
+	funcMap := template.FuncMap{
+		"clean": clean,
+	}
+
+	routeMetricNameTemplate, err = template.New("routeMetricName").Funcs(funcMap).Parse(cfg.RouteMetricNameTemplate)
+	if err != nil {
+		return nil, err
+	}
+	if err := verifyTemplate(); err != nil {
+		return nil, err
 	}
 
 	switch cfg.Target {
@@ -55,13 +76,21 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 }
 
 // TargetName returns the metrics name from the given parameters.
-func TargetName(service, host, path string, targetURL *url.URL) string {
-	return strings.Join([]string{
-		clean(service),
-		clean(host),
-		clean(path),
-		clean(targetURL.Host),
-	}, ".")
+func TargetName(service, host, path string, targetURL *url.URL) (string, error) {
+	var name bytes.Buffer
+
+	data := &routeMetricNameAttributes{
+		Service:   service,
+		Host:      host,
+		Path:      path,
+		TargetURL: targetURL,
+	}
+
+	if err := routeMetricNameTemplate.Execute(&name, data); err != nil {
+		return "", err
+	}
+
+	return name.String(), nil
 }
 
 // clean creates safe names for graphite reporting by replacing
@@ -88,4 +117,27 @@ func defaultPrefix() string {
 	}
 	exe := filepath.Base(os.Args[0])
 	return clean(host) + "." + clean(exe)
+}
+
+// verifyTemplate checks the route metric name template syntax
+func verifyTemplate() error {
+	var name bytes.Buffer
+
+	testURL, err := url.Parse("http://127.0.0.1:12345/")
+	if err != nil {
+		return err
+	}
+
+	data := &routeMetricNameAttributes{
+		Service:   "testservice",
+		Host:      "test.example.com",
+		Path:      "/test",
+		TargetURL: testURL,
+	}
+
+	if err := routeMetricNameTemplate.Execute(&name, data); err != nil {
+		return err
+	}
+
+	return nil
 }

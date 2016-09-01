@@ -46,7 +46,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		fixedWeight = 0
 	}
 
-	name := metrics.TargetName(service, r.Host, r.Path, targetURL)
+	name, _ := metrics.TargetName(service, r.Host, r.Path, targetURL)
 	timer := ServiceRegistry.GetTimer(name)
 
 	t := &Target{Service: service, Tags: tags, URL: targetURL, FixedWeight: fixedWeight, Timer: timer, timerName: name}
