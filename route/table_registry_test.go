@@ -9,27 +9,55 @@ import (
 )
 
 func TestSyncRegistry(t *testing.T) {
-	names := func() []string {
-		var n []string
-		metrics.ServiceRegistry.Each(func(name string, x interface{}) {
-			n = append(n, name)
-		})
-		sort.Strings(n)
-		return n
-	}
-
-	metrics.ServiceRegistry.UnregisterAll()
+	oldRegistry := ServiceRegistry
+	ServiceRegistry = newStubRegistry()
+	defer func() { ServiceRegistry = oldRegistry }()
 
 	tbl := make(Table)
 	tbl.AddRoute("svc-a", "/aaa", "http://localhost:1234", 1, nil)
 	tbl.AddRoute("svc-b", "/bbb", "http://localhost:5678", 1, nil)
-	if got, want := names(), []string{"svc-a._./aaa.localhost_1234", "svc-b._./bbb.localhost_5678"}; !reflect.DeepEqual(got, want) {
+	if got, want := ServiceRegistry.Names(), []string{"svc-a._./aaa.localhost_1234", "svc-b._./bbb.localhost_5678"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %v want %v", got, want)
 	}
 
 	tbl.DelRoute("svc-b", "/bbb", "http://localhost:5678")
 	syncRegistry(tbl)
-	if got, want := names(), []string{"svc-a._./aaa.localhost_1234"}; !reflect.DeepEqual(got, want) {
+	if got, want := ServiceRegistry.Names(), []string{"svc-a._./aaa.localhost_1234"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %v want %v", got, want)
 	}
+}
+
+func newStubRegistry() metrics.Registry {
+	return &stubRegistry{names: make(map[string]bool)}
+}
+
+type stubRegistry struct {
+	names map[string]bool
+}
+
+func (p *stubRegistry) Names() []string {
+	n := []string{}
+	for k := range p.names {
+		n = append(n, k)
+	}
+	sort.Strings(n)
+	return n
+}
+
+func (p *stubRegistry) Unregister(name string) {
+	delete(p.names, name)
+}
+
+func (p *stubRegistry) UnregisterAll() {
+	p.names = map[string]bool{}
+}
+
+func (p *stubRegistry) GetCounter(name string) metrics.Counter {
+	p.names[name] = true
+	return metrics.NoopCounter{}
+}
+
+func (p *stubRegistry) GetTimer(name string) metrics.Timer {
+	p.names[name] = true
+	return metrics.NoopTimer{}
 }

@@ -3,7 +3,7 @@ package route
 import (
 	"net/url"
 
-	gometrics "github.com/rcrowley/go-metrics"
+	"github.com/eBay/fabio/metrics"
 )
 
 type Target struct {
@@ -24,7 +24,7 @@ type Target struct {
 	Weight float64
 
 	// Timer measures throughput and latency of this target
-	Timer gometrics.Timer
+	Timer metrics.Timer
 
 	// timerName is the name of the timer in the metrics registry
 	timerName string

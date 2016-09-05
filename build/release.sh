@@ -3,11 +3,12 @@
 # Script for replacing the version number
 # in main.go, committing and tagging the code
 
-prgdir=$(cd $(dirname $0); pwd)
-basedir=$(cd $prgdir/..; pwd)
+readonly prgdir=$(cd $(dirname $0); pwd)
+readonly basedir=$(cd $prgdir/..; pwd)
 v=$1
 
-if [[ "$v" == "" ]]; then
+[[ -n "$v" ]] || read -p "Enter version (e.g. 1.0.4): " v
+if [[ -z "$v" ]]; then
 	echo "Usage: $0 <version> (e.g. 1.0.4)"
 	exit 1
 fi

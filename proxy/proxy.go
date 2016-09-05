@@ -5,22 +5,23 @@ import (
 	"time"
 
 	"github.com/eBay/fabio/config"
-
-	gometrics "github.com/rcrowley/go-metrics"
+	"github.com/eBay/fabio/metrics"
 )
 
 // Proxy is a dynamic reverse proxy.
 type Proxy struct {
 	tr       http.RoundTripper
 	cfg      config.Proxy
-	requests gometrics.Timer
+	requests metrics.Timer
+	noroute  metrics.Counter
 }
 
 func New(tr http.RoundTripper, cfg config.Proxy) *Proxy {
 	return &Proxy{
 		tr:       tr,
 		cfg:      cfg,
-		requests: gometrics.GetOrRegisterTimer("requests", gometrics.DefaultRegistry),
+		requests: metrics.DefaultRegistry.GetTimer("requests"),
+		noroute:  metrics.DefaultRegistry.GetCounter("notfound"),
 	}
 }
 
@@ -32,6 +33,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	t := target(r)
 	if t == nil {
+		p.noroute.Inc(1)
 		w.WriteHeader(p.cfg.NoRouteStatus)
 		return
 	}
@@ -48,8 +50,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// To use the filtered proxy use
 		// h = newWSProxy(t.URL)
+
+	case r.Header.Get("Accept") == "text/event-stream":
+		// use the flush interval for SSE (server-sent events)
+		// must be > 0s to be effective
+		h = newHTTPProxy(t.URL, p.tr, p.cfg.FlushInterval)
+
 	default:
-		h = newHTTPProxy(t.URL, p.tr)
+		h = newHTTPProxy(t.URL, p.tr, time.Duration(0))
 	}
 
 	start := time.Now()

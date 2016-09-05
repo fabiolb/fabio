@@ -1,7 +1,7 @@
 package config
 
 import (
-	"os"
+	"net/http"
 	"reflect"
 	"testing"
 	"time"
@@ -12,16 +12,19 @@ import (
 
 func TestFromProperties(t *testing.T) {
 	in := `
+proxy.cs = cs=name;type=path;cert=foo;clientca=bar;refresh=99s;hdr=a: b;caupgcn=furb
 proxy.addr = :1234
 proxy.localip = 4.4.4.4
 proxy.strategy = rr
 proxy.matcher = prefix
 proxy.noroutestatus = 929
 proxy.shutdownwait = 500ms
-proxy.timeout = 3s
+proxy.responseheadertimeout = 3s
+proxy.keepalivetimeout = 4s
 proxy.dialtimeout = 60s
 proxy.readtimeout = 5s
 proxy.writetimeout = 10s
+proxy.flushinterval = 15s
 proxy.maxconn = 666
 proxy.header.clientip = clientip
 proxy.header.tls = tls
@@ -29,7 +32,7 @@ proxy.header.tls.value = tls-true
 registry.backend = something
 registry.file.path = /foo/bar
 registry.static.routes = route add svc / http://127.0.0.1:6666/
-registry.consul.addr = 1.2.3.4:5678
+registry.consul.addr = https://1.2.3.4:5678
 registry.consul.token = consul-token
 registry.consul.kvpath = /some/path
 registry.consul.tagprefix = p-
@@ -42,16 +45,36 @@ registry.consul.register.checkTimeout = 10s
 registry.consul.service.status = a,b
 metrics.target = graphite
 metrics.prefix = someprefix
+metrics.names = {{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}
 metrics.interval = 5s
 metrics.graphite.addr = 5.6.7.8:9999
+metrics.statsd.addr = 6.7.8.9:9999
+metrics.circonus.apikey = circonus-apikey
+metrics.circonus.apiapp = circonus-apiapp
+metrics.circonus.apiurl = circonus-apiurl
+metrics.circonus.brokerid = circonus-brokerid
+metrics.circonus.checkid = circonus-checkid
 runtime.gogc = 666
 runtime.gomaxprocs = 12
 ui.addr = 7.8.9.0:1234
 ui.color = fonzy
 ui.title = fabfab
 aws.apigw.cert.cn = furb
-	`
+`
 	out := &Config{
+		ListenerValue:    []string{":1234"},
+		CertSourcesValue: []map[string]string{{"cs": "name", "type": "path", "cert": "foo", "clientca": "bar", "refresh": "99s", "hdr": "a: b", "caupgcn": "furb"}},
+		CertSources: map[string]CertSource{
+			"name": CertSource{
+				Name:         "name",
+				Type:         "path",
+				CertPath:     "foo",
+				ClientCAPath: "bar",
+				CAUpgradeCN:  "furb",
+				Refresh:      99 * time.Second,
+				Header:       http.Header{"A": []string{"b"}},
+			},
+		},
 		Proxy: Proxy{
 			MaxConn:               666,
 			LocalIP:               "4.4.4.4",
@@ -60,8 +83,11 @@ aws.apigw.cert.cn = furb
 			NoRouteStatus:         929,
 			ShutdownWait:          500 * time.Millisecond,
 			DialTimeout:           60 * time.Second,
-			KeepAliveTimeout:      3 * time.Second,
 			ResponseHeaderTimeout: 3 * time.Second,
+			KeepAliveTimeout:      4 * time.Second,
+			ReadTimeout:           5 * time.Second,
+			WriteTimeout:          10 * time.Second,
+			FlushInterval:         15 * time.Second,
 			ClientIPHeader:        "clientip",
 			TLSHeader:             "tls",
 			TLSHeaderValue:        "tls-true",
@@ -76,6 +102,7 @@ aws.apigw.cert.cn = furb
 			},
 			Consul: Consul{
 				Addr:          "1.2.3.4:5678",
+				Scheme:        "https",
 				Token:         "consul-token",
 				KVPath:        "/some/path",
 				TagPrefix:     "p-",
@@ -90,19 +117,24 @@ aws.apigw.cert.cn = furb
 		},
 		Listen: []Listen{
 			{
-				Addr:           ":1234",
-				ReadTimeout:    5 * time.Second,
-				WriteTimeout:   10 * time.Second,
-				AWSApiGWCertCN: "furb",
+				Addr:         ":1234",
+				Scheme:       "http",
+				ReadTimeout:  5 * time.Second,
+				WriteTimeout: 10 * time.Second,
 			},
 		},
-		Metrics: []Metrics{
-			{
-				Target:   "graphite",
-				Prefix:   "someprefix",
-				Interval: 5 * time.Second,
-				Addr:     "5.6.7.8:9999",
-			},
+		Metrics: Metrics{
+			Target:           "graphite",
+			Prefix:           "someprefix",
+			Names:            "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
+			Interval:         5 * time.Second,
+			GraphiteAddr:     "5.6.7.8:9999",
+			StatsDAddr:       "6.7.8.9:9999",
+			CirconusAPIKey:   "circonus-apikey",
+			CirconusAPIApp:   "circonus-apiapp",
+			CirconusAPIURL:   "circonus-apiurl",
+			CirconusBrokerID: "circonus-brokerid",
+			CirconusCheckID:  "circonus-checkid",
 		},
 		Runtime: Runtime{
 			GOGC:       666,
@@ -120,7 +152,7 @@ aws.apigw.cert.cn = furb
 		t.Fatalf("got %v want nil", err)
 	}
 
-	cfg, err := fromProperties(p)
+	cfg, err := load(p)
 	if err != nil {
 		t.Fatalf("got %v want nil", err)
 	}
@@ -129,119 +161,137 @@ aws.apigw.cert.cn = furb
 	verify.Values(t, "cfg", got, want)
 }
 
-func TestStringVal(t *testing.T) {
-	props := func(s string) *properties.Properties {
-		p, err := properties.Load([]byte(s), properties.UTF8)
-		if err != nil {
-			t.Fatal(err)
-		}
-		return p
-	}
-
+func TestParseScheme(t *testing.T) {
 	tests := []struct {
-		env   map[string]string
-		props *properties.Properties
-		keys  []string
-		val   string
-		def   string
+		in           string
+		scheme, addr string
 	}{
-		{
-			env:   nil,
-			props: nil,
-			keys:  []string{"key"}, val: "default", def: "default",
-		},
-		{
-			env:   map[string]string{"key": "env"},
-			props: nil,
-			keys:  []string{"key"}, val: "env",
-		},
-		{
-			env:   nil,
-			props: props("key=props"),
-			keys:  []string{"key"}, val: "props",
-		},
-		{
-			env:   map[string]string{"key": "env"},
-			props: props("key=props"),
-			keys:  []string{"key"}, val: "env",
-		},
-		{
-			env:   map[string]string{"key": "env"},
-			props: props("other=props"),
-			keys:  []string{"other"}, val: "props",
-		},
-		{
-			env:   map[string]string{"key": "env"},
-			props: props("other=props"),
-			keys:  []string{"key", "other"}, val: "env",
-		},
+		{"foo:bar", "http", "foo:bar"},
+		{"http://foo:bar", "http", "foo:bar"},
+		{"https://foo:bar", "https", "foo:bar"},
+		{"HTTPS://FOO:bar", "https", "foo:bar"},
 	}
 
 	for i, tt := range tests {
-		for k, v := range tt.env {
-			os.Setenv(k, v)
+		scheme, addr := parseScheme(tt.in)
+		if got, want := scheme, tt.scheme; got != want {
+			t.Errorf("%d: got %v want %v", i, got, want)
 		}
-		if got, want := stringVal(tt.props, tt.def, tt.keys...), tt.val; got != want {
-			t.Errorf("%d: got %s want %s", i, got, want)
-		}
-		for k := range tt.env {
-			os.Unsetenv(k)
+		if got, want := addr, tt.addr; got != want {
+			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}
 }
 
-func TestParseAddr(t *testing.T) {
+func TestParseListen(t *testing.T) {
+	cs := map[string]CertSource{
+		"name": CertSource{Type: "foo"},
+	}
+
 	tests := []struct {
 		in  string
-		out []Listen
+		out Listen
 		err string
 	}{
 		{
 			"",
-			[]Listen{},
+			Listen{},
 			"",
 		},
 		{
 			":123",
-			[]Listen{
-				{Addr: ":123"},
+			Listen{Addr: ":123", Scheme: "http"},
+			"",
+		},
+		{
+			":123;rt=5s;wt=5s",
+			Listen{Addr: ":123", Scheme: "http", ReadTimeout: 5 * time.Second, WriteTimeout: 5 * time.Second},
+			"",
+		},
+		{
+			":123;pathA;pathB;pathC",
+			Listen{
+				Addr:   ":123",
+				Scheme: "https",
+				CertSource: CertSource{
+					Type:         "file",
+					CertPath:     "pathA",
+					KeyPath:      "pathB",
+					ClientCAPath: "pathC",
+				},
 			},
 			"",
 		},
 		{
-			":123;cert.pem",
-			[]Listen{
-				{Addr: ":123", CertFile: "cert.pem", KeyFile: "cert.pem", TLS: true},
+			":123;cs=name",
+			Listen{
+				Addr:   ":123",
+				Scheme: "https",
+				CertSource: CertSource{
+					Type: "foo",
+				},
 			},
 			"",
 		},
 		{
-			":123;cert.pem;key.pem",
-			[]Listen{
-				{Addr: ":123", CertFile: "cert.pem", KeyFile: "key.pem", TLS: true},
+			":123;cs=name;strictmatch=true",
+			Listen{
+				Addr:   ":123",
+				Scheme: "https",
+				CertSource: CertSource{
+					Type: "foo",
+				},
+				StrictMatch: true,
 			},
 			"",
-		},
-		{
-			":123;cert.pem;key.pem;client.pem",
-			[]Listen{
-				{Addr: ":123", CertFile: "cert.pem", KeyFile: "key.pem", ClientAuthFile: "client.pem", TLS: true},
-			},
-			"",
-		},
-		{
-			":123;cert.pem;key.pem;client.pem;",
-			nil,
-			"invalid address :123;cert.pem;key.pem;client.pem;",
 		},
 	}
 
 	for i, tt := range tests {
-		l, err := parseListen(tt.in)
+		l, err := parseListen(tt.in, cs, time.Duration(0), time.Duration(0))
 		if got, want := err, tt.err; (got != nil || want != "") && got.Error() != want {
-			t.Errorf("%d: got %v want %v", i, got, want)
+			t.Errorf("%d: got %+v want %+v", i, got, want)
 		}
 		if got, want := l, tt.out; !reflect.DeepEqual(got, want) {
+			t.Errorf("%d: got %+v want %+v", i, got, want)
+		}
+	}
+}
+
+func TestParseCfg(t *testing.T) {
+	tests := []struct {
+		args []string
+		i    int
+		path string
+		err  error
+	}{
+		// edge cases
+		{nil, 0, ``, nil},
+		{[]string{`-abc`}, 0, "", nil},
+		{[]string{`-cfg`}, 1, "", nil},
+		{[]string{`-cfg`}, 5, "", nil},
+
+		// errors
+		{[]string{`-cfg`}, 0, "", errInvalidConfig},
+		{[]string{`-cfg=''`}, 0, "", errInvalidConfig},
+		{[]string{`-cfg=""`}, 0, "", errInvalidConfig},
+		{[]string{`-cfg=`}, 0, "", errInvalidConfig},
+
+		// happy flow
+		{[]string{`-cfg`, `foo`}, 0, "foo", nil},
+		{[]string{`-cfg=foo`}, 0, "foo", nil},
+		{[]string{`-cfg='foo'`}, 0, "foo", nil},
+		{[]string{`-cfg="foo"`}, 0, "foo", nil},
+		{[]string{`-cfg='"foo"'`}, 0, `"foo"`, nil},
+		{[]string{`-cfg="'foo'"`}, 0, `'foo'`, nil},
+	}
+
+	for i, tt := range tests {
+		p, err := parseCfg(tt.args, tt.i)
+		if got, want := err, tt.err; got != want {
+			t.Fatalf("%d: got %v want %v", i, got, want)
+		}
+		if got, want := p, tt.path; got != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}

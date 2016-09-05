@@ -2,25 +2,20 @@ package main
 
 import (
 	"crypto/tls"
-	"crypto/x509"
-	"encoding/pem"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
 	"os"
-	"regexp"
 	"time"
 
 	"github.com/armon/go-proxyproto"
+	"github.com/eBay/fabio/cert"
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/exit"
 	"github.com/eBay/fabio/proxy"
 )
 
 var quit = make(chan bool)
-var commas = regexp.MustCompile(`\s*,\s*`)
-var semicolons = regexp.MustCompile(`\s*;\s*`)
 
 func init() {
 	exit.Listen(func(os.Signal) { close(quit) })
@@ -45,84 +40,46 @@ func startListeners(listen []config.Listen, wait time.Duration, h http.Handler) 
 }
 
 func listenAndServe(l config.Listen, h http.Handler) {
-	srv, err := newServer(l, h)
-	if err != nil {
-		log.Fatal("[FATAL] ", err)
+	srv := &http.Server{
+		Handler:      h,
+		Addr:         l.Addr,
+		ReadTimeout:  l.ReadTimeout,
+		WriteTimeout: l.WriteTimeout,
+	}
+
+	if l.Scheme == "https" {
+		src, err := cert.NewSource(l.CertSource)
+		if err != nil {
+			exit.Fatal("[FATAL] ", err)
+		}
+
+		srv.TLSConfig, err = cert.TLSConfig(src, l.StrictMatch)
+		if err != nil {
+			exit.Fatal("[FATAL] ", err)
+		}
 	}
 
 	if srv.TLSConfig != nil {
-		log.Printf("[INFO] HTTPS proxy listening on %s with certificate %s", l.Addr, l.CertFile)
+		log.Printf("[INFO] HTTPS proxy listening on %s", l.Addr)
 		if srv.TLSConfig.ClientAuth == tls.RequireAndVerifyClientCert {
-			log.Printf("[INFO] Client certificate authentication enabled on %s with certificates from %s", l.Addr, l.ClientAuthFile)
+			log.Printf("[INFO] Client certificate authentication enabled on %s", l.Addr)
 		}
 	} else {
 		log.Printf("[INFO] HTTP proxy listening on %s", l.Addr)
 	}
 
 	if err := serve(srv); err != nil {
-		log.Fatal("[FATAL] ", err)
+		exit.Fatal("[FATAL] ", err)
 	}
-}
-
-var tlsLoadX509KeyPair = tls.LoadX509KeyPair
-
-func newServer(l config.Listen, h http.Handler) (*http.Server, error) {
-	srv := &http.Server{
-		Addr:         l.Addr,
-		Handler:      h,
-		ReadTimeout:  l.ReadTimeout,
-		WriteTimeout: l.WriteTimeout,
-	}
-
-	if l.CertFile != "" {
-		cert, err := tlsLoadX509KeyPair(l.CertFile, l.KeyFile)
-		if err != nil {
-			return nil, err
-		}
-
-		srv.TLSConfig = &tls.Config{
-			Certificates: []tls.Certificate{cert},
-		}
-
-		if l.ClientAuthFile != "" {
-			pemBlock, err := ioutil.ReadFile(l.ClientAuthFile)
-			if err != nil {
-				return nil, err
-			}
-
-			pool := x509.NewCertPool()
-			for p, rest := pem.Decode(pemBlock); p != nil; p, rest = pem.Decode(rest) {
-				cert, err := x509.ParseCertificate(p.Bytes)
-				if err != nil {
-					return nil, err
-				}
-
-				// Issue #108: Allow generated AWS API Gateway certs to be used for client cert authentication
-				if l.AWSApiGWCertCN != "" && l.AWSApiGWCertCN == cert.Issuer.CommonName {
-					cert.BasicConstraintsValid = true
-					cert.IsCA = true
-					cert.KeyUsage = x509.KeyUsageCertSign
-					log.Print("[INFO] Enabling AWS Api Gateway workaround for certificate %s", cert.Issuer.CommonName)
-				}
-
-				pool.AddCert(cert)
-			}
-
-			srv.TLSConfig.ClientCAs = pool
-			srv.TLSConfig.ClientAuth = tls.RequireAndVerifyClientCert
-		}
-	}
-
-	return srv, nil
 }
 
 func serve(srv *http.Server) error {
 	ln, err := net.Listen("tcp", srv.Addr)
 	if err != nil {
-		log.Fatal("[FATAL] ", err)
+		exit.Fatal("[FATAL] ", err)
 	}
 
-	ln = &proxyproto.Listener{tcpKeepAliveListener{ln.(*net.TCPListener)}}
+	ln = &proxyproto.Listener{Listener: tcpKeepAliveListener{ln.(*net.TCPListener)}}
 
 	if srv.TLSConfig != nil {
 		ln = tls.NewListener(ln, srv.TLSConfig)
@@ -145,7 +102,11 @@ func (ln tcpKeepAliveListener) Accept() (c net.Conn, err error) {
 	if err != nil {
 		return
 	}
-	tc.SetKeepAlive(true)
-	tc.SetKeepAlivePeriod(3 * time.Minute)
+	if err = tc.SetKeepAlive(true); err != nil {
+		return
+	}
+	if err = tc.SetKeepAlivePeriod(3 * time.Minute); err != nil {
+		return
+	}
 	return tc, nil
 }

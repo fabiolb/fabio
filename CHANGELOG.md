@@ -1,6 +1,31 @@
 ## Changelog
 
-### [v1.1.6](https://github.com/eBay/fabio/releases/tag/v1.1.6) - Unreleased
+### Unreleased
+
+ * [Issue #125](https://github.com/eBay/fabio/issues/125): Extended metrics
+ * [Issue #134](https://github.com/eBay/fabio/issues/134): Vault token should not require 'root' or 'sudo' privileges
+ * [Issue #138](https://github.com/eBay/fabio/issues/138): Add option to disable cert fallback
+ * [Issue #147](https://github.com/eBay/fabio/issues/147): Support multiple metrics libraries
+ * [Issue #151](https://github.com/eBay/fabio/issues/151)/[PR #150](https://github.com/eBay/fabio/pull/150): Add support for Circonus metrics
+ * [PR #154](https://github.com/eBay/fabio/pull/154): Make route metric names configurable
+
+### [v1.2.1](https://github.com/eBay/fabio/releases/tag/v1.2.1) - 25 Aug 2016
+
+ * [Issue #73](https://github.com/eBay/fabio/pull/73)/[PR #139](https://github.com/eBay/fabio/pull/139): Add statsd support
+ * [Issue #129](https://github.com/eBay/fabio/issues/129): Server-sent events support
+ * [Issue #136](https://github.com/eBay/fabio/issues/136): Always deregister from consul
+ * [PR #143](https://github.com/eBay/fabio/pull/143): Improve error message on missing trailing slash
+ * [Issue #146](https://github.com/eBay/fabio/issues/146): fabio fails to start with "[FATAL] 1.2. missing 'cs' in cs"
+
+### [v1.2](https://github.com/eBay/fabio/releases/tag/v1.2) - 16 Jul 2016
+
+ * [Issue #27](https://github.com/eBay/fabio/issues/27): Change certificates via API
+ * [Issue #28](https://github.com/eBay/fabio/issues/28): Refactor listener config
+ * [Issue #70](https://github.com/eBay/fabio/issues/70): Support Vault
+ * [Issue #79](https://github.com/eBay/fabio/issues/79): Refactor config loading to use flag sets
+ * [Issue #85](https://github.com/eBay/fabio/issues/85): SNI support
+
+### [v1.1.6](https://github.com/eBay/fabio/releases/tag/v1.1.6) - 12 Jul 2016
 
  * [Issue #108](https://github.com/eBay/fabio/issues/108): TLS handshake error: failed to verify client's certificate
  * [Issue #122](https://github.com/eBay/fabio/issues/122): X-Forwarded-Port should use local port
@@ -8,14 +33,6 @@
 ### [v1.1.5](https://github.com/eBay/fabio/releases/tag/v1.1.5) - 23 Jun 2016
 
  * [PR #117](https://github.com/eBay/fabio/pull/117): Allow routes to a service in warning status
-
-### [v1.2rc1](https://github.com/eBay/fabio/releases/tag/v1.2rc1) - 15 Jun 2016
-
- * [Issue #27](https://github.com/eBay/fabio/issues/27): Change certificates via API
- * [Issue #28](https://github.com/eBay/fabio/issues/28): Refactor listener config
- * [Issue #70](https://github.com/eBay/fabio/issues/70): Support Vault
- * [Issue #79](https://github.com/eBay/fabio/issues/79): Refactor config loading to use flag sets
- * [Issue #85](https://github.com/eBay/fabio/issues/85): SNI support
 
 ### [v1.1.4](https://github.com/eBay/fabio/releases/tag/v1.1.4) - 15 Jun 2016
 

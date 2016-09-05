@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/eBay/fabio/admin"
 	"github.com/eBay/fabio/config"
+	"github.com/eBay/fabio/exit"
 	"github.com/eBay/fabio/metrics"
 	"github.com/eBay/fabio/proxy"
 	"github.com/eBay/fabio/registry"
@@ -30,28 +30,28 @@ import (
 // It is also set by the linker when fabio
 // is built via the Makefile or the build/docker.sh
 // script to ensure the correct version nubmer
-var version = "1.1.5"
+var version = "1.2.1"
 
 func main() {
-	var filename string
-	var v bool
-	flag.StringVar(&filename, "cfg", "", "path to config file")
-	flag.BoolVar(&v, "v", false, "show version")
-	flag.Parse()
-
-	if v {
+	cfg, err := config.Load()
+	if err != nil {
+		exit.Fatalf("[FATAL] %s. %s", version, err)
+	}
+	if cfg == nil {
 		fmt.Println(version)
 		return
-	}
-
-	cfg, err := config.Load(filename)
-	if err != nil {
-		log.Fatalf("[FATAL] %s. %s", version, err)
 	}
 
 	log.Printf("[INFO] Runtime config\n" + toJSON(cfg))
 	log.Printf("[INFO] Version %s starting", version)
 	log.Printf("[INFO] Go runtime is %s", runtime.Version())
+
+	exit.Listen(func(s os.Signal) {
+		if registry.Default == nil {
+			return
+		}
+		registry.Default.Deregister()
+	})
 
 	initRuntime(cfg)
 	initMetrics(cfg)
@@ -59,17 +59,17 @@ func main() {
 	go watchBackend()
 	startAdmin(cfg)
 	startListeners(cfg.Listen, cfg.Proxy.ShutdownWait, newProxy(cfg))
-	registry.Default.Deregister()
+	exit.Wait()
 }
 
 func newProxy(cfg *config.Config) *proxy.Proxy {
 	if err := route.SetPickerStrategy(cfg.Proxy.Strategy); err != nil {
-		log.Fatal("[FATAL] ", err)
+		exit.Fatal("[FATAL] ", err)
 	}
 	log.Printf("[INFO] Using routing strategy %q", cfg.Proxy.Strategy)
 
 	if err := route.SetMatcher(cfg.Proxy.Matcher); err != nil {
-		log.Fatal("[FATAL] ", err)
+		exit.Fatal("[FATAL] ", err)
 	}
 	log.Printf("[INFO] Using routing matching %q", cfg.Proxy.Matcher)
 
@@ -89,14 +89,23 @@ func startAdmin(cfg *config.Config) {
 	log.Printf("[INFO] Admin server listening on %q", cfg.UI.Addr)
 	go func() {
 		if err := admin.ListenAndServe(cfg, version); err != nil {
-			log.Fatal("[FATAL] ui: ", err)
+			exit.Fatal("[FATAL] ui: ", err)
 		}
 	}()
 }
 
 func initMetrics(cfg *config.Config) {
-	if err := metrics.Init(cfg.Metrics); err != nil {
-		log.Fatal("[FATAL] ", err)
+	if cfg.Metrics.Target == "" {
+		log.Printf("[INFO] Metrics disabled")
+		return
+	}
+
+	var err error
+	if metrics.DefaultRegistry, err = metrics.NewRegistry(cfg.Metrics); err != nil {
+		exit.Fatal("[FATAL] ", err)
+	}
+	if route.ServiceRegistry, err = metrics.NewRegistry(cfg.Metrics); err != nil {
+		exit.Fatal("[FATAL] ", err)
 	}
 }
 
@@ -127,14 +136,14 @@ func initBackend(cfg *config.Config) {
 	case "consul":
 		registry.Default, err = consul.NewBackend(&cfg.Registry.Consul)
 	default:
-		log.Fatal("[FATAL] Unknown registry backend ", cfg.Registry.Backend)
+		exit.Fatal("[FATAL] Unknown registry backend ", cfg.Registry.Backend)
 	}
 
 	if err != nil {
-		log.Fatal("[FATAL] Error initializing backend. ", err)
+		exit.Fatal("[FATAL] Error initializing backend. ", err)
 	}
 	if err := registry.Default.Register(); err != nil {
-		log.Fatal("[FATAL] Error registering backend. ", err)
+		exit.Fatal("[FATAL] Error registering backend. ", err)
 	}
 }
 

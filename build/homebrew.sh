@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# homebrew.sh creates an updated homebrew on fabio
+
+set -o nounset
+set -o errexit
+
+readonly prgdir=$(cd $(dirname $0); pwd)
+readonly brewdir=$(brew --prefix)/Library/Taps/homebrew/homebrew-core
+
+v=${1:-}
+[[ -n "$v" ]] || read -p "Enter version (e.g. 1.0.4): " v
+if [[ -z "$v" ]] ; then
+	echo "Usage: $0 <version> (e.g. 1.0.4)"
+	exit 1
+fi
+
+srcurl=https://github.com/eBay/fabio/archive/v${v}.tar.gz
+shasum=$(curl -s "$srcurl" | shasum -a 256 | awk '{ print $1; }')
+echo -e "/urlDAurl \"$srcurl\"/sha256DAsha256 \"$shasum\":wq" > $prgdir/homebrew.vim
+
+brew update
+brew update
+(
+	cd $brewdir
+	git checkout -b fabio-$v origin/master
+	vim -s $prgdir/homebrew.vim $brewdir/Formula/fabio.rb
+	git add Formula/fabio.rb
+	git commit -m "fabio $v"
+	git push --set-upstream magiconair fabio-$v
+)
+
+echo "Goto https://github.com/Homebrew/homebrew-core to create pull request"
+open https://github.com/Homebrew/homebrew-core
+
+exit 0
