@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"runtime"
@@ -96,6 +97,7 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	f.DurationVar(&cfg.Proxy.DialTimeout, "proxy.dialtimeout", Default.Proxy.DialTimeout, "connection timeout for backend connections")
 	f.DurationVar(&cfg.Proxy.ResponseHeaderTimeout, "proxy.responseheadertimeout", Default.Proxy.ResponseHeaderTimeout, "response header timeout")
 	f.DurationVar(&cfg.Proxy.KeepAliveTimeout, "proxy.keepalivetimeout", Default.Proxy.KeepAliveTimeout, "keep-alive timeout")
+	f.StringVar(&cfg.Proxy.LocalAddrsValue, "proxy.localaddrs", Default.Proxy.LocalAddrsValue, "list of source ip addresses")
 	f.StringVar(&cfg.Proxy.LocalIP, "proxy.localip", Default.Proxy.LocalIP, "fabio address in Forward headers")
 	f.StringVar(&cfg.Proxy.ClientIPHeader, "proxy.header.clientip", Default.Proxy.ClientIPHeader, "header for the request ip")
 	f.StringVar(&cfg.Proxy.TLSHeader, "proxy.header.tls", Default.Proxy.TLSHeader, "header for TLS connections")
@@ -167,6 +169,11 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	}
 
 	cfg.Listen, err = parseListeners(cfg.ListenerValue, cfg.CertSources, cfg.Proxy.ReadTimeout, cfg.Proxy.WriteTimeout)
+	if err != nil {
+		return nil, err
+	}
+
+	cfg.Proxy.LocalAddrs, err = resolveIPAddrs(cfg.Proxy.LocalAddrsValue)
 	if err != nil {
 		return nil, err
 	}
@@ -345,4 +352,26 @@ func parseCertSource(cfg map[string]string) (c CertSource, err error) {
 		c.Refresh = 0
 	}
 	return
+}
+
+// resolveIPAddrs parses a comma separated list of ip addresses.
+func resolveIPAddrs(addrs string) ([]net.Addr, error) {
+	var a []net.Addr
+	for _, addr := range strings.Split(addrs, ",") {
+		addr = strings.TrimSpace(addr)
+		if addr == "" {
+			continue
+		}
+
+		// net.Dial requires a compatible address for the
+		// LocalAddr field. Since we're only making
+		// TCP connections we need to create a net.TCPAddr
+		// instead of just an net.IPAddr.
+		ip, err := net.ResolveTCPAddr("tcp", addr+":0")
+		if err != nil {
+			return nil, err
+		}
+		a = append(a, ip)
+	}
+	return a, nil
 }

@@ -3,7 +3,6 @@ package proxy
 import (
 	"io"
 	"log"
-	"net"
 	"net/http"
 	"net/url"
 
@@ -16,7 +15,7 @@ var conn = metrics.DefaultRegistry.GetCounter("ws.conn")
 // newRawProxy returns an HTTP handler which forwards data between
 // an incoming and outgoing TCP connection including the original request.
 // This handler establishes a new outgoing connection per request.
-func newRawProxy(t *url.URL) http.Handler {
+func newRawProxy(t *url.URL, dialer *Dialer) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn.Inc(1)
 		defer func() { conn.Inc(-1) }()
@@ -35,7 +34,7 @@ func newRawProxy(t *url.URL) http.Handler {
 		}
 		defer in.Close()
 
-		out, err := net.Dial("tcp", t.Host)
+		out, err := dialer.Dial("tcp", t.Host)
 		if err != nil {
 			log.Printf("[ERROR] WS error for %s. %s", r.URL, err)
 			http.Error(w, "error contacting backend server", http.StatusInternalServerError)

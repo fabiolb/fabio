@@ -25,8 +25,12 @@ type meteredRoundTripper struct {
 func (m *meteredRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 	start := time.Now()
 	resp, err := m.tr.RoundTrip(r)
+	if err != nil {
+		return nil, err
+	}
+
 	metrics.DefaultRegistry.GetTimer(name(resp.StatusCode)).UpdateSince(start)
-	return resp, err
+	return resp, nil
 }
 
 func name(code int) string {

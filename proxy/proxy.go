@@ -10,14 +10,16 @@ import (
 
 // Proxy is a dynamic reverse proxy.
 type Proxy struct {
+	dialer   *Dialer
 	tr       http.RoundTripper
 	cfg      config.Proxy
 	requests metrics.Timer
 	noroute  metrics.Counter
 }
 
-func New(tr http.RoundTripper, cfg config.Proxy) *Proxy {
+func New(dialer *Dialer, tr http.RoundTripper, cfg config.Proxy) *Proxy {
 	return &Proxy{
+		dialer:   dialer,
 		tr:       tr,
 		cfg:      cfg,
 		requests: metrics.DefaultRegistry.GetTimer("requests"),
@@ -46,7 +48,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var h http.Handler
 	switch {
 	case r.Header.Get("Upgrade") == "websocket":
-		h = newRawProxy(t.URL)
+		h = newRawProxy(t.URL, p.dialer)
 
 		// To use the filtered proxy use
 		// h = newWSProxy(t.URL)

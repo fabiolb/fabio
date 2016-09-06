@@ -1,6 +1,7 @@
 package config
 
 import (
+	"net"
 	"net/http"
 	"reflect"
 	"testing"
@@ -14,6 +15,7 @@ func TestFromProperties(t *testing.T) {
 	in := `
 proxy.cs = cs=name;type=path;cert=foo;clientca=bar;refresh=99s;hdr=a: b;caupgcn=furb
 proxy.addr = :1234
+proxy.localaddrs = 1.2.3.4,5.6.7.8
 proxy.localip = 4.4.4.4
 proxy.strategy = rr
 proxy.matcher = prefix
@@ -91,6 +93,11 @@ aws.apigw.cert.cn = furb
 			ClientIPHeader:        "clientip",
 			TLSHeader:             "tls",
 			TLSHeaderValue:        "tls-true",
+			LocalAddrsValue:       "1.2.3.4,5.6.7.8",
+			LocalAddrs: []net.Addr{
+				&net.TCPAddr{IP: net.ParseIP("1.2.3.4")},
+				&net.TCPAddr{IP: net.ParseIP("5.6.7.8")},
+			},
 		},
 		Registry: Registry{
 			Backend: "something",

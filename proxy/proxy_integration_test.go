@@ -1,7 +1,6 @@
 package proxy
 
 import (
-	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -22,8 +21,9 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 	table.AddRoute("mock", "/", server.URL, 1, nil)
 	route.SetTable(table)
 
-	tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
-	proxy := New(tr, config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"})
+	dialer := &Dialer{}
+	tr := &http.Transport{Dial: dialer.Dial}
+	proxy := New(dialer, tr, config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"})
 
 	req := &http.Request{
 		RequestURI: "/",
@@ -41,9 +41,10 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 
 func TestProxyNoRouteStaus(t *testing.T) {
 	route.SetTable(make(route.Table))
-	tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
+	dialer := &Dialer{}
+	tr := &http.Transport{Dial: dialer.Dial}
 	cfg := config.Proxy{NoRouteStatus: 999}
-	proxy := New(tr, cfg)
+	proxy := New(dialer, tr, cfg)
 	req := &http.Request{
 		RequestURI: "/",
 		URL:        &url.URL{},

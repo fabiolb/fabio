@@ -1,6 +1,7 @@
 package config
 
 import (
+	"net"
 	"net/http"
 	"time"
 )
@@ -60,6 +61,8 @@ type Proxy struct {
 	ClientIPHeader        string
 	TLSHeader             string
 	TLSHeaderValue        string
+	LocalAddrs            []net.Addr
+	LocalAddrsValue       string
 }
 
 type Runtime struct {

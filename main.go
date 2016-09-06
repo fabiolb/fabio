@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"runtime"
@@ -73,16 +72,18 @@ func newProxy(cfg *config.Config) *proxy.Proxy {
 	}
 	log.Printf("[INFO] Using routing matching %q", cfg.Proxy.Matcher)
 
+	dialer := &proxy.Dialer{
+		LocalAddrs: cfg.Proxy.LocalAddrs,
+		Timeout:    cfg.Proxy.DialTimeout,
+		KeepAlive:  cfg.Proxy.KeepAliveTimeout,
+	}
 	tr := &http.Transport{
 		ResponseHeaderTimeout: cfg.Proxy.ResponseHeaderTimeout,
 		MaxIdleConnsPerHost:   cfg.Proxy.MaxConn,
-		Dial: (&net.Dialer{
-			Timeout:   cfg.Proxy.DialTimeout,
-			KeepAlive: cfg.Proxy.KeepAliveTimeout,
-		}).Dial,
+		Dial:                  dialer.Dial,
 	}
 
-	return proxy.New(tr, cfg.Proxy)
+	return proxy.New(dialer, tr, cfg.Proxy)
 }
 
 func startAdmin(cfg *config.Config) {

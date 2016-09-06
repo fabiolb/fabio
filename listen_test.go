@@ -43,7 +43,9 @@ func TestGracefulShutdown(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		startListeners([]config.Listen{l}, 250*time.Millisecond, proxy.New(http.DefaultTransport, config.Proxy{}))
+		dialer := &proxy.Dialer{}
+		tr := &http.Transport{Dial: dialer.Dial}
+		startListeners([]config.Listen{l}, 250*time.Millisecond, proxy.New(dialer, tr, config.Proxy{}))
 	}()
 
 	// trigger shutdown after some time
