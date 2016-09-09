@@ -16,7 +16,7 @@ if [[ -z "$v" ]] ; then
 fi
 
 srcurl=https://github.com/eBay/fabio/archive/v${v}.tar.gz
-shasum=$(curl -s "$srcurl" | shasum -a 256 | awk '{ print $1; }')
+shasum=$(wget -O- -q "$srcurl" | shasum -a 256 | awk '{ print $1; }')
 echo -e "/urlDAurl \"$srcurl\"/sha256DAsha256 \"$shasum\":wq" > $prgdir/homebrew.vim
 
 brew update
