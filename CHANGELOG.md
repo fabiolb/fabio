@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+ * [Issue #1](https://github.com/eBay/fabio/issues/1): Add TCP proxy with SNI support (EXPERIMENTAL)
  * [Issue #125](https://github.com/eBay/fabio/issues/125): Extended metrics
  * [Issue #134](https://github.com/eBay/fabio/issues/134): Vault token should not require 'root' or 'sudo' privileges
  * [Issue #138](https://github.com/eBay/fabio/issues/138): Add option to disable cert fallback
