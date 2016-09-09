@@ -163,7 +163,7 @@ func TestHTTPSource(t *testing.T) {
 	srv := httptest.NewServer(http.FileServer(http.Dir(dir)))
 	defer srv.Close()
 
-	testSource(t, HTTPSource{CertURL: srv.URL + "/list"}, makeCertPool(certPEM), 50*time.Millisecond)
+	testSource(t, HTTPSource{CertURL: srv.URL + "/list"}, makeCertPool(certPEM), 500*time.Millisecond)
 }
 
 func TestConsulSource(t *testing.T) {
@@ -216,7 +216,7 @@ func TestConsulSource(t *testing.T) {
 	write("localhost-cert.pem", certPEM)
 	write("localhost-key.pem", keyPEM)
 
-	testSource(t, ConsulSource{CertURL: certURL}, makeCertPool(certPEM), 50*time.Millisecond)
+	testSource(t, ConsulSource{CertURL: certURL}, makeCertPool(certPEM), 500*time.Millisecond)
 }
 
 // vaultServer starts a vault server in dev mode and waits
