@@ -217,7 +217,6 @@ func parseListen(cfg string, cs map[string]CertSource, readTimeout, writeTimeout
 
 	l = Listen{
 		Addr:         opts[0],
-		Proto:        "http",
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
 	}
@@ -249,12 +248,17 @@ func parseListen(cfg string, cs map[string]CertSource, readTimeout, writeTimeout
 				return Listen{}, fmt.Errorf("unknown certificate source %q", v)
 			}
 			l.CertSource = c
-			l.Proto = "https"
+			if l.Proto == "" {
+				l.Proto = "https"
+			}
 		case "strictmatch":
 			l.StrictMatch = (v == "true")
 		}
 	}
 
+	if l.Proto == "" {
+		l.Proto = "http"
+	}
 	if csName != "" && l.Proto != "https" {
 		return Listen{}, fmt.Errorf("cert source requires proto 'https'")
 	}
