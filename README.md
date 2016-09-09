@@ -22,6 +22,7 @@ and more.
 
 It supports
 SSL,
+[TCP+SNI proxy (full end-to-end TLS)](https://github.com/eBay/fabio/wiki/Features#tcpsni-proxy-support),
 [Websockets](https://github.com/eBay/fabio/wiki/Features#websocket-support),
 [SSE](https://github.com/eBay/fabio/wiki/Features#sse---server-sent-events),
 [dynamic reloading](https://github.com/eBay/fabio/wiki/Features#dynamic-reloading),
