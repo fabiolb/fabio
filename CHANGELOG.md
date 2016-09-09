@@ -1,6 +1,6 @@
 ## Changelog
 
-### Unreleased
+### [v1.3](https://github.com/eBay/fabio/releases/tag/v1.3) - 9 Sep 2016
 
  * [Issue #1](https://github.com/eBay/fabio/issues/1): Add TCP proxy with SNI support (EXPERIMENTAL)
  * [Issue #125](https://github.com/eBay/fabio/issues/125): Extended metrics
