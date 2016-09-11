@@ -1,5 +1,9 @@
 ## Changelog
 
+### [v1.3.2](https://github.com/eBay/fabio/releases/tag/v1.3.1) - 11 Sep 2016
+
+ * [Issue #159](https://github.com/eBay/fabio/issues/159): Panic on invalid response
+
 ### [v1.3.1](https://github.com/eBay/fabio/releases/tag/v1.3.1) - 9 Sep 2016
 
  * [Issue #157](https://github.com/eBay/fabio/issues/157): ParseListen may set the wrong protocol
