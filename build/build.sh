@@ -20,3 +20,4 @@ for os in darwin linux ; do
 done
 
 ( cd build/builds && shasum -a 256 fabio-${v}-* > fabio-${v}.sha256 )
+( cd build/builds && gpg2 --output fabio-${v}.sha256.sig --detach-sig fabio-${v}.sha256 )
