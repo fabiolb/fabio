@@ -28,6 +28,9 @@ const DefaultNames = "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean
 // names stores the template for the route metric names.
 var names *template.Template
 
+// var pfx *template.Template
+var prefix string
+
 func init() {
 	// make sure names is initialized to something
 	var err error
@@ -38,9 +41,13 @@ func init() {
 
 // NewRegistry creates a new metrics registry.
 func NewRegistry(cfg config.Metrics) (r Registry, err error) {
-	prefix := cfg.Prefix
-	if prefix == "default" {
-		prefix = defaultPrefix()
+	// prefix := cfg.Prefix
+	// if prefix == "default" {
+	// 	prefix = defaultPrefix()
+	// }
+
+	if prefix, err = parsePrefix(cfg.Prefix); err != nil {
+		return nil, fmt.Errorf("metrics: invalid Prefix template. %s", err)
 	}
 
 	if names, err = parseNames(cfg.Names); err != nil {
@@ -73,6 +80,33 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 		exit.Fatal("[FATAL] Invalid metrics target ", cfg.Target)
 	}
 	panic("unreachable")
+}
+
+// parsePrefix parses the prefix metric template
+func parsePrefix(tmpl string) (string, error) {
+	var pfx bytes.Buffer
+	type prefixData struct {
+		Hostname string
+		Exec     string
+	}
+
+	funcMap := template.FuncMap{
+		"clean": clean,
+	}
+	t, err := template.New("prefix").Funcs(funcMap).Parse(tmpl)
+	if err != nil {
+		return "", err
+	}
+	host, err := hostname()
+	if err != nil {
+		return "", err
+	}
+	exe := filepath.Base(os.Args[0])
+
+	if err := t.Execute(&pfx, &prefixData{Hostname: host, Exec: exe}); err != nil {
+		return "", err
+	}
+	return pfx.String(), nil
 }
 
 // parseNames parses the route metric name template.
