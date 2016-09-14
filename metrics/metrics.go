@@ -41,10 +41,6 @@ func init() {
 
 // NewRegistry creates a new metrics registry.
 func NewRegistry(cfg config.Metrics) (r Registry, err error) {
-	// prefix := cfg.Prefix
-	// if prefix == "default" {
-	// 	prefix = defaultPrefix()
-	// }
 
 	if prefix, err = parsePrefix(cfg.Prefix); err != nil {
 		return nil, fmt.Errorf("metrics: invalid Prefix template. %s", err)
@@ -162,14 +158,3 @@ func clean(s string) string {
 
 // stubbed out for testing
 var hostname = os.Hostname
-
-// defaultPrefix determines the default metrics prefix from
-// the current hostname and the name of the executable.
-func defaultPrefix() string {
-	host, err := hostname()
-	if err != nil {
-		exit.Fatal("[FATAL] ", err)
-	}
-	exe := filepath.Base(os.Args[0])
-	return clean(host) + "." + clean(exe)
-}
