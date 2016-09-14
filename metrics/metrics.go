@@ -28,7 +28,7 @@ const DefaultNames = "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean
 // names stores the template for the route metric names.
 var names *template.Template
 
-// var pfx *template.Template
+// prefix stores the final prefix string to use it with metric collectors where applicable, i.e. Graphite/StatsD
 var prefix string
 
 func init() {
@@ -80,12 +80,6 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 
 // parsePrefix parses the prefix metric template
 func parsePrefix(tmpl string) (string, error) {
-	var pfx bytes.Buffer
-	type prefixData struct {
-		Hostname string
-		Exec     string
-	}
-
 	funcMap := template.FuncMap{
 		"clean": clean,
 	}
@@ -99,10 +93,12 @@ func parsePrefix(tmpl string) (string, error) {
 	}
 	exe := filepath.Base(os.Args[0])
 
-	if err := t.Execute(&pfx, &prefixData{Hostname: host, Exec: exe}); err != nil {
+	b := new(bytes.Buffer)
+	data := struct{ Hostname, Exec string }{host, exe}
+	if err := t.Execute(b, &data); err != nil {
 		return "", err
 	}
-	return pfx.String(), nil
+	return b.String(), nil
 }
 
 // parseNames parses the route metric name template.
