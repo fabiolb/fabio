@@ -9,7 +9,7 @@ import (
 func TestParsePrefix(t *testing.T) {
 	hostname = func() (string, error) { return "myhost", nil }
 	os.Args = []string{"./myapp"}
-	got, err := parsePrefix("{{clean .Hostname}}.{{clean .Exe}}")
+	got, err := parsePrefix("{{clean .Hostname}}.{{clean .Exec}}")
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
