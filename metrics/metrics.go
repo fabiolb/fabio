@@ -25,6 +25,9 @@ var DefaultRegistry Registry = NoopRegistry{}
 // DefaultNames contains the default template for route metric names.
 const DefaultNames = "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}"
 
+// DefaulPrefix contains the default template for metrics prefix.
+const DefaultPrefix = "{{clean .Hostname}}.{{clean .Exec}}"
+
 // names stores the template for the route metric names.
 var names *template.Template
 
@@ -80,6 +83,10 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 
 // parsePrefix parses the prefix metric template
 func parsePrefix(tmpl string) (string, error) {
+	// Backward compatibility condition for old metrics.prefix parameter 'default'
+	if tmpl == "default" {
+		tmpl = DefaultPrefix
+	}
 	funcMap := template.FuncMap{
 		"clean": clean,
 	}
