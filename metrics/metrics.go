@@ -25,8 +25,14 @@ var DefaultRegistry Registry = NoopRegistry{}
 // DefaultNames contains the default template for route metric names.
 const DefaultNames = "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}"
 
+// DefaulPrefix contains the default template for metrics prefix.
+const DefaultPrefix = "{{clean .Hostname}}.{{clean .Exec}}"
+
 // names stores the template for the route metric names.
 var names *template.Template
+
+// prefix stores the final prefix string to use it with metric collectors where applicable, i.e. Graphite/StatsD
+var prefix string
 
 func init() {
 	// make sure names is initialized to something
@@ -38,9 +44,9 @@ func init() {
 
 // NewRegistry creates a new metrics registry.
 func NewRegistry(cfg config.Metrics) (r Registry, err error) {
-	prefix := cfg.Prefix
-	if prefix == "default" {
-		prefix = defaultPrefix()
+
+	if prefix, err = parsePrefix(cfg.Prefix); err != nil {
+		return nil, fmt.Errorf("metrics: invalid Prefix template. %s", err)
 	}
 
 	if names, err = parseNames(cfg.Names); err != nil {
@@ -73,6 +79,33 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 		exit.Fatal("[FATAL] Invalid metrics target ", cfg.Target)
 	}
 	panic("unreachable")
+}
+
+// parsePrefix parses the prefix metric template
+func parsePrefix(tmpl string) (string, error) {
+	// Backward compatibility condition for old metrics.prefix parameter 'default'
+	if tmpl == "default" {
+		tmpl = DefaultPrefix
+	}
+	funcMap := template.FuncMap{
+		"clean": clean,
+	}
+	t, err := template.New("prefix").Funcs(funcMap).Parse(tmpl)
+	if err != nil {
+		return "", err
+	}
+	host, err := hostname()
+	if err != nil {
+		return "", err
+	}
+	exe := filepath.Base(os.Args[0])
+
+	b := new(bytes.Buffer)
+	data := struct{ Hostname, Exec string }{host, exe}
+	if err := t.Execute(b, &data); err != nil {
+		return "", err
+	}
+	return b.String(), nil
 }
 
 // parseNames parses the route metric name template.
@@ -128,14 +161,3 @@ func clean(s string) string {
 
 // stubbed out for testing
 var hostname = os.Hostname
-
-// defaultPrefix determines the default metrics prefix from
-// the current hostname and the name of the executable.
-func defaultPrefix() string {
-	host, err := hostname()
-	if err != nil {
-		exit.Fatal("[FATAL] ", err)
-	}
-	exe := filepath.Base(os.Args[0])
-	return clean(host) + "." + clean(exe)
-}

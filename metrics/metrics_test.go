@@ -6,11 +6,25 @@ import (
 	"testing"
 )
 
-func TestDefaultPrefix(t *testing.T) {
+func TestParsePrefix(t *testing.T) {
 	hostname = func() (string, error) { return "myhost", nil }
 	os.Args = []string{"./myapp"}
-	if got, want := defaultPrefix(), "myhost.myapp"; got != want {
-		t.Errorf("got %v want %v", got, want)
+	got, err := parsePrefix("{{clean .Hostname}}.{{clean .Exec}}")
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	want := "myhost.myapp"
+	if got != want {
+		t.Errorf("ParsePrefix: got %v want %v", got, want)
+	}
+
+	got, err = parsePrefix("default")
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	want = "myhost.myapp"
+	if got != want {
+		t.Errorf("ParsePrefix Old default style: got %v want %v", got, want)
 	}
 }
 
