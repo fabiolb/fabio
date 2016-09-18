@@ -10,14 +10,11 @@ if [[ -z "$v" ]] ; then
 	exit 1
 fi
 
-arch=amd64
-for os in darwin linux ; do
-	for go in go1.6.3 go1.7.1; do
-		f=build/builds/fabio-${v}-${go}_${os}-${arch}
-		echo "Building $f"
-		( cd $basedir ; GOOS=${os} GOARCH=${arch} ~/$go/bin/go build -a -tags netgo -o $f )
-	done
+go get -u github.com/mitchellh/gox
+for go in go1.6.3 go1.7.1 ; do
+	echo "Building fabio with ${go}"
+	gox -gocmd ~/${go}/bin/go -tags netgo -output "${basedir}/build/builds/fabio-${v}/fabio-${v}-${go}-{{.OS}}_{{.Arch}}"
 done
 
-( cd build/builds && shasum -a 256 fabio-${v}-* > fabio-${v}.sha256 )
-( cd build/builds && gpg2 --output fabio-${v}.sha256.sig --detach-sig fabio-${v}.sha256 )
+( cd ${basedir}/build/builds/fabio-${v} && shasum -a 256 fabio-${v}-* > fabio-${v}.sha256 )
+( cd ${basedir}/build/builds/fabio-${v} && gpg2 --output fabio-${v}.sha256.sig --detach-sig fabio-${v}.sha256 )
