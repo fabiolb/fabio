@@ -37,7 +37,7 @@ func TestTableLookup(t *testing.T) {
 	route add svc abc.com/foo/bar/ http://foo.com:3000
 	`
 
-	tbl, err := ParseString(s)
+	tbl, err := ParseTable(s)
 	if err != nil {
 		t.Fatal(err)
 	}

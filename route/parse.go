@@ -4,9 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"os"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -58,42 +56,27 @@ import (
 //
 //    Note that the total sum of traffic sent to all matching routes is w%.
 //
-func Parse(r io.Reader) (Table, error) {
-	p := &parser{t: make(Table)}
-	if err := p.parse(r); err != nil {
+func ParseOldNoOpts(s string) ([]*RouteDef, error) {
+	p := &parser{}
+	if err := p.parse(strings.NewReader(s)); err != nil {
 		return nil, err
 	}
-	return p.t, nil
-}
-
-// ParseFile loads a routing table from a file.
-func ParseFile(path string) (Table, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	return Parse(f)
-}
-
-// ParseString loads a routing table from a string.
-func ParseString(s string) (Table, error) {
-	return Parse(strings.NewReader(s))
+	return p.defs, nil
 }
 
 type parser struct {
-	t          Table
 	lineNumber int
 	line       string
+	defs       []*RouteDef
 }
 
 type cmdFn func(s string) error
 
 func (p *parser) parse(r io.Reader) error {
 	cmds := map[string]cmdFn{
-		"route add ":    p.routeAdd,
-		"route del ":    p.routeDel,
-		"route weight ": p.routeWeight,
+		`^route\s+add `:    p.routeAdd,
+		`^route\s+del `:    p.routeDel,
+		`^route\s+weight `: p.routeWeight,
 	}
 
 	sc := bufio.NewScanner(r)
@@ -105,7 +88,8 @@ func (p *parser) parse(r io.Reader) error {
 		}
 		var fn cmdFn
 		for cmd := range cmds {
-			if strings.HasPrefix(p.line, cmd) {
+			re := regexp.MustCompile(cmd)
+			if re.MatchString(p.line) {
 				fn = cmds[cmd]
 				break
 			}
@@ -122,16 +106,16 @@ func (p *parser) parse(r io.Reader) error {
 
 var (
 	// route add <svc> <src> <dst> weight <w> tags "<t1>,<t2>,..."
-	routeAddSvcWeightTags = regexp.MustCompile(`^route add (\S+) (\S+) (\S+) weight (\S+) tags "([^"]*)"$`)
+	routeAddSvcWeightTags = regexp.MustCompile(`^route\s+add\s+(\S+)\s+(\S+)\s+(\S+)\s+weight\s+(\S+)\s+tags\s+"([^"]*)"$`)
 
 	// route add <svc> <src> <dst> weight <w>
-	routeAddSvcWeight = regexp.MustCompile(`^route add (\S+) (\S+) (\S+) weight (\S+)$`)
+	routeAddSvcWeight = regexp.MustCompile(`^route\s+add\s+(\S+)\s+(\S+)\s+(\S+)\s+weight\s+(\S+)$`)
 
 	// route add <svc> <src> <dst> tags "<t1>,<t2>,..."
-	routeAddSvcTags = regexp.MustCompile(`^route add (\S+) (\S+) (\S+) tags "([^"]*)"$`)
+	routeAddSvcTags = regexp.MustCompile(`^route\s+add\s+(\S+)\s+(\S+)\s+(\S+)\s+tags\s+"([^"]*)"$`)
 
 	// route add <svc> <src> <dst>
-	routeAddSvc = regexp.MustCompile(`^route add (\S+) (\S+) (\S+)$`)
+	routeAddSvc = regexp.MustCompile(`^route\s+add\s+(\S+)\s+(\S+)\s+(\S+)$`)
 )
 
 func (p *parser) routeAdd(s string) error {
@@ -142,13 +126,13 @@ func (p *parser) routeAdd(s string) error {
 
 	// test most to least specific
 	if m := routeAddSvcWeightTags.FindStringSubmatch(s); m != nil {
-		svc, src, dst, tags = m[1], m[2], m[4], strings.Split(m[5], ",")
-		w, err = p.parseWeight(m[3])
+		svc, src, dst, tags = m[1], m[2], m[3], parseTags(m[5])
+		w, err = parseWeight(m[4])
 	} else if m := routeAddSvcWeight.FindStringSubmatch(s); m != nil {
 		svc, src, dst = m[1], m[2], m[3]
-		w, err = p.parseWeight(m[4])
+		w, err = parseWeight(m[4])
 	} else if m := routeAddSvcTags.FindStringSubmatch(s); m != nil {
-		svc, src, dst, tags = m[1], m[2], m[3], strings.Split(m[4], ",")
+		svc, src, dst, tags = m[1], m[2], m[3], parseTags(m[4])
 	} else if m := routeAddSvc.FindStringSubmatch(s); m != nil {
 		svc, src, dst = m[1], m[2], m[3]
 	} else {
@@ -159,19 +143,20 @@ func (p *parser) routeAdd(s string) error {
 		return err
 	}
 
-	p.t.AddRoute(svc, src, dst, w, tags)
+	p.defs = append(p.defs, &RouteDef{Cmd: RouteAddCmd, Service: svc, Src: src, Dst: dst, Weight: w, Tags: tags})
+	//p.t.AddRoute(svc, src, dst, w, tags)
 	return nil
 }
 
 var (
 	// route del <svc> <src> <dst>
-	routeDelSvcSrcDst = regexp.MustCompile(`^route del (\S+) (\S+) (\S+)$`)
+	routeDelSvcSrcDst = regexp.MustCompile(`^route\s+del\s+(\S+)\s+(\S+)\s+(\S+)$`)
 
 	// route del <svc> <src>
-	routeDelSvcSrc = regexp.MustCompile(`^route del (\S+) (\S+)$`)
+	routeDelSvcSrc = regexp.MustCompile(`^route\s+del\s+(\S+)\s+(\S+)$`)
 
 	// route del <svc>
-	routeDelSvc = regexp.MustCompile(`^route del (\S+)$`)
+	routeDelSvc = regexp.MustCompile(`^route\s+del\s+(\S+)$`)
 )
 
 func (p *parser) routeDel(s string) error {
@@ -193,19 +178,20 @@ func (p *parser) routeDel(s string) error {
 		return err
 	}
 
-	p.t.DelRoute(svc, src, dst)
+	p.defs = append(p.defs, &RouteDef{Cmd: RouteDelCmd, Service: svc, Src: src, Dst: dst})
+	//p.t.DelRoute(svc, src, dst)
 	return nil
 }
 
 var (
 	// route weight <svc> <src> weight <w> tags "<t1>,<t2>,..."'
-	routeWeightSvcSrcTags = regexp.MustCompile(`^route weight (\S+) (\S+) weight (\S+) tags "([^"]*)"$`)
+	routeWeightSvcSrcTags = regexp.MustCompile(`^route\s+weight\s+(\S+)\s+(\S+)\s+weight\s+(\S+)\s+tags\s+"([^"]*)"$`)
 
 	// route weight <src> weight <w> tags "<t1>,<t2>,..."'
-	routeWeightSrcTags = regexp.MustCompile(`^route weight (\S+) weight (\S+) tags "([^"]+)"$`)
+	routeWeightSrcTags = regexp.MustCompile(`^route\s+weight\s+(\S+)\s+weight\s+(\S+)\s+tags\s+"([^"]+)"$`)
 
 	// route weight <svc> <src> weight <w>'
-	routeWeightSvcSrc = regexp.MustCompile(`^route weight (\S+) (\S+) weight (\S+)$`)
+	routeWeightSvcSrc = regexp.MustCompile(`^route\s+weight\s+(\S+)\s+(\S+)\s+weight\s+(\S+)$`)
 )
 
 func (p *parser) routeWeight(s string) error {
@@ -216,14 +202,14 @@ func (p *parser) routeWeight(s string) error {
 
 	// test most to least specific
 	if m := routeWeightSvcSrcTags.FindStringSubmatch(s); m != nil {
-		svc, src, tags = m[1], m[2], strings.Split(m[4], ",")
-		w, err = p.parseWeight(m[3])
+		svc, src, tags = m[1], m[2], parseTags(m[4])
+		w, err = parseWeight(m[3])
 	} else if m := routeWeightSvcSrc.FindStringSubmatch(s); m != nil {
 		svc, src = m[1], m[2]
-		w, err = p.parseWeight(m[3])
+		w, err = parseWeight(m[3])
 	} else if m := routeWeightSrcTags.FindStringSubmatch(s); m != nil {
-		src, tags = m[1], strings.Split(m[3], ",")
-		w, err = p.parseWeight(m[2])
+		src, tags = m[1], parseTags(m[3])
+		w, err = parseWeight(m[2])
 	} else {
 		err = p.syntaxError()
 	}
@@ -232,16 +218,9 @@ func (p *parser) routeWeight(s string) error {
 		return err
 	}
 
-	p.t.AddRouteWeight(svc, src, w, tags)
+	p.defs = append(p.defs, &RouteDef{Cmd: RouteWeightCmd, Service: svc, Src: src, Weight: w, Tags: tags})
+	//p.t.AddRouteWeight(svc, src, w, tags)
 	return nil
-}
-
-func (p *parser) parseWeight(s string) (float64, error) {
-	n, err := strconv.ParseFloat(s, 64)
-	if err != nil {
-		return 0, p.errorf("invalid weight: %s", s)
-	}
-	return n, nil
 }
 
 func (p *parser) syntaxError() error {

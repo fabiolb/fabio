@@ -317,7 +317,7 @@ func TestWeight(t *testing.T) {
 
 			// parse the routes
 			start := time.Now()
-			tbl, err := ParseString(strings.Join(in, "\n"))
+			tbl, err := ParseTable(strings.Join(in, "\n"))
 			if err != nil {
 				t.Fatalf("got %v want nil", err)
 			}

@@ -30,7 +30,7 @@ func TestGracefulShutdown(t *testing.T) {
 	defer srv.Close()
 
 	// load the routing table
-	tbl, err := route.ParseString("route add svc / " + srv.URL)
+	tbl, err := route.ParseTable("route add svc / " + srv.URL)
 	if err != nil {
 		t.Fatal(err)
 	}

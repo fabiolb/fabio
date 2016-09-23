@@ -27,46 +27,54 @@ func initRoutes() {
 
 func BenchmarkPrefixMatcherRndPicker5Routes(b *testing.B) {
 	once.Do(initRoutes)
+	b.ResetTimer()
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b5Routes, prefixMatcher, rndPicker, b) })
 }
 
 func BenchmarkPrefixMatcherRRPicker5Routes(b *testing.B) {
 	once.Do(initRoutes)
+	b.ResetTimer()
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b5Routes, prefixMatcher, rrPicker, b) })
 }
 
 func BenchmarkPrefixMatcherRndPicker10Routes(b *testing.B) {
 	once.Do(initRoutes)
+	b.ResetTimer()
 	b.SetParallelism(3)
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b10Routes, prefixMatcher, rndPicker, b) })
 }
 
 func BenchmarkPrefixMatcherRRPicker10Routes(b *testing.B) {
 	once.Do(initRoutes)
+	b.ResetTimer()
 	b.SetParallelism(3)
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b10Routes, prefixMatcher, rrPicker, b) })
 }
 
 func BenchmarkPrefixMatcherRndPicker100Routes(b *testing.B) {
 	once.Do(initRoutes)
+	b.ResetTimer()
 	b.SetParallelism(3)
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b100Routes, prefixMatcher, rndPicker, b) })
 }
 
 func BenchmarkPrefixMatcherRRPicker100Routes(b *testing.B) {
 	once.Do(initRoutes)
+	b.ResetTimer()
 	b.SetParallelism(3)
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b100Routes, prefixMatcher, rrPicker, b) })
 }
 
 func BenchmarkPrefixMatcherRndPicker500Routes(b *testing.B) {
 	once.Do(initRoutes)
+	b.ResetTimer()
 	b.SetParallelism(3)
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b500Routes, prefixMatcher, rndPicker, b) })
 }
 
 func BenchmarkPrefixMatcherRRPicker500Routes(b *testing.B) {
 	once.Do(initRoutes)
+	b.ResetTimer()
 	b.SetParallelism(3)
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b500Routes, prefixMatcher, rrPicker, b) })
 }
@@ -77,19 +85,22 @@ func BenchmarkPrefixMatcherRRPicker500Routes(b *testing.B) {
 // same target URLs. The number of generated routes is
 // domains * paths * depth.
 func makeRoutes(domains, paths, depth, urls int) Table {
-	t := Table{}
+	s := ""
 	for i := 0; i < domains; i++ {
 		prefix := fmt.Sprintf("www.host-%d.com/", i)
 		for j := 0; j < paths; j++ {
 			for k := 0; k < depth; k++ {
 				prefix += fmt.Sprintf("path-%d/", k)
 				for l := 0; l < urls; l++ {
-					if err := t.AddRoute("svc", prefix, "http://host:12345/", 0, nil); err != nil {
-						panic(err)
-					}
+					s += fmt.Sprintf("route add svc %s http://host:12345/\n", prefix)
 				}
 			}
 		}
+	}
+
+	t, err := ParseTable(s)
+	if err != nil {
+		panic(err)
 	}
 	return t
 }

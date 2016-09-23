@@ -102,6 +102,37 @@ func hostpath(prefix string) (host string, path string) {
 	return p[0], "/" + p[1]
 }
 
+// use new parser
+var Parse = ParseNew
+
+func ParseTable(s string) (Table, error) {
+	defs, err := Parse(s)
+	if err != nil {
+		return nil, err
+	}
+	return BuildTable(defs)
+}
+
+func BuildTable(defs []*RouteDef) (t Table, err error) {
+	t = Table{}
+	for _, d := range defs {
+		switch d.Cmd {
+		case RouteAddCmd:
+			err = t.AddRoute(d.Service, d.Src, d.Dst, d.Weight, d.Tags)
+		case RouteDelCmd:
+			err = t.DelRoute(d.Service, d.Src, d.Dst)
+		case RouteWeightCmd:
+			err = t.AddRouteWeight(d.Service, d.Src, d.Weight, d.Tags)
+		default:
+			err = fmt.Errorf("route: invalid command: %s", d.Cmd)
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	return t, nil
+}
+
 // AddRoute adds a new route prefix -> target for the given service.
 func (t Table) AddRoute(service, prefix, target string, weight float64, tags []string) error {
 	host, path := hostpath(prefix)
