@@ -3,8 +3,10 @@ package consul
 import (
 	"fmt"
 	"log"
+	"net"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -101,7 +103,9 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 					addr += ".local"
 				}
 
-				config = append(config, fmt.Sprintf("route add %s %s%s http://%s:%d/ tags %q", name, host, path, addr, port, strings.Join(svc.ServiceTags, ",")))
+				addrport := net.JoinHostPort(addr, strconv.Itoa(port))
+
+				config = append(config, fmt.Sprintf("route add %s %s%s http://%s/ tags %q", name, host, path, addrport, strings.Join(svc.ServiceTags, ",")))
 			}
 		}
 	}
