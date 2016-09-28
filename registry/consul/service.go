@@ -3,13 +3,13 @@ package consul
 import (
 	"fmt"
 	"log"
+	"net"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
-
 	"github.com/hashicorp/consul/api"
-	//"debug/elf"
 )
 
 type ConsulConfig struct {
@@ -95,13 +95,14 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, con
 		// if registry.consul.register.byServiceName option from config is enabled
 		if consulConfig.UseServiceName {
 			name, addr, port := serviceDestination(svc)
-			config = append(config, fmt.Sprintf("route add %s %s%s http://%s:%d/ tags %q", name, "", "/" + name, addr, port, strings.Join(svc.ServiceTags, ",")))
+			addrport := net.JoinHostPort(addr, strconv.Itoa(port))
+			config = append(config, fmt.Sprintf("route add %s %s%s http://%s/ tags %q", name, "", "/" + name, addrport, strings.Join(svc.ServiceTags, ",")))
 		} else {
 			for _, tag := range svc.ServiceTags {
 				if host, path, ok := parseURLPrefixTag(tag, consulConfig.TagPrefix, env); ok {
 					name, addr, port := serviceDestination(svc)
-
-					config = append(config, fmt.Sprintf("route add %s %s%s http://%s:%d/ tags %q", name, host, path, addr, port, strings.Join(svc.ServiceTags, ",")))
+					addrport := net.JoinHostPort(addr, strconv.Itoa(port))
+					config = append(config, fmt.Sprintf("route add %s %s%s http://%s/ tags %q", name, host, path, addrport, strings.Join(svc.ServiceTags, ",")))
 				}
 			}
 
