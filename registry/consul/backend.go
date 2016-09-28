@@ -80,7 +80,7 @@ func (b *be) WatchServices() chan string {
 	log.Printf("[INFO] consul: Using tag prefix %q", b.cfg.TagPrefix)
 
 	svc := make(chan string)
-	consulConfig := &ConsulConfig{TagPrefix: b.cfg.TagPrefix, Statuses: b.cfg.ServiceStatus, UseServiceName: b.cfg.ByServiceName}
+	consulConfig := &ConsulConfig{TagPrefix: b.cfg.TagPrefix, Statuses: b.cfg.ServiceStatus, UseServiceName: b.cfg.ByServiceName, ExternalNodes: b.cfg.ExternalNodes}
 	go watchServices(b.c, consulConfig, svc)
 	return svc
 }

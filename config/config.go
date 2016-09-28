@@ -107,6 +107,7 @@ type Consul struct {
 	ByServiceName bool
 	ServiceAddr   string
 	ServiceName   string
+	ExternalNodes []string
 	ServiceTags   []string
 	ServiceStatus []string
 	CheckInterval time.Duration

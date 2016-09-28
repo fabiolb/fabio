@@ -28,6 +28,7 @@ var Default = &Config{
 			ByServiceName: false,
 			ServiceAddr:   ":9998",
 			ServiceName:   "fabio",
+			ExternalNodes: []string{},
 			ServiceStatus: []string{"passing"},
 			CheckInterval: time.Second,
 			CheckTimeout:  3 * time.Second,

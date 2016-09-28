@@ -15,6 +15,7 @@ import (
 type ConsulConfig struct {
 	TagPrefix string
 	Statuses []string
+	ExternalNodes []string
 	UseServiceName bool
 }
 
@@ -23,7 +24,20 @@ func watchServices(client *api.Client, consulConfig *ConsulConfig, config chan s
 
 	for {
 		q := &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
+		var intermidiateConfig []string
+		for _, externalNode := range consulConfig.ExternalNodes {
+			catalogNode, _, err := client.Catalog().Node(externalNode, q)
+			if err != nil {
+				log.Printf("[WARN] consul: Error retrieving node %s services. %v", externalNode, err)
+				time.Sleep(time.Second)
+				continue
+			}
+
+			intermidiateConfig = append(intermidiateConfig, externalServicesConfig(catalogNode))
+
+		}
 		checks, meta, err := client.Health().State("any", q)
+
 		if err != nil {
 			log.Printf("[WARN] consul: Error fetching health state. %v", err)
 			time.Sleep(time.Second)
@@ -31,9 +45,28 @@ func watchServices(client *api.Client, consulConfig *ConsulConfig, config chan s
 		}
 
 		log.Printf("[INFO] consul: Health changed to #%d", meta.LastIndex)
-		config <- servicesConfig(client, passingServices(checks, consulConfig.Statuses), consulConfig)
+		intermidiateConfig = append(intermidiateConfig, servicesConfig(client, passingServices(checks, consulConfig.Statuses), consulConfig))
+
+		config <- strings.Join(intermidiateConfig, "\n")
 		lastIndex = meta.LastIndex
 	}
+}
+
+// externalServicesConfig determines which services from external nodes from
+// config file will be selected without healthcheck
+func externalServicesConfig(catalogNode *api.CatalogNode) string {
+	var config []string
+	for _, service := range catalogNode.Services {
+		name, addr, port := service.Service, service.Address, service.Port
+		// add .local suffix on OSX for simple host names w/o domain
+		if runtime.GOOS == "darwin" && !strings.Contains(addr, ".") && !strings.HasSuffix(addr, ".local") {
+			addr += ".local"
+		}
+		addrport := net.JoinHostPort(addr, strconv.Itoa(port))
+		config = append(config, fmt.Sprintf("route add %s %s%s http://%s/ tags %q", name, "", "/" + name, addrport, strings.Join(service.Tags, ",")))
+	}
+	sort.Sort(sort.Reverse(sort.StringSlice(config)))
+	return strings.Join(config, "\n")
 }
 
 // servicesConfig determines which service instances have passing health checks
@@ -94,14 +127,12 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, con
 
 		// if registry.consul.register.byServiceName option from config is enabled
 		if consulConfig.UseServiceName {
-			name, addr, port := serviceDestination(svc)
-			addrport := net.JoinHostPort(addr, strconv.Itoa(port))
+			name, addrport, _ := serviceDestination(svc)
 			config = append(config, fmt.Sprintf("route add %s %s%s http://%s/ tags %q", name, "", "/" + name, addrport, strings.Join(svc.ServiceTags, ",")))
 		} else {
 			for _, tag := range svc.ServiceTags {
 				if host, path, ok := parseURLPrefixTag(tag, consulConfig.TagPrefix, env); ok {
-					name, addr, port := serviceDestination(svc)
-					addrport := net.JoinHostPort(addr, strconv.Itoa(port))
+					name, addrport, _ := serviceDestination(svc)
 					config = append(config, fmt.Sprintf("route add %s %s%s http://%s/ tags %q", name, host, path, addrport, strings.Join(svc.ServiceTags, ",")))
 				}
 			}
@@ -122,5 +153,16 @@ func serviceDestination(svc *api.CatalogService) (string, string, int) {
 	if runtime.GOOS == "darwin" && !strings.Contains(addr, ".") && !strings.HasSuffix(addr, ".local") {
 		addr += ".local"
 	}
-	return name, addr, port
+	addrport := net.JoinHostPort(addr, strconv.Itoa(port))
+	return name, addrport, port
+}
+
+func inExternalNodes(nodes []string, nodeName string) bool {
+	for _, node := range nodes {
+		log.Println("Compare: " + node + " in nodes: " + nodeName)
+		if node == nodeName {
+			return true
+		}
+	}
+	return false
 }
