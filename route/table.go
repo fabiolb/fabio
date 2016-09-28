@@ -121,7 +121,6 @@ func (t Table) AddRoute(service, prefix, target string, weight float64, tags []s
 
 	r := newRoute(host, path)
 	r.addTarget(service, targetURL, weight, tags)
-
 	// add new host
 	if t[host] == nil {
 		t[host] = Routes{r}

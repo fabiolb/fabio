@@ -9,11 +9,16 @@ import (
 	"time"
 
 	"github.com/hashicorp/consul/api"
+	//"debug/elf"
 )
 
-// watchServices monitors the consul health checks and creates a new configuration
-// on every change.
-func watchServices(client *api.Client, tagPrefix string, status []string, config chan string) {
+type ConsulConfig struct {
+	TagPrefix string
+	Statuses []string
+	UseServiceName bool
+}
+
+func watchServices(client *api.Client, consulConfig *ConsulConfig, config chan string) {
 	var lastIndex uint64
 
 	for {
@@ -26,14 +31,14 @@ func watchServices(client *api.Client, tagPrefix string, status []string, config
 		}
 
 		log.Printf("[INFO] consul: Health changed to #%d", meta.LastIndex)
-		config <- servicesConfig(client, passingServices(checks, status), tagPrefix)
+		config <- servicesConfig(client, passingServices(checks, consulConfig.Statuses), consulConfig)
 		lastIndex = meta.LastIndex
 	}
 }
 
 // servicesConfig determines which service instances have passing health checks
 // and then finds the ones which have tags with the right prefix to build the config from.
-func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix string) string {
+func servicesConfig(client *api.Client, checks []*api.HealthCheck, consulConfig *ConsulConfig) string {
 	// map service name to list of service passing for which the health check is ok
 	m := map[string]map[string]bool{}
 	for _, check := range checks {
@@ -47,7 +52,7 @@ func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix str
 
 	var config []string
 	for name, passing := range m {
-		cfg := serviceConfig(client, name, passing, tagPrefix)
+		cfg := serviceConfig(client, name, passing, consulConfig)
 		config = append(config, cfg...)
 	}
 
@@ -58,7 +63,7 @@ func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix str
 }
 
 // serviceConfig constructs the config for all good instances of a single service.
-func serviceConfig(client *api.Client, name string, passing map[string]bool, tagPrefix string) (config []string) {
+func serviceConfig(client *api.Client, name string, passing map[string]bool, consulConfig *ConsulConfig) (config []string) {
 	if name == "" || len(passing) == 0 {
 		return nil
 	}
@@ -87,23 +92,34 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 			continue
 		}
 
-		for _, tag := range svc.ServiceTags {
-			if host, path, ok := parseURLPrefixTag(tag, tagPrefix, env); ok {
-				name, addr, port := svc.ServiceName, svc.ServiceAddress, svc.ServicePort
+		// if registry.consul.register.byServiceName option from config is enabled
+		if consulConfig.UseServiceName {
+			name, addr, port := serviceDestination(svc)
+			config = append(config, fmt.Sprintf("route add %s %s%s http://%s:%d/ tags %q", name, "", "/" + name, addr, port, strings.Join(svc.ServiceTags, ",")))
+		} else {
+			for _, tag := range svc.ServiceTags {
+				if host, path, ok := parseURLPrefixTag(tag, consulConfig.TagPrefix, env); ok {
+					name, addr, port := serviceDestination(svc)
 
-				// use consul node address if service address is not set
-				if addr == "" {
-					addr = svc.Address
+					config = append(config, fmt.Sprintf("route add %s %s%s http://%s:%d/ tags %q", name, host, path, addr, port, strings.Join(svc.ServiceTags, ",")))
 				}
-
-				// add .local suffix on OSX for simple host names w/o domain
-				if runtime.GOOS == "darwin" && !strings.Contains(addr, ".") && !strings.HasSuffix(addr, ".local") {
-					addr += ".local"
-				}
-
-				config = append(config, fmt.Sprintf("route add %s %s%s http://%s:%d/ tags %q", name, host, path, addr, port, strings.Join(svc.ServiceTags, ",")))
 			}
+
 		}
+
 	}
 	return config
+}
+
+func serviceDestination(svc *api.CatalogService) (string, string, int) {
+	name, addr, port := svc.ServiceName, svc.ServiceAddress, svc.ServicePort
+	if addr == "" {
+		addr = svc.Address
+	}
+
+	// add .local suffix on OSX for simple host names w/o domain
+	if runtime.GOOS == "darwin" && !strings.Contains(addr, ".") && !strings.HasSuffix(addr, ".local") {
+		addr += ".local"
+	}
+	return name, addr, port
 }

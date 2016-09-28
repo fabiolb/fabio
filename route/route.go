@@ -53,7 +53,6 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		name = "unknown"
 	}
 	timer := ServiceRegistry.GetTimer(name)
-
 	t := &Target{Service: service, Tags: tags, URL: targetURL, FixedWeight: fixedWeight, Timer: timer, timerName: name}
 	r.Targets = append(r.Targets, t)
 	r.weighTargets()
