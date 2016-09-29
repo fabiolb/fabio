@@ -21,6 +21,7 @@ proxy.noroutestatus = 929
 proxy.shutdownwait = 500ms
 proxy.responseheadertimeout = 3s
 proxy.keepalivetimeout = 4s
+proxy.stripPath = true
 proxy.dialtimeout = 60s
 proxy.readtimeout = 5s
 proxy.writetimeout = 10s
@@ -39,7 +40,9 @@ registry.consul.tagprefix = p-
 registry.consul.register.enabled = false
 registry.consul.register.addr = 6.6.6.6:7777
 registry.consul.register.name = fab
+registry.consul.register.byServiceName = true
 registry.consul.register.tags = a, b, c ,
+registry.consul.service.externalNodes = testnode1,testnode2
 registry.consul.register.checkInterval = 5s
 registry.consul.register.checkTimeout = 10s
 registry.consul.service.status = a,b
@@ -88,6 +91,7 @@ aws.apigw.cert.cn = furb
 			ReadTimeout:           5 * time.Second,
 			WriteTimeout:          10 * time.Second,
 			FlushInterval:         15 * time.Second,
+			StripPath:             true,
 			ClientIPHeader:        "clientip",
 			TLSHeader:             "tls",
 			TLSHeaderValue:        "tls-true",
@@ -113,6 +117,8 @@ aws.apigw.cert.cn = furb
 				ServiceStatus: []string{"a", "b"},
 				CheckInterval: 5 * time.Second,
 				CheckTimeout:  10 * time.Second,
+				ByServiceName: true,
+				ExternalNodes: []string{"testnode1", "testnode2"},
 			},
 		},
 		Listen: []Listen{
