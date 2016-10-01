@@ -198,7 +198,11 @@ func TestConsulSource(t *testing.T) {
 		t.Log("Using existing consul server")
 	}
 
-	client, key, err := parseConsulURL(certURL, kvURLPrefix)
+	config, key, err := parseConsulURL(certURL)
+	if err != nil {
+		t.Fatalf("Failed to parse consul url: %s", err)
+	}
+	client, err := consulapi.NewClient(config)
 	if err != nil {
 		t.Fatalf("Failed to create consul client: %s", err)
 	}

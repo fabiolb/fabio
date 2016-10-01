@@ -3,11 +3,13 @@ package cert
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
 	"path"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/consul/api"
@@ -24,23 +26,30 @@ type ConsulSource struct {
 	CAUpgradeCN string
 }
 
-const kvURLPrefix = "/v1/kv/"
+func parseConsulURL(rawurl string) (config *api.Config, key string, err error) {
+	if rawurl == "" || !strings.HasPrefix(rawurl, "http://") && !strings.HasPrefix(rawurl, "https://") {
+		return nil, "", errors.New("invalid url")
+	}
 
-func parseConsulURL(consulURL, stripPrefix string) (client *api.Client, key string, err error) {
-	u, err := url.Parse(consulURL)
+	u, err := url.Parse(rawurl)
 	if err != nil {
 		return nil, "", err
 	}
-	var token string
+
+	config = &api.Config{Address: u.Host, Scheme: u.Scheme}
 	if len(u.Query()["token"]) > 0 {
-		token = u.Query()["token"][0]
+		config.Token = u.Query()["token"][0]
 	}
-	client, err = api.NewClient(&api.Config{Address: u.Host, Scheme: u.Scheme, Token: token})
-	if err != nil {
-		return nil, "", err
+
+	// path needs to point to kv store and we need
+	// to strip the prefix off to get the key
+	const prefix = "/v1/kv/"
+	key = u.Path
+	if !strings.HasPrefix(key, prefix) {
+		return nil, "", errors.New("missing prefix: " + prefix)
 	}
-	key = u.RequestURI()[len(stripPrefix):]
-	return client, key, nil
+	key = key[len(prefix):]
+	return
 }
 
 func (s ConsulSource) LoadClientCAs() (*x509.CertPool, error) {
@@ -48,7 +57,12 @@ func (s ConsulSource) LoadClientCAs() (*x509.CertPool, error) {
 		return nil, nil
 	}
 
-	client, key, err := parseConsulURL(s.ClientCAURL, kvURLPrefix)
+	config, key, err := parseConsulURL(s.ClientCAURL)
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := api.NewClient(config)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +79,12 @@ func (s ConsulSource) Certificates() chan []tls.Certificate {
 		return nil
 	}
 
-	client, key, err := parseConsulURL(s.CertURL, kvURLPrefix)
+	config, key, err := parseConsulURL(s.CertURL)
+	if err != nil {
+		log.Printf("[ERROR] cert: Failed to parse consul url. %s", err)
+	}
+
+	client, err := api.NewClient(config)
 	if err != nil {
 		log.Printf("[ERROR] cert: Failed to create consul client. %s", err)
 	}
