@@ -41,9 +41,8 @@ The full documentation is on the [Wiki](https://github.com/eBay/fabio/wiki).
 
 1. Install from source, [binary](https://github.com/eBay/fabio/releases), [Docker](https://hub.docker.com/r/magiconair/fabio/) or [Homebrew](http://brew.sh).
     ```
-    GO15VENDOREXPERIMENT=1 go get github.com/eBay/fabio (go1.5.x)
-
-    go get github.com/eBay/fabio                        (>= go1.6)
+	# go 1.7 or higher is required
+    go get github.com/eBay/fabio                        (>= go1.7)
 
     brew install fabio                                  (OSX/macOS stable)
     brew install --devel fabio                          (OSX/macOS devel)

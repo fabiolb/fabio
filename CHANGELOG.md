@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+ * Drop support for Go 1.6
  * [PR #167](https://github.com/eBay/fabio/pull/167): Use Go's net.JoinHostPort which will auto-detect ipv6
  * [Issue #172](https://github.com/eBay/fabio/issues/172): Consul cert store URL with token not parsed correctly
 
