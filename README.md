@@ -10,7 +10,9 @@ for deploying applications managed by [consul](https://consul.io/).
 
 Register your services in consul, provide a health check and fabio will start routing traffic to them. No configuration required. Deployment, upgrading and refactoring has never been easier.
 
-fabio was developed by [eBay in Amsterdam](http://www.ebayclassifiedsgroup.com) and runs some of the largest websites in The Netherlands and Italy. It delivers 15.000 req/sec every day since Sep 2015 without problems.
+fabio is developed and maintained by [Frank Schroeder](https://twitter.com/magiconair) at [eBay in Amsterdam](http://www.ebayclassifiedsgroup.com/).
+It powers some of the largest websites in The Netherlands ([marktplaats.nl](http://www.marktplaats.nl/)), Australia ([gumtree.com.au](http://www.gumtree.com.au)) and Italy ([www.kijiji.it](http://www.kijiji.it/)).
+It delivers 23.000 req/sec every day since Sep 2015 without problems.
 
 It integrates with
 [Consul](https://consul.io/),
