@@ -168,15 +168,15 @@ func TestHTTPSource(t *testing.T) {
 
 func TestConsulSource(t *testing.T) {
 	const (
-		certURL = "http://localhost:8500/v1/kv/fabio/test/consul-server"
+		certURL = "http://127.0.0.1:8500/v1/kv/fabio/test/consul-server"
 		dataDir = "/tmp/fabio-consul-source-test"
 	)
 
 	// run a consul server if it isn't already running
-	_, err := http.Get("http://localhost:8500/v1/status/leader")
+	_, err := http.Get("http://127.0.0.1:8500/v1/status/leader")
 	if err != nil {
 		t.Log("Starting consul server")
-		consul := exec.Command("consul", "agent", "-server", "-bootstrap", "-data-dir", dataDir)
+		consul := exec.Command("consul", "agent", "-bind", "127.0.0.1", "-server", "-bootstrap", "-data-dir", dataDir)
 		if err := consul.Start(); err != nil {
 			t.Fatalf("Failed to start consul server. %s", err)
 		}
@@ -186,14 +186,18 @@ func TestConsulSource(t *testing.T) {
 		}()
 
 		isUp := func() bool {
-			resp, err := http.Get("http://localhost:8500/v1/status/leader")
-			return err == nil && resp.StatusCode == 200
+			resp, err := http.Get("http://127.0.0.1:8500/v1/status/leader")
+
+			// /v1/status/leader returns '""' while consul is in leader election
+			// and '"127.0.0.1:8300"' when not. So we punt by checking the
+			// Content-Length header instead of the actual body content :)
+			return err == nil && resp.StatusCode == 200 && resp.Header.Get("Content-Length") != "2"
 		}
-		if !waitFor(time.Second, isUp) {
+		t.Log("Waiting for consul to get ready")
+		if !waitFor(3*time.Second, isUp) {
 			t.Fatal("Timeout waiting for consul server")
 		}
-		// give consul time to figure out that it is the only member
-		time.Sleep(3 * time.Second)
+		t.Log("Consul is ready")
 	} else {
 		t.Log("Using existing consul server")
 	}
