@@ -52,6 +52,7 @@ func listenAndServeTCP(l config.Listen, h proxy.TCPProxy) {
 	if err != nil {
 		exit.Fatal("[FATAL] ", err)
 	}
+	ln = &proxyproto.Listener{Listener: tcpKeepAliveListener{ln.(*net.TCPListener)}}
 	defer ln.Close()
 
 	// close the socket on exit to terminate the accept loop
