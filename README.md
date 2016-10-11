@@ -4,7 +4,6 @@
 
 [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/eBay/fabio/master/LICENSE)
-[![Join the chat at https://gitter.im/eBay/fabio](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ebay/fabio?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) router
 for deploying applications managed by [consul](https://consul.io/).
