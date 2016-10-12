@@ -6,7 +6,7 @@ set -o nounset
 set -o errexit
 
 readonly prgdir=$(cd $(dirname $0); pwd)
-readonly brewdir=$(brew --prefix)/Library/Taps/homebrew/homebrew-core
+readonly brewdir=$(brew --prefix)/Homebrew/Library/Taps/homebrew/homebrew-core
 
 v=${1:-}
 [[ -n "$v" ]] || read -p "Enter version (e.g. 1.0.4): " v
