@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"sort"
 	"strings"
+	"path"
 	"sync"
 	"sync/atomic"
 
@@ -266,7 +267,8 @@ func (t Table) LookupHost(host string) *Target {
 	return t.lookup(host, "/", "")
 }
 
-func (t Table) lookup(host, path, trace string) *Target {
+// performs a match of path against a specific host in the Table map
+func (t Table) matchHostPath(host string, path string, trace string) *Target {
 	for _, r := range t[host] {
 		if match(path, r) {
 			n := len(r.Targets)
@@ -289,8 +291,49 @@ func (t Table) lookup(host, path, trace string) *Target {
 			log.Printf("[TRACE] %s No match %s%s", trace, r.Host, r.Path)
 		}
 	}
+
 	return nil
 }
+
+
+// 1. if no host defined, just does a path match
+// 2. if host defined does:
+//    a. exact host match, then paths
+//    b. glob host match, then paths against each match
+func (t Table) lookup(host, lookupPath, trace string) *Target {
+	// If no host defined, then it is just path matching
+	if host == "" {
+		return t.matchHostPath(host, lookupPath, trace)
+	}
+
+	// If the host is defined, run a search against that exact host name
+	var foundTarget = t.matchHostPath(host, lookupPath, trace)
+	if foundTarget != nil {
+		return foundTarget
+	}
+
+	// If not found against the host, perform a glob search against the hosts
+	// then for each of those, run a path check
+	for hostKey, _ := range t {
+		// If this matches a glob match, add it to the list of hosts to search
+		var hasMatch, err = path.Match(hostKey, host)
+
+		if err != nil {
+			log.Printf("[ERROR] Glob matching error %s for host %s vs %s", err, hostKey, host)
+		}
+
+		// If the glob matches, then perform a search for the paths against the host found
+		if hasMatch {
+			var hostPathMatch = t.matchHostPath(hostKey, lookupPath, trace)
+			if hostPathMatch != nil {
+				return hostPathMatch
+			}
+		}
+	}
+
+	return nil
+}
+
 
 func (t Table) Config(addWeight bool) []string {
 	var hosts []string
