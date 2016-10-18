@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"sort"
 	"strings"
-	"regexp"
+	"path"
 	"sync"
 	"sync/atomic"
 
@@ -320,15 +320,17 @@ func (t Table) lookup(host, lookupPath, trace string) *Target {
 		return t.matchHostPath(host, lookupPath, trace)
 	}
 
-	/* // TODO if no regex configuration, just return this
+/*
+	// TODO if no regex configuration, just return this
 	// If the host is defined, run a search against that exact host name
 	var foundTarget = t.matchHostPath(host, lookupPath, trace)
 	if foundTarget != nil {
 		return foundTarget
 	}
-	*/
+*/
 
 	// TODO give an option for regex or glob host configuration
+	// think about how to do regex whether to inject ^$ etc.
 
 	// If the user wants to run regex search (TODO, do regex and make configuration)
 	// Create a new array of targets
@@ -338,7 +340,7 @@ func (t Table) lookup(host, lookupPath, trace string) *Target {
 	// then for each of those, run a path check, and add that entry into the routing table
 	for hostKey, _ := range t {
 		// If this matches a glob match, add it to the list of hosts to search
-		var hasMatch, err = regexp.MatchString(hostKey, host)
+		var hasMatch, err = path.Match(hostKey, host)
 
 		if err != nil {
 			log.Printf("[ERROR] Glob matching error %s for host %s vs %s", err, hostKey, host)
