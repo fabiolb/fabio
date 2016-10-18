@@ -320,21 +320,19 @@ func (t Table) lookup(host, lookupPath, trace string) *Target {
 		return t.matchHostPath(host, lookupPath, trace)
 	}
 
-/*
-	// TODO if no regex configuration, just return this
-	// If the host is defined, run a search against that exact host name
-	var foundTarget = t.matchHostPath(host, lookupPath, trace)
-	if foundTarget != nil {
-		return foundTarget
+	routes := Routes{}
+
+	// If there is a direct match, add that route as the first match
+	var foundRoute = t.matchHostPathRoute(host, lookupPath, trace)
+	if foundRoute != nil {
+		routes = append(routes, foundRoute)
 	}
-*/
 
 	// TODO give an option for regex or glob host configuration
 	// think about how to do regex whether to inject ^$ etc.
 
 	// If the user wants to run regex search (TODO, do regex and make configuration)
 	// Create a new array of targets
-	routes := Routes{}
 
 	// If not found against the host, perform a glob search against the hosts
 	// then for each of those, run a path check, and add that entry into the routing table
@@ -350,6 +348,7 @@ func (t Table) lookup(host, lookupPath, trace string) *Target {
 		if hasMatch {
 			var matchingRoute = t.matchHostPathRoute(hostKey, lookupPath, trace)
 			if matchingRoute != nil {
+				// Should only check for unique route (from above foundRoute)?
 				routes = append(routes, matchingRoute)
 			}
 		}
