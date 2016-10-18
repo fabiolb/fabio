@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"sort"
 	"strings"
-	"path"
+	"regexp"
 	"sync"
 	"sync/atomic"
 
@@ -268,6 +268,22 @@ func (t Table) LookupHost(host string) *Target {
 }
 
 // performs a match of path against a specific host in the Table map
+// returns a matching route only
+func (t Table) matchHostPathRoute(host string, path string, trace string) *Route {
+	for _, r := range t[host] {
+		if match(path, r) {
+			return r
+		}
+		if trace != "" {
+			log.Printf("[TRACE] %s No match %s%s", trace, r.Host, r.Path)
+		}
+	}
+
+	return nil
+}
+
+
+// performs a match of path against a specific host in the Table map
 func (t Table) matchHostPath(host string, path string, trace string) *Target {
 	for _, r := range t[host] {
 		if match(path, r) {
@@ -297,26 +313,32 @@ func (t Table) matchHostPath(host string, path string, trace string) *Target {
 
 
 // 1. if no host defined, just does a path match
-// 2. if host defined does:
-//    a. exact host match, then paths
-//    b. glob host match, then paths against each match
+// 2. if host defined does a glob host match, then paths against each match
 func (t Table) lookup(host, lookupPath, trace string) *Target {
 	// If no host defined, then it is just path matching
 	if host == "" {
 		return t.matchHostPath(host, lookupPath, trace)
 	}
 
+	/* // TODO if no regex configuration, just return this
 	// If the host is defined, run a search against that exact host name
 	var foundTarget = t.matchHostPath(host, lookupPath, trace)
 	if foundTarget != nil {
 		return foundTarget
 	}
+	*/
+
+	// TODO give an option for regex or glob host configuration
+
+	// If the user wants to run regex search (TODO, do regex and make configuration)
+	// Create a new array of targets
+	routes := Routes{}
 
 	// If not found against the host, perform a glob search against the hosts
-	// then for each of those, run a path check
+	// then for each of those, run a path check, and add that entry into the routing table
 	for hostKey, _ := range t {
 		// If this matches a glob match, add it to the list of hosts to search
-		var hasMatch, err = path.Match(hostKey, host)
+		var hasMatch, err = regexp.MatchString(hostKey, host)
 
 		if err != nil {
 			log.Printf("[ERROR] Glob matching error %s for host %s vs %s", err, hostKey, host)
@@ -324,10 +346,33 @@ func (t Table) lookup(host, lookupPath, trace string) *Target {
 
 		// If the glob matches, then perform a search for the paths against the host found
 		if hasMatch {
-			var hostPathMatch = t.matchHostPath(hostKey, lookupPath, trace)
-			if hostPathMatch != nil {
-				return hostPathMatch
+			var matchingRoute = t.matchHostPathRoute(hostKey, lookupPath, trace)
+			if matchingRoute != nil {
+				routes = append(routes, matchingRoute)
 			}
+		}
+	}
+
+	// at this point iterate through the matching route to find the one that has the strongest match
+	// this should be a method elsewhere, because it is identical to matchHostPath()
+	sort.Sort(routes)
+        for _, r := range routes {
+		if match(lookupPath, r) {
+			n := len(r.Targets)
+			if n == 0 {
+				return nil
+			}
+
+			var target *Target
+			if n == 1 {
+				target = r.Targets[0]
+			} else {
+				target = pick(r)
+			}
+			if trace != "" {
+				log.Printf("[TRACE] %s Match %s%s", trace, r.Host, r.Path)
+			}
+			return target
 		}
 	}
 
