@@ -1,5 +1,9 @@
 ## Changelog
 
+### Unreleased
+
+ * Upgrade to Go 1.7.3
+
 ### [v1.3.3](https://github.com/eBay/fabio/releases/tag/v1.3.3) - 12 Oct 2016
 
  * Drop support for Go 1.6
