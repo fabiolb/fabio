@@ -6,6 +6,8 @@ import (
 
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/metrics"
+	"github.com/eBay/fabio/route"
+	"strings"
 )
 
 // httpProxy is a dynamic reverse proxy for HTTP and HTTPS protocols.
@@ -60,8 +62,27 @@ func (p *httpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h = newHTTPProxy(t.URL, p.tr, time.Duration(0))
 	}
 
+	if p.cfg.StripPath {
+		r.URL.Path = stripPath(r, t)
+	}
 	start := time.Now()
 	h.ServeHTTP(w, r)
 	p.requests.UpdateSince(start)
 	t.Timer.UpdateSince(start)
+}
+
+// Path stripping by provided target tags or if empty by service name
+func stripPath(r *http.Request, t *route.Target) string {
+	if len(t.Tags) > 0 {
+		for _, tag := range t.Tags {
+			if strings.HasPrefix(r.URL.Path, tag) {
+				return strings.Replace(r.URL.Path, tag, "", -1)
+			}
+		}
+	}
+	servicePath := "/" + t.Service
+	if strings.HasPrefix(r.URL.Path, servicePath) {
+		return strings.Replace(r.URL.Path, servicePath, "", -1)
+	}
+	return r.URL.Path
 }

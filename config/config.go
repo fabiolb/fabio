@@ -60,6 +60,7 @@ type Proxy struct {
 	ClientIPHeader        string
 	TLSHeader             string
 	TLSHeaderValue        string
+	StripPath             bool
 }
 
 type Runtime struct {
@@ -103,8 +104,10 @@ type Consul struct {
 	KVPath        string
 	TagPrefix     string
 	Register      bool
+	ByServiceName bool
 	ServiceAddr   string
 	ServiceName   string
+	ExternalNodes []string
 	ServiceTags   []string
 	ServiceStatus []string
 	CheckInterval time.Duration

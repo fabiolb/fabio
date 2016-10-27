@@ -142,13 +142,13 @@ func (p *parser) routeAdd(s string) error {
 
 	// test most to least specific
 	if m := routeAddSvcWeightTags.FindStringSubmatch(s); m != nil {
-		svc, src, dst, tags = m[1], m[2], m[4], strings.Split(m[5], ",")
+		svc, src, dst, tags = m[1], m[2], m[4], strings.FieldsFunc(m[5], splitSeparator)
 		w, err = p.parseWeight(m[3])
 	} else if m := routeAddSvcWeight.FindStringSubmatch(s); m != nil {
 		svc, src, dst = m[1], m[2], m[3]
 		w, err = p.parseWeight(m[4])
 	} else if m := routeAddSvcTags.FindStringSubmatch(s); m != nil {
-		svc, src, dst, tags = m[1], m[2], m[3], strings.Split(m[4], ",")
+		svc, src, dst, tags = m[1], m[2], m[3], strings.FieldsFunc(m[4], splitSeparator)
 	} else if m := routeAddSvc.FindStringSubmatch(s); m != nil {
 		svc, src, dst = m[1], m[2], m[3]
 	} else {
@@ -158,9 +158,12 @@ func (p *parser) routeAdd(s string) error {
 	if err != nil {
 		return err
 	}
-
 	p.t.AddRoute(svc, src, dst, w, tags)
 	return nil
+}
+
+func splitSeparator(c rune) bool {
+	return c == ','
 }
 
 var (
@@ -216,13 +219,13 @@ func (p *parser) routeWeight(s string) error {
 
 	// test most to least specific
 	if m := routeWeightSvcSrcTags.FindStringSubmatch(s); m != nil {
-		svc, src, tags = m[1], m[2], strings.Split(m[4], ",")
+		svc, src, tags = m[1], m[2], strings.FieldsFunc(m[4], splitSeparator)
 		w, err = p.parseWeight(m[3])
 	} else if m := routeWeightSvcSrc.FindStringSubmatch(s); m != nil {
 		svc, src = m[1], m[2]
 		w, err = p.parseWeight(m[3])
 	} else if m := routeWeightSrcTags.FindStringSubmatch(s); m != nil {
-		src, tags = m[1], strings.Split(m[3], ",")
+		src, tags = m[1], strings.FieldsFunc(m[3], splitSeparator)
 		w, err = p.parseWeight(m[2])
 	} else {
 		err = p.syntaxError()

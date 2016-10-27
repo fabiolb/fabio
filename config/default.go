@@ -15,6 +15,7 @@ var Default = &Config{
 		DialTimeout:   30 * time.Second,
 		FlushInterval: time.Second,
 		LocalIP:       LocalIPString(),
+		StripPath:     false,
 	},
 	Registry: Registry{
 		Backend: "consul",
@@ -24,8 +25,10 @@ var Default = &Config{
 			KVPath:        "/fabio/config",
 			TagPrefix:     "urlprefix-",
 			Register:      true,
+			ByServiceName: false,
 			ServiceAddr:   ":9998",
 			ServiceName:   "fabio",
+			ExternalNodes: []string{},
 			ServiceStatus: []string{"passing"},
 			CheckInterval: time.Second,
 			CheckTimeout:  3 * time.Second,
