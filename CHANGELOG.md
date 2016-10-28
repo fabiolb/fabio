@@ -1,8 +1,9 @@
 ## Changelog
 
-### Unreleased
+### [v1.3.4](https://github.com/eBay/fabio/releases/tag/v1.3.4) - 28 Oct 2016
 
  * Upgrade to Go 1.7.3
+ * [Issue #119](https://github.com/eBay/fabio/issues/119): Transparent response body compression
 
 ### [v1.3.3](https://github.com/eBay/fabio/releases/tag/v1.3.3) - 12 Oct 2016
 
