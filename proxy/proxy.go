@@ -44,15 +44,17 @@ func (p *httpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	upgrade, accept := r.Header.Get("Upgrade"), r.Header.Get("Accept")
+
 	var h http.Handler
 	switch {
-	case r.Header.Get("Upgrade") == "websocket":
+	case upgrade == "websocket" || upgrade == "Websocket":
 		h = newRawProxy(t.URL)
 
 		// To use the filtered proxy use
 		// h = newWSProxy(t.URL)
 
-	case r.Header.Get("Accept") == "text/event-stream":
+	case accept == "text/event-stream":
 		// use the flush interval for SSE (server-sent events)
 		// must be > 0s to be effective
 		h = newHTTPProxy(t.URL, p.tr, p.cfg.FlushInterval)
