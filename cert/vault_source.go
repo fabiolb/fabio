@@ -34,7 +34,14 @@ type VaultSource struct {
 }
 
 func (s *VaultSource) client() (*api.Client, error) {
-	c, err := api.NewClient(&api.Config{Address: s.Addr})
+	conf := api.DefaultConfig()
+	if err := conf.ReadEnvironment(); err != nil {
+		return nil, err
+	}
+	if s.Addr != "" {
+		conf.Address = s.Addr
+	}
+	c, err := api.NewClient(conf)
 	if err != nil {
 		return nil, err
 	}
