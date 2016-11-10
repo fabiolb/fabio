@@ -90,7 +90,7 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 		}
 
 		for _, tag := range svc.ServiceTags {
-			if host, path, ok := parseURLPrefixTag(tag, tagPrefix, env); ok {
+			if route, opts, ok := parseURLPrefixTag(tag, tagPrefix, env); ok {
 				name, addr, port := svc.ServiceName, svc.ServiceAddress, svc.ServicePort
 
 				// use consul node address if service address is not set
@@ -103,9 +103,13 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 					addr += ".local"
 				}
 
-				addrport := net.JoinHostPort(addr, strconv.Itoa(port))
+				addr = net.JoinHostPort(addr, strconv.Itoa(port))
 
-				config = append(config, fmt.Sprintf("route add %s %s%s http://%s/ tags %q", name, host, path, addrport, strings.Join(svc.ServiceTags, ",")))
+				cfg := fmt.Sprintf("route add %s %s http://%s/ tags %q", name, route, addr, strings.Join(svc.ServiceTags, ","))
+				if opts != "" {
+					cfg += ` opts "` + opts + `"`
+				}
+				config = append(config, cfg)
 			}
 		}
 	}

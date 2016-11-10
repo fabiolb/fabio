@@ -6,22 +6,10 @@ import (
 	"strings"
 )
 
-// parseURLPrefixTag expects an input in the form of 'tag-host/path'
-// and returns the lower cased host plus the path unaltered if the
+// parseURLPrefixTag expects an input in the form of 'tag-host/path[ opts]'
+// and returns the lower cased host and the unaltered path if the
 // prefix matches the tag.
-func parseURLPrefixTag(s, prefix string, env map[string]string) (host, path string, ok bool) {
-	s = strings.TrimSpace(s)
-	if !strings.HasPrefix(s, prefix) {
-		return "", "", false
-	}
-
-	// split host/path
-	p := strings.SplitN(s[len(prefix):], "/", 2)
-	if len(p) != 2 {
-		log.Printf("[WARN] consul: Invalid %s tag %q - You need to have a trailing slash!", prefix, s)
-		return "", "", false
-	}
-
+func parseURLPrefixTag(s, prefix string, env map[string]string) (route, opts string, ok bool) {
 	// expand $x or ${x} to env[x] or ""
 	expand := func(s string) string {
 		return os.Expand(s, func(x string) string {
@@ -32,8 +20,24 @@ func parseURLPrefixTag(s, prefix string, env map[string]string) (host, path stri
 		})
 	}
 
-	host = strings.ToLower(expand(strings.TrimSpace(p[0])))
-	path = "/" + expand(strings.TrimSpace(p[1]))
+	s = strings.TrimSpace(s)
+	if !strings.HasPrefix(s, prefix) {
+		return "", "", false
+	}
+	s = strings.TrimSpace(s[len(prefix):])
 
-	return host, path, true
+	p := strings.SplitN(s, " ", 2)
+	if len(p) == 2 {
+		opts = p[1]
+	}
+	s = p[0]
+
+	p = strings.SplitN(s, "/", 2)
+	if len(p) == 1 {
+		log.Printf("[WARN] consul: Invalid %s tag %q - You need to have a trailing slash!", prefix, s)
+		return "", "", false
+	}
+	host, path := p[0], p[1]
+
+	return strings.ToLower(expand(host)) + "/" + expand(path), opts, true
 }
