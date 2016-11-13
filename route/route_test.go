@@ -15,7 +15,7 @@ func mustParse(rawurl string) *url.URL {
 }
 
 func TestNewRoute(t *testing.T) {
-	r := newRoute("www.bar.com", "/foo")
+	r := &Route{Host: "www.bar.com", Path: "/foo"}
 	if got, want := r.Path, "/foo"; got != want {
 		t.Errorf("got %q want %q", got, want)
 	}
@@ -24,7 +24,7 @@ func TestNewRoute(t *testing.T) {
 func TestAddTarget(t *testing.T) {
 	u := mustParse("http://foo.com/")
 
-	r := newRoute("www.bar.com", "/foo")
+	r := &Route{Host: "www.bar.com", Path: "/foo"}
 	r.addTarget("service", u, 0, nil)
 
 	if got, want := len(r.Targets), 1; got != want {
@@ -42,7 +42,7 @@ func TestAddTarget(t *testing.T) {
 func TestDelService(t *testing.T) {
 	u1, u2 := mustParse("http://foo.com/"), mustParse("http://bar.com/")
 
-	r := newRoute("www.bar.com", "/foo")
+	r := &Route{Host: "www.bar.com", Path: "/foo"}
 	r.addTarget("serviceA", u1, 0, nil)
 	r.addTarget("serviceB", u2, 0, nil)
 	r.delService("serviceA")

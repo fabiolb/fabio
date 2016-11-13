@@ -118,11 +118,11 @@ func BuildTable(defs []*RouteDef) (t Table, err error) {
 	for _, d := range defs {
 		switch d.Cmd {
 		case RouteAddCmd:
-			err = t.AddRoute(d.Service, d.Src, d.Dst, d.Weight, d.Tags)
+			err = t.AddRoute(d)
 		case RouteDelCmd:
-			err = t.DelRoute(d.Service, d.Src, d.Dst)
+			err = t.DelRoute(d)
 		case RouteWeightCmd:
-			err = t.AddRouteWeight(d.Service, d.Src, d.Weight, d.Tags)
+			err = t.RouteWeight(d)
 		default:
 			err = fmt.Errorf("route: invalid command: %s", d.Cmd)
 		}
@@ -134,18 +134,18 @@ func BuildTable(defs []*RouteDef) (t Table, err error) {
 }
 
 // AddRoute adds a new route prefix -> target for the given service.
-func (t Table) AddRoute(service, prefix, target string, weight float64, tags []string) error {
-	host, path := hostpath(prefix)
+func (t Table) AddRoute(d *RouteDef) error {
+	host, path := hostpath(d.Src)
 
-	if prefix == "" {
+	if d.Src == "" {
 		return errInvalidPrefix
 	}
 
-	if target == "" {
+	if d.Dst == "" {
 		return errInvalidTarget
 	}
 
-	targetURL, err := url.Parse(target)
+	targetURL, err := url.Parse(d.Dst)
 	if err != nil {
 		return fmt.Errorf("route: invalid target. %s", err)
 	}
@@ -153,29 +153,29 @@ func (t Table) AddRoute(service, prefix, target string, weight float64, tags []s
 	switch {
 	// add new host
 	case t[host] == nil:
-		r := newRoute(host, path)
-		r.addTarget(service, targetURL, weight, tags)
+		r := &Route{Host: host, Path: path, Opts: d.Opts}
+		r.addTarget(d.Service, targetURL, d.Weight, d.Tags)
 		t[host] = Routes{r}
 
 	// add new route to existing host
 	case t[host].find(path) == nil:
-		r := newRoute(host, path)
-		r.addTarget(service, targetURL, weight, tags)
+		r := &Route{Host: host, Path: path, Opts: d.Opts}
+		r.addTarget(d.Service, targetURL, d.Weight, d.Tags)
 		t[host] = append(t[host], r)
 		sort.Sort(t[host])
 
 	// add new target to existing route
 	default:
-		t[host].find(path).addTarget(service, targetURL, weight, tags)
+		t[host].find(path).addTarget(d.Service, targetURL, d.Weight, d.Tags)
 	}
 
 	return nil
 }
 
-func (t Table) AddRouteWeight(service, prefix string, weight float64, tags []string) error {
-	host, path := hostpath(prefix)
+func (t Table) RouteWeight(d *RouteDef) error {
+	host, path := hostpath(d.Src)
 
-	if prefix == "" {
+	if d.Src == "" {
 		return errInvalidPrefix
 	}
 
@@ -183,7 +183,7 @@ func (t Table) AddRouteWeight(service, prefix string, weight float64, tags []str
 		return errNoMatch
 	}
 
-	if n := t[host].find(path).setWeight(service, weight, tags); n == 0 {
+	if n := t[host].find(path).setWeight(d.Service, d.Weight, d.Tags); n == 0 {
 		return errNoMatch
 	}
 	return nil
@@ -196,33 +196,33 @@ func (t Table) AddRouteWeight(service, prefix string, weight float64, tags []str
 // instances of the service from the route. If only the service is
 // provided then all routes for this service are removed. The service
 // will no longer receive traffic. Routes with no targets are removed.
-func (t Table) DelRoute(service, prefix, target string) error {
+func (t Table) DelRoute(d *RouteDef) error {
 	switch {
-	case prefix == "" && target == "":
+	case d.Src == "" && d.Dst == "":
 		for _, routes := range t {
 			for _, r := range routes {
-				r.delService(service)
+				r.delService(d.Service)
 			}
 		}
 
-	case target == "":
-		r := t.route(hostpath(prefix))
+	case d.Dst == "":
+		r := t.route(hostpath(d.Src))
 		if r == nil {
 			return nil
 		}
-		r.delService(service)
+		r.delService(d.Service)
 
 	default:
-		targetURL, err := url.Parse(target)
+		targetURL, err := url.Parse(d.Dst)
 		if err != nil {
 			return fmt.Errorf("route: invalid target. %s", err)
 		}
 
-		r := t.route(hostpath(prefix))
+		r := t.route(hostpath(d.Src))
 		if r == nil {
 			return nil
 		}
-		r.delTarget(service, targetURL)
+		r.delTarget(d.Service, targetURL)
 	}
 
 	// remove all routes without targets

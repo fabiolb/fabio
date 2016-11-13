@@ -5,7 +5,7 @@ import (
 )
 
 func TestPrefixMatcher(t *testing.T) {
-	routeFoo := newRoute("www.example.com", "/foo")
+	routeFoo := &Route{Host: "www.example.com", Path: "/foo"}
 
 	tests := []struct {
 		uri   string
@@ -26,8 +26,8 @@ func TestPrefixMatcher(t *testing.T) {
 }
 
 func TestGlobMatcher(t *testing.T) {
-	routeFoo := newRoute("www.example.com", "/foo")
-	routeFooWild := newRoute("www.example.com", "/foo.*")
+	routeFoo := &Route{Host: "www.example.com", Path: "/foo"}
+	routeFooWild := &Route{Host: "www.example.com", Path: "/foo.*"}
 
 	tests := []struct {
 		uri   string

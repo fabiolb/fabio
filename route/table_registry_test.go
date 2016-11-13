@@ -14,13 +14,13 @@ func TestSyncRegistry(t *testing.T) {
 	defer func() { ServiceRegistry = oldRegistry }()
 
 	tbl := make(Table)
-	tbl.AddRoute("svc-a", "/aaa", "http://localhost:1234", 1, nil)
-	tbl.AddRoute("svc-b", "/bbb", "http://localhost:5678", 1, nil)
+	tbl.AddRoute(&RouteDef{Service: "svc-a", Src: "/aaa", Dst: "http://localhost:1234", Weight: 1})
+	tbl.AddRoute(&RouteDef{Service: "svc-b", Src: "/bbb", Dst: "http://localhost:5678", Weight: 1})
 	if got, want := ServiceRegistry.Names(), []string{"svc-a._./aaa.localhost_1234", "svc-b._./bbb.localhost_5678"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %v want %v", got, want)
 	}
 
-	tbl.DelRoute("svc-b", "/bbb", "http://localhost:5678")
+	tbl.DelRoute(&RouteDef{Service: "svc-b", Src: "/bbb", Dst: "http://localhost:5678"})
 	syncRegistry(tbl)
 	if got, want := ServiceRegistry.Names(), []string{"svc-a._./aaa.localhost_1234"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %v want %v", got, want)

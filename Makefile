@@ -20,7 +20,7 @@ build:
 
 test:
 	$(GO) test -i ./...
-	$(GO) test -test.timeout 15s -v `go list ./... | grep -v '/vendor/'`
+	$(GO) test -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 
 gofmt:
 	gofmt -w `find . -type f -name '*.go' | grep -v vendor`

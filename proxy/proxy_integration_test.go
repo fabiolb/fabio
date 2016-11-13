@@ -21,9 +21,7 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 	}))
 	defer server.Close()
 
-	table := make(route.Table)
-	table.AddRoute("mock", "/", server.URL, 1, nil)
-	route.SetTable(table)
+	route.SetTable(mustParseTable("route add mock / " + server.URL))
 
 	tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
 	proxy := NewHTTPProxy(tr, config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"})
@@ -117,9 +115,7 @@ func TestProxyGzipHandler(t *testing.T) {
 			server := httptest.NewServer(tt.content)
 			defer server.Close()
 
-			table := make(route.Table)
-			table.AddRoute("mock", "/", server.URL, 1, nil)
-			route.SetTable(table)
+			route.SetTable(mustParseTable("route add mock / " + server.URL))
 
 			tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
 			proxy := NewHTTPProxy(tr, config.Proxy{GZIPContentTypes: regexp.MustCompile("^text/plain(;.*)?$")})
@@ -169,4 +165,12 @@ func compress(b []byte) []byte {
 		panic(err)
 	}
 	return buf.Bytes()
+}
+
+func mustParseTable(s string) route.Table {
+	t, err := route.ParseTable(s)
+	if err != nil {
+		panic(err)
+	}
+	return t
 }

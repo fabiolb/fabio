@@ -26,6 +26,9 @@ type Route struct {
 	// Path is the path prefix from a request uri
 	Path string
 
+	// Opts is the raw route options
+	Opts map[string]string
+
 	// Targets contains the list of URLs
 	Targets []*Target
 
@@ -37,10 +40,6 @@ type Route struct {
 	// total contains the total number of requests for this route.
 	// Used by the RRPicker
 	total uint64
-}
-
-func newRoute(host, path string) *Route {
-	return &Route{Host: host, Path: path}
 }
 
 func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float64, tags []string) {

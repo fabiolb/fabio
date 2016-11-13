@@ -12,7 +12,7 @@ var (
 )
 
 func TestRndPicker(t *testing.T) {
-	r := newRoute("www.bar.com", "/foo")
+	r := &Route{Host: "www.bar.com", Path: "/foo"}
 	r.addTarget("svc", fooDotCom, 0, nil)
 	r.addTarget("svc", barDotCom, 0, nil)
 
@@ -36,7 +36,7 @@ func TestRndPicker(t *testing.T) {
 }
 
 func TestRRPicker(t *testing.T) {
-	r := newRoute("www.bar.com", "/foo")
+	r := &Route{Host: "www.bar.com", Path: "/foo"}
 	r.addTarget("svc", fooDotCom, 0, nil)
 	r.addTarget("svc", barDotCom, 0, nil)
 
