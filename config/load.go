@@ -197,6 +197,14 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 		}
 	}
 
+	if cfg.Proxy.Strategy != "rr" && cfg.Proxy.Strategy != "rnd" {
+		return nil, fmt.Errorf("invalid proxy.strategy: %s", cfg.Proxy.Strategy)
+	}
+
+	if cfg.Proxy.Matcher != "prefix" && cfg.Proxy.Matcher != "glob" {
+		return nil, fmt.Errorf("invalid proxy.matcher: %s", cfg.Proxy.Matcher)
+	}
+
 	// handle deprecations
 	// deprecate := func(name, msg string) {
 	// 	if f.IsSet(name) {

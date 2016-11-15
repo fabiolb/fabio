@@ -1,17 +1,20 @@
 package route
 
 import (
-	"fmt"
 	"log"
 	"path"
 	"strings"
 )
 
-// match contains the matcher function
-var match matcher = prefixMatcher
-
 // matcher determines whether a host/path matches a route
 type matcher func(uri string, r *Route) bool
+
+// Matcher contains the available matcher functions.
+// Update config/load.go#load after updating.
+var Matcher = map[string]matcher{
+	"prefix": prefixMatcher,
+	"glob":   globMatcher,
+}
 
 // prefixMatcher matches path to the routes' path.
 func prefixMatcher(uri string, r *Route) bool {
@@ -26,17 +29,4 @@ func globMatcher(uri string, r *Route) bool {
 		return false
 	}
 	return hasMatch
-}
-
-// SetMatcher sets the matcher function for the proxy.
-func SetMatcher(s string) error {
-	switch s {
-	case "prefix":
-		match = prefixMatcher
-	case "glob":
-		match = globMatcher
-	default:
-		return fmt.Errorf("route: invalid matcher: %s", s)
-	}
-	return nil
 }

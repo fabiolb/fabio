@@ -19,16 +19,18 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 		got = r.Header.Get("X-Forwarded-For")
 	}))
 	defer server.Close()
-	parseRoutes("route add mock / " + server.URL)
 
-	tr := http.DefaultTransport
-	cfg := config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"}
-	proxy := NewHTTPProxy(tr, cfg)
-
-	req := testReq("/")
+	proxy := &HTTPProxy{
+		Config:    config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"},
+		Transport: http.DefaultTransport,
+		Lookup: func(r *http.Request) *route.Target {
+			tbl, _ := route.NewTable("route add srv / " + server.URL)
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+		},
+	}
+	req := makeReq("/")
 	req.Header.Set("X-Forwarded-For", "3.3.3.3")
-	rec := httptest.NewRecorder()
-	proxy.ServeHTTP(rec, req)
+	proxy.ServeHTTP(httptest.NewRecorder(), req)
 
 	if want := "3.3.3.3, 2.2.2.2"; got != want {
 		t.Errorf("got %v, but want %v", got, want)
@@ -36,17 +38,16 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 }
 
 func TestProxyNoRouteStaus(t *testing.T) {
-	parseRoutes("")
-
-	tr := http.DefaultTransport
-	cfg := config.Proxy{NoRouteStatus: 999}
-	proxy := NewHTTPProxy(tr, cfg)
-
-	req := testReq("/")
+	proxy := &HTTPProxy{
+		Config:    config.Proxy{NoRouteStatus: 999},
+		Transport: http.DefaultTransport,
+		Lookup:    func(*http.Request) *route.Target { return nil },
+	}
+	req := makeReq("/")
 	rec := httptest.NewRecorder()
 	proxy.ServeHTTP(rec, req)
 
-	if got, want := rec.Code, cfg.NoRouteStatus; got != want {
+	if got, want := rec.Code, proxy.Config.NoRouteStatus; got != want {
 		t.Fatalf("got %d want %d", got, want)
 	}
 }
@@ -60,13 +61,16 @@ func TestProxyStripsPath(t *testing.T) {
 			w.WriteHeader(404)
 		}
 	}))
-	parseRoutes("route add mock /foo/bar " + server.URL + ` opts "strip=/foo"`)
 
-	tr := http.DefaultTransport
-	cfg := config.Proxy{}
-	proxy := NewHTTPProxy(tr, cfg)
+	proxy := &HTTPProxy{
+		Transport: http.DefaultTransport,
+		Lookup: func(r *http.Request) *route.Target {
+			tbl, _ := route.NewTable("route add mock /foo/bar " + server.URL + ` opts "strip=/foo"`)
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+		},
+	}
 
-	req := testReq("/foo/bar")
+	req := makeReq("/foo/bar")
 	rec := httptest.NewRecorder()
 	proxy.ServeHTTP(rec, req)
 
@@ -135,13 +139,18 @@ func TestProxyGzipHandler(t *testing.T) {
 		t.Run(tt.desc, func(t *testing.T) {
 			server := httptest.NewServer(tt.content)
 			defer server.Close()
-			parseRoutes("route add mock / " + server.URL)
 
-			tr := http.DefaultTransport
-			cfg := config.Proxy{GZIPContentTypes: regexp.MustCompile("^text/plain(;.*)?$")}
-			proxy := NewHTTPProxy(tr, cfg)
-
-			req := testReq("/")
+			proxy := &HTTPProxy{
+				Config: config.Proxy{
+					GZIPContentTypes: regexp.MustCompile("^text/plain(;.*)?$"),
+				},
+				Transport: http.DefaultTransport,
+				Lookup: func(r *http.Request) *route.Target {
+					tbl, _ := route.NewTable("route add srv / " + server.URL)
+					return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+				},
+			}
+			req := makeReq("/")
 			req.Header.Set("Accept-Encoding", tt.acceptEncoding)
 			rec := httptest.NewRecorder()
 			proxy.ServeHTTP(rec, req)
@@ -177,7 +186,7 @@ func gzipHandler(contentType string) http.HandlerFunc {
 	}
 }
 
-func testReq(path string) *http.Request {
+func makeReq(path string) *http.Request {
 	return &http.Request{
 		RemoteAddr: "2.2.2.2:666",
 		Header:     http.Header{},
@@ -197,12 +206,4 @@ func compress(b []byte) []byte {
 		panic(err)
 	}
 	return buf.Bytes()
-}
-
-func parseRoutes(s string) {
-	t, err := route.NewTable(s)
-	if err != nil {
-		panic(err)
-	}
-	route.SetTable(t)
 }

@@ -1,28 +1,18 @@
 package route
 
 import (
-	"fmt"
 	"sync/atomic"
 	"time"
 )
 
-// pick contains the picker function.
-var pick picker = rndPicker
-
-// Picker selects a target from a list of targets
+// picker selects a target from a list of targets.
 type picker func(r *Route) *Target
 
-// SetPickerStrategy sets the picker function for the proxy.
-func SetPickerStrategy(s string) error {
-	switch s {
-	case "rnd":
-		pick = rndPicker
-	case "rr":
-		pick = rrPicker
-	default:
-		return fmt.Errorf("route: invalid strategy: %s", s)
-	}
-	return nil
+// Picker contains the available picker functions.
+// Update config/load.go#load after updating.
+var Picker = map[string]picker{
+	"rnd": rndPicker,
+	"rr":  rrPicker,
 }
 
 // rndPicker picks a random target from the list of targets.

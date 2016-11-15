@@ -2,13 +2,11 @@ package proxy
 
 import (
 	"errors"
-	"log"
 	"net"
 	"net/http"
 	"strings"
 
 	"github.com/eBay/fabio/config"
-	"github.com/eBay/fabio/route"
 )
 
 // addHeaders adds/updates headers in request
@@ -91,15 +89,6 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 	}
 
 	return nil
-}
-
-// target looks up a target URL for the request from the current routing table.
-func target(r *http.Request) *route.Target {
-	t := route.GetTable().Lookup(r, r.Header.Get("trace"))
-	if t == nil {
-		log.Print("[WARN] No route for ", r.Host, r.URL)
-	}
-	return t
 }
 
 func localPort(r *http.Request) string {

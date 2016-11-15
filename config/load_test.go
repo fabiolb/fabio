@@ -184,16 +184,30 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
-			args: []string{"-proxy.strategy", "value"},
+			args: []string{"-proxy.strategy", "rnd"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Proxy.Strategy = "value"
+				cfg.Proxy.Strategy = "rnd"
 				return cfg
 			},
 		},
 		{
-			args: []string{"-proxy.matcher", "value"},
+			args: []string{"-proxy.strategy", "rr"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Proxy.Matcher = "value"
+				cfg.Proxy.Strategy = "rr"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.matcher", "prefix"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.Matcher = "prefix"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.matcher", "glob"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.Matcher = "glob"
 				return cfg
 			},
 		},

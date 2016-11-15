@@ -504,7 +504,7 @@ func TestTableLookup(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		if got, want := tbl.Lookup(tt.req, "").URL.String(), tt.dst; got != want {
+		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher).URL.String(), tt.dst; got != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}

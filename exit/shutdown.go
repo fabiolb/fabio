@@ -1,4 +1,4 @@
-package proxy
+package exit
 
 import "sync/atomic"
 

@@ -8,39 +8,55 @@ import (
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/metrics"
 	"github.com/eBay/fabio/proxy/gzip"
+	"github.com/eBay/fabio/route"
 )
 
-// httpProxy is a dynamic reverse proxy for HTTP and HTTPS protocols.
-type httpProxy struct {
-	tr       http.RoundTripper
-	cfg      config.Proxy
-	requests metrics.Timer
-	noroute  metrics.Counter
+// HTTPProxy is a dynamic reverse proxy for HTTP and HTTPS protocols.
+type HTTPProxy struct {
+	// Config is the proxy configuration as provided during startup.
+	Config config.Proxy
+
+	// Transport is the http connection pool configured with timeouts.
+	// The proxy will panic if this value is nil.
+	Transport http.RoundTripper
+
+	// Lookup returns a target host for the given request.
+	// The proxy will panic if this value is nil.
+	Lookup func(*http.Request) *route.Target
+
+	// ShuttingDown returns true if the server should no longer
+	// handle new requests. ShuttingDown can be nil which is equivalent
+	// to a function that returns always false.
+	ShuttingDown func() bool
+
+	// Requests is a timer metric which is updated for every request.
+	Requests metrics.Timer
+
+	// Noroute is a counter metric which is updated for every request
+	// where Lookup() returns nil.
+	Noroute metrics.Counter
 }
 
-func NewHTTPProxy(tr http.RoundTripper, cfg config.Proxy) http.Handler {
-	return &httpProxy{
-		tr:       tr,
-		cfg:      cfg,
-		requests: metrics.DefaultRegistry.GetTimer("requests"),
-		noroute:  metrics.DefaultRegistry.GetCounter("notfound"),
-	}
-}
-
-func (p *httpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if ShuttingDown() {
+func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if p.ShuttingDown != nil && p.ShuttingDown() {
 		http.Error(w, "shutting down", http.StatusServiceUnavailable)
 		return
 	}
 
-	t := target(r)
+	if p.Lookup == nil {
+		panic("no lookup function")
+	}
+
+	t := p.Lookup(r)
 	if t == nil {
-		p.noroute.Inc(1)
-		w.WriteHeader(p.cfg.NoRouteStatus)
+		if p.Noroute != nil {
+			p.Noroute.Inc(1)
+		}
+		w.WriteHeader(p.Config.NoRouteStatus)
 		return
 	}
 
-	if err := addHeaders(r, p.cfg); err != nil {
+	if err := addHeaders(r, p.Config); err != nil {
 		http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
 		return
 	}
@@ -66,18 +82,20 @@ func (p *httpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case accept == "text/event-stream":
 		// use the flush interval for SSE (server-sent events)
 		// must be > 0s to be effective
-		h = newHTTPProxy(t.URL, p.tr, p.cfg.FlushInterval)
+		h = newHTTPProxy(t.URL, p.Transport, p.Config.FlushInterval)
 
 	default:
-		h = newHTTPProxy(t.URL, p.tr, time.Duration(0))
+		h = newHTTPProxy(t.URL, p.Transport, time.Duration(0))
 	}
 
-	if p.cfg.GZIPContentTypes != nil {
-		h = gzip.NewGzipHandler(h, p.cfg.GZIPContentTypes)
+	if p.Config.GZIPContentTypes != nil {
+		h = gzip.NewGzipHandler(h, p.Config.GZIPContentTypes)
 	}
 
 	start := time.Now()
 	h.ServeHTTP(w, r)
-	p.requests.UpdateSince(start)
+	if p.Requests != nil {
+		p.Requests.UpdateSince(start)
+	}
 	t.Timer.UpdateSince(start)
 }

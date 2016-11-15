@@ -7,6 +7,7 @@ import (
 	"net"
 
 	"github.com/eBay/fabio/config"
+	"github.com/eBay/fabio/exit"
 	"github.com/eBay/fabio/route"
 )
 
@@ -41,7 +42,7 @@ type tcpSNIProxy struct {
 func (p *tcpSNIProxy) Serve(in net.Conn) {
 	defer in.Close()
 
-	if ShuttingDown() {
+	if exit.ShuttingDown() {
 		return
 	}
 
@@ -66,7 +67,7 @@ func (p *tcpSNIProxy) Serve(in net.Conn) {
 		return
 	}
 
-	t := route.GetTable().LookupHost(serverName)
+	t := route.GetTable().LookupHost(serverName, route.Picker[p.cfg.Strategy])
 	if t == nil {
 		log.Print("[WARN] tcp+sni: No route for ", serverName)
 		return

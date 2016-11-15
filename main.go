@@ -74,26 +74,31 @@ func main() {
 }
 
 func newHTTPProxy(cfg *config.Config) http.Handler {
-	if err := route.SetPickerStrategy(cfg.Proxy.Strategy); err != nil {
-		exit.Fatal("[FATAL] ", err)
-	}
+	pick, match := route.Picker[cfg.Proxy.Strategy], route.Matcher[cfg.Proxy.Matcher]
 	log.Printf("[INFO] Using routing strategy %q", cfg.Proxy.Strategy)
+	log.Printf("[INFO] Using route matching %q", cfg.Proxy.Matcher)
 
-	if err := route.SetMatcher(cfg.Proxy.Matcher); err != nil {
-		exit.Fatal("[FATAL] ", err)
+	return &proxy.HTTPProxy{
+		Config: cfg.Proxy,
+		Transport: &http.Transport{
+			ResponseHeaderTimeout: cfg.Proxy.ResponseHeaderTimeout,
+			MaxIdleConnsPerHost:   cfg.Proxy.MaxConn,
+			Dial: (&net.Dialer{
+				Timeout:   cfg.Proxy.DialTimeout,
+				KeepAlive: cfg.Proxy.KeepAliveTimeout,
+			}).Dial,
+		},
+		Lookup: func(r *http.Request) *route.Target {
+			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match)
+			if t == nil {
+				log.Print("[WARN] No route for ", r.Host, r.URL)
+			}
+			return t
+		},
+		ShuttingDown: exit.ShuttingDown,
+		Requests:     metrics.DefaultRegistry.GetTimer("requests"),
+		Noroute:      metrics.DefaultRegistry.GetCounter("notfound"),
 	}
-	log.Printf("[INFO] Using routing matching %q", cfg.Proxy.Matcher)
-
-	tr := &http.Transport{
-		ResponseHeaderTimeout: cfg.Proxy.ResponseHeaderTimeout,
-		MaxIdleConnsPerHost:   cfg.Proxy.MaxConn,
-		Dial: (&net.Dialer{
-			Timeout:   cfg.Proxy.DialTimeout,
-			KeepAlive: cfg.Proxy.KeepAliveTimeout,
-		}).Dial,
-	}
-
-	return proxy.NewHTTPProxy(tr, cfg.Proxy)
 }
 
 func startAdmin(cfg *config.Config) {

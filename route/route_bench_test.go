@@ -120,12 +120,11 @@ func makeRequests(t Table) []*http.Request {
 
 // benchmarkGet runs the benchmark on the Table.Lookup() function with the
 // given matcher and picker functions.
-func benchmarkGet(t Table, m matcher, p picker, pb *testing.PB) {
+func benchmarkGet(t Table, match matcher, pick picker, pb *testing.PB) {
 	reqs := makeRequests(t)
-	match, pick = m, p
 	k, n := len(reqs), 0
 	for pb.Next() {
-		t.Lookup(reqs[n%k], "")
+		t.Lookup(reqs[n%k], "", pick, match)
 		n++
 	}
 }

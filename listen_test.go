@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/eBay/fabio/config"
+	"github.com/eBay/fabio/exit"
 	"github.com/eBay/fabio/proxy"
 	"github.com/eBay/fabio/route"
 )
@@ -29,13 +30,6 @@ func TestGracefulShutdown(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	// load the routing table
-	tbl, err := route.NewTable("route add svc / " + srv.URL)
-	if err != nil {
-		t.Fatal(err)
-	}
-	route.SetTable(tbl)
-
 	// start proxy with graceful shutdown period long enough
 	// to complete one more request.
 	var wg sync.WaitGroup
@@ -43,7 +37,15 @@ func TestGracefulShutdown(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		startListeners([]config.Listen{l}, 250*time.Millisecond, proxy.NewHTTPProxy(http.DefaultTransport, config.Proxy{}), nil)
+		p := &proxy.HTTPProxy{
+			Transport: http.DefaultTransport,
+			Lookup: func(r *http.Request) *route.Target {
+				tbl, _ := route.NewTable("route add svc / " + srv.URL)
+				return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			},
+			ShuttingDown: exit.ShuttingDown,
+		}
+		startListeners([]config.Listen{l}, 250*time.Millisecond, p, nil)
 	}()
 
 	// trigger shutdown after some time

@@ -38,7 +38,7 @@ func startListeners(listen []config.Listen, wait time.Duration, h http.Handler, 
 	<-quit
 
 	// disable routing for all requests
-	proxy.Shutdown()
+	exit.Shutdown()
 
 	// trigger graceful shutdown
 	log.Printf("[INFO] Graceful shutdown over %s", wait)

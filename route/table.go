@@ -281,9 +281,8 @@ func normalizeHost(req *http.Request) string {
 // or nil if there is none. It first checks the routes for the host
 // and if none matches then it falls back to generic routes without
 // a host. This is useful for a catch-all '/' rule.
-func (t Table) Lookup(req *http.Request, trace string) *Target {
+func (t Table) Lookup(req *http.Request, trace string, pick picker, match matcher) *Target {
 	path := req.URL.Path
-
 	if trace != "" {
 		if len(trace) > 16 {
 			trace = trace[:15]
@@ -291,9 +290,9 @@ func (t Table) Lookup(req *http.Request, trace string) *Target {
 		log.Printf("[TRACE] %s Tracing %s%s", trace, req.Host, path)
 	}
 
-	target := t.lookup(normalizeHost(req), path, trace)
+	target := t.lookup(normalizeHost(req), path, trace, pick, match)
 	if target == nil {
-		target = t.lookup("", path, trace)
+		target = t.lookup("", path, trace, pick, match)
 	}
 
 	if target != nil && trace != "" {
@@ -303,11 +302,11 @@ func (t Table) Lookup(req *http.Request, trace string) *Target {
 	return target
 }
 
-func (t Table) LookupHost(host string) *Target {
-	return t.lookup(host, "/", "")
+func (t Table) LookupHost(host string, pick picker) *Target {
+	return t.lookup(host, "/", "", pick, prefixMatcher)
 }
 
-func (t Table) lookup(host, path, trace string) *Target {
+func (t Table) lookup(host, path, trace string, pick picker, match matcher) *Target {
 	for _, r := range t[host] {
 		if match(path, r) {
 			n := len(r.Targets)
