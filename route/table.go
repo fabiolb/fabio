@@ -229,13 +229,11 @@ func (t Table) route(host, path string) *Route {
 // and removes the default port if present.
 func normalizeHost(req *http.Request) string {
 	host := strings.ToLower(req.Host)
-	if req.TLS == nil && strings.HasSuffix(host, ":80") {
-		return host[:len(host)-3]
+	port_index := strings.Index(host, ":")
+	if port_index < 0 {
+		return host
 	}
-	if req.TLS != nil && strings.HasSuffix(host, ":443") {
-		return host[:len(host)-4]
-	}
-	return host
+	return host[0:port_index]
 }
 
 // Lookup finds a target url based on the current matcher and picker
