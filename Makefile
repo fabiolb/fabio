@@ -20,7 +20,7 @@ build:
 
 test:
 	$(GO) test -tags netgo -i ./...
-	$(GO) test -tags netgo -test.timeout 10s `go list ./... | grep -v '/vendor/'`
+	$(GO) test -tags netgo -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 
 gofmt:
 	gofmt -w `find . -type f -name '*.go' | grep -v vendor`

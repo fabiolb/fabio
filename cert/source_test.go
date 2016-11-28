@@ -177,33 +177,35 @@ func TestHTTPSource(t *testing.T) {
 }
 
 func TestConsulSource(t *testing.T) {
-	const (
-		certURL = "http://127.0.0.1:8500/v1/kv/fabio/test/consul-server"
-		dataDir = "/tmp/fabio-consul-source-test"
-	)
+	const certURL = "http://127.0.0.1:8500/v1/kv/fabio/test/consul-server"
 
 	// run a consul server if it isn't already running
 	_, err := http.Get("http://127.0.0.1:8500/v1/status/leader")
 	if err != nil {
 		t.Log("Starting consul server")
-		consul := exec.Command("consul", "agent", "-bind", "127.0.0.1", "-server", "-dev", "-data-dir", dataDir)
+		start := time.Now()
+		consul := exec.Command("consul", "agent", "-bind", "127.0.0.1", "-server", "-dev")
 		if err := consul.Start(); err != nil {
 			t.Fatalf("Failed to start consul server. %s", err)
 		}
-		defer func() {
-			consul.Process.Kill()
-			os.RemoveAll(dataDir)
-		}()
+		defer consul.Process.Kill()
 
 		isUp := func() bool {
 			resp, err := http.Get("http://127.0.0.1:8500/v1/status/leader")
-			return err == nil && resp.StatusCode == 200
+
+			// /v1/status/leader returns '""' while consul is in leader election mode
+			// and '"127.0.0.1:8300"' when not. So we punt by checking the
+			// Content-Length header instead of the actual body content :)
+			return err == nil && resp.StatusCode == 200 && resp.ContentLength > 2
 		}
-		t.Log("Waiting for consul to get ready")
-		if !waitFor(8*time.Second, isUp) {
-			t.Fatal("Timeout waiting for consul server")
+
+		// We need give consul ~8-10 seconds to become ready until I've
+		// figured out whether we can speed this up. Make sure that this is
+		// less than the global test timeout in Makefile.
+		if !waitFor(12*time.Second, isUp) {
+			t.Fatal("Timeout waiting for consul server after %2.1f seconds", time.Since(start).Seconds())
 		}
-		t.Log("Consul is ready")
+		t.Logf("Consul is ready after %2.1f seconds", time.Since(start).Seconds())
 	} else {
 		t.Log("Using existing consul server")
 	}
@@ -212,6 +214,7 @@ func TestConsulSource(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to parse consul url: %s", err)
 	}
+
 	client, err := consulapi.NewClient(config)
 	if err != nil {
 		t.Fatalf("Failed to create consul client: %s", err)
