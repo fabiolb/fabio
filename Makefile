@@ -1,7 +1,7 @@
 
 # do not specify a full path for go since travis will fail
 GO = GOGC=off go
-GOFLAGS = -tags netgo -ldflags "-X main.version=$(shell git describe --tags)"
+GOFLAGS = -ldflags "-X main.version=$(shell git describe --tags)"
 
 all: build test
 
@@ -19,14 +19,14 @@ build:
 	$(GO) build -i $(GOFLAGS)
 
 test:
-	$(GO) test -tags netgo -i ./...
-	$(GO) test -tags netgo -test.timeout 15s `go list ./... | grep -v '/vendor/'`
+	$(GO) test -i ./...
+	$(GO) test -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 
 gofmt:
 	gofmt -w `find . -type f -name '*.go' | grep -v vendor`
 
 linux:
-	GOOS=linux GOARCH=amd64 $(GO) build -i $(GOFLAGS)
+	GOOS=linux GOARCH=amd64 $(GO) build -i -tags netgo $(GOFLAGS)
 
 install:
 	$(GO) install $(GOFLAGS)
