@@ -4,6 +4,7 @@
 
  * [Issue #182](https://github.com/eBay/fabio/issues/182): Initialize Vault client better
  * [Issue #183](https://github.com/eBay/fabio/issues/183): Websocket header casing
+ * [Issue #189](https://github.com/eBay/fabio/issues/189): missing 'cs' in map
 
 ### [v1.3.4](https://github.com/eBay/fabio/releases/tag/v1.3.4) - 28 Oct 2016
 
