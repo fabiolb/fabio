@@ -41,11 +41,13 @@ func TestNewSource(t *testing.T) {
 		}
 	}
 	tests := []struct {
-		cfg config.CertSource
-		src Source
-		err string
+		desc string
+		cfg  config.CertSource
+		src  Source
+		err  string
 	}{
 		{
+			desc: "invalid",
 			cfg: config.CertSource{
 				Type: "invalid",
 			},
@@ -53,7 +55,8 @@ func TestNewSource(t *testing.T) {
 			err: `invalid certificate source "invalid"`,
 		},
 		{
-			cfg: certsource("file"),
+			desc: "file",
+			cfg:  certsource("file"),
 			src: FileSource{
 				CertFile:       "cert",
 				KeyFile:        "key",
@@ -62,7 +65,8 @@ func TestNewSource(t *testing.T) {
 			},
 		},
 		{
-			cfg: certsource("path"),
+			desc: "path",
+			cfg:  certsource("path"),
 			src: PathSource{
 				CertPath:     "cert",
 				ClientCAPath: "clientca",
@@ -71,7 +75,8 @@ func TestNewSource(t *testing.T) {
 			},
 		},
 		{
-			cfg: certsource("http"),
+			desc: "http",
+			cfg:  certsource("http"),
 			src: HTTPSource{
 				CertURL:     "cert",
 				ClientCAURL: "clientca",
@@ -80,7 +85,8 @@ func TestNewSource(t *testing.T) {
 			},
 		},
 		{
-			cfg: certsource("consul"),
+			desc: "consul",
+			cfg:  certsource("consul"),
 			src: ConsulSource{
 				CertURL:     "cert",
 				ClientCAURL: "clientca",
@@ -88,7 +94,8 @@ func TestNewSource(t *testing.T) {
 			},
 		},
 		{
-			cfg: certsource("vault"),
+			desc: "vault",
+			cfg:  certsource("vault"),
 			src: &VaultSource{
 				CertPath:     "cert",
 				ClientCAPath: "clientca",
@@ -99,16 +106,19 @@ func TestNewSource(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		var errmsg string
-		src, err := NewSource(tt.cfg)
-		if err != nil {
-			errmsg = err.Error()
-		}
-		if got, want := errmsg, tt.err; got != want {
-			t.Fatalf("%d: got %q want %q", i, got, want)
-		}
-		got, want := src, tt.src
-		verify.Values(t, "src", got, want)
+		tt := tt // capture loop var
+		t.Run(tt.desc, func(t *testing.T) {
+			var errmsg string
+			src, err := NewSource(tt.cfg)
+			if err != nil {
+				errmsg = err.Error()
+			}
+			if got, want := errmsg, tt.err; got != want {
+				t.Fatalf("%d: got %q want %q", i, got, want)
+			}
+			got, want := src, tt.src
+			verify.Values(t, "src", got, want)
+		})
 	}
 }
 
@@ -176,7 +186,7 @@ func TestConsulSource(t *testing.T) {
 	_, err := http.Get("http://127.0.0.1:8500/v1/status/leader")
 	if err != nil {
 		t.Log("Starting consul server")
-		consul := exec.Command("consul", "agent", "-bind", "127.0.0.1", "-server", "-bootstrap", "-data-dir", dataDir)
+		consul := exec.Command("consul", "agent", "-bind", "127.0.0.1", "-server", "-dev", "-data-dir", dataDir)
 		if err := consul.Start(); err != nil {
 			t.Fatalf("Failed to start consul server. %s", err)
 		}
@@ -187,14 +197,10 @@ func TestConsulSource(t *testing.T) {
 
 		isUp := func() bool {
 			resp, err := http.Get("http://127.0.0.1:8500/v1/status/leader")
-
-			// /v1/status/leader returns '""' while consul is in leader election
-			// and '"127.0.0.1:8300"' when not. So we punt by checking the
-			// Content-Length header instead of the actual body content :)
-			return err == nil && resp.StatusCode == 200 && resp.Header.Get("Content-Length") != "2"
+			return err == nil && resp.StatusCode == 200
 		}
 		t.Log("Waiting for consul to get ready")
-		if !waitFor(3*time.Second, isUp) {
+		if !waitFor(8*time.Second, isUp) {
 			t.Fatal("Timeout waiting for consul server")
 		}
 		t.Log("Consul is ready")
@@ -346,15 +352,17 @@ func TestVaultSource(t *testing.T) {
 	}
 
 	pool := makeCertPool(certPEM)
-	timeout := 50 * time.Millisecond
+	timeout := 500 * time.Millisecond
 	for _, tt := range tests {
-		t.Log("Test vault source with", tt.desc)
-		src := &VaultSource{
-			Addr:       "http://" + addr,
-			CertPath:   certPath,
-			vaultToken: makeToken(t, client, tt.wrapTTL, tt.req),
-		}
-		testSource(t, src, pool, timeout)
+		tt := tt // capture loop var
+		t.Run(tt.desc, func(t *testing.T) {
+			src := &VaultSource{
+				Addr:       "http://" + addr,
+				CertPath:   certPath,
+				vaultToken: makeToken(t, client, tt.wrapTTL, tt.req),
+			}
+			testSource(t, src, pool, timeout)
+		})
 	}
 }
 
@@ -395,9 +403,9 @@ func testSource(t *testing.T, source Source, rootCAs *x509.CertPool, sleep time.
 	}
 
 	call := func(host string) (statusCode int, body string, err error) {
-		// for the certificate validation to work we need to put a hostname
-		// which resolves to 127.0.0.1 in the URL. Can't fake the hostname via
-		// the Host header.
+		// for the certificate validation to work we need to use a hostname
+		// in the URL which resolves to 127.0.0.1. We can't fake the hostname
+		// via the Host header.
 		resp, err := client.Get(strings.Replace(srv.URL, "127.0.0.1", host, 1))
 		if err != nil {
 			return 0, "", err
