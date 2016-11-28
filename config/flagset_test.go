@@ -94,6 +94,11 @@ func TestParseFlags(t *testing.T) {
 			props: "kvs=a=1;b=2,c=3;d=4",
 			kvs:   []map[string]string{{"a": "1", "b": "2"}, {"c": "3", "d": "4"}},
 		},
+		{
+			desc:  "kv slice with spaces",
+			props: "kvs= a = 1 ; b = 2 , c = 3 ; d = 4 ",
+			kvs:   []map[string]string{{"a": " 1 ", "b": " 2 "}, {"c": " 3 ", "d": " 4 "}},
+		},
 	}
 
 	for i, tt := range tests {

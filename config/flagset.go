@@ -16,14 +16,16 @@ func newKVValue(val map[string]string, p *map[string]string) *kvValue {
 	return (*kvValue)(p)
 }
 
+// kvParse k1=v1;k2=v2;... into a map[string]string{"k1":"v1","k2":"v2"}
 func kvParse(s string) kvValue {
 	m := map[string]string{}
 	for _, s := range strings.Split(s, ";") {
 		p := strings.SplitN(s, "=", 2)
+		key := strings.TrimSpace(p[0])
 		if len(p) == 1 {
-			m[p[0]] = ""
+			m[key] = ""
 		} else {
-			m[p[0]] = p[1]
+			m[key] = p[1]
 		}
 	}
 	return m
