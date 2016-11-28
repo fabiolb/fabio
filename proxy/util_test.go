@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/eBay/fabio/config"
+	"github.com/pascaldekloe/goe/verify"
 )
 
 func TestAddHeaders(t *testing.T) {
@@ -26,216 +27,370 @@ func TestAddHeaders(t *testing.T) {
 		{"set remote ip header",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{ClientIPHeader: "Client-IP"},
-			http.Header{"Client-Ip": []string{"1.2.3.4"}},
+			http.Header{
+				"Client-Ip":         []string{"1.2.3.4"},
+				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
-		{"set remote ip header with local ip (no change expected)",
+		{"set remote ip header with local ip",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{LocalIP: "5.6.7.8", ClientIPHeader: "Client-IP"},
-			http.Header{"Client-Ip": []string{"1.2.3.4"}},
+			http.Header{
+				"Client-Ip":         []string{"1.2.3.4"},
+				"Forwarded":         []string{"for=1.2.3.4; proto=http; by=5.6.7.8"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set Forwarded for https",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
 			config.Proxy{},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=https"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=https"},
+				"X-Forwarded-Proto": []string{"https"},
+				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set Forwarded for http",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=http"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set Forwarded for ws",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Upgrade": {"websocket"}}},
 			config.Proxy{},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=ws"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=ws"},
+				"Upgrade":           []string{"websocket"},
+				"X-Forwarded-For":   []string{"1.2.3.4"},
+				"X-Forwarded-Proto": []string{"ws"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set Forwarded for wss",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Upgrade": {"websocket"}}, TLS: &tls.ConnectionState{}},
 			config.Proxy{},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=wss"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=wss"},
+				"Upgrade":           []string{"websocket"},
+				"X-Forwarded-For":   []string{"1.2.3.4"},
+				"X-Forwarded-Proto": []string{"wss"},
+				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set Forwarded with localIP",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{LocalIP: "5.6.7.8"},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=http; by=5.6.7.8"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=http; by=5.6.7.8"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set Forwarded with localIP and HTTPS",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
 			config.Proxy{LocalIP: "5.6.7.8"},
-			http.Header{"Forwarded": {"for=1.2.3.4; proto=https; by=5.6.7.8"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=https; by=5.6.7.8"},
+				"X-Forwarded-Proto": []string{"https"},
+				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"extend Forwarded with localIP",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Forwarded": {"for=9.9.9.9; proto=http; by=8.8.8.8"}}},
 			config.Proxy{LocalIP: "5.6.7.8"},
-			http.Header{"Forwarded": {"for=9.9.9.9; proto=http; by=8.8.8.8; by=5.6.7.8"}},
+			http.Header{
+				"Forwarded":         []string{"for=9.9.9.9; proto=http; by=8.8.8.8; by=5.6.7.8"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set tls header",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
 			config.Proxy{TLSHeader: "Secure"},
-			http.Header{"Secure": {""}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=https"},
+				"Secure":            []string{""},
+				"X-Forwarded-Proto": []string{"https"},
+				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set tls header with value",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
 			config.Proxy{TLSHeader: "Secure", TLSHeaderValue: "true"},
-			http.Header{"Secure": {"true"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=https"},
+				"Secure":            []string{"true"},
+				"X-Forwarded-Proto": []string{"https"},
+				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
+
 
 		{"set X-Forwarded-For for wss",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Upgrade": {"websocket"}}, TLS: &tls.ConnectionState{}},
 			config.Proxy{},
-			http.Header{"X-Forwarded-For": {"1.2.3.4"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=wss"},
+				"Upgrade":           []string{"websocket"},
+				"X-Forwarded-For":   []string{"1.2.3.4"},
+				"X-Forwarded-Proto": []string{"wss"},
+				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set X-Forwarded-For for ws",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Upgrade": {"websocket"}}},
 			config.Proxy{},
-			http.Header{"X-Forwarded-For": {"1.2.3.4"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=ws"},
+				"Upgrade":           []string{"websocket"},
+				"X-Forwarded-For":   []string{"1.2.3.4"},
+				"X-Forwarded-Proto": []string{"ws"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"do not set X-Forwarded-For for https",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
 			config.Proxy{},
-			http.Header{"X-Forwarded-For": {}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=https"},
+				"X-Forwarded-Proto": []string{"https"},
+				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"do not set X-Forwarded-For for http",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{},
-			http.Header{"X-Forwarded-For": {}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set X-Forwarded-Proto to http",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{},
-			http.Header{"X-Forwarded-Proto": {"http"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set X-Forwarded-Proto to https",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
 			config.Proxy{},
-			http.Header{"X-Forwarded-Proto": {"https"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=https"},
+				"X-Forwarded-Proto": []string{"https"},
+				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set X-Forwarded-Proto to ws",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Upgrade": {"websocket"}}},
 			config.Proxy{},
-			http.Header{"X-Forwarded-Proto": {"ws"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=ws"},
+				"Upgrade":           []string{"websocket"},
+				"X-Forwarded-For":   []string{"1.2.3.4"},
+				"X-Forwarded-Proto": []string{"ws"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
-		{"set X-Forwarded-Proto to https",
+		{"set X-Forwarded-Proto to wss",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Upgrade": {"websocket"}}, TLS: &tls.ConnectionState{}},
 			config.Proxy{},
-			http.Header{"X-Forwarded-Proto": {"wss"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=wss"},
+				"Upgrade":           []string{"websocket"},
+				"X-Forwarded-For":   []string{"1.2.3.4"},
+				"X-Forwarded-Proto": []string{"wss"},
+				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"do not overwrite X-Forwarded-Proto header, if present",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"X-Forwarded-Proto": {"https"}}},
 			config.Proxy{},
-			http.Header{"X-Forwarded-Proto": {"https"}},
+			http.Header{
+				"Forwarded": []string{"for=1.2.3.4; proto=http"},
+				//	"X-Forwarded-For":   []string{"1.2.3.4"},
+				"X-Forwarded-Proto": []string{"https"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
-		{"set X-Forwarded-Port for HTTP",
+		{"set X-Forwarded-Port for http",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{},
-			http.Header{"X-Forwarded-Port": {"80"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
-		{"set X-Forwarded-Port for HTTPS",
+		{"set X-Forwarded-Port for https",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
 			config.Proxy{},
-			http.Header{"X-Forwarded-Port": {"443"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=https"},
+				"X-Forwarded-Proto": []string{"https"},
+				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set X-Forwarded-Port from Host",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Host: "5.6.7.8:1234"},
 			config.Proxy{},
-			http.Header{"X-Forwarded-Port": {"1234"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"1234"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
-		{"set X-Forwarded-Port from Host for HTTPS",
+		{"set X-Forwarded-Port from Host for https",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Host: "5.6.7.8:1234", TLS: &tls.ConnectionState{}},
 			config.Proxy{},
-			http.Header{"X-Forwarded-Port": {"1234"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=https"},
+				"X-Forwarded-Proto": []string{"https"},
+				"X-Forwarded-Port":  []string{"1234"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"do not overwrite X-Forwarded-Port header, if present",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"X-Forwarded-Port": {"4444"}}},
 			config.Proxy{},
-			http.Header{"X-Forwarded-Port": {"4444"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"4444"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"set X-Real-Ip header, if not present",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{},
-			http.Header{"X-Real-Ip": {"1.2.3.4"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
 			"",
 		},
 
 		{"do not overwrite X-Real-Ip header, if present",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"X-Real-Ip": {"6.6.6.6"}}},
 			config.Proxy{},
-			http.Header{"X-Real-Ip": {"6.6.6.6"}},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"6.6.6.6"},
+			},
 			"",
 		},
 	}
 
 	for i, tt := range tests {
-		if tt.r.Header == nil {
-			tt.r.Header = http.Header{}
-		}
+		tt := tt // capture loop var
 
-		err := addHeaders(tt.r, tt.cfg)
-		if err != nil {
-			if got, want := err.Error(), tt.err; got != want {
-				t.Errorf("%d: %s\ngot  %q\nwant %q", i, tt.desc, got, want)
+		t.Run(tt.desc, func(t *testing.T) {
+			if tt.r.Header == nil {
+				tt.r.Header = http.Header{}
 			}
-			continue
-		}
-		if tt.err != "" {
-			t.Errorf("%d: got nil want %q", i, tt.err)
-			continue
-		}
-		for headerName, _ := range tt.hdrs {
-			got := tt.r.Header.Get(headerName)
-			want := tt.hdrs.Get(headerName)
-			if got != want {
-				t.Errorf("%d: %s \nWrong value for Header: %s \ngot  %q \nwant %q", i, tt.desc, headerName, got, want)
+
+			err := addHeaders(tt.r, tt.cfg)
+			if err != nil {
+				if got, want := err.Error(), tt.err; got != want {
+					t.Fatalf("%d: %s\ngot  %q\nwant %q", i, tt.desc, got, want)
+				}
+				return
 			}
-		}
+
+			if tt.err != "" {
+				t.Fatalf("%d: got nil want %q", i, tt.err)
+				return
+			}
+
+			got, want := tt.r.Header, tt.hdrs
+			verify.Values(t, "", got, want)
+		})
 	}
 }
 
