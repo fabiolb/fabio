@@ -151,6 +151,31 @@ func TestAddHeaders(t *testing.T) {
 			"",
 		},
 
+		{"overwrite tls header for https, when set",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Secure": []string{"on"}}, TLS: &tls.ConnectionState{}},
+			config.Proxy{TLSHeader: "Secure", TLSHeaderValue: "true"},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=https"},
+				"Secure":            []string{"true"},
+				"X-Forwarded-Proto": []string{"https"},
+				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
+			"",
+		},
+
+		{"drop tls header for http, when set",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Secure": []string{"on"}}},
+			config.Proxy{TLSHeader: "Secure", TLSHeaderValue: "true"},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
+			"",
+		},
+
 		{"do not overwrite X-Forwarded-Proto, if present",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"X-Forwarded-Proto": {"some value"}}},
 			config.Proxy{},

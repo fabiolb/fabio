@@ -82,8 +82,12 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 	}
 	r.Header.Set("Forwarded", fwd)
 
-	if cfg.TLSHeader != "" && r.TLS != nil {
-		r.Header.Set(cfg.TLSHeader, cfg.TLSHeaderValue)
+	if cfg.TLSHeader != "" {
+		if r.TLS != nil {
+			r.Header.Set(cfg.TLSHeader, cfg.TLSHeaderValue)
+		} else {
+			r.Header.Del(cfg.TLSHeader)
+		}
 	}
 
 	return nil
