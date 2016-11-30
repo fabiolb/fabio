@@ -18,7 +18,7 @@ import (
 func Load() (cfg *Config, err error) {
 	var path string
 	for i, arg := range os.Args {
-		if arg == "-v" {
+		if arg == "-v" || arg == "--version" {
 			return nil, nil
 		}
 		path, err = parseCfg(os.Args, i)
@@ -87,6 +87,7 @@ func load(p *properties.Properties) (cfg *Config, err error) {
 	// dummy values which were parsed earlier
 	f.String("cfg", "", "Path or URL to config file")
 	f.Bool("v", false, "Show version")
+	f.Bool("version", false, "Show version")
 
 	// config values
 	f.IntVar(&cfg.Proxy.MaxConn, "proxy.maxconn", Default.Proxy.MaxConn, "maximum number of cached connections")
