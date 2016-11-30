@@ -5,6 +5,7 @@
  * [Issue #182](https://github.com/eBay/fabio/issues/182): Initialize Vault client better
  * [Issue #183](https://github.com/eBay/fabio/issues/183): Websocket header casing
  * [Issue #189](https://github.com/eBay/fabio/issues/189): missing 'cs' in map
+ * [Issue #194](https://github.com/eBay/fabio/issues/194): Remove proxy.header.tls header from inbound request
  * [Issue #197](https://github.com/eBay/fabio/issues/197): Add support for '--version'
 
 ### [v1.3.4](https://github.com/eBay/fabio/releases/tag/v1.3.4) - 28 Oct 2016
