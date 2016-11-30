@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"regexp"
 	"sort"
 	"strings"
 
 	"github.com/eBay/fabio/metrics"
 )
+
+var StripPrefixRegex *regexp.Regexp = regexp.MustCompile("modifier-/strip-prefix")
 
 // Route maps a path prefix to one or more target URLs.
 // routes can have a share value which describes the
@@ -54,7 +57,24 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 	}
 	timer := ServiceRegistry.GetTimer(name)
 
-	t := &Target{Service: service, Tags: tags, URL: targetURL, FixedWeight: fixedWeight, Timer: timer, timerName: name}
+	stripPrefix := false
+	// by passing a tag of `url-prefix-host/modifier#strip-prefix you can
+	// drop whatever prefix the service is namespaced by
+	for _, tag := range tags {
+		if StripPrefixRegex.MatchString(tag) {
+			stripPrefix = true
+		}
+	}
+
+	t := &Target{
+		Service:     service,
+		Tags:        tags,
+		URL:         targetURL,
+		StripPrefix: stripPrefix,
+		FixedWeight: fixedWeight,
+		Timer:       timer,
+		timerName:   name}
+
 	r.Targets = append(r.Targets, t)
 	r.weighTargets()
 }

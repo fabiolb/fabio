@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/eBay/fabio/config"
@@ -65,6 +66,16 @@ func (p *httpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if p.cfg.GZIPContentTypes != nil {
 		h = gzip.NewGzipHandler(h, p.cfg.GZIPContentTypes)
+	}
+
+	// strip the prefix, if the target was tagged properly
+	if t.StripPrefix {
+		pieces := strings.SplitN(r.URL.Path, "/", 3)
+		if len(pieces) == 3 {
+			r.URL.Path = pieces[2]
+		} else {
+			r.URL.Path = "/"
+		}
 	}
 
 	start := time.Now()
