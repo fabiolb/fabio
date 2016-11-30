@@ -50,9 +50,11 @@ var defaultConfig = &Config{
 		Color: "light-green",
 	},
 	Metrics: Metrics{
-		Prefix:         "{{clean .Hostname}}.{{clean .Exec}}",
-		Names:          "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
-		Interval:       30 * time.Second,
-		CirconusAPIApp: "fabio",
+		Prefix:   "{{clean .Hostname}}.{{clean .Exec}}",
+		Names:    "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
+		Interval: 30 * time.Second,
+		Circonus: Circonus{
+			APIApp: "fabio",
+		},
 	},
 }

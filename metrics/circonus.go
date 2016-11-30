@@ -9,6 +9,7 @@ import (
 	"time"
 
 	cgm "github.com/circonus-labs/circonus-gometrics"
+	"github.com/eBay/fabio/config"
 )
 
 var (
@@ -19,24 +20,17 @@ var (
 const serviceName = "fabio"
 
 // circonusRegistry returns a provider that reports to Circonus.
-func circonusRegistry(prefix string,
-	circKey string,
-	circApp string,
-	circURL string,
-	circBrokerID string,
-	circCheckID string,
-	interval time.Duration) (Registry, error) {
-
+func circonusRegistry(prefix string, circ config.Circonus, interval time.Duration) (Registry, error) {
 	var initError error
 
 	once.Do(func() {
-		if circKey == "" {
+		if circ.APIKey == "" {
 			initError = errors.New("metrics: Circonus API token key")
 			return
 		}
 
-		if circApp == "" {
-			circApp = serviceName
+		if circ.APIApp == "" {
+			circ.APIApp = serviceName
 		}
 
 		host, err := os.Hostname()
@@ -47,11 +41,11 @@ func circonusRegistry(prefix string,
 
 		cfg := &cgm.Config{}
 
-		cfg.CheckManager.API.TokenKey = circKey
-		cfg.CheckManager.API.TokenApp = circApp
-		cfg.CheckManager.API.URL = circURL
-		cfg.CheckManager.Check.ID = circCheckID
-		cfg.CheckManager.Broker.ID = circBrokerID
+		cfg.CheckManager.API.TokenKey = circ.APIKey
+		cfg.CheckManager.API.TokenApp = circ.APIApp
+		cfg.CheckManager.API.URL = circ.APIURL
+		cfg.CheckManager.Check.ID = circ.CheckID
+		cfg.CheckManager.Broker.ID = circ.BrokerID
 		cfg.Interval = fmt.Sprintf("%.0fs", interval.Seconds())
 		cfg.CheckManager.Check.InstanceID = host
 		cfg.CheckManager.Check.DisplayName = fmt.Sprintf("%s /%s", host, serviceName)

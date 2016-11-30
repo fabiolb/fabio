@@ -4,6 +4,8 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/eBay/fabio/config"
 )
 
 func TestRegistry(t *testing.T) {
@@ -57,18 +59,20 @@ func TestAll(t *testing.T) {
 
 	t.Log("Testing cgm functionality -- this *will* create/use a check")
 
-	apiKey := os.Getenv("CIRCONUS_API_TOKEN")
-	apiApp := os.Getenv("CIRCONUS_API_APP")
-	apiURL := os.Getenv("CIRCONUS_API_URL")
-	brokerID := os.Getenv("CIRCONUS_BROKER_ID")
-	checkID := os.Getenv("CIRCONUS_CHECK_ID")
+	cfg := config.Circonus{
+		APIKey:   os.Getenv("CIRCONUS_API_TOKEN"),
+		APIApp:   os.Getenv("CIRCONUS_API_APP"),
+		APIURL:   os.Getenv("CIRCONUS_API_URL"),
+		CheckID:  os.Getenv("CIRCONUS_CHECK_ID"),
+		BrokerID: os.Getenv("CIRCONUS_BROKER_ID"),
+	}
 
 	interval, err := time.ParseDuration("60s")
 	if err != nil {
 		t.Fatalf("Unable to parse interval %+v", err)
 	}
 
-	circ, err := circonusRegistry("test", apiKey, apiApp, apiURL, brokerID, checkID, interval)
+	circ, err := circonusRegistry("test", cfg, interval)
 	if err != nil {
 		t.Fatalf("Unable to initialize Circonus +%v", err)
 	}

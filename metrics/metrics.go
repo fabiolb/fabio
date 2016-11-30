@@ -67,13 +67,7 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 		return gmStatsDRegistry(prefix, cfg.StatsDAddr, cfg.Interval)
 
 	case "circonus":
-		return circonusRegistry(prefix,
-			cfg.CirconusAPIKey,
-			cfg.CirconusAPIApp,
-			cfg.CirconusAPIURL,
-			cfg.CirconusBrokerID,
-			cfg.CirconusCheckID,
-			cfg.Interval)
+		return circonusRegistry(prefix, cfg.Circonus, cfg.Interval)
 
 	default:
 		exit.Fatal("[FATAL] Invalid metrics target ", cfg.Target)
