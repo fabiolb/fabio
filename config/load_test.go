@@ -1,351 +1,726 @@
 package config
 
 import (
+	"errors"
+	"fmt"
+	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
+	"os"
 	"reflect"
 	"regexp"
+	"strings"
 	"testing"
 	"time"
 
-	"github.com/magiconair/properties"
 	"github.com/pascaldekloe/goe/verify"
 )
 
-func TestFromProperties(t *testing.T) {
-	in := `
-proxy.cs = cs=name;type=path;cert=foo;clientca=bar;refresh=99s;hdr=a: b;caupgcn=furb
-proxy.addr = :1234;proto=tcp+sni
-proxy.localip = 4.4.4.4
-proxy.strategy = rr
-proxy.matcher = prefix
-proxy.noroutestatus = 929
-proxy.shutdownwait = 500ms
-proxy.responseheadertimeout = 3s
-proxy.keepalivetimeout = 4s
-proxy.dialtimeout = 60s
-proxy.readtimeout = 5s
-proxy.writetimeout = 10s
-proxy.flushinterval = 15s
-proxy.maxconn = 666
-proxy.header.clientip = clientip
-proxy.header.tls = tls
-proxy.header.tls.value = tls-true
-proxy.gzip.contenttype = ^(text/.*|application/(javascript|json|font-woff|xml)|.*\\+(json|xml))$
-registry.backend = something
-registry.file.path = /foo/bar
-registry.static.routes = route add svc / http://127.0.0.1:6666/
-registry.consul.addr = https://1.2.3.4:5678
-registry.consul.token = consul-token
-registry.consul.kvpath = /some/path
-registry.consul.tagprefix = p-
-registry.consul.register.enabled = false
-registry.consul.register.addr = 6.6.6.6:7777
-registry.consul.register.name = fab
-registry.consul.register.tags = a, b, c ,
-registry.consul.register.checkInterval = 5s
-registry.consul.register.checkTimeout = 10s
-registry.consul.service.status = a,b
-metrics.target = graphite
-metrics.prefix = someprefix
-metrics.names = {{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}
-metrics.interval = 5s
-metrics.graphite.addr = 5.6.7.8:9999
-metrics.statsd.addr = 6.7.8.9:9999
-metrics.circonus.apikey = circonus-apikey
-metrics.circonus.apiapp = circonus-apiapp
-metrics.circonus.apiurl = circonus-apiurl
-metrics.circonus.brokerid = circonus-brokerid
-metrics.circonus.checkid = circonus-checkid
-runtime.gogc = 666
-runtime.gomaxprocs = 12
-ui.addr = 7.8.9.0:1234
-ui.color = fonzy
-ui.title = fabfab
-aws.apigw.cert.cn = furb
-`
-	out := &Config{
-		ListenerValue:    []string{":1234;proto=tcp+sni"},
-		CertSourcesValue: []map[string]string{{"cs": "name", "type": "path", "cert": "foo", "clientca": "bar", "refresh": "99s", "hdr": "a: b", "caupgcn": "furb"}},
-		CertSources: map[string]CertSource{
-			"name": CertSource{
-				Name:         "name",
-				Type:         "path",
-				CertPath:     "foo",
-				ClientCAPath: "bar",
-				CAUpgradeCN:  "furb",
-				Refresh:      99 * time.Second,
-				Header:       http.Header{"A": []string{"b"}},
-			},
-		},
-		Proxy: Proxy{
-			MaxConn:               666,
-			LocalIP:               "4.4.4.4",
-			Strategy:              "rr",
-			Matcher:               "prefix",
-			NoRouteStatus:         929,
-			ShutdownWait:          500 * time.Millisecond,
-			DialTimeout:           60 * time.Second,
-			ResponseHeaderTimeout: 3 * time.Second,
-			KeepAliveTimeout:      4 * time.Second,
-			ReadTimeout:           5 * time.Second,
-			WriteTimeout:          10 * time.Second,
-			FlushInterval:         15 * time.Second,
-			ClientIPHeader:        "clientip",
-			TLSHeader:             "tls",
-			TLSHeaderValue:        "tls-true",
-			GZIPContentTypesValue: `^(text/.*|application/(javascript|json|font-woff|xml)|.*\+(json|xml))$`,
-			GZIPContentTypes:      regexp.MustCompile(`^(text/.*|application/(javascript|json|font-woff|xml)|.*\+(json|xml))$`),
-		},
-		Registry: Registry{
-			Backend: "something",
-			File: File{
-				Path: "/foo/bar",
-			},
-			Static: Static{
-				Routes: "route add svc / http://127.0.0.1:6666/",
-			},
-			Consul: Consul{
-				Addr:          "1.2.3.4:5678",
-				Scheme:        "https",
-				Token:         "consul-token",
-				KVPath:        "/some/path",
-				TagPrefix:     "p-",
-				Register:      false,
-				ServiceAddr:   "6.6.6.6:7777",
-				ServiceName:   "fab",
-				ServiceTags:   []string{"a", "b", "c"},
-				ServiceStatus: []string{"a", "b"},
-				CheckInterval: 5 * time.Second,
-				CheckTimeout:  10 * time.Second,
-			},
-		},
-		Listen: []Listen{
-			{
-				Addr:         ":1234",
-				Proto:        "tcp+sni",
-				ReadTimeout:  5 * time.Second,
-				WriteTimeout: 10 * time.Second,
-			},
-		},
-		Metrics: Metrics{
-			Target:           "graphite",
-			Prefix:           "someprefix",
-			Names:            "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
-			Interval:         5 * time.Second,
-			GraphiteAddr:     "5.6.7.8:9999",
-			StatsDAddr:       "6.7.8.9:9999",
-			CirconusAPIKey:   "circonus-apikey",
-			CirconusAPIApp:   "circonus-apiapp",
-			CirconusAPIURL:   "circonus-apiurl",
-			CirconusBrokerID: "circonus-brokerid",
-			CirconusCheckID:  "circonus-checkid",
-		},
-		Runtime: Runtime{
-			GOGC:       666,
-			GOMAXPROCS: 12,
-		},
-		UI: UI{
-			Addr:  "7.8.9.0:1234",
-			Color: "fonzy",
-			Title: "fabfab",
-		},
-	}
-
-	p, err := properties.Load([]byte(in), properties.UTF8)
-	if err != nil {
-		t.Fatalf("got %v want nil", err)
-	}
-
-	cfg, err := load(p)
-	if err != nil {
-		t.Fatalf("got %v want nil", err)
-	}
-
-	got, want := cfg, out
-	verify.Values(t, "cfg", got, want)
-}
-
-func TestParseScheme(t *testing.T) {
+func TestLoad(t *testing.T) {
 	tests := []struct {
-		in           string
-		scheme, addr string
-	}{
-		{"foo:bar", "http", "foo:bar"},
-		{"http://foo:bar", "http", "foo:bar"},
-		{"https://foo:bar", "https", "foo:bar"},
-		{"HTTPS://FOO:bar", "https", "foo:bar"},
-	}
-
-	for i, tt := range tests {
-		scheme, addr := parseScheme(tt.in)
-		if got, want := scheme, tt.scheme; got != want {
-			t.Errorf("%d: got %v want %v", i, got, want)
-		}
-		if got, want := addr, tt.addr; got != want {
-			t.Errorf("%d: got %v want %v", i, got, want)
-		}
-	}
-}
-
-func TestParseListen(t *testing.T) {
-	cs := map[string]CertSource{
-		"name": CertSource{Name: "name", Type: "foo"},
-	}
-
-	tests := []struct {
-		in  string
-		out Listen
-		err string
+		desc    string
+		args    []string
+		environ []string
+		path    string
+		data    string
+		cfg     func(*Config) *Config
+		err     error
 	}{
 		{
-			"",
-			Listen{},
-			"",
+			args: []string{"-v"},
+			cfg:  func(cfg *Config) *Config { return nil },
 		},
 		{
-			":123",
-			Listen{Addr: ":123", Proto: "http"},
-			"",
+			args: []string{"--version"},
+			cfg:  func(cfg *Config) *Config { return nil },
 		},
 		{
-			":123;proto=http",
-			Listen{Addr: ":123", Proto: "http"},
-			"",
+			desc: "-v with other args",
+			args: []string{"-a", "-v", "-b"},
+			cfg:  func(cfg *Config) *Config { return nil },
 		},
 		{
-			":123;proto=tcp+sni",
-			Listen{Addr: ":123", Proto: "tcp+sni"},
-			"",
+			desc: "--version with other args",
+			args: []string{"-a", "--version", "-b"},
+			cfg:  func(cfg *Config) *Config { return nil },
 		},
 		{
-			":123;rt=5s;wt=5s",
-			Listen{Addr: ":123", Proto: "http", ReadTimeout: 5 * time.Second, WriteTimeout: 5 * time.Second},
-			"",
+			desc: "default config",
+			cfg:  func(cfg *Config) *Config { return cfg },
 		},
 		{
-			":123;pathA;pathB;pathC",
-			Listen{
-				Addr:  ":123",
-				Proto: "https",
-				CertSource: CertSource{
-					Type:         "file",
-					CertPath:     "pathA",
-					KeyPath:      "pathB",
-					ClientCAPath: "pathC",
-				},
+			args: []string{"-proxy.addr", ":5555"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "http"}}
+				return cfg
 			},
-			"",
 		},
 		{
-			":123;cs=name",
-			Listen{
-				Addr:  ":123",
-				Proto: "https",
-				CertSource: CertSource{
-					Name: "name",
-					Type: "foo",
-				},
+			args: []string{"-proxy.addr", ":5555;proto=http"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "http"}}
+				return cfg
 			},
-			"",
 		},
 		{
-			":123;cs=name;strictmatch=true",
-			Listen{
-				Addr:  ":123",
-				Proto: "https",
-				CertSource: CertSource{
-					Name: "name",
-					Type: "foo",
-				},
-				StrictMatch: true,
+			args: []string{"-proxy.addr", ":5555;proto=tcp+sni"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "tcp+sni"}}
+				return cfg
 			},
-			"",
 		},
 		{
-			":123;cs=name;proto=https",
-			Listen{
-				Addr:  ":123",
-				Proto: "https",
-				CertSource: CertSource{
-					Name: "name",
-					Type: "foo",
-				},
+			args: []string{"-proxy.addr", ":5555;rt=1s;wt=2s"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "http", ReadTimeout: 1 * time.Second, WriteTimeout: 2 * time.Second}}
+				return cfg
 			},
-			"",
 		},
 		{
-			":123;proto=https",
-			Listen{},
-			"proto 'https' requires cert source",
+			desc: "-proxy.addr with legacy cert source config",
+			args: []string{"-proxy.addr", ":5555;pathA;pathB;pathC"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen[0].CertSource = CertSource{Type: "file", CertPath: "pathA", KeyPath: "pathB", ClientCAPath: "pathC"}
+				return cfg
+			},
 		},
 		{
-			":123;cs=name;proto=http",
-			Listen{},
-			"cert source requires proto 'https'",
+			desc: "-proxy.addr with file cert source",
+			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=file;cert=value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "file", CertPath: "value"}
+				return cfg
+			},
 		},
 		{
-			":123;cs=name;proto=tcp+sni",
-			Listen{},
-			"cert source requires proto 'https'",
+			desc: "-proxy.addr with path cert source",
+			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=path;cert=value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "path", CertPath: "value", Refresh: 3 * time.Second}
+				return cfg
+			},
 		},
 		{
-			":123;proto=foo",
-			Listen{},
-			"unknown protocol \"foo\"",
+			desc: "-proxy.addr with http cert source",
+			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=http;cert=value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "http", CertPath: "value", Refresh: 3 * time.Second}
+				return cfg
+			},
 		},
 		{
-			":123;cs=foo",
-			Listen{},
-			"unknown certificate source \"foo\"",
+			desc: "-proxy.addr with consul cert source",
+			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=consul;cert=value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "consul", CertPath: "value", Refresh: 3 * time.Second}
+				return cfg
+			},
 		},
-	}
+		{
+			desc: "-proxy.addr with vault cert source",
+			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=vault;cert=value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "vault", CertPath: "value", Refresh: 3 * time.Second}
+				return cfg
+			},
+		},
+		{
+			desc: "-proxy.addr with cert source",
+			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;hdr=a: b;caupgcn=furb"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{
+					Listen{
+						Addr:        ":5555",
+						Proto:       "https",
+						StrictMatch: true,
+						CertSource: CertSource{
+							Name:         "name",
+							Type:         "path",
+							CertPath:     "foo",
+							ClientCAPath: "bar",
+							Refresh:      2 * time.Second,
+							Header:       http.Header{"A": []string{"b"}},
+							CAUpgradeCN:  "furb",
+						},
+					},
+				}
+				return cfg
+			},
+		},
+		{
+			desc: "-proxy.addr with cert source with full options",
+			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true;proto=https", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;hdr=a: b;caupgcn=furb"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{
+					Listen{
+						Addr:        ":5555",
+						Proto:       "https",
+						StrictMatch: true,
+						CertSource: CertSource{
+							Name:         "name",
+							Type:         "path",
+							CertPath:     "foo",
+							ClientCAPath: "bar",
+							Refresh:      2 * time.Second,
+							Header:       http.Header{"A": []string{"b"}},
+							CAUpgradeCN:  "furb",
+						},
+					},
+				}
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.localip", "1.2.3.4"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.LocalIP = "1.2.3.4"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.strategy", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.Strategy = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.matcher", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.Matcher = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.noroutestatus", "555"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.NoRouteStatus = 555
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.shutdownwait", "5ms"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.ShutdownWait = 5 * time.Millisecond
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.responseheadertimeout", "5ms"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.ResponseHeaderTimeout = 5 * time.Millisecond
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.keepalivetimeout", "5ms"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.KeepAliveTimeout = 5 * time.Millisecond
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.dialtimeout", "5ms"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.DialTimeout = 5 * time.Millisecond
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.readtimeout", "5ms"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":9999", Proto: "http", ReadTimeout: 5 * time.Millisecond}}
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.writetimeout", "5ms"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":9999", Proto: "http", WriteTimeout: 5 * time.Millisecond}}
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.flushinterval", "5ms"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.FlushInterval = 5 * time.Millisecond
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.maxconn", "555"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.MaxConn = 555
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.header.clientip", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.ClientIPHeader = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.header.tls", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.TLSHeader = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.header.tls.value", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.TLSHeaderValue = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.gzip.contenttype", `^text/.*$`},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.GZIPContentTypes = regexp.MustCompile(`^text/.*$`)
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.backend", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Backend = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.file.path", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.File.Path = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.static.routes", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Static.Routes = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.addr", "1.2.3.4:5555"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.Addr = "1.2.3.4:5555"
+				cfg.Registry.Consul.Scheme = "http"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.addr", "http://1.2.3.4:5555/"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.Addr = "1.2.3.4:5555"
+				cfg.Registry.Consul.Scheme = "http"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.addr", "https://1.2.3.4:5555/"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.Addr = "1.2.3.4:5555"
+				cfg.Registry.Consul.Scheme = "https"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.addr", "HTTPS://1.2.3.4:5555/"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.Addr = "1.2.3.4:5555"
+				cfg.Registry.Consul.Scheme = "https"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.token", "some-token"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.Token = "some-token"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.kvpath", "/some/path"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.KVPath = "/some/path"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.tagprefix", "p-"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.TagPrefix = "p-"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.register.enabled=false"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.Register = false
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.register.addr", "1.2.3.4:5555"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.ServiceAddr = "1.2.3.4:5555"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.register.name", "fab"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.ServiceName = "fab"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.register.tags", "a, b, c, "},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.ServiceTags = []string{"a", "b", "c"}
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.register.checkInterval", "5ms"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.CheckInterval = 5 * time.Millisecond
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.register.checkTimeout", "5ms"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.CheckTimeout = 5 * time.Millisecond
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.service.status", "a, b, "},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.ServiceStatus = []string{"a", "b"}
+				return cfg
+			},
+		},
+		{
+			args: []string{"-metrics.target", "some-target"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.Target = "some-target"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-metrics.prefix", "some-prefix"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.Prefix = "some-prefix"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-metrics.names", "some names"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.Names = "some names"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-metrics.interval", "5ms"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.Interval = 5 * time.Millisecond
+				return cfg
+			},
+		},
+		{
+			args: []string{"-metrics.graphite.addr", "1.2.3.4:5555"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.GraphiteAddr = "1.2.3.4:5555"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-metrics.statsd.addr", "1.2.3.4:5555"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.StatsDAddr = "1.2.3.4:5555"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-metrics.circonus.apiapp", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.CirconusAPIApp = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-metrics.circonus.apikey", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.CirconusAPIKey = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-metrics.circonus.apiurl", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.CirconusAPIURL = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-metrics.circonus.brokerid", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.CirconusBrokerID = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-metrics.circonus.checkid", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.CirconusCheckID = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-runtime.gogc", "555"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Runtime.GOGC = 555
+				return cfg
+			},
+		},
+		{
+			args: []string{"-runtime.gomaxprocs", "555"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Runtime.GOMAXPROCS = 555
+				return cfg
+			},
+		},
+		{
+			args: []string{"-ui.addr", "1.2.3.4:5555"},
+			cfg: func(cfg *Config) *Config {
+				cfg.UI.Addr = "1.2.3.4:5555"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-ui.color", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.UI.Color = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-ui.title", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.UI.Title = "value"
+				return cfg
+			},
+		},
+		{
+			desc: "ignore aws.apigw.cert.cn",
+			args: []string{"-aws.apigw.cert.cn", "value"},
+			cfg:  func(cfg *Config) *Config { return cfg },
+		},
 
-	for i, tt := range tests {
-		l, err := parseListen(tt.in, cs, time.Duration(0), time.Duration(0))
-		if got, want := err, tt.err; (got != nil || want != "") && got.Error() != want {
-			t.Errorf("%d: got %+v want %+v", i, got, want)
-		}
-		if got, want := l, tt.out; !reflect.DeepEqual(got, want) {
-			t.Errorf("%d: got %+v want %+v", i, got, want)
-		}
-	}
-}
+		// config file
+		{
+			desc:    "config from environ",
+			environ: []string{"FABIO_proxy_addr=:6666"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":6666", Proto: "http"}}
+				return cfg
+			},
+		},
+		{
+			desc: "config from url",
+			args: []string{"-cfg", "URL"},
+			path: "http",
+			data: "proxy.addr = :5555",
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "http"}}
+				return cfg
+			},
+		},
+		{
+			desc: "config from file I",
+			args: []string{"-cfg", "/tmp/fabio-config-test"},
+			path: "/tmp/fabio-config-test",
+			data: "proxy.addr = :5555",
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "http"}}
+				return cfg
+			},
+		},
+		{
+			desc: "config from file II",
+			args: []string{"-cfg=/tmp/fabio-config-test"},
+			path: "/tmp/fabio-config-test",
+			data: "proxy.addr = :5555",
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "http"}}
+				return cfg
+			},
+		},
+		{
+			desc: "config from file III",
+			args: []string{"-cfg='/tmp/fabio-config-test'"},
+			path: "/tmp/fabio-config-test",
+			data: "proxy.addr = :5555",
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "http"}}
+				return cfg
+			},
+		},
+		{
+			desc: "config from file IV",
+			args: []string{"-cfg=\"/tmp/fabio-config-test\""},
+			path: "/tmp/fabio-config-test",
+			data: "proxy.addr = :5555",
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "http"}}
+				return cfg
+			},
+		},
 
-func TestParseCfg(t *testing.T) {
-	tests := []struct {
-		args []string
-		i    int
-		path string
-		err  error
-	}{
-		// edge cases
-		{nil, 0, ``, nil},
-		{[]string{`-abc`}, 0, "", nil},
-		{[]string{`-cfg`}, 1, "", nil},
-		{[]string{`-cfg`}, 5, "", nil},
+		// precedence rules
+		{
+			desc: "cmdline over config file I",
+			args: []string{"-cfg", "/tmp/fabio-config-test", "-proxy.addr", ":6666"},
+			path: "/tmp/fabio-config-test",
+			data: "proxy.addr = :5555",
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":6666", Proto: "http"}}
+				return cfg
+			},
+		},
+		{
+			desc: "cmdline over config file II",
+			args: []string{"-proxy.addr", ":6666", "-cfg", "/tmp/fabio-config-test"},
+			path: "/tmp/fabio-config-test",
+			data: "proxy.addr = :5555",
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":6666", Proto: "http"}}
+				return cfg
+			},
+		},
+		{
+			desc:    "environ over config file",
+			args:    []string{"-cfg", "/tmp/fabio-config-test"},
+			environ: []string{"FABIO_proxy_addr=:6666"},
+			path:    "/tmp/fabio-config-test",
+			data:    "proxy.addr = :5555",
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":6666", Proto: "http"}}
+				return cfg
+			},
+		},
+		{
+			desc:    "cmdline over environ",
+			args:    []string{"-proxy.addr", ":5555"},
+			environ: []string{"FABIO_proxy_addr=:6666"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "http"}}
+				return cfg
+			},
+		},
 
 		// errors
-		{[]string{`-cfg`}, 0, "", errInvalidConfig},
-		{[]string{`-cfg=''`}, 0, "", errInvalidConfig},
-		{[]string{`-cfg=""`}, 0, "", errInvalidConfig},
-		{[]string{`-cfg=`}, 0, "", errInvalidConfig},
-
-		// happy flow
-		{[]string{`-cfg`, `foo`}, 0, "foo", nil},
-		{[]string{`-cfg=foo`}, 0, "foo", nil},
-		{[]string{`-cfg='foo'`}, 0, "foo", nil},
-		{[]string{`-cfg="foo"`}, 0, "foo", nil},
-		{[]string{`-cfg='"foo"'`}, 0, `"foo"`, nil},
-		{[]string{`-cfg="'foo'"`}, 0, `'foo'`, nil},
+		{
+			desc: "-proxy.addr with unknown cert source 'foo'",
+			args: []string{"-proxy.addr", ":5555;cs=foo"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("unknown certificate source \"foo\""),
+		},
+		{
+			desc: "-proxy.addr with unknown proto 'foo'",
+			args: []string{"-proxy.addr", ":5555;proto=foo"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("unknown protocol \"foo\""),
+		},
+		{
+			desc: "-proxy.addr with proto 'https' requires cert source",
+			args: []string{"-proxy.addr", ":5555;proto=https"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("proto 'https' requires cert source"),
+		},
+		{
+			desc: "-proxy.addr with cert source and proto 'http' requires proto 'https'",
+			args: []string{"-proxy.addr", ":5555;cs=name;proto=http", "-proxy.cs", "cs=name;type=path;cert=value"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("cert source requires proto 'https'"),
+		},
+		{
+			desc: "-proxy.addr with cert source and proto 'tcp+sni' requires proto 'https'",
+			args: []string{"-proxy.addr", ":5555;cs=name;proto=tcp+sni", "-proxy.cs", "cs=name;type=path;cert=value"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("cert source requires proto 'https'"),
+		},
+		{
+			args: []string{"-cfg"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errInvalidConfig,
+		},
+		{
+			args: []string{"-cfg=''"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errInvalidConfig,
+		},
+		{
+			args: []string{"-cfg=\"\""},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errInvalidConfig,
+		},
 	}
 
-	for i, tt := range tests {
-		p, err := parseCfg(tt.args, tt.i)
-		if got, want := err, tt.err; got != want {
-			t.Fatalf("%d: got %v want %v", i, got, want)
+	for _, tt := range tests {
+		tt := tt // capture loop var
+
+		if tt.desc == "" {
+			tt.desc = strings.Join(tt.args, " ")
 		}
-		if got, want := p, tt.path; got != want {
-			t.Errorf("%d: got %v want %v", i, got, want)
-		}
+
+		t.Run(tt.desc, func(t *testing.T) {
+			// start a web server or write data to a file if tt.path is set
+			switch {
+			case tt.path == "http":
+				srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					fmt.Fprint(w, tt.data)
+				}))
+				defer srv.Close()
+
+				// replace 'URL' with the actual server url in the command line args
+				for i := range tt.args {
+					tt.args[i] = strings.Replace(tt.args[i], "URL", srv.URL, -1)
+				}
+
+			case tt.path != "":
+				if err := ioutil.WriteFile(tt.path, []byte(tt.data), 0600); err != nil {
+					t.Fatalf("error writing file: %s", err)
+				}
+				defer os.Remove(tt.path)
+			}
+
+			// config parser expects the exe name to be the first argument
+			cfg, err := Load(append([]string{"fabio"}, tt.args...), tt.environ)
+			if got, want := err, tt.err; !reflect.DeepEqual(got, want) {
+				t.Fatalf("got error %v want %v", got, want)
+			}
+
+			// limit the amount of code we have to write per test:
+			// each test has a function which augments a pre-configured
+			// config structure which is pre-filled with the defaults.
+			clone := new(Config)
+			*clone = *defaultConfig
+			clone.Listen = []Listen{{Addr: ":9999", Proto: "http"}}
+			got, want := cfg, tt.cfg(clone)
+			verify.Values(t, "", got, want)
+		})
 	}
 }

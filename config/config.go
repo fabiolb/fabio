@@ -7,16 +7,12 @@ import (
 )
 
 type Config struct {
-	Proxy       Proxy
-	Registry    Registry
-	Listen      []Listen
-	CertSources map[string]CertSource
-	Metrics     Metrics
-	UI          UI
-	Runtime     Runtime
-
-	ListenerValue    []string
-	CertSourcesValue []map[string]string
+	Proxy    Proxy
+	Registry Registry
+	Listen   []Listen
+	Metrics  Metrics
+	UI       UI
+	Runtime  Runtime
 }
 
 type CertSource struct {
@@ -54,14 +50,11 @@ type Proxy struct {
 	DialTimeout           time.Duration
 	ResponseHeaderTimeout time.Duration
 	KeepAliveTimeout      time.Duration
-	ReadTimeout           time.Duration
-	WriteTimeout          time.Duration
 	FlushInterval         time.Duration
 	LocalIP               string
 	ClientIPHeader        string
 	TLSHeader             string
 	TLSHeaderValue        string
-	GZIPContentTypesValue string
 	GZIPContentTypes      *regexp.Regexp
 }
 

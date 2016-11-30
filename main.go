@@ -33,7 +33,7 @@ import (
 var version = "1.3.5"
 
 func main() {
-	cfg, err := config.Load()
+	cfg, err := config.Load(os.Args, os.Environ())
 	if err != nil {
 		exit.Fatalf("[FATAL] %s. %s", version, err)
 	}

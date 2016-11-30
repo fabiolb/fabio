@@ -5,8 +5,18 @@ import (
 	"time"
 )
 
-var Default = &Config{
-	ListenerValue: []string{":9999"},
+var defaultValues = struct {
+	ListenerValue         []string
+	CertSourcesValue      []map[string]string
+	ReadTimeout           time.Duration
+	WriteTimeout          time.Duration
+	GZIPContentTypesValue string
+}{
+	ListenerValue:    []string{":9999"},
+	CertSourcesValue: []map[string]string{},
+}
+
+var defaultConfig = &Config{
 	Proxy: Proxy{
 		MaxConn:       10000,
 		Strategy:      "rnd",
@@ -45,5 +55,4 @@ var Default = &Config{
 		Interval:       30 * time.Second,
 		CirconusAPIApp: "fabio",
 	},
-	CertSources: map[string]CertSource{},
 }
