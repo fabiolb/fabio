@@ -1,6 +1,6 @@
 ## Changelog
 
-### Unreleased
+### [v1.3.5](https://github.com/eBay/fabio/releases/tag/v1.3.5) - 30 Nov 2016
 
  * [Issue #182](https://github.com/eBay/fabio/issues/182): Initialize Vault client better
  * [Issue #183](https://github.com/eBay/fabio/issues/183): Websocket header casing
