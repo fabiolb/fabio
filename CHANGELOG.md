@@ -1,5 +1,9 @@
 ## Changelog
 
+### Unreleased
+
+ * Upgrade to Go 1.7.4
+
 ### [v1.3.5](https://github.com/eBay/fabio/releases/tag/v1.3.5) - 30 Nov 2016
 
  * [Issue #182](https://github.com/eBay/fabio/issues/182): Initialize Vault client better
