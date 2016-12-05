@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"reflect"
 	"sort"
 	"strings"
 
@@ -45,6 +46,13 @@ func newRoute(host, path string) *Route {
 func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float64, tags []string) {
 	if fixedWeight < 0 {
 		fixedWeight = 0
+	}
+
+	// de-dup existing target
+	for _, t := range r.Targets {
+		if t.Service == service && t.URL.String() == targetURL.String() && t.FixedWeight == fixedWeight && reflect.DeepEqual(t.Tags, tags) {
+			return
+		}
 	}
 
 	name, err := metrics.TargetName(service, r.Host, r.Path, targetURL)
@@ -130,22 +138,12 @@ func contains(src, dst []string) bool {
 	return true
 }
 
-// targetWeight returns how often target is in wTargets.
-func (r *Route) targetWeight(targetURL string) (n int) {
-	for _, t := range r.wTargets {
-		if t.URL.String() == targetURL {
-			n++
-		}
-	}
-	return n
-}
-
 func (r *Route) TargetConfig(t *Target, addWeight bool) string {
 	s := fmt.Sprintf("route add %s %s %s", t.Service, r.Host+r.Path, t.URL)
 	if addWeight {
-		s += fmt.Sprintf(" weight %2.2f", t.Weight)
+		s += fmt.Sprintf(" weight %2.4f", t.Weight)
 	} else if t.FixedWeight > 0 {
-		s += fmt.Sprintf(" weight %.2f", t.FixedWeight)
+		s += fmt.Sprintf(" weight %.4f", t.FixedWeight)
 	}
 	if len(t.Tags) > 0 {
 		s += fmt.Sprintf(" tags %q", strings.Join(t.Tags, ","))
@@ -166,6 +164,12 @@ func (r *Route) config(addWeight bool) []string {
 	return cfg
 }
 
+// maxSlots defines the maximum number of slots on the ring for
+// weighted round-robin distribution for a single route. Consequently,
+// this then defines the maximum number of separate instances that can
+// serve a single route. maxSlots must be a power of ten.
+const maxSlots = 1e4 // 10000
+
 // weighTargets computes the share of traffic each target receives based
 // on its weight and the weight of the other targets.
 //
@@ -183,6 +187,17 @@ func (r *Route) weighTargets() {
 			nFixed++
 			sumFixed += t.FixedWeight
 		}
+	}
+
+	// if there are no targets with fixed weight then each target simply gets
+	// an equal amount of traffic
+	if nFixed == 0 {
+		w := 1.0 / float64(len(r.Targets))
+		for _, t := range r.Targets {
+			t.Weight = w
+		}
+		r.wTargets = r.Targets
+		return
 	}
 
 	// normalize fixed weights up (sumFixed < 1) or down (sumFixed > 1)
@@ -206,49 +221,67 @@ func (r *Route) weighTargets() {
 		}
 	}
 
-	// Distribute the targets on a ring with N slots. The distance
-	// between two entries for the same target should be N/count slots
-	// apart to achieve even distribution. count is the number of slots the
-	// target should get based on its weight.
-	// To achieve this we first determine count per target and then sort that
-	// from smallest to largest to distribute the targets with lesser weight
-	// more evenly. For that we pick a random starting point on the ring and
-	// move clockwise until we find a free spot. The the next slot is N/count
-	// slots away. If it is occupied we again move clockwise until we find
-	// a free slot.
-
-	// number of slots we want to use and number of slots we will actually use
-	// because of rounding errors
-	gotSlots, wantSlots := 0, 100
-
-	slotCount := make(byN, len(r.Targets))
+	// distribute the targets on a ring suitable for weighted round-robin
+	// distribution
+	//
+	// This is done in two steps:
+	//
+	// Step one determines the necessary ring size to distribute the targets
+	// according to their weight with reasonable accuracy. For example, two
+	// targets with 50% weight fit in a ring of size 2 whereas two targets with
+	// 10% and 90% weight require a ring of size 10.
+	//
+	// To keep it simple we allocate 10000 slots which provides slots to all
+	// targets with at least a weight of 0.01%. In addition, we guarantee that
+	// every target with a weight > 0 gets at least one slot. The case where
+	// all targets get an equal share of traffic is handled earlier so this is
+	// for situations with some fixed weight.
+	//
+	// Step two distributes the targets onto the ring spacing them out evenly
+	// so that iterating over the ring performs the weighted rr distribution.
+	// For example, a 50/50 distribution on a ring of size 10 should be
+	// 0101010101 instead of 0000011111.
+	//
+	// To ensure that targets with smaller weights are properly placed we place
+	// them on the ring first by sorting the targets by slot count.
+	//
+	// TODO(fs): I assume that this is some sort of mathematical problem
+	// (coloring, optimizing, ...) but I don't know which. Happy to make this
+	// more formal, if possible.
+	//
+	slots := make(byN, len(r.Targets))
+	usedSlots := 0
 	for i, t := range r.Targets {
-		slotCount[i].i = i
-		slotCount[i].n = int(float64(wantSlots)*t.Weight + 0.5)
-		gotSlots += slotCount[i].n
+		n := int(float64(maxSlots) * t.Weight)
+		if n == 0 && t.Weight > 0 {
+			n = 1
+		}
+		slots[i].i = i
+		slots[i].n = n
+		usedSlots += n
 	}
-	sort.Sort(slotCount)
 
-	slots := make([]*Target, gotSlots)
-	for _, c := range slotCount {
-		if c.n <= 0 {
+	sort.Sort(slots)
+	targets := make([]*Target, usedSlots)
+	for _, s := range slots {
+		if s.n <= 0 {
 			continue
 		}
 
-		next, step := 0, gotSlots/c.n
-		for k := 0; k < c.n; k++ {
+		next, step := 0, usedSlots/s.n
+		for k := 0; k < s.n; k++ {
 			// find the next empty slot
-			for slots[next] != nil {
-				next = (next + 1) % gotSlots
+			for targets[next] != nil {
+				next = (next + 1) % usedSlots
 			}
 
 			// use slot and move to next one
-			slots[next] = r.Targets[c.i]
-			next = (next + step) % gotSlots
+			targets[next] = r.Targets[s.i]
+			next = (next + step) % usedSlots
 		}
 	}
 
-	r.wTargets = slots
+	r.wTargets = targets
 }
 
 type byN []struct{ i, n int }

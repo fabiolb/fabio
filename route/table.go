@@ -119,24 +119,24 @@ func (t Table) AddRoute(service, prefix, target string, weight float64, tags []s
 		return fmt.Errorf("route: invalid target. %s", err)
 	}
 
-	r := newRoute(host, path)
-	r.addTarget(service, targetURL, weight, tags)
-
+	switch {
 	// add new host
-	if t[host] == nil {
+	case t[host] == nil:
+		r := newRoute(host, path)
+		r.addTarget(service, targetURL, weight, tags)
 		t[host] = Routes{r}
-		return nil
-	}
 
 	// add new route to existing host
-	if t[host].find(path) == nil {
+	case t[host].find(path) == nil:
+		r := newRoute(host, path)
+		r.addTarget(service, targetURL, weight, tags)
 		t[host] = append(t[host], r)
 		sort.Sort(t[host])
-		return nil
-	}
 
 	// add new target to existing route
-	t[host].find(path).addTarget(service, targetURL, weight, tags)
+	default:
+		t[host].find(path).addTarget(service, targetURL, weight, tags)
+	}
 
 	return nil
 }

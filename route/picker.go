@@ -45,4 +45,9 @@ func rrPicker(r *Route) *Target {
 // requests are usually handled within several ms we should have enough
 // variation. Within 1 ms we have 1000 µs to distribute among a smaller
 // set of entities (<< 100)
-var randIntn = func(n int) int { return int(time.Now().UnixNano()/int64(time.Microsecond)) % n }
+var randIntn = func(n int) int {
+	if n == 0 {
+		return 0
+	}
+	return int(time.Now().UnixNano()/int64(time.Microsecond)) % n
+}
