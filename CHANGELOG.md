@@ -3,6 +3,9 @@
 ### Unreleased
 
  * Upgrade to Go 1.7.4
+ * [Issue #111](https://github.com/eBay/fabio/issues/111): Refactor urlprefix tags (step 1: options and new parser)
+ * [Issue #186](https://github.com/eBay/fabio/issues/186): runtime error: integer divide by zero
+ * [Issue #199](https://github.com/eBay/fabio/issues/199): Refactor config loader tests
 
 ### [v1.3.5](https://github.com/eBay/fabio/releases/tag/v1.3.5) - 30 Nov 2016
 
