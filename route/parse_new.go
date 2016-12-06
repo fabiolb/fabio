@@ -41,76 +41,64 @@ func ParseNew(in string) (defs []*RouteDef, err error) {
 	return defs, nil
 }
 
-// route add <svc> <src> <dst> weight <w> tags "<t1>,<t2>,..."
-// route add <svc> <src> <dst> weight <w>
-// route add <svc> <src> <dst> tags "<t1>,<t2>,..."
-// route add <svc> <src> <dst>
-func parseRouteAdd(s string) (d *RouteDef, err error) {
-	// 1: service 2: src 3: dst 4: weight expr 5: weight val 6: tags expr 7: tags val 8: opts expr 9: opts val
-	re := mustCompileWithFlexibleSpace(`^route add (\S+) (\S+) (\S+)( weight (\S+))?( tags "([^"]*)")?( opts "([^"]*)")?$`)
+// route add <svc> <src> <dst>[ weight <w>][ tags "<t1>,<t2>,..."][ opts "k=v k=v ..."]
+// 1: service 2: src 3: dst 4: weight expr 5: weight val 6: tags expr 7: tags val 8: opts expr 9: opts val
+var reAdd = mustCompileWithFlexibleSpace(`^route add (\S+) (\S+) (\S+)( weight (\S+))?( tags "([^"]*)")?( opts "([^"]*)")?$`)
 
-	m := re.FindStringSubmatch(s)
-	if m == nil {
-		return nil, errors.New("syntax error: 'route add' invalid")
+func parseRouteAdd(s string) (*RouteDef, error) {
+	if m := reAdd.FindStringSubmatch(s); m != nil {
+		w, err := parseWeight(m[5])
+		return &RouteDef{
+			Cmd:     RouteAddCmd,
+			Service: m[1],
+			Src:     m[2],
+			Dst:     m[3],
+			Weight:  w,
+			Tags:    parseTags(m[7]),
+			Opts:    parseOpts(m[9]),
+		}, err
 	}
-
-	d = new(RouteDef)
-	d.Cmd = RouteAddCmd
-	d.Service = m[1]
-	d.Src = m[2]
-	d.Dst = m[3]
-	d.Weight, err = parseWeight(m[5])
-	d.Tags = parseTags(m[7])
-	d.Opts = parseOpts(m[9])
-
-	return
+	return nil, errors.New("syntax error: 'route add' invalid")
 }
 
-// route del <svc> <src> <dst>
-// route del <svc> <src>
-// route del <svc>
-func parseRouteDel(s string) (d *RouteDef, err error) {
-	// 1: service 2: src expr 3: src 4: dst expr 5: dst
-	re := mustCompileWithFlexibleSpace(`^route del (\S+)( (\S+)( (\S+))?)?$`)
+// route del <svc>[ <src>][ <dst>]
+// 1: service 2: src expr 3: src 4: dst expr 5: dst
+var reDel = mustCompileWithFlexibleSpace(`^route del (\S+)( (\S+)( (\S+))?)?$`)
 
-	m := re.FindStringSubmatch(s)
-	if m == nil {
-		return nil, errors.New("syntax error: 'route del' invalid")
+func parseRouteDel(s string) (*RouteDef, error) {
+	if m := reDel.FindStringSubmatch(s); m != nil {
+		return &RouteDef{Cmd: RouteDelCmd, Service: m[1], Src: m[3], Dst: m[5]}, nil
 	}
-
-	d = new(RouteDef)
-	d.Cmd = RouteDelCmd
-	d.Service = m[1]
-	d.Src = m[3]
-	d.Dst = m[5]
-
-	return
+	return nil, errors.New("syntax error: 'route del' invalid")
 }
 
-// route weight <svc> <src> weight <w> tags "<t1>,<t2>,..."'
-// route weight <svc> <src> weight <w>'
-// route weight <src> weight <w> tags "<t1>,<t2>,..."'
-func parseRouteWeight(s string) (d *RouteDef, err error) {
-	// 1: service 2: src 3: weight val 4: tags expr 5: tags val
-	reSvc := mustCompileWithFlexibleSpace(`^route weight (\S+) (\S+) weight (\S+)( tags "([^"]*)")?$`)
-	// 1: src 2: weight val 3: tags val
-	reSrc := mustCompileWithFlexibleSpace(`^route weight (\S+) weight (\S+) tags "([^"]*)"$`)
+// route weight <svc> <src> weight <w>[ tags "<t1>,<t2>,..."]
+// 1: service 2: src 3: weight val 4: tags expr 5: tags val
+var reWeightSvc = mustCompileWithFlexibleSpace(`^route weight (\S+) (\S+) weight (\S+)( tags "([^"]*)")?$`)
 
-	d = new(RouteDef)
-	if m := reSvc.FindStringSubmatch(s); m != nil {
-		d.Cmd = RouteWeightCmd
-		d.Service = m[1]
-		d.Src = m[2]
-		d.Weight, err = parseWeight(m[3])
-		d.Tags = parseTags(m[5])
-		return d, nil
+// route weight <src> weight <w> tags "<t1>,<t2>,..."
+// 1: src 2: weight val 3: tags val
+var reWeightSrc = mustCompileWithFlexibleSpace(`^route weight (\S+) weight (\S+) tags "([^"]*)"$`)
+
+func parseRouteWeight(s string) (*RouteDef, error) {
+	if m := reWeightSvc.FindStringSubmatch(s); m != nil {
+		w, err := parseWeight(m[3])
+		return &RouteDef{
+			Cmd:     RouteWeightCmd,
+			Service: m[1],
+			Src:     m[2],
+			Weight:  w,
+			Tags:    parseTags(m[5]),
+		}, err
 	}
-	if m := reSrc.FindStringSubmatch(s); m != nil {
-		d.Cmd = RouteWeightCmd
-		d.Src = m[1]
-		d.Weight, err = parseWeight(m[2])
-		d.Tags = parseTags(m[3])
-		return d, nil
+	if m := reWeightSrc.FindStringSubmatch(s); m != nil {
+		w, err := parseWeight(m[2])
+		return &RouteDef{
+			Cmd:    RouteWeightCmd,
+			Src:    m[1],
+			Weight: w,
+			Tags:   parseTags(m[3]),
+		}, err
 	}
 	return nil, errors.New("syntax error: 'route weight' invalid")
 }
