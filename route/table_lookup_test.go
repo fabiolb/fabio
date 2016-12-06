@@ -35,6 +35,12 @@ func TestTableLookup(t *testing.T) {
 	route add svc abc.com/foo/ http://foo.com:2000
 	route add svc abc.com/foo/bar http://foo.com:2500
 	route add svc abc.com/foo/bar/ http://foo.com:3000
+	route add svc */widget http://foo.com:901
+	route add svc *.abc.com/ http://foo.com:1001
+	route add svc *.abc.com/foo http://foo.com:1501
+	route add svc *.abc.com/foo/ http://foo.com:2001
+	route add svc *.abc.com/foo/bar http://foo.com:2501
+	route add svc *.abc.com/foo/bar/ http://foo.com:3001
 	`
 
 	tbl, err := ParseTable(s)
@@ -53,11 +59,22 @@ func TestTableLookup(t *testing.T) {
 		{&http.Request{Host: "abc.com", RequestURI: "/foo/"}, "http://foo.com:2000"},
 		{&http.Request{Host: "abc.com", RequestURI: "/foo/bar"}, "http://foo.com:2500"},
 		{&http.Request{Host: "abc.com", RequestURI: "/foo/bar/"}, "http://foo.com:3000"},
+		{&http.Request{Host: "abc.com", RequestURI: "/widget"}, "http://foo.com:901"},
+
+		// match on host and path with and without trailing slash using glob host match
+		{&http.Request{Host: "z.abc.com", RequestURI: "/"}, "http://foo.com:1001"},
+		{&http.Request{Host: "z.abc.com", RequestURI: "/bar"}, "http://foo.com:1001"},
+		{&http.Request{Host: "z.abc.com", RequestURI: "/foo"}, "http://foo.com:1501"},
+		{&http.Request{Host: "z.abc.com", RequestURI: "/foo/"}, "http://foo.com:2001"},
+		{&http.Request{Host: "z.abc.com", RequestURI: "/foo/bar"}, "http://foo.com:2501"},
+		{&http.Request{Host: "z.abc.com", RequestURI: "/foo/bar/"}, "http://foo.com:3001"},
+		{&http.Request{Host: "z.abc.com", RequestURI: "/widget"}, "http://foo.com:901"},
 
 		// do not match on host but maybe on path
 		{&http.Request{Host: "def.com", RequestURI: "/"}, "http://foo.com:800"},
 		{&http.Request{Host: "def.com", RequestURI: "/bar"}, "http://foo.com:800"},
 		{&http.Request{Host: "def.com", RequestURI: "/foo"}, "http://foo.com:900"},
+		{&http.Request{Host: "def.com", RequestURI: "/widget"}, "http://foo.com:901"},
 
 		// strip default port
 		{&http.Request{Host: "abc.com:80", RequestURI: "/"}, "http://foo.com:1000"},
