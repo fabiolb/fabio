@@ -67,9 +67,29 @@ func TestParse(t *testing.T) {
 			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/", Opts: map[string]string{"foo": "bar", "baz": "bang", "blimp": ""}}},
 		},
 		{
+			desc: "RouteDelTags",
+			in:   `route del tags "a,b"`,
+			out:  []*RouteDef{{Cmd: RouteDelCmd, Tags: []string{"a", "b"}}},
+		},
+		{
+			desc: "RouteDelTagsMoreSpaces",
+			in:   `route  del  tags  " a , b "`,
+			out:  []*RouteDef{{Cmd: RouteDelCmd, Tags: []string{"a", "b"}}},
+		},
+		{
 			desc: "RouteDelService",
 			in:   `route del svc`,
 			out:  []*RouteDef{{Cmd: RouteDelCmd, Service: "svc"}},
+		},
+		{
+			desc: "RouteDelServiceTags",
+			in:   `route del svc tags "a,b"`,
+			out:  []*RouteDef{{Cmd: RouteDelCmd, Service: "svc", Tags: []string{"a", "b"}}},
+		},
+		{
+			desc: "RouteDelServiceTagsMoreSpaces",
+			in:   `route  del  svc  tags  " a , b "`,
+			out:  []*RouteDef{{Cmd: RouteDelCmd, Service: "svc", Tags: []string{"a", "b"}}},
 		},
 		{
 			desc: "RouteDelServiceSrc",
@@ -115,22 +135,30 @@ func TestParse(t *testing.T) {
 
 	reSyntaxError := regexp.MustCompile(`syntax error`)
 
+	deref := func(def []*RouteDef) (defs []RouteDef) {
+		for _, d := range def {
+			defs = append(defs, *d)
+		}
+		return
+	}
+
 	run := func(in string, def []*RouteDef, fail bool, parseFn func(string) ([]*RouteDef, error)) {
 		out, err := parseFn(in)
 		switch {
 		case err == nil && fail:
-			t.Errorf("got nil want fail")
+			t.Errorf("got error nil want fail")
+			return
 		case err != nil && !fail:
-			t.Errorf("got %v want nil", err)
+			t.Errorf("got error %v want nil", err)
 			return
 		case err != nil:
 			if !reSyntaxError.MatchString(err.Error()) {
-				t.Errorf("got %q want 'syntax error.*'", err)
+				t.Errorf("got error %q want 'syntax error.*'", err)
 			}
 			return
 		}
 		if got, want := out, def; !reflect.DeepEqual(got, want) {
-			t.Errorf("got %+v want %+v", got, want)
+			t.Errorf("\ngot  %#v\nwant %#v", deref(got), deref(want))
 		}
 	}
 

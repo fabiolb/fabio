@@ -147,6 +147,31 @@ func TestTableParse(t *testing.T) {
 			},
 		},
 
+		{"delete route by service and tags",
+			[]string{
+				`route add svc-a /a http://aaa.com/ tags "a,b"`,
+				`route add svc-a /  http://aaa.com/ tags "b,c"`,
+				`route add svc-b /  http://bbb.com/ tags "c,d"`,
+				`route del svc-a tags "a,b"`,
+			},
+			[]string{
+				`route add svc-a / http://aaa.com/ weight 0.5000 tags "b,c"`,
+				`route add svc-b / http://bbb.com/ weight 0.5000 tags "c,d"`,
+			},
+		},
+
+		{"delete route by tags",
+			[]string{
+				`route add svc-a /a http://aaa.com/ tags "a,b"`,
+				`route add svc-a /  http://aaa.com/ tags "b,c"`,
+				`route add svc-b /  http://bbb.com/ tags "c,d"`,
+				`route del tags "b"`,
+			},
+			[]string{
+				`route add svc-b / http://bbb.com/ weight 1.0000 tags "c,d"`,
+			},
+		},
+
 		{"weigh fixed weight 0 -> auto distribution",
 			[]string{
 				`route add svc / http://bar:111/ weight 0`,

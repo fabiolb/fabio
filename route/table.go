@@ -192,6 +192,15 @@ func (t Table) weighRoute(d *RouteDef) error {
 // will no longer receive traffic. Routes with no targets are removed.
 func (t Table) delRoute(d *RouteDef) error {
 	switch {
+	case len(d.Tags) > 0:
+		for _, routes := range t {
+			for _, r := range routes {
+				r.filter(func(tg *Target) bool {
+					return (d.Service == "" || tg.Service == d.Service) && contains(tg.Tags, d.Tags)
+				})
+			}
+		}
+
 	case d.Src == "" && d.Dst == "":
 		for _, routes := range t {
 			for _, r := range routes {

@@ -88,6 +88,12 @@ route del &lt;svc&gt; &lt;src&gt;
 route del &lt;svc&gt;
   - Remove all routes of service matching svc
 
+ route del &lt;svc&gt; tags "&lt;t1&gt;lt;t2&gt;..."
+   - Remove all routes of service matching svc and tags
+
+ route del tags "&lt;t1&gt;lt;t2&gt;..."
+   - Remove all routes matching tags
+
 route weight &lt;svc&gt; &lt;src&gt; weight &lt;w&gt; tags "&lt;t1&gt;,&lt;t2&gt;,..."
   - Route w% of traffic to all services matching svc, src and tags
 

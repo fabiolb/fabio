@@ -45,6 +45,12 @@ var (
 // route del <svc>
 //   - Remove all routes of service matching svc
 //
+// route del <svc> tags "<t1>,<t2>,..."
+//   - Remove all routes of service matching svc and tags
+//
+// route del tags "<t1>,<t2>,..."
+//   - Remove all routes matching tags
+//
 // route weight <svc> <src> weight <w> tags "<t1>,<t2>,..."
 //   - Route w% of traffic to all services matching svc, src and tags
 //
@@ -113,7 +119,21 @@ func parseRouteAdd(s string) (*RouteDef, error) {
 // 1: service 2: src expr 3: src 4: dst expr 5: dst
 var reDel = mustCompileWithFlexibleSpace(`^route del (\S+)( (\S+)( (\S+))?)?$`)
 
+// route del <svc> tags "<t1>,<t2>,..."
+// 1: service 2: tags
+var reDelSvcTags = mustCompileWithFlexibleSpace(`^route del (\S+) tags "([^"]*)"$`)
+
+// route del tags "<t1>,<t2>,..."
+// 2: tags
+var reDelTags = mustCompileWithFlexibleSpace(`^route del tags "([^"]*)"$`)
+
 func parseRouteDel(s string) (*RouteDef, error) {
+	if m := reDelSvcTags.FindStringSubmatch(s); m != nil {
+		return &RouteDef{Cmd: RouteDelCmd, Service: m[1], Tags: parseTags(m[2])}, nil
+	}
+	if m := reDelTags.FindStringSubmatch(s); m != nil {
+		return &RouteDef{Cmd: RouteDelCmd, Tags: parseTags(m[1])}, nil
+	}
 	if m := reDel.FindStringSubmatch(s); m != nil {
 		return &RouteDef{Cmd: RouteDelCmd, Service: m[1], Src: m[3], Dst: m[5]}, nil
 	}
