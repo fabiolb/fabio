@@ -168,7 +168,7 @@ func compress(b []byte) []byte {
 }
 
 func mustParseTable(s string) route.Table {
-	t, err := route.ParseTable(s)
+	t, err := route.NewTable(s)
 	if err != nil {
 		panic(err)
 	}

@@ -173,7 +173,7 @@ func watchBackend() {
 			continue
 		}
 
-		t, err := route.ParseTable(next)
+		t, err := route.NewTable(next)
 		if err != nil {
 			log.Printf("[WARN] %s", err)
 			continue

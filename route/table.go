@@ -102,24 +102,21 @@ func hostpath(prefix string) (host string, path string) {
 	return p[0], "/" + p[1]
 }
 
-func ParseTable(s string) (Table, error) {
+func NewTable(s string) (t Table, err error) {
 	defs, err := Parse(s)
 	if err != nil {
 		return nil, err
 	}
-	return BuildTable(defs)
-}
 
-func BuildTable(defs []*RouteDef) (t Table, err error) {
-	t = Table{}
+	t = make(Table)
 	for _, d := range defs {
 		switch d.Cmd {
 		case RouteAddCmd:
-			err = t.AddRoute(d)
+			err = t.addRoute(d)
 		case RouteDelCmd:
-			err = t.DelRoute(d)
+			err = t.delRoute(d)
 		case RouteWeightCmd:
-			err = t.RouteWeight(d)
+			err = t.weighRoute(d)
 		default:
 			err = fmt.Errorf("route: invalid command: %s", d.Cmd)
 		}
@@ -131,7 +128,7 @@ func BuildTable(defs []*RouteDef) (t Table, err error) {
 }
 
 // AddRoute adds a new route prefix -> target for the given service.
-func (t Table) AddRoute(d *RouteDef) error {
+func (t Table) addRoute(d *RouteDef) error {
 	host, path := hostpath(d.Src)
 
 	if d.Src == "" {
@@ -169,7 +166,7 @@ func (t Table) AddRoute(d *RouteDef) error {
 	return nil
 }
 
-func (t Table) RouteWeight(d *RouteDef) error {
+func (t Table) weighRoute(d *RouteDef) error {
 	host, path := hostpath(d.Src)
 
 	if d.Src == "" {
@@ -193,7 +190,7 @@ func (t Table) RouteWeight(d *RouteDef) error {
 // instances of the service from the route. If only the service is
 // provided then all routes for this service are removed. The service
 // will no longer receive traffic. Routes with no targets are removed.
-func (t Table) DelRoute(d *RouteDef) error {
+func (t Table) delRoute(d *RouteDef) error {
 	switch {
 	case d.Src == "" && d.Dst == "":
 		for _, routes := range t {

@@ -98,7 +98,7 @@ func makeRoutes(domains, paths, depth, urls int) Table {
 		}
 	}
 
-	t, err := ParseTable(s)
+	t, err := NewTable(s)
 	if err != nil {
 		panic(err)
 	}

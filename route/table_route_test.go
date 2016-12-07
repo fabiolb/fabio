@@ -8,13 +8,13 @@ import (
 
 func TestTableRoute(t *testing.T) {
 	mustAdd := func(tbl Table, d *RouteDef) {
-		if err := tbl.AddRoute(d); err != nil {
+		if err := tbl.addRoute(d); err != nil {
 			t.Fatalf("got %v want nil for %#v", err, d)
 		}
 	}
 
 	mustDel := func(tbl Table, d *RouteDef) {
-		if err := tbl.DelRoute(d); err != nil {
+		if err := tbl.delRoute(d); err != nil {
 			t.Fatalf("got %v want nil for %#v", err, d)
 		}
 	}
@@ -28,7 +28,7 @@ func TestTableRoute(t *testing.T) {
 		{
 			desc: "invalid prefix",
 			setup: func(tbl Table) error {
-				return tbl.AddRoute(&RouteDef{Service: "svc", Src: "", Dst: "http://bbb.com/"})
+				return tbl.addRoute(&RouteDef{Service: "svc", Src: "", Dst: "http://bbb.com/"})
 			},
 			err: errInvalidPrefix.Error(),
 		},
@@ -36,7 +36,7 @@ func TestTableRoute(t *testing.T) {
 		{
 			desc: "invalid target",
 			setup: func(tbl Table) error {
-				return tbl.AddRoute(&RouteDef{Service: "svc", Src: "www.foo.com/", Dst: ""})
+				return tbl.addRoute(&RouteDef{Service: "svc", Src: "www.foo.com/", Dst: ""})
 			},
 			err: errInvalidTarget.Error(),
 		},
@@ -44,7 +44,7 @@ func TestTableRoute(t *testing.T) {
 		{
 			desc: "invalid target url",
 			setup: func(tbl Table) error {
-				return tbl.AddRoute(&RouteDef{Service: "svc", Src: "www.foo.com/", Dst: "://aaa.com/"})
+				return tbl.addRoute(&RouteDef{Service: "svc", Src: "www.foo.com/", Dst: "://aaa.com/"})
 			},
 			err: "route: invalid target",
 		},

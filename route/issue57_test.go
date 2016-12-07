@@ -28,7 +28,7 @@ func TestIssue57(t *testing.T) {
 	want := "http://foo.com:800"
 
 	for i, tt := range tests {
-		tbl, err := ParseTable(tt)
+		tbl, err := NewTable(tt)
 		if err != nil {
 			t.Fatalf("%d: got %v want nil", i, err)
 		}
