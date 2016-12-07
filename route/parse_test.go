@@ -136,9 +136,14 @@ func TestParse(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if !strings.Contains(tt.desc, "Opts") {
-			t.Run("Parse-"+tt.desc, func(t *testing.T) { run(tt.in, tt.out, tt.fail, Parse) })
-		}
+		t.Run("Parse-"+tt.desc, func(t *testing.T) {
+			if strings.Contains(tt.desc, "Opts") {
+				t.Skip("old parser does not support opts")
+			}
+			run(tt.in, tt.out, tt.fail, ParseOldNoOpts)
+		})
+	}
+	for _, tt := range tests {
 		t.Run("ParseNew-"+tt.desc, func(t *testing.T) { run(tt.in, tt.out, tt.fail, ParseNew) })
 	}
 }
