@@ -16,7 +16,55 @@ var (
 	reBlankLine   = regexp.MustCompile(`^\s*$`)
 )
 
-func ParseNew(in string) (defs []*RouteDef, err error) {
+// Parse loads a routing table from a set of route commands.
+//
+// The commands are parsed in order and order matters.
+// Deleting a route that has not been created yet yields
+// a different result than the other way around.
+//
+// Route commands can have the following form:
+//
+// route add <svc> <src> <dst> weight <w> tags "<t1>,<t2>,..."
+//   - Add route for service svc from src to dst and assign weight and tags
+//
+// route add <svc> <src> <dst> weight <w>
+//   - Add route for service svc from src to dst and assign weight
+//
+// route add <svc> <src> <dst> tags "<t1>,<t2>,..."
+//   - Add route for service svc from src to dst and assign tags
+//
+// route add <svc> <src> <dst>
+//   - Add route for service svc from src to dst
+//
+// route del <svc> <src> <dst>
+//   - Remove route matching svc, src and dst
+//
+// route del <svc> <src>
+//   - Remove all routes of services matching svc and src
+//
+// route del <svc>
+//   - Remove all routes of service matching svc
+//
+// route weight <svc> <src> weight <w> tags "<t1>,<t2>,..."
+//   - Route w% of traffic to all services matching svc, src and tags
+//
+// route weight <src> weight <w> tags "<t1>,<t2>,..."
+//   - Route w% of traffic to all services matching src and tags
+//
+// route weight <svc> <src> weight <w>
+//   - Route w% of traffic to all services matching svc and src
+//
+// route weight service host/path weight w tags "tag1,tag2"
+//   - Route w% of traffic to all services matching service, host/path and tags
+//
+//     w is a float > 0 describing a percentage, e.g. 0.5 == 50%
+//     w <= 0: means no fixed weighting. Traffic is evenly distributed
+//     w > 0: route will receive n% of traffic. If sum(w) > 1 then w is normalized.
+//     sum(w) >= 1: only matching services will receive traffic
+//
+//    Note that the total sum of traffic sent to all matching routes is w%.
+//
+func Parse(in string) (defs []*RouteDef, err error) {
 	var def *RouteDef
 	for i, s := range strings.Split(in, "\n") {
 		def, err = nil, nil

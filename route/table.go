@@ -102,9 +102,6 @@ func hostpath(prefix string) (host string, path string) {
 	return p[0], "/" + p[1]
 }
 
-// use new parser
-var Parse = ParseNew
-
 func ParseTable(s string) (Table, error) {
 	defs, err := Parse(s)
 	if err != nil {
