@@ -127,7 +127,7 @@ func NewTable(s string) (t Table, err error) {
 	return t, nil
 }
 
-// AddRoute adds a new route prefix -> target for the given service.
+// addRoute adds a new route prefix -> target for the given service.
 func (t Table) addRoute(d *RouteDef) error {
 	host, path := hostpath(d.Src)
 
@@ -183,7 +183,7 @@ func (t Table) weighRoute(d *RouteDef) error {
 	return nil
 }
 
-// DelRoute removes one or more routes depending on the arguments.
+// delRoute removes one or more routes depending on the arguments.
 // If service, prefix and target are provided then only this route
 // is removed. Are only service and prefix provided then all routes
 // for this service and prefix are removed. This removes all active
@@ -195,7 +195,9 @@ func (t Table) delRoute(d *RouteDef) error {
 	case d.Src == "" && d.Dst == "":
 		for _, routes := range t {
 			for _, r := range routes {
-				r.delService(d.Service)
+				r.filter(func(tg *Target) bool {
+					return tg.Service == d.Service
+				})
 			}
 		}
 
@@ -204,7 +206,9 @@ func (t Table) delRoute(d *RouteDef) error {
 		if r == nil {
 			return nil
 		}
-		r.delService(d.Service)
+		r.filter(func(tg *Target) bool {
+			return tg.Service == d.Service
+		})
 
 	default:
 		targetURL, err := url.Parse(d.Dst)
@@ -216,7 +220,9 @@ func (t Table) delRoute(d *RouteDef) error {
 		if r == nil {
 			return nil
 		}
-		r.delTarget(d.Service, targetURL)
+		r.filter(func(tg *Target) bool {
+			return tg.Service == d.Service && tg.URL.String() == targetURL.String()
+		})
 	}
 
 	// remove all routes without targets

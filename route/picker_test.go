@@ -11,6 +11,14 @@ var (
 	barDotCom = mustParse("http://bar.com/")
 )
 
+func mustParse(rawurl string) *url.URL {
+	u, err := url.Parse(rawurl)
+	if err != nil {
+		panic(err)
+	}
+	return u
+}
+
 func TestRndPicker(t *testing.T) {
 	r := &Route{Host: "www.bar.com", Path: "/foo"}
 	r.addTarget("svc", fooDotCom, 0, nil)

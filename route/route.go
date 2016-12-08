@@ -66,22 +66,10 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 	r.weighTargets()
 }
 
-func (r *Route) delService(service string) {
+func (r *Route) filter(skip func(t *Target) bool) {
 	var clone []*Target
 	for _, t := range r.Targets {
-		if t.Service == service {
-			continue
-		}
-		clone = append(clone, t)
-	}
-	r.Targets = clone
-	r.weighTargets()
-}
-
-func (r *Route) delTarget(service string, targetURL *url.URL) {
-	var clone []*Target
-	for _, t := range r.Targets {
-		if t.Service == service && t.URL.String() == targetURL.String() {
+		if skip(t) {
 			continue
 		}
 		clone = append(clone, t)
