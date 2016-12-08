@@ -317,7 +317,7 @@ func (t Table) lookup(host, path, trace string) *Target {
 	return nil
 }
 
-func (t Table) Config(addWeight bool) []string {
+func (t Table) config(addWeight bool) []string {
 	var hosts []string
 	for host := range t {
 		if host != "" {
@@ -341,5 +341,5 @@ func (t Table) Config(addWeight bool) []string {
 // String returns the routing table as config file which can
 // be read by Parse() again.
 func (t Table) String() string {
-	return strings.Join(t.Config(false), "\n")
+	return strings.Join(t.config(false), "\n")
 }
