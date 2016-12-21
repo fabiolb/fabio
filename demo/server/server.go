@@ -46,6 +46,7 @@ import (
 func main() {
 	var addr, consul, name, prefix, proto, token string
 	var certFile, keyFile string
+	var status int
 	flag.StringVar(&addr, "addr", "127.0.0.1:5000", "host:port of the service")
 	flag.StringVar(&consul, "consul", "127.0.0.1:8500", "host:port of the consul agent")
 	flag.StringVar(&name, "name", filepath.Base(os.Args[0]), "name of the service")
@@ -54,6 +55,7 @@ func main() {
 	flag.StringVar(&token, "token", "", "consul ACL token")
 	flag.StringVar(&certFile, "cert", "", "path to cert file")
 	flag.StringVar(&keyFile, "key", "", "path to key file")
+	flag.IntVar(&status, "status", http.StatusOK, "http status code")
 	flag.Parse()
 
 	if prefix == "" {
@@ -67,6 +69,7 @@ func main() {
 		switch proto {
 		case "http":
 			http.HandleFunc(p, func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(status)
 				fmt.Fprintf(w, "Serving %s from %s on %s\n", r.RequestURI, name, addr)
 			})
 		case "ws":
