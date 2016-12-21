@@ -13,6 +13,10 @@ type Target struct {
 	// Tags are the list of tags for this target
 	Tags []string
 
+	// StripPath will be removed from the front of the outgoing
+	// request path
+	StripPath string
+
 	// URL is the endpoint the service instance listens on
 	URL *url.URL
 

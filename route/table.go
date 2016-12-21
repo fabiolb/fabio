@@ -51,7 +51,6 @@ func SetTable(t Table) {
 	table.Store(t)
 	syncRegistry(t)
 	mu.Unlock()
-	log.Printf("[INFO] Updated config to\n%s", t)
 }
 
 // syncRegistry unregisters all inactive timers.

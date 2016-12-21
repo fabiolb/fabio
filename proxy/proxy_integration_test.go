@@ -51,6 +51,33 @@ func TestProxyNoRouteStaus(t *testing.T) {
 	}
 }
 
+func TestProxyStripsPath(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.RequestURI {
+		case "/bar":
+			w.Write([]byte("OK"))
+		default:
+			w.WriteHeader(404)
+		}
+	}))
+	parseRoutes("route add mock /foo/bar " + server.URL + ` opts "strip=/foo"`)
+
+	tr := http.DefaultTransport
+	cfg := config.Proxy{}
+	proxy := NewHTTPProxy(tr, cfg)
+
+	req := testReq("/foo/bar")
+	rec := httptest.NewRecorder()
+	proxy.ServeHTTP(rec, req)
+
+	if got, want := rec.Code, http.StatusOK; got != want {
+		t.Fatalf("got status %d want %d", got, want)
+	}
+	if got, want := rec.Body.String(), "OK"; got != want {
+		t.Fatalf("got body %q want %q", got, want)
+	}
+}
+
 func TestProxyGzipHandler(t *testing.T) {
 	tests := []struct {
 		desc            string

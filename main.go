@@ -186,6 +186,7 @@ func watchBackend() {
 			continue
 		}
 		route.SetTable(t)
+		log.Printf("[INFO] Updated config to\n%s", t)
 
 		last = next
 	}

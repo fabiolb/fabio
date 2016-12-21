@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/eBay/fabio/config"
@@ -42,6 +43,14 @@ func (p *httpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := addHeaders(r, p.cfg); err != nil {
 		http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
 		return
+	}
+
+	// TODO(fs): The HasPrefix check seems redundant since the lookup function should
+	// TODO(fs): have found the target based on the prefix but there may be other
+	// TODO(fs): matchers which may have different rules. I'll keep this for
+	// TODO(fs): a defensive approach.
+	if t.StripPath != "" && strings.HasPrefix(r.URL.Path, t.StripPath) {
+		r.URL.Path = r.URL.Path[len(t.StripPath):]
 	}
 
 	upgrade, accept := r.Header.Get("Upgrade"), r.Header.Get("Accept")
