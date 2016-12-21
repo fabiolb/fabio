@@ -3,7 +3,6 @@ package proxy
 import (
 	"bytes"
 	"compress/gzip"
-	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -20,20 +19,16 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 		got = r.Header.Get("X-Forwarded-For")
 	}))
 	defer server.Close()
+	parseRoutes("route add mock / " + server.URL)
 
-	route.SetTable(mustParseTable("route add mock / " + server.URL))
+	tr := http.DefaultTransport
+	cfg := config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"}
+	proxy := NewHTTPProxy(tr, cfg)
 
-	tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
-	proxy := NewHTTPProxy(tr, config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"})
-
-	req := &http.Request{
-		RequestURI: "/",
-		Header:     http.Header{"X-Forwarded-For": {"3.3.3.3"}},
-		RemoteAddr: "2.2.2.2:666",
-		URL:        &url.URL{},
-	}
-
-	proxy.ServeHTTP(httptest.NewRecorder(), req)
+	req := testReq("/")
+	req.Header.Set("X-Forwarded-For", "3.3.3.3")
+	rec := httptest.NewRecorder()
+	proxy.ServeHTTP(rec, req)
 
 	if want := "3.3.3.3, 2.2.2.2"; got != want {
 		t.Errorf("got %v, but want %v", got, want)
@@ -41,17 +36,16 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 }
 
 func TestProxyNoRouteStaus(t *testing.T) {
-	route.SetTable(make(route.Table))
-	tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
+	parseRoutes("")
+
+	tr := http.DefaultTransport
 	cfg := config.Proxy{NoRouteStatus: 999}
 	proxy := NewHTTPProxy(tr, cfg)
-	req := &http.Request{
-		RequestURI: "/",
-		URL:        &url.URL{},
-	}
 
+	req := testReq("/")
 	rec := httptest.NewRecorder()
 	proxy.ServeHTTP(rec, req)
+
 	if got, want := rec.Code, cfg.NoRouteStatus; got != want {
 		t.Fatalf("got %d want %d", got, want)
 	}
@@ -114,12 +108,14 @@ func TestProxyGzipHandler(t *testing.T) {
 		t.Run(tt.desc, func(t *testing.T) {
 			server := httptest.NewServer(tt.content)
 			defer server.Close()
+			parseRoutes("route add mock / " + server.URL)
 
-			route.SetTable(mustParseTable("route add mock / " + server.URL))
+			tr := http.DefaultTransport
+			cfg := config.Proxy{GZIPContentTypes: regexp.MustCompile("^text/plain(;.*)?$")}
+			proxy := NewHTTPProxy(tr, cfg)
 
-			tr := &http.Transport{Dial: (&net.Dialer{}).Dial}
-			proxy := NewHTTPProxy(tr, config.Proxy{GZIPContentTypes: regexp.MustCompile("^text/plain(;.*)?$")})
-			req := &http.Request{RequestURI: "/", RemoteAddr: "2.2.2.2:2222", Header: http.Header{"Accept-Encoding": []string{tt.acceptEncoding}}, URL: &url.URL{}}
+			req := testReq("/")
+			req.Header.Set("Accept-Encoding", tt.acceptEncoding)
 			rec := httptest.NewRecorder()
 			proxy.ServeHTTP(rec, req)
 
@@ -154,6 +150,15 @@ func gzipHandler(contentType string) http.HandlerFunc {
 	}
 }
 
+func testReq(path string) *http.Request {
+	return &http.Request{
+		RemoteAddr: "2.2.2.2:666",
+		Header:     http.Header{},
+		RequestURI: path,
+		URL:        &url.URL{Path: path},
+	}
+}
+
 // compress returns the gzip compressed content of b.
 func compress(b []byte) []byte {
 	var buf bytes.Buffer
@@ -167,10 +172,10 @@ func compress(b []byte) []byte {
 	return buf.Bytes()
 }
 
-func mustParseTable(s string) route.Table {
+func parseRoutes(s string) {
 	t, err := route.NewTable(s)
 	if err != nil {
 		panic(err)
 	}
-	return t
+	route.SetTable(t)
 }
