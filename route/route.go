@@ -135,6 +135,19 @@ func (r *Route) TargetConfig(t *Target, addWeight bool) string {
 	if len(t.Tags) > 0 {
 		s += fmt.Sprintf(" tags %q", strings.Join(t.Tags, ","))
 	}
+	if len(r.Opts) > 0 {
+		var keys []string
+		for k := range r.Opts {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+
+		var vals []string
+		for _, k := range keys {
+			vals = append(vals, k+"="+r.Opts[k])
+		}
+		s += fmt.Sprintf(" opts \"%s\"", strings.Join(vals, " "))
+	}
 	return s
 }
 
