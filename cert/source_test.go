@@ -21,6 +21,8 @@ import (
 	"testing"
 	"time"
 
+	"golang.org/x/net/http2"
+
 	"github.com/eBay/fabio/config"
 	consulapi "github.com/hashicorp/consul/api"
 	vaultapi "github.com/hashicorp/vault/api"
@@ -385,42 +387,13 @@ func testSource(t *testing.T, source Source, rootCAs *x509.CertPool, sleep time.
 	// give the source some time to initialize if necessary
 	time.Sleep(sleep)
 
-	// create the https server and start it
-	// it will be listening on 127.0.0.1
-	srv := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "OK")
-	}))
-	srv.TLS = srvConfig
-	srv.StartTLS()
-	defer srv.Close()
-
 	// create an http client that will accept the root CAs
 	// otherwise the HTTPS client will not verify the
 	// certificate presented by the server.
-	client := http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				RootCAs: rootCAs,
-			},
-		},
-	}
-
-	call := func(host string) (statusCode int, body string, err error) {
-		// for the certificate validation to work we need to use a hostname
-		// in the URL which resolves to 127.0.0.1. We can't fake the hostname
-		// via the Host header.
-		resp, err := client.Get(strings.Replace(srv.URL, "127.0.0.1", host, 1))
-		if err != nil {
-			return 0, "", err
-		}
-		defer resp.Body.Close()
-
-		data, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return 0, "", err
-		}
-
-		return resp.StatusCode, string(data), nil
+	http11 := http11Client(rootCAs)
+	http20, err := http20Client(rootCAs)
+	if err != nil {
+		t.Fatal("http20Client: ", err)
 	}
 
 	// disable log output for the next call to prevent
@@ -429,24 +402,93 @@ func testSource(t *testing.T, source Source, rootCAs *x509.CertPool, sleep time.
 	log.SetOutput(ioutil.Discard)
 	defer log.SetOutput(os.Stderr)
 
-	// make a call for which certificate validation fails.
-	// localhost.org is external but resolves to 127.0.0.1
-	_, _, err = call("localhost.org")
-	if got, want := err, "x509: certificate is valid for localhost, not localhost.org"; got == nil || !strings.Contains(got.Error(), want) {
-		t.Fatalf("got %q want %q", got, want)
+	// fail calls https://localhost.org/ for which certificate validation
+	// should fail since the hostname differs from the one in the certificate.
+	fail := func(client *http.Client) {
+		_, _, err := roundtrip("localhost.org", srvConfig, client)
+		got, want := err, "x509: certificate is valid for localhost, not localhost.org"
+		if got == nil || !strings.Contains(got.Error(), want) {
+			t.Fatalf("got %q want %q", got, want)
+		}
 	}
 
+	// succeed executes a roundtrip to https://localhost/ which
+	// should return 200 OK and wantBody.
+	succeed := func(client *http.Client, wantBody string) {
+		code, body, err := roundtrip("localhost", srvConfig, client)
+		if err != nil {
+			t.Fatalf("got %v want nil", err)
+		}
+		if got, want := code, 200; got != want {
+			t.Fatalf("got %v want %v", got, want)
+		}
+		if got, want := body, wantBody; got != want {
+			t.Fatalf("got %v want %v", got, want)
+		}
+	}
+
+	// make a call for which certificate validation fails.
+	fail(http11)
+	fail(http20)
+
 	// now make the call that should succeed
-	statusCode, body, err := call("localhost")
+	succeed(http11, "OK HTTP/1.1")
+	succeed(http20, "OK HTTP/2.0")
+}
+
+// roundtrip starts a TLS server with the given server configuration and
+// then calls "https://<host>/" with the given client. "host" must resolve
+// to 127.0.0.1.
+func roundtrip(host string, srvConfig *tls.Config, client *http.Client) (code int, body string, err error) {
+	// create an HTTPS server and start it. It will be listening on 127.0.0.1
+	srv := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "OK ", r.Proto)
+	}))
+	srv.TLS = srvConfig
+	srv.StartTLS()
+	defer srv.Close()
+
+	// for the certificate validation to work we need to use a hostname
+	// in the URL which resolves to 127.0.0.1. We can't fake the hostname
+	// via the Host header.
+	url := strings.Replace(srv.URL, "127.0.0.1", host, 1)
+	resp, err := client.Get(url)
 	if err != nil {
-		t.Fatalf("got %v want nil", err)
+		return 0, "", err
 	}
-	if got, want := statusCode, 200; got != want {
-		t.Fatalf("got %v want %v", got, want)
+	defer resp.Body.Close()
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return 0, "", err
 	}
-	if got, want := body, "OK"; got != want {
-		t.Fatalf("got %v want %v", got, want)
+	return resp.StatusCode, string(data), nil
+}
+
+// http11Client returns an HTTP client which can only
+// execute HTTP/1.1 requests via TLS.
+func http11Client(rootCAs *x509.CertPool) *http.Client {
+	t := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			RootCAs: rootCAs,
+		},
 	}
+	return &http.Client{Transport: t}
+}
+
+// http20Client returns an HTTP client which can
+// execute HTTP/2.0 requests via TLS if the server
+// supports it.
+func http20Client(rootCAs *x509.CertPool) (*http.Client, error) {
+	t := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			RootCAs: rootCAs,
+		},
+	}
+	if err := http2.ConfigureTransport(t); err != nil {
+		return nil, err
+	}
+	return &http.Client{Transport: t}, nil
 }
 
 func tempDir() string {
