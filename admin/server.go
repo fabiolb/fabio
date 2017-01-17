@@ -10,8 +10,9 @@ import (
 )
 
 // ListenAndServe starts the admin api and ui server.
-func ListenAndServe(cfg *config.Config, version string) error {
+func ListenAndServe(cfg *config.Config, version, commands string) error {
 	ui.Version = version
+	ui.Commands = commands
 	ui.Color = cfg.UI.Color
 	ui.Title = cfg.UI.Title
 	api.Cfg = cfg

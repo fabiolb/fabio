@@ -91,7 +91,7 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 func startAdmin(cfg *config.Config) {
 	log.Printf("[INFO] Admin server listening on %q", cfg.UI.Addr)
 	go func() {
-		if err := admin.ListenAndServe(cfg, version); err != nil {
+		if err := admin.ListenAndServe(cfg, version, route.Commands); err != nil {
 			exit.Fatal("[FATAL] ui: ", err)
 		}
 	}()

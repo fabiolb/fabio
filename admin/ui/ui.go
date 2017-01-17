@@ -9,3 +9,6 @@ var Title string
 
 // Version contains the current fabio version.
 var Version string
+
+// Commands contains the documentaion of the route commands.
+var Commands string
