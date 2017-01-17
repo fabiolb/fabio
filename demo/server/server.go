@@ -103,7 +103,7 @@ func main() {
 	// e.g. urlprefix-/foo, urlprefix-/bar, ...
 	var tags []string
 	for _, p := range prefixes {
-		tags = append(tags, "urlprefix-"+p)
+		tags = append(tags, "urlprefix-"+p+" mtags=tag1;tag2")
 	}
 
 	// get host and port as string/int

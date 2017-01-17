@@ -30,15 +30,16 @@ func TestParsePrefix(t *testing.T) {
 
 func TestTargetName(t *testing.T) {
 	tests := []struct {
-		service, host, path, target string
-		name                        string
+		service, host, path, tags, target string
+		name                              string
 	}{
-		{"s", "h", "p", "http://foo.com/bar", "s.h.p.foo_com"},
-		{"s", "", "p", "http://foo.com/bar", "s._.p.foo_com"},
-		{"s", "", "", "http://foo.com/bar", "s._._.foo_com"},
-		{"", "", "", "http://foo.com/bar", "_._._.foo_com"},
-		{"", "", "", "http://foo.com:1234/bar", "_._._.foo_com_1234"},
-		{"", "", "", "http://1.2.3.4:1234/bar", "_._._.1_2_3_4_1234"},
+		{"s", "h", "p", "", "http://foo.com/bar", "s.h.p.foo_com"},
+		{"s", "", "p", "", "http://foo.com/bar", "s._.p.foo_com"},
+		{"s", "", "", "", "http://foo.com/bar", "s._._.foo_com"},
+		{"", "", "", "", "http://foo.com/bar", "_._._.foo_com"},
+		{"", "", "", "", "http://foo.com:1234/bar", "_._._.foo_com_1234"},
+		{"", "", "", "", "http://1.2.3.4:1234/bar", "_._._.1_2_3_4_1234"},
+		{"", "", "", "mytag", "http://1.2.3.4:1234/bar", "_._._.1_2_3_4_1234#mytag"},
 	}
 
 	for i, tt := range tests {
@@ -47,7 +48,7 @@ func TestTargetName(t *testing.T) {
 			t.Fatalf("%d: %v", i, err)
 		}
 
-		got, err := TargetName(tt.service, tt.host, tt.path, u)
+		got, err := TargetName(tt.service, tt.host, tt.path, tt.tags, u)
 		if err != nil {
 			t.Fatalf("%d: %v", i, err)
 		}

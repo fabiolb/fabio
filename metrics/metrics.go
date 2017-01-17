@@ -23,7 +23,7 @@ import (
 var DefaultRegistry Registry = NoopRegistry{}
 
 // DefaultNames contains the default template for route metric names.
-const DefaultNames = "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}"
+const DefaultNames = `{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}{{if .Tags}}#{{.Tags}}{{end}}`
 
 // DefaulPrefix contains the default template for metrics prefix.
 const DefaultPrefix = "{{clean .Hostname}}.{{clean .Exec}}"
@@ -115,14 +115,14 @@ func parseNames(tmpl string) (*template.Template, error) {
 	if err != nil {
 		return nil, err
 	}
-	if _, err := TargetName("testservice", "test.example.com", "/test", testURL); err != nil {
+	if _, err := TargetName("testservice", "test.example.com", "/test", "", testURL); err != nil {
 		return nil, err
 	}
 	return t, nil
 }
 
 // TargetName returns the metrics name from the given parameters.
-func TargetName(service, host, path string, targetURL *url.URL) (string, error) {
+func TargetName(service, host, path, tags string, targetURL *url.URL) (string, error) {
 	if names == nil {
 		return "", nil
 	}
@@ -130,9 +130,9 @@ func TargetName(service, host, path string, targetURL *url.URL) (string, error) 
 	var name bytes.Buffer
 
 	data := struct {
-		Service, Host, Path string
-		TargetURL           *url.URL
-	}{service, host, path, targetURL}
+		Service, Host, Path, Tags string
+		TargetURL                 *url.URL
+	}{service, host, path, tags, targetURL}
 
 	if err := names.Execute(&name, data); err != nil {
 		return "", err

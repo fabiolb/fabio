@@ -54,12 +54,17 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		}
 	}
 
-	name, err := metrics.TargetName(service, r.Host, r.Path, targetURL)
+	var mtags string
+	if r.Opts != nil {
+		mtags = r.Opts["mtags"]
+	}
+	name, err := metrics.TargetName(service, r.Host, r.Path, mtags, targetURL)
 	if err != nil {
 		log.Printf("[ERROR] Invalid metrics name: %s", err)
 		name = "unknown"
 	}
 	timer := ServiceRegistry.GetTimer(name)
+	fmt.Println("mtags", mtags, "name", name)
 
 	t := &Target{Service: service, Tags: tags, URL: targetURL, FixedWeight: fixedWeight, Timer: timer, timerName: name}
 	r.Targets = append(r.Targets, t)

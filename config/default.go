@@ -51,7 +51,7 @@ var defaultConfig = &Config{
 	},
 	Metrics: Metrics{
 		Prefix:   "{{clean .Hostname}}.{{clean .Exec}}",
-		Names:    "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
+		Names:    "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}{{if .Tags}}#{{.Tags}}{{end}}",
 		Interval: 30 * time.Second,
 		Circonus: Circonus{
 			APIApp: "fabio",
