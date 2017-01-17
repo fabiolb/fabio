@@ -97,7 +97,7 @@ func statsd(c *StatsDConfig) error {
 			fmt.Fprintf(w, "%s--%s.count:%d|c\n", c.Prefix, name, t.Count())
 			fmt.Fprintf(w, "%s--%s.min:%d|g\n", c.Prefix, name, t.Min()/int64(du))
 			fmt.Fprintf(w, "%s--%s.max:%d|g\n", c.Prefix, name, t.Max()/int64(du))
-			fmt.Fprintf(w, "%s--%s.mean:%.2|gf\n", c.Prefix, name, t.Mean()/du)
+			fmt.Fprintf(w, "%s--%s.mean:%.2f|gf\n", c.Prefix, name, t.Mean()/du)
 			fmt.Fprintf(w, "%s--%s.std-dev:%.2f|g\n", c.Prefix, name, t.StdDev()/du)
 			for psIdx, psKey := range c.Percentiles {
 				key := strings.Replace(strconv.FormatFloat(psKey*100.0, 'f', -1, 64), ".", "", 1)

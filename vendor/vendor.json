@@ -153,6 +153,12 @@
 			"versionExact": "v0.6.0"
 		},
 		{
+			"checksumSHA1": "8tUFfUWBv4AxQRDoF2LVo2OoLVc=",
+			"path": "github.com/magiconair/go-metrics-statsd",
+			"revision": "bcdf8bc44853f615ebf3c8ccc29b78985feccbe7",
+			"revisionTime": "2017-01-09T21:45:04Z"
+		},
+		{
 			"checksumSHA1": "eqs9e0Fw1wlUZCj/ZtrSwnPsJ54=",
 			"path": "github.com/magiconair/properties",
 			"revision": "c265cfa48dda6474e208715ca93e987829f572f8",
@@ -175,12 +181,6 @@
 			"path": "github.com/pascaldekloe/goe/verify",
 			"revision": "f99183613f483cd9b8c79359d572836e243e0763",
 			"revisionTime": "2015-07-19T21:56:08+02:00"
-		},
-		{
-			"checksumSHA1": "pZCmy/tLnhEAU7q/1YQGUfYuvHM=",
-			"path": "github.com/pubnub/go-metrics-statsd",
-			"revision": "979a88f88cc815576d43a09678d3925e84ca0ed9",
-			"revisionTime": "2016-08-12T23:26:56Z"
 		},
 		{
 			"checksumSHA1": "ODTWX4h8f+DW3oWZFT0yTmfHzdg=",
