@@ -1,5 +1,9 @@
 ## Changelog
 
+### Unreleased
+
+ * [Issue #207](https://github.com/eBay/fabio/issues/207): Bad statsd mean metric format
+
 ### [v1.3.6](https://github.com/eBay/fabio/releases/tag/v1.3.6) - 17 Jan 2017
 
  * Upgrade to Go 1.7.4
