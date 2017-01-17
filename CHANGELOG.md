@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+ * [Issue #201](https://github.com/eBay/fabio/issues/201): Support deleting routes by tag
  * [Issue #207](https://github.com/eBay/fabio/issues/207): Bad statsd mean metric format
 
 ### [v1.3.6](https://github.com/eBay/fabio/releases/tag/v1.3.6) - 17 Jan 2017
