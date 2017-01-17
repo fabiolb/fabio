@@ -1,6 +1,6 @@
 # ![./fabio](https://github.com/eBay/fabio/blob/master/fabio.png)
 
-##### Current stable version: 1.3.5
+##### Current stable version: 1.3.6
 
 [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/eBay/fabio/master/LICENSE)

@@ -1,6 +1,6 @@
 ## Changelog
 
-### Unreleased
+### [v1.3.6](https://github.com/eBay/fabio/releases/tag/v1.3.6) - 17 Jan 2017
 
  * Upgrade to Go 1.7.4
  * [Issue #111](https://github.com/eBay/fabio/issues/111): Refactor urlprefix tags (step 1: options and new parser)
