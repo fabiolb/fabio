@@ -5,8 +5,10 @@ import (
 	"net/http"
 )
 
-var Version string
+type VersionHandler struct {
+	Version string
+}
 
-func HandleVersion(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, Version)
+func (h *VersionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, h.Version)
 }

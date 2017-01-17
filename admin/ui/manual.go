@@ -5,15 +5,15 @@ import (
 	"net/http"
 )
 
-// HandleManual provides the UI for the manual overrides.
-func HandleManual(w http.ResponseWriter, r *http.Request) {
-	data := struct {
-		Color   string
-		Title   string
-		Version string
-		Commands string
-	}{Color, Title, Version, Commands}
-	tmplManual.ExecuteTemplate(w, "manual", data)
+type ManualHandler struct {
+	Color    string
+	Title    string
+	Version  string
+	Commands string
+}
+
+func (h *ManualHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	tmplManual.ExecuteTemplate(w, "manual", h)
 }
 
 var tmplManual = template.Must(template.New("manual").Parse(`

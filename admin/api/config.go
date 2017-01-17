@@ -1,13 +1,11 @@
 package api
 
-import (
-	"net/http"
+import "net/http"
 
-	"github.com/eBay/fabio/config"
-)
+type ConfigHandler struct {
+	Config interface{}
+}
 
-var Cfg *config.Config
-
-func HandleConfig(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, r, Cfg)
+func (h *ConfigHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, r, h.Config)
 }

@@ -5,14 +5,13 @@ import (
 	"net/http"
 )
 
-// HandleRoutes provides the UI for managing the routing table.
-func HandleRoutes(w http.ResponseWriter, r *http.Request) {
-	data := struct {
-		Color   string
-		Title   string
-		Version string
-	}{Color, Title, Version}
-	tmplRoutes.ExecuteTemplate(w, "routes", data)
+// RoutesHandler provides the UI for managing the routing table.
+type RoutesHandler struct {
+	Color, Title, Version string
+}
+
+func (h *RoutesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	tmplRoutes.ExecuteTemplate(w, "routes", h)
 }
 
 var tmplRoutes = template.Must(template.New("routes").Parse(`

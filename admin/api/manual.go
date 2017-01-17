@@ -8,13 +8,15 @@ import (
 	"github.com/eBay/fabio/registry"
 )
 
+// ManualHandler provides a fetch and update handler for the manual overrides api.
+type ManualHandler struct{}
+
 type manual struct {
 	Value   string `json:"value"`
 	Version uint64 `json:"version,string"`
 }
 
-// HandleManual provides a fetch and update handler for the manual overrides api.
-func HandleManual(w http.ResponseWriter, r *http.Request) {
+func (h *ManualHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		value, version, err := registry.Default.ReadManual()
