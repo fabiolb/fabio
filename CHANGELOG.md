@@ -1,6 +1,6 @@
 ## Changelog
 
-### Unreleased
+### [v1.3.7](https://github.com/eBay/fabio/releases/tag/v1.3.7) - 19 Jan 2017
 
  * [Issue #44, #124, #164](https://github.com/eBay/fabio/issues/44, https://github.com/eBay/fabio/issues/124, https://github.com/eBay/fabio/issues/164): Support path stripping
  * [Issue #201](https://github.com/eBay/fabio/issues/201): Support deleting routes by tag
