@@ -53,14 +53,18 @@ func main() {
 		registry.Default.Deregister()
 	})
 
-	httpProxy := newHTTPProxy(cfg)
-	tcpProxy := proxy.NewTCPSNIProxy(cfg.Proxy)
+	// init metrics early since that create the global metric registries
+	// that are used by other parts of the code.
+	initMetrics(cfg)
 
 	initRuntime(cfg)
-	initMetrics(cfg)
 	initBackend(cfg)
 	go watchBackend()
 	startAdmin(cfg)
+
+	// create proxies after metrics since they use the metrics registry.
+	httpProxy := newHTTPProxy(cfg)
+	tcpProxy := proxy.NewTCPSNIProxy(cfg.Proxy)
 	startListeners(cfg.Listen, cfg.Proxy.ShutdownWait, httpProxy, tcpProxy)
 	exit.Wait()
 }
