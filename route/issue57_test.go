@@ -24,7 +24,7 @@ func TestIssue57(t *testing.T) {
 	 	route del svcb`,
 	}
 
-	req := &http.Request{RequestURI: "/foo"}
+	req := &http.Request{URL: mustParse("/foo")}
 	want := "http://foo.com:800"
 
 	for i, tt := range tests {

@@ -269,10 +269,10 @@ func (t Table) route(host, path string) *Route {
 func normalizeHost(req *http.Request) string {
 	host := strings.ToLower(req.Host)
 	if req.TLS == nil && strings.HasSuffix(host, ":80") {
-		return host[:len(host)-3]
+		return host[:len(host)-len(":80")]
 	}
 	if req.TLS != nil && strings.HasSuffix(host, ":443") {
-		return host[:len(host)-4]
+		return host[:len(host)-len(":443")]
 	}
 	return host
 }
@@ -282,16 +282,18 @@ func normalizeHost(req *http.Request) string {
 // and if none matches then it falls back to generic routes without
 // a host. This is useful for a catch-all '/' rule.
 func (t Table) Lookup(req *http.Request, trace string) *Target {
+	path := req.URL.Path
+
 	if trace != "" {
 		if len(trace) > 16 {
 			trace = trace[:15]
 		}
-		log.Printf("[TRACE] %s Tracing %s%s", trace, req.Host, req.RequestURI)
+		log.Printf("[TRACE] %s Tracing %s%s", trace, req.Host, path)
 	}
 
-	target := t.lookup(normalizeHost(req), req.RequestURI, trace)
+	target := t.lookup(normalizeHost(req), path, trace)
 	if target == nil {
-		target = t.lookup("", req.RequestURI, trace)
+		target = t.lookup("", path, trace)
 	}
 
 	if target != nil && trace != "" {

@@ -482,25 +482,25 @@ func TestTableLookup(t *testing.T) {
 		dst string
 	}{
 		// match on host and path with and without trailing slash
-		{&http.Request{Host: "abc.com", RequestURI: "/"}, "http://foo.com:1000"},
-		{&http.Request{Host: "abc.com", RequestURI: "/bar"}, "http://foo.com:1000"},
-		{&http.Request{Host: "abc.com", RequestURI: "/foo"}, "http://foo.com:1500"},
-		{&http.Request{Host: "abc.com", RequestURI: "/foo/"}, "http://foo.com:2000"},
-		{&http.Request{Host: "abc.com", RequestURI: "/foo/bar"}, "http://foo.com:2500"},
-		{&http.Request{Host: "abc.com", RequestURI: "/foo/bar/"}, "http://foo.com:3000"},
+		{&http.Request{Host: "abc.com", URL: mustParse("/")}, "http://foo.com:1000"},
+		{&http.Request{Host: "abc.com", URL: mustParse("/bar")}, "http://foo.com:1000"},
+		{&http.Request{Host: "abc.com", URL: mustParse("/foo")}, "http://foo.com:1500"},
+		{&http.Request{Host: "abc.com", URL: mustParse("/foo/")}, "http://foo.com:2000"},
+		{&http.Request{Host: "abc.com", URL: mustParse("/foo/bar")}, "http://foo.com:2500"},
+		{&http.Request{Host: "abc.com", URL: mustParse("/foo/bar/")}, "http://foo.com:3000"},
 
 		// do not match on host but maybe on path
-		{&http.Request{Host: "def.com", RequestURI: "/"}, "http://foo.com:800"},
-		{&http.Request{Host: "def.com", RequestURI: "/bar"}, "http://foo.com:800"},
-		{&http.Request{Host: "def.com", RequestURI: "/foo"}, "http://foo.com:900"},
+		{&http.Request{Host: "def.com", URL: mustParse("/")}, "http://foo.com:800"},
+		{&http.Request{Host: "def.com", URL: mustParse("/bar")}, "http://foo.com:800"},
+		{&http.Request{Host: "def.com", URL: mustParse("/foo")}, "http://foo.com:900"},
 
 		// strip default port
-		{&http.Request{Host: "abc.com:80", RequestURI: "/"}, "http://foo.com:1000"},
-		{&http.Request{Host: "abc.com:443", RequestURI: "/", TLS: &tls.ConnectionState{}}, "http://foo.com:1000"},
+		{&http.Request{Host: "abc.com:80", URL: mustParse("/")}, "http://foo.com:1000"},
+		{&http.Request{Host: "abc.com:443", URL: mustParse("/"), TLS: &tls.ConnectionState{}}, "http://foo.com:1000"},
 
 		// not using default port
-		{&http.Request{Host: "abc.com:443", RequestURI: "/"}, "http://foo.com:800"},
-		{&http.Request{Host: "abc.com:80", RequestURI: "/", TLS: &tls.ConnectionState{}}, "http://foo.com:800"},
+		{&http.Request{Host: "abc.com:443", URL: mustParse("/")}, "http://foo.com:800"},
+		{&http.Request{Host: "abc.com:80", URL: mustParse("/"), TLS: &tls.ConnectionState{}}, "http://foo.com:800"},
 	}
 
 	for i, tt := range tests {
