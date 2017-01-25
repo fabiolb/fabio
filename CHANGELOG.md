@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+ * [Issue #220](https://github.com/eBay/fabio/issues/220): Fix Key/Value Puts Name
  * [Issue #219](https://github.com/eBay/fabio/issues/219): Support absolute URLs
 
 ### [v1.3.7](https://github.com/eBay/fabio/releases/tag/v1.3.7) - 19 Jan 2017
