@@ -1,7 +1,7 @@
 package consul
 
 import (
-	"log"
+	"github.com/eBay/fabio/mdllog"
 	"strings"
 	"time"
 
@@ -17,13 +17,13 @@ func watchKV(client *api.Client, path string, config chan string) {
 	for {
 		value, index, err := getKV(client, path, lastIndex)
 		if err != nil {
-			log.Printf("[WARN] consul: Error fetching config from %s. %v", path, err)
+			mdllog.Warning.Printf("[WARN] consul: Error fetching config from %s. %v", path, err)
 			time.Sleep(time.Second)
 			continue
 		}
 
 		if value != lastValue || index != lastIndex {
-			log.Printf("[INFO] consul: Manual config changed to #%d", index)
+			mdllog.Info.Printf("[INFO] consul: Manual config changed to #%d", index)
 			config <- value
 			lastValue, lastIndex = value, index
 		}

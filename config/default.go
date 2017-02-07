@@ -57,4 +57,7 @@ var defaultConfig = &Config{
 			APIApp: "fabio",
 		},
 	},
+	Logging: Logging{
+			Level:  "Info",
+	},
 }

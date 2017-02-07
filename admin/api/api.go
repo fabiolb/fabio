@@ -3,8 +3,8 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
+	"github.com/eBay/fabio/mdllog"
 )
 
 func writeJSON(w http.ResponseWriter, r *http.Request, v interface{}) {
@@ -19,7 +19,7 @@ func writeJSON(w http.ResponseWriter, r *http.Request, v interface{}) {
 	}
 
 	if err != nil {
-		log.Print("[ERROR] ", err)
+		mdllog.Error.Print("[ERROR] ", err)
 		http.Error(w, "internal error", 500)
 		return
 	}

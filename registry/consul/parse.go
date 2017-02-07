@@ -1,7 +1,7 @@
 package consul
 
 import (
-	"log"
+	"github.com/eBay/fabio/mdllog"
 	"os"
 	"strings"
 )
@@ -34,7 +34,7 @@ func parseURLPrefixTag(s, prefix string, env map[string]string) (route, opts str
 
 	p = strings.SplitN(s, "/", 2)
 	if len(p) == 1 {
-		log.Printf("[WARN] consul: Invalid %s tag %q - You need to have a trailing slash!", prefix, s)
+		mdllog.Warning.Printf("[WARN] consul: Invalid %s tag %q - You need to have a trailing slash!", prefix, s)
 		return "", "", false
 	}
 	host, path := p[0], p[1]

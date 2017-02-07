@@ -6,7 +6,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -14,6 +13,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"github.com/eBay/fabio/mdllog"
 )
 
 const MaxSize = 1 << 20 // 1MB
@@ -84,7 +84,7 @@ func loadPath(root string) (pemBlocks map[string][]byte, err error) {
 		}
 
 		if info.Size() > MaxSize {
-			log.Printf("[WARN] cert: File too large %s", info.Name())
+			mdllog.Warning.Printf("[WARN] cert: File too large %s", info.Name())
 			return nil
 		}
 
@@ -197,7 +197,7 @@ func newCertPool(path string, caUpgradeCN string, loadFn func(path string) (pemB
 		}
 	}
 
-	log.Printf("[INFO] cert: Load client CA certs from %s", path)
+	mdllog.Info.Printf("[INFO] cert: Load client CA certs from %s", path)
 	return pool, nil
 }
 
@@ -208,6 +208,6 @@ func upgradeCACertificate(cert *x509.Certificate, caUpgradeCN string) {
 		cert.BasicConstraintsValid = true
 		cert.IsCA = true
 		cert.KeyUsage = x509.KeyUsageCertSign
-		log.Printf("[INFO] cert: Upgrading cert %s to CA cert", cert.Issuer.CommonName)
+		mdllog.Info.Printf("[INFO] cert: Upgrading cert %s to CA cert", cert.Issuer.CommonName)
 	}
 }

@@ -7,7 +7,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"log"
+	"github.com/eBay/fabio/mdllog"
 	"os"
 
 	"golang.org/x/net/websocket"
@@ -26,7 +26,7 @@ func main() {
 
 	ws, err := websocket.Dial(url, "", origin)
 	if err != nil {
-		log.Fatal(err)
+		mdllog.Fatal(err)
 	}
 
 	go func() {
@@ -34,7 +34,7 @@ func main() {
 		for {
 			n, err := ws.Read(msg)
 			if err != nil {
-				log.Fatal(err)
+				mdllog.Fatal(err)
 			}
 			fmt.Printf("R: %s\nS: ", msg[:n])
 		}
@@ -44,7 +44,7 @@ func main() {
 	sc := bufio.NewScanner(os.Stdin)
 	for sc.Scan() {
 		if _, err := ws.Write(sc.Bytes()); err != nil {
-			log.Fatal(err)
+			mdllog.Fatal(err)
 		}
 	}
 }

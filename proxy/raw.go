@@ -2,7 +2,7 @@ package proxy
 
 import (
 	"io"
-	"log"
+	"github.com/eBay/fabio/mdllog"
 	"net"
 	"net/http"
 	"net/url"
@@ -29,7 +29,7 @@ func newRawProxy(t *url.URL) http.Handler {
 
 		in, _, err := hj.Hijack()
 		if err != nil {
-			log.Printf("[ERROR] Hijack error for %s. %s", r.URL, err)
+			mdllog.Error.Printf("[ERROR] Hijack error for %s. %s", r.URL, err)
 			http.Error(w, "hijack error", http.StatusInternalServerError)
 			return
 		}
@@ -37,7 +37,7 @@ func newRawProxy(t *url.URL) http.Handler {
 
 		out, err := net.Dial("tcp", t.Host)
 		if err != nil {
-			log.Printf("[ERROR] WS error for %s. %s", r.URL, err)
+			mdllog.Error.Printf("[ERROR] WS error for %s. %s", r.URL, err)
 			http.Error(w, "error contacting backend server", http.StatusInternalServerError)
 			return
 		}
@@ -45,7 +45,7 @@ func newRawProxy(t *url.URL) http.Handler {
 
 		err = r.Write(out)
 		if err != nil {
-			log.Printf("[ERROR] Error copying request for %s. %s", r.URL, err)
+			mdllog.Error.Printf("[ERROR] Error copying request for %s. %s", r.URL, err)
 			http.Error(w, "error copying request", http.StatusInternalServerError)
 			return
 		}
@@ -60,7 +60,7 @@ func newRawProxy(t *url.URL) http.Handler {
 		go cp(in, out)
 		err = <-errc
 		if err != nil && err != io.EOF {
-			log.Printf("[INFO] WS error for %s. %s", r.URL, err)
+			mdllog.Info.Printf("[INFO] WS error for %s. %s", r.URL, err)
 		}
 	})
 }

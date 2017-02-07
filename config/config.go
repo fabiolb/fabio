@@ -13,6 +13,7 @@ type Config struct {
 	Metrics  Metrics
 	UI       UI
 	Runtime  Runtime
+	Logging  Logging
 }
 
 type CertSource struct {
@@ -109,4 +110,8 @@ type Consul struct {
 	ServiceStatus []string
 	CheckInterval time.Duration
 	CheckTimeout  time.Duration
+}
+
+type Logging struct {
+	Level string
 }
