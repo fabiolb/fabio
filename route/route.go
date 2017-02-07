@@ -2,7 +2,7 @@ package route
 
 import (
 	"fmt"
-	"log"
+	"github.com/eBay/fabio/mdllog"
 	"net/url"
 	"reflect"
 	"sort"
@@ -56,7 +56,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 
 	name, err := metrics.TargetName(service, r.Host, r.Path, targetURL)
 	if err != nil {
-		log.Printf("[ERROR] Invalid metrics name: %s", err)
+		mdllog.Error.Printf("[ERROR] Invalid metrics name: %s", err)
 		name = "unknown"
 	}
 

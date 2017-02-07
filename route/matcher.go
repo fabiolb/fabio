@@ -2,7 +2,7 @@ package route
 
 import (
 	"fmt"
-	"log"
+	"github.com/eBay/fabio/mdllog"
 	"path"
 	"strings"
 )
@@ -22,7 +22,7 @@ func prefixMatcher(uri string, r *Route) bool {
 func globMatcher(uri string, r *Route) bool {
 	var hasMatch, err = path.Match(r.Path, uri)
 	if err != nil {
-		log.Printf("[ERROR] Glob matching error %s for path %s route %s", err, uri, r.Path)
+		mdllog.Error.Printf("[ERROR] Glob matching error %s for path %s route %s", err, uri, r.Path)
 		return false
 	}
 	return hasMatch

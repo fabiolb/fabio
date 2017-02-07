@@ -5,7 +5,6 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 	"path"
 	"reflect"
@@ -13,6 +12,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/consul/api"
+	"github.com/eBay/fabio/mdllog"
 )
 
 // ConsulSource implements a certificate source which loads
@@ -81,12 +81,12 @@ func (s ConsulSource) Certificates() chan []tls.Certificate {
 
 	config, key, err := parseConsulURL(s.CertURL)
 	if err != nil {
-		log.Printf("[ERROR] cert: Failed to parse consul url. %s", err)
+		mdllog.Error.Printf("[ERROR] cert: Failed to parse consul url. %s", err)
 	}
 
 	client, err := api.NewClient(config)
 	if err != nil {
-		log.Printf("[ERROR] cert: Failed to create consul client. %s", err)
+		mdllog.Error.Printf("[ERROR] cert: Failed to create consul client. %s", err)
 	}
 
 	pemBlocksCh := make(chan map[string][]byte, 1)
@@ -97,7 +97,7 @@ func (s ConsulSource) Certificates() chan []tls.Certificate {
 		for pemBlocks := range pemBlocksCh {
 			certs, err := loadCertificates(pemBlocks)
 			if err != nil {
-				log.Printf("[ERROR] cert: Failed to load certificates. %s", err)
+				mdllog.Error.Printf("[ERROR] cert: Failed to load certificates. %s", err)
 				continue
 			}
 			ch <- certs
@@ -114,13 +114,13 @@ func watchKV(client *api.Client, key string, pemBlocks chan map[string][]byte) {
 	for {
 		value, index, err := getCerts(client, key, lastIndex)
 		if err != nil {
-			log.Printf("[WARN] cert: Error fetching certificates from %s. %v", key, err)
+			mdllog.Warning.Printf("[WARN] cert: Error fetching certificates from %s. %v", key, err)
 			time.Sleep(time.Second)
 			continue
 		}
 
 		if !reflect.DeepEqual(value, lastValue) || index != lastIndex {
-			log.Printf("[INFO] cert: Certificate index changed to #%d", index)
+			mdllog.Info.Printf("[INFO] cert: Certificate index changed to #%d", index)
 			pemBlocks <- value
 			lastValue, lastIndex = value, index
 		}

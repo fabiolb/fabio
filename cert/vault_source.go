@@ -5,7 +5,7 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"log"
+	"github.com/eBay/fabio/mdllog"
 	"strings"
 	"sync"
 	"time"
@@ -76,7 +76,7 @@ func (s *VaultSource) setToken(c *api.Client) error {
 		}
 		return err
 	}
-	log.Printf("[INFO] vault: Unwrapped token %s", s.vaultToken)
+	mdllog.Info.Printf("[INFO] vault: Unwrapped token %s", s.vaultToken)
 
 	s.token = resp.Auth.ClientToken
 	return nil
@@ -113,7 +113,7 @@ func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error)
 		case []byte:
 			b = v.([]byte)
 		default:
-			log.Printf("[WARN] cert: key %s has type %T", name, v)
+			mdllog.Warning.Printf("[WARN] cert: key %s has type %T", name, v)
 			return
 		}
 
@@ -131,7 +131,7 @@ func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error)
 	_, err = c.Auth().Token().RenewSelf(oneHour)
 	if err != nil {
 		// TODO(fs): danger of filling up log since default refresh is 1s
-		log.Printf("[WARN] vault: Failed to renew token. %s", err)
+		mdllog.Warning.Printf("[WARN] vault: Failed to renew token. %s", err)
 	}
 
 	// get the subkeys under 'path'.
@@ -149,7 +149,7 @@ func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error)
 		p := path + "/" + name
 		secret, err := c.Logical().Read(p)
 		if err != nil {
-			log.Printf("[WARN] cert: Failed to read %s from Vault: %s", p, err)
+			mdllog.Warning.Printf("[WARN] cert: Failed to read %s from Vault: %s", p, err)
 			continue
 		}
 		get(name, "cert", secret)

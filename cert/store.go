@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
-	"log"
+	"github.com/eBay/fabio/mdllog"
 	"strings"
 	"sync/atomic"
 )
@@ -31,7 +31,7 @@ func (s *Store) SetCertificates(certs []tls.Certificate) {
 	for name := range cs.NameToCertificate {
 		names = append(names, name)
 	}
-	log.Printf("[INFO] cert: Store has certificates for [%q]", strings.Join(names, ","))
+	mdllog.Info.Printf("[INFO] cert: Store has certificates for [%q]", strings.Join(names, ","))
 }
 
 func (s *Store) certstore() certstore {

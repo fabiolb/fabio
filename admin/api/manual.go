@@ -2,10 +2,10 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/eBay/fabio/registry"
+	"github.com/eBay/fabio/mdllog"
 )
 
 // ManualHandler provides a fetch and update handler for the manual overrides api.
@@ -21,7 +21,7 @@ func (h *ManualHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		value, version, err := registry.Default.ReadManual()
 		if err != nil {
-			log.Print("[ERROR] ", err)
+			mdllog.Error.Print("[ERROR] ", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -31,7 +31,7 @@ func (h *ManualHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "PUT":
 		var m manual
 		if err := json.NewDecoder(r.Body).Decode(&m); err != nil {
-			log.Print("[ERROR] ", err)
+			mdllog.Error.Print("[ERROR] ", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -39,7 +39,7 @@ func (h *ManualHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		ok, err := registry.Default.WriteManual(m.Value, m.Version)
 		if err != nil {
-			log.Print("[ERROR] ", err)
+			mdllog.Error.Print("[ERROR] ", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

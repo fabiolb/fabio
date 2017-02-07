@@ -30,7 +30,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
+	"github.com/eBay/fabio/mdllog"
 	"net"
 	"net/http"
 	"os"
@@ -75,7 +75,7 @@ func main() {
 		case "ws":
 			http.Handle(p, websocket.Handler(EchoServer))
 		default:
-			log.Fatal("Invalid protocol ", proto)
+			mdllog.Fatal("Invalid protocol ", proto)
 		}
 	}
 
@@ -86,7 +86,7 @@ func main() {
 
 	// start http server
 	go func() {
-		log.Printf("Listening on %s serving %s", addr, prefix)
+		mdllog.Info.Printf("Listening on %s serving %s", addr, prefix)
 
 		var err error
 		if certFile != "" {
@@ -95,7 +95,7 @@ func main() {
 			err = http.ListenAndServe(addr, nil)
 		}
 		if err != nil {
-			log.Fatal(err)
+			mdllog.Fatal(err)
 		}
 	}()
 
@@ -109,11 +109,11 @@ func main() {
 	// get host and port as string/int
 	host, portstr, err := net.SplitHostPort(addr)
 	if err != nil {
-		log.Fatal(err)
+		mdllog.Fatal(err)
 	}
 	port, err := strconv.Atoi(portstr)
 	if err != nil {
-		log.Fatal(err)
+		mdllog.Fatal(err)
 	}
 
 	var check *api.AgentServiceCheck
@@ -145,13 +145,13 @@ func main() {
 	config := &api.Config{Address: consul, Scheme: "http", Token: token}
 	client, err := api.NewClient(config)
 	if err != nil {
-		log.Fatal(err)
+		mdllog.Fatal(err)
 	}
 
 	if err := client.Agent().ServiceRegister(service); err != nil {
-		log.Fatal(err)
+		mdllog.Fatal(err)
 	}
-	log.Printf("Registered service %q in consul with tags %q", name, strings.Join(tags, ","))
+	mdllog.Info.Printf("Registered service %q in consul with tags %q", name, strings.Join(tags, ","))
 
 	// run until we get a signal
 	quit := make(chan os.Signal, 1)
@@ -160,16 +160,16 @@ func main() {
 
 	// deregister service
 	if err := client.Agent().ServiceDeregister(serviceID); err != nil {
-		log.Fatal(err)
+		mdllog.Fatal(err)
 	}
-	log.Printf("Deregistered service %q in consul", name)
+	mdllog.Info.Printf("Deregistered service %q in consul", name)
 }
 
 func EchoServer(ws *websocket.Conn) {
 	addr := ws.LocalAddr().String()
 	pfx := []byte("[" + addr + "] ")
 
-	log.Printf("ws connect on %s", addr)
+	mdllog.Info.Printf("ws connect on %s", addr)
 
 	// the following could be done with io.Copy(ws, ws)
 	// but I want to add some meta data
@@ -177,14 +177,14 @@ func EchoServer(ws *websocket.Conn) {
 	for {
 		n, err := ws.Read(msg)
 		if err != nil && err != io.EOF {
-			log.Printf("ws error on %s. %s", addr, err)
+			mdllog.Error.Printf("ws error on %s. %s", addr, err)
 			break
 		}
 		_, err = ws.Write(append(pfx, msg[:n]...))
 		if err != nil && err != io.EOF {
-			log.Printf("ws error on %s. %s", addr, err)
+			mdllog.Error.Printf("ws error on %s. %s", addr, err)
 			break
 		}
 	}
-	log.Printf("ws disconnect on %s", addr)
+	mdllog.Info.Printf("ws disconnect on %s", addr)
 }

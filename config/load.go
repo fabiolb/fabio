@@ -161,6 +161,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.UI.Addr, "ui.addr", defaultConfig.UI.Addr, "address the UI/API is listening on")
 	f.StringVar(&cfg.UI.Color, "ui.color", defaultConfig.UI.Color, "background color of the UI")
 	f.StringVar(&cfg.UI.Title, "ui.title", defaultConfig.UI.Title, "optional title for the UI")
+	f.StringVar(&cfg.Logging.Level, "logging.level", defaultConfig.Logging.Level, "Logging level")
 
 	var awsApiGWCertCN string
 	f.StringVar(&awsApiGWCertCN, "aws.apigw.cert.cn", "", "deprecated. use caupgcn=<CN> for cert source")
@@ -197,7 +198,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	// handle deprecations
 	// deprecate := func(name, msg string) {
 	// 	if f.IsSet(name) {
-	// 		log.Print("[WARN] ", msg)
+	// 		mdllog.Warning.Print("[WARN] ", msg)
 	// 	}
 	// }
 

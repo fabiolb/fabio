@@ -3,7 +3,7 @@ package proxy
 import (
 	"fmt"
 	"io"
-	"log"
+	"github.com/eBay/fabio/mdllog"
 	"net"
 
 	"github.com/eBay/fabio/config"
@@ -56,25 +56,25 @@ func (p *tcpSNIProxy) Serve(in net.Conn) {
 	serverName, ok := readServerName(data)
 	if !ok {
 		fmt.Fprintln(in, "handshake failed")
-		log.Print("[DEBUG] tcp+sni: TLS handshake failed")
+		mdllog.Debug.Print("[DEBUG] tcp+sni: TLS handshake failed")
 		return
 	}
 
 	if serverName == "" {
 		fmt.Fprintln(in, "server_name missing")
-		log.Print("[DEBUG] tcp+sni: server_name missing")
+		mdllog.Debug.Print("[DEBUG] tcp+sni: server_name missing")
 		return
 	}
 
 	t := route.GetTable().LookupHost(serverName)
 	if t == nil {
-		log.Print("[WARN] tcp+sni: No route for ", serverName)
+		mdllog.Warning.Print("[WARN] tcp+sni: No route for ", serverName)
 		return
 	}
 
 	out, err := net.DialTimeout("tcp", t.URL.Host, p.cfg.DialTimeout)
 	if err != nil {
-		log.Print("[WARN] tcp+sni: cannot connect to upstream ", t.URL.Host)
+		mdllog.Warning.Print("[WARN] tcp+sni: cannot connect to upstream ", t.URL.Host)
 		return
 	}
 	defer out.Close()
@@ -82,7 +82,7 @@ func (p *tcpSNIProxy) Serve(in net.Conn) {
 	// copy client hello
 	_, err = out.Write(data)
 	if err != nil {
-		log.Print("[WARN] tcp+sni: copy client hello failed. ", err)
+		mdllog.Warning.Print("[WARN] tcp+sni: copy client hello failed. ", err)
 		return
 	}
 
@@ -100,6 +100,6 @@ func (p *tcpSNIProxy) Serve(in net.Conn) {
 	go cp(in, out)
 	err = <-errc
 	if err != nil && err != io.EOF {
-		log.Print("[WARN]: tcp+sni:  ", err)
+		mdllog.Warning.Print("[WARN]: tcp+sni:  ", err)
 	}
 }

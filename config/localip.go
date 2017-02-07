@@ -1,8 +1,8 @@
 package config
 
 import (
-	"log"
 	"net"
+	"log"
 )
 
 // LocalIP tries to determine a non-loopback address for the local machine

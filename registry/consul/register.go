@@ -3,7 +3,7 @@ package consul
 import (
 	"errors"
 	"fmt"
-	"log"
+	"github.com/eBay/fabio/mdllog"
 	"net"
 	"os"
 	"strconv"
@@ -32,7 +32,7 @@ func register(c *api.Client, service *api.AgentServiceRegistration) (dereg chan 
 		}
 		services, err := c.Agent().Services()
 		if err != nil {
-			log.Printf("[ERROR] consul: Cannot get service list. %s", err)
+			mdllog.Error.Printf("[ERROR] consul: Cannot get service list. %s", err)
 			return false
 		}
 		return services[serviceID] != nil
@@ -40,20 +40,20 @@ func register(c *api.Client, service *api.AgentServiceRegistration) (dereg chan 
 
 	register := func() {
 		if err := c.Agent().ServiceRegister(service); err != nil {
-			log.Printf("[ERROR] consul: Cannot register fabio in consul. %s", err)
+			mdllog.Error.Printf("[ERROR] consul: Cannot register fabio in consul. %s", err)
 			return
 		}
 
-		log.Printf("[INFO] consul: Registered fabio with id %q", service.ID)
-		log.Printf("[INFO] consul: Registered fabio with address %q", service.Address)
-		log.Printf("[INFO] consul: Registered fabio with tags %q", strings.Join(service.Tags, ","))
-		log.Printf("[INFO] consul: Registered fabio with health check to %q", service.Check.HTTP)
+		mdllog.Info.Printf("[INFO] consul: Registered fabio with id %q", service.ID)
+		mdllog.Info.Printf("[INFO] consul: Registered fabio with address %q", service.Address)
+		mdllog.Info.Printf("[INFO] consul: Registered fabio with tags %q", strings.Join(service.Tags, ","))
+		mdllog.Info.Printf("[INFO] consul: Registered fabio with health check to %q", service.Check.HTTP)
 
 		serviceID = service.ID
 	}
 
 	deregister := func() {
-		log.Printf("[INFO] consul: Deregistering fabio")
+		mdllog.Info.Printf("[INFO] consul: Deregistering fabio")
 		c.Agent().ServiceDeregister(serviceID)
 	}
 
