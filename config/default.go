@@ -25,6 +25,7 @@ var defaultConfig = &Config{
 		DialTimeout:   30 * time.Second,
 		FlushInterval: time.Second,
 		LocalIP:       LocalIPString(),
+		LogRoutes:     "delta",
 	},
 	Registry: Registry{
 		Backend: "consul",

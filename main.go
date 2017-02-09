@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,6 +10,7 @@ import (
 	"os"
 	"runtime"
 	"runtime/debug"
+	"strings"
 
 	"github.com/eBay/fabio/admin"
 	"github.com/eBay/fabio/config"
@@ -20,6 +22,7 @@ import (
 	"github.com/eBay/fabio/registry/file"
 	"github.com/eBay/fabio/registry/static"
 	"github.com/eBay/fabio/route"
+	dmp "github.com/sergi/go-diff/diffmatchpatch"
 )
 
 // version contains the version number
@@ -59,7 +62,7 @@ func main() {
 
 	initRuntime(cfg)
 	initBackend(cfg)
-	go watchBackend()
+	go watchBackend(cfg)
 	startAdmin(cfg)
 
 	// create proxies after metrics since they use the metrics registry.
@@ -161,7 +164,7 @@ func initBackend(cfg *config.Config) {
 	}
 }
 
-func watchBackend() {
+func watchBackend(cfg *config.Config) {
 	var (
 		last   string
 		svccfg string
@@ -190,9 +193,44 @@ func watchBackend() {
 			continue
 		}
 		route.SetTable(t)
-		log.Printf("[INFO] Updated config to\n%s", t)
-
+		logRoutes(last, next, cfg.Proxy.LogRoutes)
 		last = next
+	}
+}
+
+func logRoutes(last, next, format string) {
+	fmtDiff := func(diffs []dmp.Diff) string {
+		var b bytes.Buffer
+		for _, d := range diffs {
+			t := strings.TrimSpace(d.Text)
+			if t == "" {
+				continue
+			}
+			switch d.Type {
+			case dmp.DiffDelete:
+				b.WriteString("- ")
+				b.WriteString(strings.Replace(t, "\n", "\n- ", -1))
+			case dmp.DiffInsert:
+				b.WriteString("+ ")
+				b.WriteString(strings.Replace(t, "\n", "\n+ ", -1))
+			}
+		}
+		return b.String()
+	}
+
+	const defFormat = "delta"
+	switch format {
+	case "delta":
+		if delta := fmtDiff(dmp.New().DiffMain(last, next, true)); delta != "" {
+			log.Printf("[INFO] Config updates\n%s", delta)
+		}
+
+	case "all":
+		log.Printf("[INFO] Updated config to\n%s", next)
+
+	default:
+		log.Printf("[WARN] Invalid route format %q. Defaulting to %q", format, defFormat)
+		logRoutes(last, next, defFormat)
 	}
 }
 
