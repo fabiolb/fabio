@@ -189,6 +189,12 @@
 			"revisionTime": "2015-07-19T09:56:14-07:00"
 		},
 		{
+			"checksumSHA1": "iWCtyR1TkJ22Bi/ygzfKDvOQdQY=",
+			"path": "github.com/sergi/go-diff/diffmatchpatch",
+			"revision": "24e2351369ec4949b2ed0dc5c477afdd4c4034e8",
+			"revisionTime": "2017-01-18T13:12:30Z"
+		},
+		{
 			"checksumSHA1": "N1akwAdrHVfPPrsFOhG2ouP21VA=",
 			"path": "golang.org/x/net/http2",
 			"revision": "f2499483f923065a842d38eb4c7f1927e6fc6e6d",
