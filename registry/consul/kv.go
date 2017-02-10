@@ -43,7 +43,7 @@ func getKV(client *api.Client, key string, waitIndex uint64) (string, uint64, er
 }
 
 func putKV(client *api.Client, key, value string, index uint64) (bool, error) {
-	p := &api.KVPair{Key: key[1:], Value: []byte(value), ModifyIndex: index}
+	p := &api.KVPair{Key: key[0:], Value: []byte(value), ModifyIndex: index}
 	ok, _, err := client.KV().CAS(p, nil)
 	if err != nil {
 		return false, err
