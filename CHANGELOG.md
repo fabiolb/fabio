@@ -3,6 +3,7 @@
 ### Unreleased
 
  * [Issue #219](https://github.com/eBay/fabio/issues/219): Support absolute URLs
+ * [Issue #238](https://github.com/eBay/fabio/issues/238): Make route update logging format configurable. Log delta by default
 
 ### [v1.3.7](https://github.com/eBay/fabio/releases/tag/v1.3.7) - 19 Jan 2017
 
