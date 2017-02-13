@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strings"
+	"time"
 
 	"github.com/eBay/fabio/admin"
 	"github.com/eBay/fabio/config"
@@ -143,24 +144,33 @@ func initRuntime(cfg *config.Config) {
 }
 
 func initBackend(cfg *config.Config) {
+	var deadline = time.Now().Add(cfg.Registry.Timeout)
+
 	var err error
+	for {
+		switch cfg.Registry.Backend {
+		case "file":
+			registry.Default, err = file.NewBackend(cfg.Registry.File.Path)
+		case "static":
+			registry.Default, err = static.NewBackend(cfg.Registry.Static.Routes)
+		case "consul":
+			registry.Default, err = consul.NewBackend(&cfg.Registry.Consul)
+		default:
+			exit.Fatal("[FATAL] Unknown registry backend ", cfg.Registry.Backend)
+		}
 
-	switch cfg.Registry.Backend {
-	case "file":
-		registry.Default, err = file.NewBackend(cfg.Registry.File.Path)
-	case "static":
-		registry.Default, err = static.NewBackend(cfg.Registry.Static.Routes)
-	case "consul":
-		registry.Default, err = consul.NewBackend(&cfg.Registry.Consul)
-	default:
-		exit.Fatal("[FATAL] Unknown registry backend ", cfg.Registry.Backend)
-	}
+		if err == nil {
+			if err = registry.Default.Register(); err == nil {
+				return
+			}
+		}
+		log.Print("[WARN] Error initializing backend. ", err)
 
-	if err != nil {
-		exit.Fatal("[FATAL] Error initializing backend. ", err)
-	}
-	if err := registry.Default.Register(); err != nil {
-		exit.Fatal("[FATAL] Error registering backend. ", err)
+		if time.Now().After(deadline) {
+			exit.Fatal("[FATAL] Timeout registering backend.")
+		}
+
+		time.Sleep(cfg.Registry.Retry)
 	}
 }
 

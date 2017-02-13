@@ -303,6 +303,20 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-registry.timeout", "5s"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Timeout = 5 * time.Second
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.retry", "500ms"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Retry = 500 * time.Millisecond
+				return cfg
+			},
+		},
+		{
 			args: []string{"-registry.file.path", "value"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Registry.File.Path = "value"

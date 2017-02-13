@@ -87,6 +87,8 @@ type Registry struct {
 	Static  Static
 	File    File
 	Consul  Consul
+	Timeout time.Duration
+	Retry   time.Duration
 }
 
 type Static struct {

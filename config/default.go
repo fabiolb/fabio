@@ -41,6 +41,8 @@ var defaultConfig = &Config{
 			CheckInterval: time.Second,
 			CheckTimeout:  3 * time.Second,
 		},
+		Timeout: 10 * time.Second,
+		Retry:   500 * time.Millisecond,
 	},
 	Runtime: Runtime{
 		GOGC:       800,
