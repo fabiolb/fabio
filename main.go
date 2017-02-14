@@ -34,7 +34,7 @@ import (
 // It is also set by the linker when fabio
 // is built via the Makefile or the build/docker.sh
 // script to ensure the correct version nubmer
-var version = "1.3.7"
+var version = "1.3.8"
 
 func main() {
 	cfg, err := config.Load(os.Args, os.Environ())
