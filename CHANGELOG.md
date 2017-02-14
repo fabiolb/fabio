@@ -1,6 +1,6 @@
 ## Changelog
 
-### Unreleased
+### [v1.3.8](https://github.com/eBay/fabio/releases/tag/v1.3.8) - 14 Feb 2017
 
  * Upgrade to Go 1.7.5
  * [Issue #219](https://github.com/eBay/fabio/issues/219): Support absolute URLs
