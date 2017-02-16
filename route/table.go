@@ -12,6 +12,7 @@ import (
 	"sync/atomic"
 
 	"github.com/eBay/fabio/metrics"
+	"github.com/ryanuber/go-glob"
 )
 
 var errInvalidPrefix = errors.New("route: prefix must not be empty")
@@ -277,11 +278,24 @@ func normalizeHost(req *http.Request) string {
 	return host
 }
 
+// matchingHosts returns all keys (host name patterns) from the
+// routing table which match the normalized request hostname.
+func (t Table) matchingHosts(req *http.Request) (hosts []string) {
+	host := normalizeHost(req)
+	for pattern := range t {
+		if glob.Glob(pattern, host) {
+			hosts = append(hosts, pattern)
+		}
+	}
+	sort.Strings(hosts)
+	return hosts
+}
+
 // Lookup finds a target url based on the current matcher and picker
 // or nil if there is none. It first checks the routes for the host
 // and if none matches then it falls back to generic routes without
 // a host. This is useful for a catch-all '/' rule.
-func (t Table) Lookup(req *http.Request, trace string, pick picker, match matcher) *Target {
+func (t Table) Lookup(req *http.Request, trace string, pick picker, match matcher) (target *Target) {
 	path := req.URL.Path
 	if trace != "" {
 		if len(trace) > 16 {
@@ -290,9 +304,14 @@ func (t Table) Lookup(req *http.Request, trace string, pick picker, match matche
 		log.Printf("[TRACE] %s Tracing %s%s", trace, req.Host, path)
 	}
 
-	target := t.lookup(normalizeHost(req), path, trace, pick, match)
-	if target == nil {
-		target = t.lookup("", path, trace, pick, match)
+	// find matching hosts for the request
+	// and add "no host" as the fallback option
+	hosts := t.matchingHosts(req)
+	hosts = append(hosts, "")
+	for _, h := range hosts {
+		if target = t.lookup(h, path, trace, pick, match); target != nil {
+			break
+		}
 	}
 
 	if target != nil && trace != "" {

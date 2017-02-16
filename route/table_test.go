@@ -470,6 +470,8 @@ func TestTableLookup(t *testing.T) {
 	route add svc abc.com/foo/ http://foo.com:2000
 	route add svc abc.com/foo/bar http://foo.com:2500
 	route add svc abc.com/foo/bar/ http://foo.com:3000
+	route add svc *.abc.com/ http://foo.com:4000
+	route add svc *.abc.com/foo/ http://foo.com:5000
 	`
 
 	tbl, err := NewTable(s)
@@ -501,6 +503,16 @@ func TestTableLookup(t *testing.T) {
 		// not using default port
 		{&http.Request{Host: "abc.com:443", URL: mustParse("/")}, "http://foo.com:800"},
 		{&http.Request{Host: "abc.com:80", URL: mustParse("/"), TLS: &tls.ConnectionState{}}, "http://foo.com:800"},
+
+		// glob match the host
+		{&http.Request{Host: "x.abc.com", URL: mustParse("/")}, "http://foo.com:4000"},
+		{&http.Request{Host: "y.abc.com", URL: mustParse("/abc")}, "http://foo.com:4000"},
+		{&http.Request{Host: "x.abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000"},
+		{&http.Request{Host: "y.abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000"},
+		{&http.Request{Host: ".abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000"},
+		{&http.Request{Host: "x.y.abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000"},
+		{&http.Request{Host: "y.abc.com:80", URL: mustParse("/foo/")}, "http://foo.com:5000"},
+		{&http.Request{Host: "y.abc.com:443", URL: mustParse("/foo/"), TLS: &tls.ConnectionState{}}, "http://foo.com:5000"},
 	}
 
 	for i, tt := range tests {
