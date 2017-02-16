@@ -189,6 +189,12 @@
 			"revisionTime": "2015-07-19T09:56:14-07:00"
 		},
 		{
+			"checksumSHA1": "EYkx4sXDLSEd1xUtGoXRsfd5cpw=",
+			"path": "github.com/ryanuber/go-glob",
+			"revision": "572520ed46dbddaed19ea3d9541bdd0494163693",
+			"revisionTime": "2016-02-26T08:37:05Z"
+		},
+		{
 			"checksumSHA1": "iWCtyR1TkJ22Bi/ygzfKDvOQdQY=",
 			"path": "github.com/sergi/go-diff/diffmatchpatch",
 			"revision": "24e2351369ec4949b2ed0dc5c477afdd4c4034e8",
