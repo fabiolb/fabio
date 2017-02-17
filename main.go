@@ -68,7 +68,7 @@ func main() {
 
 	// create proxies after metrics since they use the metrics registry.
 	httpProxy := newHTTPProxy(cfg)
-	tcpProxy := proxy.NewTCPSNIProxy(cfg.Proxy)
+	tcpProxy := newTCPSNIProxy(cfg)
 	startListeners(cfg.Listen, cfg.Proxy.ShutdownWait, httpProxy, tcpProxy)
 	exit.Wait()
 }
@@ -98,6 +98,20 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 		ShuttingDown: exit.ShuttingDown,
 		Requests:     metrics.DefaultRegistry.GetTimer("requests"),
 		Noroute:      metrics.DefaultRegistry.GetCounter("notfound"),
+	}
+}
+
+func newTCPSNIProxy(cfg *config.Config) *proxy.TCPSNIProxy {
+	return &proxy.TCPSNIProxy{
+		Config: cfg.Proxy,
+		Lookup: func(serverName string) *route.Target {
+			t := route.GetTable().LookupHost(serverName, route.Picker[cfg.Proxy.Strategy])
+			if t == nil {
+				log.Print("[WARN] No route for ", serverName)
+			}
+			return t
+		},
+		ShuttingDown: exit.ShuttingDown,
 	}
 }
 

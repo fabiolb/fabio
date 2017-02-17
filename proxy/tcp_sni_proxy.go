@@ -7,7 +7,6 @@ import (
 	"net"
 
 	"github.com/eBay/fabio/config"
-	"github.com/eBay/fabio/exit"
 	"github.com/eBay/fabio/route"
 )
 
@@ -31,18 +30,24 @@ type TCPProxy interface {
 	Serve(conn net.Conn)
 }
 
-func NewTCPSNIProxy(cfg config.Proxy) TCPProxy {
-	return &tcpSNIProxy{cfg: cfg}
+type TCPSNIProxy struct {
+	// Config is the proxy configuration as provided during startup.
+	Config config.Proxy
+
+	// Lookup returns a target host for the given server name.
+	// The proxy will panic if this value is nil.
+	Lookup func(string) *route.Target
+
+	// ShuttingDown returns true if the server should no longer
+	// handle new requests. ShuttingDown can be nil which is equivalent
+	// to a function that returns always false.
+	ShuttingDown func() bool
 }
 
-type tcpSNIProxy struct {
-	cfg config.Proxy
-}
-
-func (p *tcpSNIProxy) Serve(in net.Conn) {
+func (p *TCPSNIProxy) Serve(in net.Conn) {
 	defer in.Close()
 
-	if exit.ShuttingDown() {
+	if p.ShuttingDown != nil && p.ShuttingDown() {
 		return
 	}
 
@@ -67,13 +72,13 @@ func (p *tcpSNIProxy) Serve(in net.Conn) {
 		return
 	}
 
-	t := route.GetTable().LookupHost(serverName, route.Picker[p.cfg.Strategy])
+	t := p.Lookup(serverName)
 	if t == nil {
 		log.Print("[WARN] tcp+sni: No route for ", serverName)
 		return
 	}
 
-	out, err := net.DialTimeout("tcp", t.URL.Host, p.cfg.DialTimeout)
+	out, err := net.DialTimeout("tcp", t.URL.Host, p.Config.DialTimeout)
 	if err != nil {
 		log.Print("[WARN] tcp+sni: cannot connect to upstream ", t.URL.Host)
 		return
