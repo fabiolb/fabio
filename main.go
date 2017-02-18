@@ -51,6 +51,7 @@ func main() {
 	log.Printf("[INFO] Go runtime is %s", runtime.Version())
 
 	exit.Listen(func(s os.Signal) {
+		exit.Shutdown()
 		if registry.Default == nil {
 			return
 		}
@@ -190,6 +191,9 @@ func initBackend(cfg *config.Config) {
 		}
 
 		time.Sleep(cfg.Registry.Retry)
+		if exit.ShuttingDown() {
+			exit.Exit(1)
+		}
 	}
 }
 
