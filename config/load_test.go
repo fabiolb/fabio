@@ -63,6 +63,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-proxy.addr", ":5555;proto=tcp"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "tcp"}}
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.addr", ":5555;proto=tcp+sni"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{{Addr: ":5555", Proto: "tcp+sni"}}
@@ -686,16 +693,16 @@ func TestLoad(t *testing.T) {
 			err:  errors.New("proto 'https' requires cert source"),
 		},
 		{
-			desc: "-proxy.addr with cert source and proto 'http' requires proto 'https'",
+			desc: "-proxy.addr with cert source and proto 'http' requires proto 'https' or 'tcp'",
 			args: []string{"-proxy.addr", ":5555;cs=name;proto=http", "-proxy.cs", "cs=name;type=path;cert=value"},
 			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("cert source requires proto 'https'"),
+			err:  errors.New("cert source requires proto 'https' or 'tcp'"),
 		},
 		{
-			desc: "-proxy.addr with cert source and proto 'tcp+sni' requires proto 'https'",
+			desc: "-proxy.addr with cert source and proto 'tcp+sni' requires proto 'https' or 'tcp'",
 			args: []string{"-proxy.addr", ":5555;cs=name;proto=tcp+sni", "-proxy.cs", "cs=name;type=path;cert=value"},
 			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("cert source requires proto 'https'"),
+			err:  errors.New("cert source requires proto 'https' or 'tcp'"),
 		},
 		{
 			args: []string{"-cfg"},

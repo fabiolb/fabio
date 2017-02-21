@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/armon/go-proxyproto"
+	proxyproto "github.com/armon/go-proxyproto"
 	"github.com/eBay/fabio/cert"
 	"github.com/eBay/fabio/config"
 )

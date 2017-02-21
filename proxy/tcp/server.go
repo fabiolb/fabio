@@ -2,13 +2,24 @@ package tcp
 
 import (
 	"context"
+	"crypto/tls"
 	"net"
 	"sync"
 	"time"
 )
 
+// Handler responds to a TCP request.
+//
+// ServeTCP should write responses to the in connection and close
+// it on return.
 type Handler interface {
 	ServeTCP(in net.Conn) error
+}
+
+type HandlerFunc func(in net.Conn) error
+
+func (f HandlerFunc) ServeTCP(in net.Conn) error {
+	return f(in)
 }
 
 // Server implements a generic TCP server.
@@ -20,7 +31,30 @@ type Server struct {
 
 	mu        sync.Mutex
 	listeners []net.Listener
-	conns     map[int64]net.Conn
+	conns     map[net.Conn]bool
+}
+
+func (s *Server) ListenAndServe() error {
+	l, err := net.Listen("tcp", s.Addr)
+	if err != nil {
+		return err
+	}
+	defer l.Close()
+	return s.Serve(l)
+}
+
+func (s *Server) ListenAndServeTLS(certFile, keyFile string) error {
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return err
+	}
+	cfg := &tls.Config{Certificates: []tls.Certificate{cert}}
+	l, err := tls.Listen("tcp", s.Addr, cfg)
+	if err != nil {
+		return err
+	}
+	defer l.Close()
+	return s.Serve(l)
 }
 
 func (s *Server) Serve(l net.Listener) error {
@@ -36,16 +70,15 @@ func (s *Server) Serve(l net.Listener) error {
 			return err
 		}
 		c = &conn{
-			id:           time.Now().UnixNano(),
 			c:            c,
 			ReadTimeout:  s.ReadTimeout,
 			WriteTimeout: s.WriteTimeout,
 		}
 		s.mu.Lock()
 		if s.conns == nil {
-			s.conns = map[int64]net.Conn{}
+			s.conns = map[net.Conn]bool{}
 		}
-		s.conns[c.(*conn).id] = c
+		s.conns[c] = true
 		s.mu.Unlock()
 		go s.Handler.ServeTCP(c)
 	}
@@ -63,7 +96,7 @@ func (s *Server) closeListeners() error {
 
 func (s *Server) closeConns() error {
 	s.mu.Lock()
-	for _, c := range s.conns {
+	for c := range s.conns {
 		c.Close()
 	}
 	s.conns = nil
@@ -86,7 +119,6 @@ func (s *Server) Shutdown(ctx context.Context) error {
 
 // conn implements a connection which honors read and write timeouts.
 type conn struct {
-	id           int64
 	c            net.Conn
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
