@@ -26,10 +26,6 @@ type HTTPProxy struct {
 
 	// Requests is a timer metric which is updated for every request.
 	Requests metrics.Timer
-
-	// Noroute is a counter metric which is updated for every request
-	// where Lookup() returns nil.
-	Noroute metrics.Counter
 }
 
 func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -39,9 +35,6 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	t := p.Lookup(r)
 	if t == nil {
-		if p.Noroute != nil {
-			p.Noroute.Inc(1)
-		}
 		w.WriteHeader(p.Config.NoRouteStatus)
 		return
 	}

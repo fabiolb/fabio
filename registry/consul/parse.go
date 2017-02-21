@@ -32,6 +32,12 @@ func parseURLPrefixTag(s, prefix string, env map[string]string) (route, opts str
 	}
 	s = p[0]
 
+	// prefix is ":port"
+	if strings.HasPrefix(s, ":") {
+		return s, opts, true
+	}
+
+	// prefix is "host/path"
 	p = strings.SplitN(s, "/", 2)
 	if len(p) == 1 {
 		log.Printf("[WARN] consul: Invalid %s tag %q - You need to have a trailing slash!", prefix, s)
