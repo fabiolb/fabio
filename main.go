@@ -37,7 +37,7 @@ import (
 // It is also set by the linker when fabio
 // is built via the Makefile or the build/docker.sh
 // script to ensure the correct version nubmer
-var version = "1.3.8"
+var version = "1.4beta1"
 
 var shuttingDown int32
 
@@ -85,6 +85,7 @@ func main() {
 func newHTTPProxy(cfg *config.Config) http.Handler {
 	pick := route.Picker[cfg.Proxy.Strategy]
 	match := route.Matcher[cfg.Proxy.Matcher]
+	notFound := metrics.DefaultRegistry.GetCounter("notfound")
 	log.Printf("[INFO] Using routing strategy %q", cfg.Proxy.Strategy)
 	log.Printf("[INFO] Using route matching %q", cfg.Proxy.Matcher)
 
@@ -101,26 +102,26 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 		Lookup: func(r *http.Request) *route.Target {
 			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match)
 			if t == nil {
+				notFound.Inc(1)
 				log.Print("[WARN] No route for ", r.Host, r.URL)
 			}
 			return t
 		},
 		Requests: metrics.DefaultRegistry.GetTimer("requests"),
-		Noroute:  metrics.DefaultRegistry.GetCounter("notfound"),
 	}
 }
 
-func newTCPSNIProxy(cfg *config.Config) *tcp.SNIProxy {
+func lookupHostFn(cfg *config.Config) func(string) string {
 	pick := route.Picker[cfg.Proxy.Strategy]
-	return &tcp.SNIProxy{
-		Config: cfg.Proxy,
-		Lookup: func(host string) *route.Target {
-			t := route.GetTable().LookupHost(host, pick)
-			if t == nil {
-				log.Print("[WARN] No route for ", host)
-			}
-			return t
-		},
+	notFound := metrics.DefaultRegistry.GetCounter("notfound")
+	return func(host string) string {
+		t := route.GetTable().LookupHost(host, pick)
+		if t == nil {
+			notFound.Inc(1)
+			log.Print("[WARN] No route for ", host)
+			return ""
+		}
+		return t.URL.Host
 	}
 }
 
@@ -144,9 +145,14 @@ func startServers(cfg *config.Config) {
 	for _, l := range cfg.Listen {
 		switch l.Proto {
 		case "http", "https":
-			go proxy.ListenAndServeHTTP(l, newHTTPProxy(cfg))
+			h := newHTTPProxy(cfg)
+			go proxy.ListenAndServeHTTP(l, h)
+		case "tcp":
+			h := &tcp.Proxy{cfg.Proxy.DialTimeout, lookupHostFn(cfg)}
+			go proxy.ListenAndServeTCP(l, h)
 		case "tcp+sni":
-			go proxy.ListenAndServeTCP(l, newTCPSNIProxy(cfg))
+			h := &tcp.SNIProxy{cfg.Proxy.DialTimeout, lookupHostFn(cfg)}
+			go proxy.ListenAndServeTCP(l, h)
 		default:
 			exit.Fatal("[FATAL] Invalid protocol ", l.Proto)
 		}

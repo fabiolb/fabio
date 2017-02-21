@@ -24,9 +24,13 @@
 //   # websocket server
 //   ./server -addr 127.0.0.1:6000 -name ws-a -prefix /echo1,/echo2 -proto ws
 //
+//   # tcp server
+//   ./server -addr 127.0.0.1:7000 -name tcp-a -proto tcp
+//
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"io"
@@ -39,9 +43,48 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/eBay/fabio/proxy/tcp"
 	"github.com/hashicorp/consul/api"
 	"golang.org/x/net/websocket"
 )
+
+type Server interface {
+	// embedded server methods
+	ListenAndServe() error
+	ListenAndServeTLS(certFile, keyFile string) error
+
+	// consul register helpers
+	Tags() []string
+	Check() *api.AgentServiceCheck
+}
+
+type HTTPServer struct {
+	*http.Server
+	tags  []string
+	check *api.AgentServiceCheck
+}
+
+func (s *HTTPServer) Check() *api.AgentServiceCheck {
+	return s.check
+}
+
+func (s *HTTPServer) Tags() []string {
+	return s.tags
+}
+
+type TCPServer struct {
+	*tcp.Server
+	tags  []string
+	check *api.AgentServiceCheck
+}
+
+func (s *TCPServer) Check() *api.AgentServiceCheck {
+	return s.check
+}
+
+func (s *TCPServer) Tags() []string {
+	return s.tags
+}
 
 func main() {
 	var addr, consul, name, prefix, proto, token string
@@ -50,8 +93,8 @@ func main() {
 	flag.StringVar(&addr, "addr", "127.0.0.1:5000", "host:port of the service")
 	flag.StringVar(&consul, "consul", "127.0.0.1:8500", "host:port of the consul agent")
 	flag.StringVar(&name, "name", filepath.Base(os.Args[0]), "name of the service")
-	flag.StringVar(&prefix, "prefix", "", "comma-sep list of host/path prefixes to register")
-	flag.StringVar(&proto, "proto", "http", "protocol for endpoints: http or ws")
+	flag.StringVar(&prefix, "prefix", "", "comma-sep list of 'host/path' or ':port' prefixes to register")
+	flag.StringVar(&proto, "proto", "http", "protocol for endpoints: http, ws or tcp")
 	flag.StringVar(&token, "token", "", "consul ACL token")
 	flag.StringVar(&certFile, "cert", "", "path to cert file")
 	flag.StringVar(&keyFile, "key", "", "path to key file")
@@ -63,53 +106,64 @@ func main() {
 		os.Exit(1)
 	}
 
-	// register prefixes
-	prefixes := strings.Split(prefix, ",")
-	for _, p := range prefixes {
-		switch proto {
-		case "http":
-			http.HandleFunc(p, func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(status)
-				fmt.Fprintf(w, "Serving %s from %s on %s\n", r.RequestURI, name, addr)
-			})
-		case "ws":
-			http.Handle(p, websocket.Handler(EchoServer))
-		default:
-			log.Fatal("Invalid protocol ", proto)
+	var srv Server
+	switch proto {
+	case "http", "ws":
+		mux := http.NewServeMux()
+		mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintln(w, "OK")
+		})
+		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "not found", 404)
+			log.Printf("%s -> 404", r.URL)
+		})
+
+		var tags []string
+		for _, p := range strings.Split(prefix, ",") {
+			tags = append(tags, "urlprefix-"+p)
+			switch proto {
+			case "http":
+				mux.HandleFunc(p, func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(status)
+					fmt.Fprintf(w, "Serving %s from %s on %s\n", r.RequestURI, name, addr)
+				})
+			case "ws":
+				mux.Handle(p, websocket.Handler(WSEchoServer))
+			}
 		}
+
+		var check *api.AgentServiceCheck
+		if certFile != "" {
+			check = &api.AgentServiceCheck{TCP: addr, Interval: "2s", Timeout: "1s"}
+		} else {
+			check = &api.AgentServiceCheck{HTTP: "http://" + addr + "/health", Interval: "1s", Timeout: "1s"}
+		}
+		srv = &HTTPServer{&http.Server{Addr: addr, Handler: mux}, tags, check}
+
+	case "tcp":
+		var tags []string
+		for _, p := range strings.Split(prefix, ",") {
+			tags = append(tags, "urlprefix-"+p+" proto=tcp")
+		}
+		check := &api.AgentServiceCheck{TCP: addr, Interval: "2s", Timeout: "1s"}
+		srv = &TCPServer{&tcp.Server{Addr: addr, Handler: tcp.HandlerFunc(TCPEchoHandler)}, tags, check}
+
+	default:
+		log.Fatal("Invalid protocol ", proto)
 	}
 
-	// register consul health check endpoint
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "OK")
-	})
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.Error(w, "not found", 404)
-		log.Printf("%s -> 404", r.URL)
-	})
-
-	// start http server
+	// start server
 	go func() {
-		log.Printf("Listening on %s serving %s", addr, prefix)
-
 		var err error
 		if certFile != "" {
-			err = http.ListenAndServeTLS(addr, certFile, keyFile, nil)
+			err = srv.ListenAndServeTLS(certFile, keyFile)
 		} else {
-			err = http.ListenAndServe(addr, nil)
+			err = srv.ListenAndServe()
 		}
 		if err != nil {
 			log.Fatal(err)
 		}
 	}()
-
-	// build urlprefix-host/path tag list
-	// e.g. urlprefix-/foo, urlprefix-/bar, ...
-	var tags []string
-	for _, p := range prefixes {
-		tags = append(tags, "urlprefix-"+p)
-	}
 
 	// get host and port as string/int
 	host, portstr, err := net.SplitHostPort(addr)
@@ -121,21 +175,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var check *api.AgentServiceCheck
-	if certFile != "" {
-		check = &api.AgentServiceCheck{
-			TCP:      addr,
-			Interval: "2s",
-			Timeout:  "1s",
-		}
-	} else {
-		check = &api.AgentServiceCheck{
-			HTTP:     "http://" + addr + "/health",
-			Interval: "1s",
-			Timeout:  "1s",
-		}
-	}
-
 	// register service with health check
 	serviceID := name + "-" + addr
 	service := &api.AgentServiceRegistration{
@@ -143,8 +182,8 @@ func main() {
 		Name:    name,
 		Port:    port,
 		Address: host,
-		Tags:    tags,
-		Check:   check,
+		Tags:    srv.Tags(),
+		Check:   srv.Check(),
 	}
 
 	config := &api.Config{Address: consul, Scheme: "http", Token: token}
@@ -156,7 +195,7 @@ func main() {
 	if err := client.Agent().ServiceRegister(service); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Registered service %q in consul with tags %q", name, strings.Join(tags, ","))
+	log.Printf("Registered %s service %q in consul with tags %q", proto, name, strings.Join(srv.Tags(), ","))
 
 	// run until we get a signal
 	quit := make(chan os.Signal, 1)
@@ -170,7 +209,7 @@ func main() {
 	log.Printf("Deregistered service %q in consul", name)
 }
 
-func EchoServer(ws *websocket.Conn) {
+func WSEchoServer(ws *websocket.Conn) {
 	addr := ws.LocalAddr().String()
 	pfx := []byte("[" + addr + "] ")
 
@@ -192,4 +231,25 @@ func EchoServer(ws *websocket.Conn) {
 		}
 	}
 	log.Printf("ws disconnect on %s", addr)
+}
+
+func TCPEchoHandler(c net.Conn) error {
+	defer c.Close()
+
+	addr := c.LocalAddr().String()
+	_, err := fmt.Fprintf(c, "[%s] Welcome\n", addr)
+	if err != nil {
+		return err
+	}
+
+	for {
+		line, _, err := bufio.NewReader(c).ReadLine()
+		if err != nil {
+			return err
+		}
+		_, err = fmt.Fprintf(c, "[%s] %s\n", addr, string(line))
+		if err != nil {
+			return err
+		}
+	}
 }

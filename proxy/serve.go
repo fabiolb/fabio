@@ -24,10 +24,20 @@ var (
 	servers []Server
 )
 
+func Close() {
+	mu.Lock()
+	for _, srv := range servers {
+		srv.Close()
+	}
+	servers = []Server{}
+	mu.Unlock()
+}
+
 func Shutdown(timeout time.Duration) {
 	mu.Lock()
 	srvs := make([]Server, len(servers))
 	copy(srvs, servers)
+	servers = []Server{}
 	mu.Unlock()
 
 	var wg sync.WaitGroup

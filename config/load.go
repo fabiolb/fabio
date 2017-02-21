@@ -267,7 +267,10 @@ func parseListen(cfg string, cs map[string]CertSource, readTimeout, writeTimeout
 		switch k {
 		case "proto":
 			l.Proto = v
-			if l.Proto != "http" && l.Proto != "https" && l.Proto != "tcp+sni" {
+			switch l.Proto {
+			case "tcp", "tcp+sni", "http", "https":
+				// ok
+			default:
 				return Listen{}, fmt.Errorf("unknown protocol %q", v)
 			}
 		case "rt": // read timeout
@@ -300,8 +303,8 @@ func parseListen(cfg string, cs map[string]CertSource, readTimeout, writeTimeout
 	if l.Proto == "" {
 		l.Proto = "http"
 	}
-	if csName != "" && l.Proto != "https" {
-		return Listen{}, fmt.Errorf("cert source requires proto 'https'")
+	if csName != "" && l.Proto != "https" && l.Proto != "tcp" {
+		return Listen{}, fmt.Errorf("cert source requires proto 'https' or 'tcp'")
 	}
 	if csName == "" && l.Proto == "https" {
 		return Listen{}, fmt.Errorf("proto 'https' requires cert source")
