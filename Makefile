@@ -24,8 +24,8 @@ test: checkdeps
 	$(GO) test -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 
 checkdeps:
-	@[[ -x $(GOVENDOR) ]] || $(GO) get -u github.com/kardianos/govendor
-	@if [[ -n `govendor list +external` ]] ; then \
+	@[ -x $(GOVENDOR) ] || $(GO) get -u github.com/kardianos/govendor
+	@if [ -n `govendor list +external` ] ; then \
 		echo "Missing packages: " ; \
 		govendor list +external ; \
 		echo "" ; \
