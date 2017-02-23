@@ -11,7 +11,7 @@ if [[ -z "$v" ]] ; then
 fi
 
 go get -u github.com/mitchellh/gox
-for go in go1.7.5 go1.8; do
+for go in go1.8; do
 	echo "Building fabio with ${go}"
 	gox -gocmd ~/${go}/bin/go -tags netgo -output "${basedir}/build/builds/fabio-${v}/fabio-${v}-${go}-{{.OS}}_{{.Arch}}"
 done
