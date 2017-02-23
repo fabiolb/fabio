@@ -2,6 +2,7 @@
 # do not specify a full path for go since travis will fail
 GO = GOGC=off go
 GOFLAGS = -ldflags "-X main.version=$(shell git describe --tags)"
+GOVENDOR = $(shell which govendor)
 
 all: build test
 
@@ -15,12 +16,24 @@ help:
 	@echo "homebrew  - build/homebrew.sh"
 	@echo "buildpkg  - build/build.sh"
 
-build:
+build: checkdeps
 	$(GO) build -i $(GOFLAGS)
 
-test:
+test: checkdeps
 	$(GO) test -i ./...
 	$(GO) test -test.timeout 15s `go list ./... | grep -v '/vendor/'`
+
+checkdeps:
+	@[[ -x $(GOVENDOR) ]] || $(GO) get -u github.com/kardianos/govendor
+	@if [[ -n `govendor list +external` ]] ; then \
+		echo "Missing packages: " ; \
+		govendor list +external ; \
+		echo "" ; \
+		echo "Please run" ; \
+		echo "  govendor add +external" ; \
+		echo ; \
+		exit 1 ; \
+	fi
 
 gofmt:
 	gofmt -w `find . -type f -name '*.go' | grep -v vendor`
