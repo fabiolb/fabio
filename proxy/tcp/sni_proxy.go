@@ -1,4 +1,4 @@
-package proxy
+package tcp
 
 import (
 	"fmt"
@@ -10,52 +10,28 @@ import (
 	"github.com/eBay/fabio/route"
 )
 
-// TCPProxy implements an SNI aware transparent TCP proxy which captures the
+// SNIProxy implements an SNI aware transparent TCP proxy which captures the
 // TLS client hello, extracts the host name and uses it for finding the
 // upstream server. Then it replays the ClientHello message and copies data
 // transparently allowing to route a TLS connection based on the SNI header
 // without decrypting it.
-//
-// This implementation is EXPERIMENTAL in the sense that it has been tested
-// to work but is considered incomplete for production use. It needs support
-// for read and write timeouts which require replacing the io.Copy() with
-// something that can set the deadlines on the underlying connections. One
-// possible way could be to use TeeReader/TeeWriter streams which discard
-// the data and only set the deadlines. The implementation also needs a
-// full integration test.
-//
-// This implementation exists to gather more real-world data to finalize
-// the code at a later stage.
-type TCPProxy interface {
-	Serve(conn net.Conn)
-}
-
-type TCPSNIProxy struct {
+type SNIProxy struct {
 	// Config is the proxy configuration as provided during startup.
 	Config config.Proxy
 
 	// Lookup returns a target host for the given server name.
 	// The proxy will panic if this value is nil.
 	Lookup func(string) *route.Target
-
-	// ShuttingDown returns true if the server should no longer
-	// handle new requests. ShuttingDown can be nil which is equivalent
-	// to a function that returns always false.
-	ShuttingDown func() bool
 }
 
-func (p *TCPSNIProxy) Serve(in net.Conn) {
+func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	defer in.Close()
-
-	if p.ShuttingDown != nil && p.ShuttingDown() {
-		return
-	}
 
 	// capture client hello
 	data := make([]byte, 1024)
 	n, err := in.Read(data)
 	if err != nil {
-		return
+		return err
 	}
 	data = data[:n]
 
@@ -63,25 +39,25 @@ func (p *TCPSNIProxy) Serve(in net.Conn) {
 	if !ok {
 		fmt.Fprintln(in, "handshake failed")
 		log.Print("[DEBUG] tcp+sni: TLS handshake failed")
-		return
+		return nil
 	}
 
 	if serverName == "" {
 		fmt.Fprintln(in, "server_name missing")
 		log.Print("[DEBUG] tcp+sni: server_name missing")
-		return
+		return nil
 	}
 
 	t := p.Lookup(serverName)
 	if t == nil {
 		log.Print("[WARN] tcp+sni: No route for ", serverName)
-		return
+		return nil
 	}
 
 	out, err := net.DialTimeout("tcp", t.URL.Host, p.Config.DialTimeout)
 	if err != nil {
 		log.Print("[WARN] tcp+sni: cannot connect to upstream ", t.URL.Host)
-		return
+		return err
 	}
 	defer out.Close()
 
@@ -89,15 +65,11 @@ func (p *TCPSNIProxy) Serve(in net.Conn) {
 	_, err = out.Write(data)
 	if err != nil {
 		log.Print("[WARN] tcp+sni: copy client hello failed. ", err)
-		return
+		return err
 	}
 
 	errc := make(chan error, 2)
 	cp := func(dst io.Writer, src io.Reader) {
-		// TODO(fs): this implementation does not enforce any timeouts.
-		// for this the io.Copy will have to be replaced with something
-		// more sophisticated. Idea: use TeeReader/TeeWriter to discard
-		// the second data stream and set the deadlines.
 		_, err := io.Copy(dst, src)
 		errc <- err
 	}
@@ -107,5 +79,7 @@ func (p *TCPSNIProxy) Serve(in net.Conn) {
 	err = <-errc
 	if err != nil && err != io.EOF {
 		log.Print("[WARN]: tcp+sni:  ", err)
+		return err
 	}
+	return nil
 }

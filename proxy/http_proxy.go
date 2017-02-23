@@ -24,11 +24,6 @@ type HTTPProxy struct {
 	// The proxy will panic if this value is nil.
 	Lookup func(*http.Request) *route.Target
 
-	// ShuttingDown returns true if the server should no longer
-	// handle new requests. ShuttingDown can be nil which is equivalent
-	// to a function that returns always false.
-	ShuttingDown func() bool
-
 	// Requests is a timer metric which is updated for every request.
 	Requests metrics.Timer
 
@@ -38,11 +33,6 @@ type HTTPProxy struct {
 }
 
 func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if p.ShuttingDown != nil && p.ShuttingDown() {
-		http.Error(w, "shutting down", http.StatusServiceUnavailable)
-		return
-	}
-
 	if p.Lookup == nil {
 		panic("no lookup function")
 	}
@@ -75,9 +65,6 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case upgrade == "websocket" || upgrade == "Websocket":
 		h = newRawProxy(t.URL)
-
-		// To use the filtered proxy use
-		// h = newWSProxy(t.URL)
 
 	case accept == "text/event-stream":
 		// use the flush interval for SSE (server-sent events)

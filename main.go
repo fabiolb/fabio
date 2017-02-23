@@ -12,6 +12,7 @@ import (
 	"runtime/debug"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 	"io"
 	"github.com/Graylog2/go-gelf/gelf"
@@ -20,6 +21,7 @@ import (
 	"github.com/eBay/fabio/exit"
 	"github.com/eBay/fabio/metrics"
 	"github.com/eBay/fabio/proxy"
+	"github.com/eBay/fabio/proxy/tcp"
 	"github.com/eBay/fabio/registry"
 	"github.com/eBay/fabio/registry/consul"
 	"github.com/eBay/fabio/registry/file"
@@ -38,6 +40,8 @@ import (
 // script to ensure the correct version nubmer
 var version = "1.3.8"
 
+var shuttingDown int32
+
 func main() {
 	cfg, err := config.Load(os.Args, os.Environ())
 	if err != nil {
@@ -53,7 +57,8 @@ func main() {
 	log.Printf("[INFO] Go runtime is %s", runtime.Version())
 
 	exit.Listen(func(s os.Signal) {
-		exit.Shutdown()
+		atomic.StoreInt32(&shuttingDown, 1)
+		proxy.Shutdown(cfg.Proxy.ShutdownWait)
 		if registry.Default == nil {
 			return
 		}
@@ -74,14 +79,14 @@ func main() {
 	<-first
 
 	// create proxies after metrics since they use the metrics registry.
-	httpProxy := newHTTPProxy(cfg)
-	tcpProxy := newTCPSNIProxy(cfg)
-	startListeners(cfg.Listen, cfg.Proxy.ShutdownWait, httpProxy, tcpProxy)
+	startServers(cfg)
 	exit.Wait()
+	log.Print("[INFO] Down")
 }
 
 func newHTTPProxy(cfg *config.Config) http.Handler {
-	pick, match := route.Picker[cfg.Proxy.Strategy], route.Matcher[cfg.Proxy.Matcher]
+	pick := route.Picker[cfg.Proxy.Strategy]
+	match := route.Matcher[cfg.Proxy.Matcher]
 	log.Printf("[INFO] Using routing strategy %q", cfg.Proxy.Strategy)
 	log.Printf("[INFO] Using route matching %q", cfg.Proxy.Matcher)
 
@@ -102,23 +107,22 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 			}
 			return t
 		},
-		ShuttingDown: exit.ShuttingDown,
-		Requests:     metrics.DefaultRegistry.GetTimer("requests"),
-		Noroute:      metrics.DefaultRegistry.GetCounter("notfound"),
+		Requests: metrics.DefaultRegistry.GetTimer("requests"),
+		Noroute:  metrics.DefaultRegistry.GetCounter("notfound"),
 	}
 }
 
-func newTCPSNIProxy(cfg *config.Config) *proxy.TCPSNIProxy {
-	return &proxy.TCPSNIProxy{
+func newTCPSNIProxy(cfg *config.Config) *tcp.SNIProxy {
+	pick := route.Picker[cfg.Proxy.Strategy]
+	return &tcp.SNIProxy{
 		Config: cfg.Proxy,
-		Lookup: func(serverName string) *route.Target {
-			t := route.GetTable().LookupHost(serverName, route.Picker[cfg.Proxy.Strategy])
+		Lookup: func(host string) *route.Target {
+			t := route.GetTable().LookupHost(host, pick)
 			if t == nil {
-				log.Print("[WARN] No route for ", serverName)
+				log.Print("[WARN] No route for ", host)
 			}
 			return t
 		},
-		ShuttingDown: exit.ShuttingDown,
 	}
 }
 
@@ -136,6 +140,19 @@ func startAdmin(cfg *config.Config) {
 			exit.Fatal("[FATAL] ui: ", err)
 		}
 	}()
+}
+
+func startServers(cfg *config.Config) {
+	for _, l := range cfg.Listen {
+		switch l.Proto {
+		case "http", "https":
+			go proxy.ListenAndServeHTTP(l, newHTTPProxy(cfg))
+		case "tcp+sni":
+			go proxy.ListenAndServeTCP(l, newTCPSNIProxy(cfg))
+		default:
+			exit.Fatal("[FATAL] Invalid protocol ", l.Proto)
+		}
+	}
 }
 
 func initMetrics(cfg *config.Config) {
@@ -197,7 +214,7 @@ func initBackend(cfg *config.Config) {
 		}
 
 		time.Sleep(cfg.Registry.Retry)
-		if exit.ShuttingDown() {
+		if atomic.LoadInt32(&shuttingDown) > 0 {
 			exit.Exit(1)
 		}
 	}
