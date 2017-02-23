@@ -1,5 +1,9 @@
 ## Changelog
 
+### Unreleased
+
+ * [Issue #163](https://github.com/eBay/fabio/issues/163): Support glob host matching
+
 ### [v1.3.8](https://github.com/eBay/fabio/releases/tag/v1.3.8) - 14 Feb 2017
 
  * Upgrade to Go 1.7.5
