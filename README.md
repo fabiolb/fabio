@@ -4,6 +4,8 @@
 
 [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/eBay/fabio/master/LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/eBay/fabio/total.svg)](https://github.com/eBay/fabio/releases)
+[![Docker Pulls](https://img.shields.io/docker/pulls/magiconair/fabio.svg)](https://hub.docker.com/r/magiconair/fabio/)
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) router
 for deploying applications managed by [consul](https://consul.io/).
