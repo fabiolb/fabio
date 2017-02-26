@@ -12,7 +12,8 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
-
+	"io"
+	"github.com/Graylog2/go-gelf/gelf"
 	"github.com/eBay/fabio/admin"
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/exit"
@@ -61,6 +62,7 @@ func main() {
 	// init metrics early since that create the global metric registries
 	// that are used by other parts of the code.
 	initMetrics(cfg)
+	logExternal(cfg)
 
 	initRuntime(cfg)
 	initBackend(cfg)
@@ -273,4 +275,19 @@ func toJSON(v interface{}) string {
 		panic("json: " + err.Error())
 	}
 	return string(data)
+}
+
+func logExternal(cfg *config.Config) {
+   if cfg.LogServer.Enabled {
+     if cfg.LogServer.Protocol == "gelf" {
+     	graylogAddr := cfg.LogServer.Address + ":" + cfg.LogServer.Port
+        gelfWriter, err := gelf.NewWriter(graylogAddr)
+        if err != nil {
+            log.Fatalf("gelf.NewWriter: %s", err)
+        }
+        // log to both stderr and graylog2
+        log.SetOutput(io.MultiWriter(os.Stderr, gelfWriter))
+        log.Printf("logging to stderr & graylog2@'%s'", graylogAddr)
+     }
+  }
 }

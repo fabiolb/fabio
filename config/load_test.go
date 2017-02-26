@@ -303,6 +303,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-Logserver.address", "foobar"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Logserver.address = "foobar"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.log.routes", "foobar"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Proxy.LogRoutes = "foobar"

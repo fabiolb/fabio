@@ -164,6 +164,11 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.UI.Addr, "ui.addr", defaultConfig.UI.Addr, "address the UI/API is listening on")
 	f.StringVar(&cfg.UI.Color, "ui.color", defaultConfig.UI.Color, "background color of the UI")
 	f.StringVar(&cfg.UI.Title, "ui.title", defaultConfig.UI.Title, "optional title for the UI")
+	f.BoolVar(&cfg.LogServer.Enabled, "logserver.enabled", defaultConfig.LogServer.Enabled, "enable external logging")
+	f.StringVar(&cfg.LogServer.Protocol, "logserver.protocol", defaultConfig.LogServer.Protocol, "Log format")
+	f.StringVar(&cfg.LogServer.Transport, "logserver.transport", defaultConfig.LogServer.Transport, "udp or tcp transport")
+	f.StringVar(&cfg.LogServer.Port, "logserver.port", defaultConfig.LogServer.Port, "Log Receiver Port")
+	f.StringVar(&cfg.LogServer.Address, "logserver.address", defaultConfig.LogServer.Address, "Hostaddress of the logserver")
 
 	var awsApiGWCertCN string
 	f.StringVar(&awsApiGWCertCN, "aws.apigw.cert.cn", "", "deprecated. use caupgcn=<CN> for cert source")
