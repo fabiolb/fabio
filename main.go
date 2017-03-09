@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/eBay/fabio/admin"
@@ -61,11 +62,14 @@ func main() {
 	// init metrics early since that create the global metric registries
 	// that are used by other parts of the code.
 	initMetrics(cfg)
-
 	initRuntime(cfg)
 	initBackend(cfg)
-	go watchBackend(cfg)
 	startAdmin(cfg)
+
+	first := make(chan bool)
+	go watchBackend(cfg, first)
+	log.Print("[INFO] Waiting for first routing table")
+	<-first
 
 	// create proxies after metrics since they use the metrics registry.
 	httpProxy := newHTTPProxy(cfg)
@@ -197,11 +201,13 @@ func initBackend(cfg *config.Config) {
 	}
 }
 
-func watchBackend(cfg *config.Config) {
+func watchBackend(cfg *config.Config, first chan bool) {
 	var (
 		last   string
 		svccfg string
 		mancfg string
+
+		once sync.Once
 	)
 
 	svc := registry.Default.WatchServices()
@@ -228,6 +234,8 @@ func watchBackend(cfg *config.Config) {
 		route.SetTable(t)
 		logRoutes(last, next, cfg.Proxy.LogRoutes)
 		last = next
+
+		once.Do(func() { close(first) })
 	}
 }
 
