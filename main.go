@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strings"
+	"sync"
 	"time"
 	"io"
 	"github.com/Graylog2/go-gelf/gelf"
@@ -63,11 +64,14 @@ func main() {
 	// that are used by other parts of the code.
 	initMetrics(cfg)
 	logExternal(cfg)
-
 	initRuntime(cfg)
 	initBackend(cfg)
-	go watchBackend(cfg)
 	startAdmin(cfg)
+
+	first := make(chan bool)
+	go watchBackend(cfg, first)
+	log.Print("[INFO] Waiting for first routing table")
+	<-first
 
 	// create proxies after metrics since they use the metrics registry.
 	httpProxy := newHTTPProxy(cfg)
@@ -199,11 +203,13 @@ func initBackend(cfg *config.Config) {
 	}
 }
 
-func watchBackend(cfg *config.Config) {
+func watchBackend(cfg *config.Config, first chan bool) {
 	var (
 		last   string
 		svccfg string
 		mancfg string
+
+		once sync.Once
 	)
 
 	svc := registry.Default.WatchServices()
@@ -230,6 +236,8 @@ func watchBackend(cfg *config.Config) {
 		route.SetTable(t)
 		logRoutes(last, next, cfg.Proxy.LogRoutes)
 		last = next
+
+		once.Do(func() { close(first) })
 	}
 }
 
@@ -280,7 +288,7 @@ func toJSON(v interface{}) string {
 func logExternal(cfg *config.Config) {
    if cfg.LogServer.Enabled {
      if cfg.LogServer.Protocol == "gelf" {
-     	graylogAddr := cfg.LogServer.Address + ":" + cfg.LogServer.Port
+	graylogAddr := cfg.LogServer.Address + ":" + cfg.LogServer.Port
         gelfWriter, err := gelf.NewWriter(graylogAddr)
         if err != nil {
             log.Fatalf("gelf.NewWriter: %s", err)
