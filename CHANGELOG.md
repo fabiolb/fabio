@@ -3,6 +3,7 @@
 ### Unreleased
 
  * [Issue #163](https://github.com/eBay/fabio/issues/163): Support glob host matching
+ * [Issue #248](https://github.com/eBay/fabio/issues/248): Start listener after routing table is initialized
 
 ### [v1.3.8](https://github.com/eBay/fabio/releases/tag/v1.3.8) - 14 Feb 2017
 
