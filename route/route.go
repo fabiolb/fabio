@@ -26,6 +26,11 @@ type Route struct {
 	// Path is the path prefix from a request uri
 	Path string
 
+	// Pick is a custom picker function for this route.
+	// If Pick is not nil then it is used for selecting
+	// a target.
+	Pick picker
+
 	// Opts is the raw route options
 	Opts map[string]string
 
@@ -70,6 +75,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 	}
 	if r.Opts != nil {
 		t.StripPath = r.Opts["strip"]
+		r.Pick = Picker[r.Opts["strategy"]]
 	}
 
 	r.Targets = append(r.Targets, t)

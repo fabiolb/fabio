@@ -333,11 +333,13 @@ func (t Table) lookup(host, path, trace string, pick picker, match matcher) *Tar
 				return nil
 			}
 
-			var target *Target
-			if n == 1 {
-				target = r.Targets[0]
-			} else {
-				target = pick(r)
+			target := r.Targets[0]
+			if n > 1 {
+				p := pick
+				if r.Pick != nil {
+					p = r.Pick
+				}
+				target = p(r)
 			}
 			if trace != "" {
 				log.Printf("[TRACE] %s Match %s%s", trace, r.Host, r.Path)
