@@ -194,11 +194,10 @@ func TestConsulSource(t *testing.T) {
 
 		isUp := func() bool {
 			resp, err := http.Get("http://127.0.0.1:8500/v1/status/leader")
-
-			// /v1/status/leader returns '""' while consul is in leader election mode
+			// /v1/status/leader returns '\n""' while consul is in leader election mode
 			// and '"127.0.0.1:8300"' when not. So we punt by checking the
 			// Content-Length header instead of the actual body content :)
-			return err == nil && resp.StatusCode == 200 && resp.ContentLength > 2
+			return err == nil && resp.StatusCode == 200 && resp.ContentLength > 10
 		}
 
 		// We need give consul ~8-10 seconds to become ready until I've
