@@ -92,6 +92,11 @@ func (s *VaultSource) Certificates() chan []tls.Certificate {
 	return ch
 }
 
+// dropNotRenewableError controls whether the 'lease is not renewable'
+// error is logged. This is useful for testing where this is the expected
+// behavior. On production, this should always be set to false.
+var dropNotRenewableError bool
+
 func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error) {
 	pemBlocks = map[string][]byte{}
 
@@ -131,7 +136,9 @@ func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error)
 	_, err = c.Auth().Token().RenewSelf(oneHour)
 	if err != nil {
 		// TODO(fs): danger of filling up log since default refresh is 1s
-		log.Printf("[WARN] vault: Failed to renew token. %s", err)
+		if !dropNotRenewableError {
+			log.Printf("[WARN] vault: Failed to renew token. %s", err)
+		}
 	}
 
 	// get the subkeys under 'path'.
