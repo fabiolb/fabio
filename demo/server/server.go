@@ -65,15 +65,21 @@ func main() {
 
 	// register prefixes
 	prefixes := strings.Split(prefix, ",")
-	for _, p := range prefixes {
+	for _, s := range prefixes {
+		pfx, opts := s, ""
+		if x := strings.SplitN(pfx, " ", 2); len(x) > 1 {
+			pfx, opts = x[0], x[1]
+		}
+		log.Printf("Serving %s with options %q", pfx, opts)
+
 		switch proto {
 		case "http":
-			http.HandleFunc(p, func(w http.ResponseWriter, r *http.Request) {
+			http.HandleFunc(pfx, func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(status)
 				fmt.Fprintf(w, "Serving %s from %s on %s\n", r.RequestURI, name, addr)
 			})
 		case "ws":
-			http.Handle(p, websocket.Handler(EchoServer))
+			http.Handle(pfx, websocket.Handler(EchoServer))
 		default:
 			log.Fatal("Invalid protocol ", proto)
 		}
@@ -86,7 +92,7 @@ func main() {
 
 	// start http server
 	go func() {
-		log.Printf("Listening on %s serving %s", addr, prefix)
+		log.Printf("Listening on %s", addr)
 
 		var err error
 		if certFile != "" {
