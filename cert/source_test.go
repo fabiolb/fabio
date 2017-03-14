@@ -326,22 +326,25 @@ func TestVaultSource(t *testing.T) {
 		desc    string
 		wrapTTL string
 		req     *vaultapi.TokenCreateRequest
+		dropErr bool
 	}{
 		{
 			desc: "renewable token",
 			req:  &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Policies: []string{"fabio"}},
 		},
 		{
-			desc: "non-renewable token",
-			req:  &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Renewable: newBool(false), Policies: []string{"fabio"}},
+			desc:    "non-renewable token",
+			req:     &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Renewable: newBool(false), Policies: []string{"fabio"}},
+			dropErr: true,
 		},
 		{
 			desc: "renewable orphan token",
 			req:  &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", NoParent: true, Policies: []string{"fabio"}},
 		},
 		{
-			desc: "non-renewable orphan token",
-			req:  &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", NoParent: true, Renewable: newBool(false), Policies: []string{"fabio"}},
+			desc:    "non-renewable orphan token",
+			req:     &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", NoParent: true, Renewable: newBool(false), Policies: []string{"fabio"}},
+			dropErr: true,
 		},
 		{
 			desc:    "renewable wrapped token",
@@ -352,6 +355,7 @@ func TestVaultSource(t *testing.T) {
 			desc:    "non-renewable wrapped token",
 			wrapTTL: "10s",
 			req:     &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Renewable: newBool(false), Policies: []string{"fabio"}},
+			dropErr: true,
 		},
 	}
 
@@ -365,7 +369,12 @@ func TestVaultSource(t *testing.T) {
 				CertPath:   certPath,
 				vaultToken: makeToken(t, client, tt.wrapTTL, tt.req),
 			}
+
+			// suppress the log warning about a non-renewable lease
+			// since this is the expected behavior.
+			dropNotRenewableError = tt.dropErr
 			testSource(t, src, pool, timeout)
+			dropNotRenewableError = false
 		})
 	}
 }
