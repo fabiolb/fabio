@@ -18,10 +18,10 @@ help:
 
 build: checkdeps
 	$(GO) build -i $(GOFLAGS)
+	$(GO) test -i ./...
 
 test: checkdeps
-	$(GO) test -i ./...
-	$(GO) test -test.timeout 15s `go list ./... | grep -v '/vendor/'`
+	$(GO) test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 
 checkdeps:
 	[ -x "$(GOVENDOR)" ] || $(GO) get -u github.com/kardianos/govendor
