@@ -15,6 +15,8 @@ help:
 	@echo "release   - build/release.sh"
 	@echo "homebrew  - build/homebrew.sh"
 	@echo "buildpkg  - build/build.sh"
+	@echo "pkg       - build, test and create pkg/fabio.tar.gz"
+	@echo "clean     - remove temp files"
 
 build: checkdeps
 	$(GO) build -i $(GOFLAGS)
@@ -36,6 +38,11 @@ linux:
 install:
 	$(GO) install $(GOFLAGS)
 
+pkg: build test
+	rm -rf pkg
+	mkdir pkg
+	tar czf pkg/fabio.tar.gz fabio
+
 release: test
 	build/release.sh
 
@@ -45,4 +52,8 @@ homebrew:
 buildpkg: test
 	build/build.sh
 
-.PHONY: build linux gofmt install release docker test homebrew buildpkg
+clean:
+	$(GO) clean
+	rm -rf pkg
+
+.PHONY: build linux gofmt install release docker test homebrew buildpkg pkg clean
