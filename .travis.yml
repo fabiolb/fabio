@@ -3,8 +3,9 @@ dist: trusty
 language: go
 
 go:
-    - 1.7.5
-    - 1.8
+    - 1.7.x
+    - 1.8.x
+    - tip
 
 before_script:
   - echo $HOSTNAME
