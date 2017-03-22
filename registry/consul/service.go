@@ -1,7 +1,6 @@
 package consul
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"runtime"
@@ -89,6 +88,15 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 			continue
 		}
 
+		// get all tags which do not have the tag prefix
+		var svctags []string
+		for _, tag := range svc.ServiceTags {
+			if !strings.HasPrefix(tag, tagPrefix) {
+				svctags = append(svctags, tag)
+			}
+		}
+
+		// generate route commands
 		for _, tag := range svc.ServiceTags {
 			if route, opts, ok := parseURLPrefixTag(tag, tagPrefix, env); ok {
 				name, addr, port := svc.ServiceName, svc.ServiceAddress, svc.ServicePort
@@ -103,11 +111,20 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 					addr += ".local"
 				}
 
+				// build route command
 				addr = net.JoinHostPort(addr, strconv.Itoa(port))
+				dst := "http://" + addr + "/"
+				if strings.Contains(opts, "proto=tcp") {
+					dst = "tcp://" + addr
+				}
+				tags := strings.Join(svctags, ",")
 
-				cfg := fmt.Sprintf("route add %s %s http://%s/ tags %q", name, route, addr, strings.Join(svc.ServiceTags, ","))
+				cfg := "route add " + name + " " + route + " " + dst
+				if tags != "" {
+					cfg += " tags " + strconv.Quote(tags)
+				}
 				if opts != "" {
-					cfg += ` opts "` + opts + `"`
+					cfg += " opts " + strconv.Quote(opts)
 				}
 				config = append(config, cfg)
 			}

@@ -87,7 +87,7 @@ func (s *TCPServer) Tags() []string {
 }
 
 func main() {
-	var addr, consul, name, prefix, proto, token string
+	var addr, consul, name, prefix, proto, token, rawtags string
 	var certFile, keyFile string
 	var status int
 	flag.StringVar(&addr, "addr", "127.0.0.1:5000", "host:port of the service")
@@ -95,6 +95,7 @@ func main() {
 	flag.StringVar(&name, "name", filepath.Base(os.Args[0]), "name of the service")
 	flag.StringVar(&prefix, "prefix", "", "comma-sep list of 'host/path' or ':port' prefixes to register")
 	flag.StringVar(&proto, "proto", "http", "protocol for endpoints: http, ws or tcp")
+	flag.StringVar(&rawtags, "tags", "", "additional tags to register in consul")
 	flag.StringVar(&token, "token", "", "consul ACL token")
 	flag.StringVar(&certFile, "cert", "", "path to cert file")
 	flag.StringVar(&keyFile, "key", "", "path to key file")
@@ -118,7 +119,7 @@ func main() {
 			log.Printf("%s -> 404", r.URL)
 		})
 
-		var tags []string
+		tags := strings.Split(rawtags, ",")
 		for _, p := range strings.Split(prefix, ",") {
 			tags = append(tags, "urlprefix-"+p)
 			switch proto {
@@ -141,7 +142,7 @@ func main() {
 		srv = &HTTPServer{&http.Server{Addr: addr, Handler: mux}, tags, check}
 
 	case "tcp":
-		var tags []string
+		tags := strings.Split(rawtags, ",")
 		for _, p := range strings.Split(prefix, ",") {
 			tags = append(tags, "urlprefix-"+p+" proto=tcp")
 		}

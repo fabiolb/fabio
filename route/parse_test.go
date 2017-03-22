@@ -27,6 +27,11 @@ func TestParse(t *testing.T) {
 			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/"}},
 		},
 		{
+			desc: "RouteAddTCPService",
+			in:   `route add svc :1234 tcp://1.2.3.4:5678`,
+			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: ":1234", Dst: "tcp://1.2.3.4:5678"}},
+		},
+		{
 			desc: "RouteAddServiceWeight",
 			in:   `route add svc /prefix http://1.2.3.4/ weight 1.2`,
 			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/", Weight: 1.2}},
@@ -97,9 +102,19 @@ func TestParse(t *testing.T) {
 			out:  []*RouteDef{{Cmd: RouteDelCmd, Service: "svc", Src: "/prefix"}},
 		},
 		{
+			desc: "RouteDelTCPServiceSrc",
+			in:   `route del svc :1234`,
+			out:  []*RouteDef{{Cmd: RouteDelCmd, Service: "svc", Src: ":1234"}},
+		},
+		{
 			desc: "RouteDelServiceSrcDst",
 			in:   `route del svc /prefix http://1.2.3.4/`,
 			out:  []*RouteDef{{Cmd: RouteDelCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/"}},
+		},
+		{
+			desc: "RouteDelTCPServiceSrcDst",
+			in:   `route del svc :1234 tcp://1.2.3.4:5678`,
+			out:  []*RouteDef{{Cmd: RouteDelCmd, Service: "svc", Src: ":1234", Dst: "tcp://1.2.3.4:5678"}},
 		},
 		{
 			desc: "RouteDelServiceSrcDstMoreSpaces",
