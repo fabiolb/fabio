@@ -12,6 +12,7 @@ import (
 	"github.com/eBay/fabio/proxy/internal"
 	"github.com/eBay/fabio/proxy/tcp"
 	"github.com/eBay/fabio/proxy/tcp/tcptest"
+	"github.com/eBay/fabio/route"
 )
 
 var echoHandler tcp.HandlerFunc = func(c net.Conn) error {
@@ -33,7 +34,11 @@ func TestTCPProxy(t *testing.T) {
 	proxyAddr := "127.0.0.1:57778"
 	go func() {
 		h := &tcp.Proxy{
-			Lookup: func(string) string { return srv.Addr },
+			Lookup: func(h string) string {
+				tbl, _ := route.NewTable("route add srv :57778 tcp://" + srv.Addr)
+				t := tbl.LookupHost(h, route.Picker["rr"])
+				return t.URL.Host
+			},
 		}
 		l := config.Listen{Addr: proxyAddr}
 		if err := ListenAndServeTCP(l, h); err != nil {
