@@ -84,6 +84,11 @@ func main() {
 		fmt.Fprintln(w, "OK")
 	})
 
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "not found", 404)
+		log.Printf("%s -> 404", r.URL)
+	})
+
 	// start http server
 	go func() {
 		log.Printf("Listening on %s serving %s", addr, prefix)
