@@ -91,9 +91,14 @@ func syncRegistry(t Table) {
 // by sorting the routes in reverse order by path.
 type Table map[string]Routes
 
-// hostpath splits a host/path prefix into a host and a path.
-// The path always starts with a slash
+// hostpath splits a 'host/path' prefix into 'host' and '/path' or it returns a
+// ':port' prefix as ':port' and '' since there is no path component for TCP
+// connections.
 func hostpath(prefix string) (host string, path string) {
+	if strings.HasPrefix(prefix, ":") {
+		return prefix, ""
+	}
+
 	p := strings.SplitN(prefix, "/", 2)
 	host, path = p[0], ""
 	if len(p) == 1 {

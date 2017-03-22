@@ -75,8 +75,7 @@ $(function(){
 		var tbl = '<thead><tr>';
 		tbl += '<th>#</th>';
 		tbl += '<th>Service</th>';
-		tbl += '<th>Host</th>';
-		tbl += '<th>Path</th>';
+		tbl += '<th>Source</th>';
 		tbl += '<th>Dest</th>';
 		tbl += '<th>Weight</th>';
 		tbl += '</tr></thead><tbody>'
@@ -86,10 +85,9 @@ $(function(){
 			tbl += '<tr>';
 			tbl += '<td>' + (i+1) + '</td>';
 			tbl += '<td>' + r.service + '</td>';
-			tbl += '<td>' + r.host + '</td>';
-			tbl += '<td>' + r.path + '</td>';
+			tbl += '<td>' + r.src + '</td>';
 			tbl += '<td>' + r.dst + '</td>';
-			tbl += '<td>' + r.weight * 100 + '%</td>';
+			tbl += '<td>' + (r.weight * 100).toFixed(2) + '%</td>';
 			tbl += '</tr>';
 		}
 		tbl += '</tbody>';
