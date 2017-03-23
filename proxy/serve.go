@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"context"
+	"crypto/tls"
 	"net"
 	"net/http"
 	"sync"
@@ -53,8 +54,8 @@ func Shutdown(timeout time.Duration) {
 	wg.Wait()
 }
 
-func ListenAndServeHTTP(l config.Listen, h http.Handler) error {
-	ln, err := ListenTCP(l.Addr, l.CertSource, l.StrictMatch)
+func ListenAndServeHTTP(l config.Listen, h http.Handler, cfg *tls.Config) error {
+	ln, err := ListenTCP(l.Addr, cfg)
 	if err != nil {
 		return err
 	}
@@ -63,13 +64,13 @@ func ListenAndServeHTTP(l config.Listen, h http.Handler) error {
 		Handler:      h,
 		ReadTimeout:  l.ReadTimeout,
 		WriteTimeout: l.WriteTimeout,
-		TLSConfig:    ln.(*tcpListener).tlsConfig,
+		TLSConfig:    cfg,
 	}
 	return serve(ln, srv)
 }
 
-func ListenAndServeTCP(l config.Listen, h tcp.Handler) error {
-	ln, err := ListenTCP(l.Addr, l.CertSource, l.StrictMatch)
+func ListenAndServeTCP(l config.Listen, h tcp.Handler, cfg *tls.Config) error {
+	ln, err := ListenTCP(l.Addr, cfg)
 	if err != nil {
 		return err
 	}

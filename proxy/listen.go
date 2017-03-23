@@ -7,51 +7,9 @@ import (
 	"time"
 
 	proxyproto "github.com/armon/go-proxyproto"
-	"github.com/eBay/fabio/cert"
-	"github.com/eBay/fabio/config"
 )
 
-//func listenAndServeHTTP(l config.Listen, h http.Handler) {
-//	ln, err := ListenTCP(l.Addr, l.CertSource, l.StrictMatch)
-//	if err != nil {
-//		exit.Fatal("[FATAL] ", err)
-//	}
-//
-//	srv := &http.Server{
-//		Handler:      h,
-//		Addr:         l.Addr,
-//		ReadTimeout:  l.ReadTimeout,
-//		WriteTimeout: l.WriteTimeout,
-//		TLSConfig:    ln.(*tcpListener).cfg,
-//	}
-//
-//	if srv.TLSConfig != nil {
-//		log.Printf("[INFO] HTTPS proxy listening on %s", l.Addr)
-//		if srv.TLSConfig.ClientAuth == tls.RequireAndVerifyClientCert {
-//			log.Printf("[INFO] Client certificate authentication enabled on %s", l.Addr)
-//		}
-//	} else {
-//		log.Printf("[INFO] HTTP proxy listening on %s", l.Addr)
-//	}
-//
-//	if err := srv.Serve(ln); err != nil {
-//		exit.Fatal("[FATAL] ", err)
-//	}
-//}
-
-func ListenTCP(laddr string, cs config.CertSource, strictMatch bool) (net.Listener, error) {
-	var cfg *tls.Config
-	if cs.Name != "" {
-		src, err := cert.NewSource(cs)
-		if err != nil {
-			return nil, fmt.Errorf("listen: Fail to create cert source. %s", err)
-		}
-		cfg, err = cert.TLSConfig(src, strictMatch)
-		if err != nil {
-			return nil, fmt.Errorf("listen: Fail to create TLS config. %s", err)
-		}
-	}
-
+func ListenTCP(laddr string, cfg *tls.Config) (net.Listener, error) {
 	addr, err := net.ResolveTCPAddr("tcp", laddr)
 	if err != nil {
 		return nil, fmt.Errorf("listen: Fail to resolve tcp addr. %s", laddr)
