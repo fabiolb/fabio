@@ -5,9 +5,14 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"io/ioutil"
 	"net"
+	"os"
+	"path/filepath"
 	"testing"
+	"time"
 
+	"github.com/eBay/fabio/cert"
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/proxy/internal"
 	"github.com/eBay/fabio/proxy/tcp"
@@ -26,6 +31,8 @@ var echoHandler tcp.HandlerFunc = func(c net.Conn) error {
 	return err
 }
 
+// TestTCPProxy tests proxying an unencrypted TCP connection
+// to a TCP upstream server.
 func TestTCPProxy(t *testing.T) {
 	srv := tcptest.NewServer(echoHandler)
 	defer srv.Close()
@@ -41,7 +48,7 @@ func TestTCPProxy(t *testing.T) {
 			},
 		}
 		l := config.Listen{Addr: proxyAddr}
-		if err := ListenAndServeTCP(l, h); err != nil {
+		if err := ListenAndServeTCP(l, h, nil); err != nil {
 			t.Log("ListenAndServeTCP: ", err)
 		}
 	}()
@@ -57,6 +64,82 @@ func TestTCPProxy(t *testing.T) {
 	testRoundtrip(t, out)
 }
 
+// TestTCPProxyWithTLS tests proxying an encrypted TCP connection
+// to an unencrypted upstream TCP server. The proxy terminates the
+// TLS connection.
+func TestTCPProxyWithTLS(t *testing.T) {
+	srv := tcptest.NewServer(echoHandler)
+	defer srv.Close()
+
+	// setup cert source
+	dir, err := ioutil.TempDir("", "fabio")
+	if err != nil {
+		t.Fatal("ioutil.TempDir", err)
+	}
+	defer os.RemoveAll(dir)
+
+	mustWrite := func(name string, data []byte) {
+		path := filepath.Join(dir, name)
+		if err := ioutil.WriteFile(path, data, 0644); err != nil {
+			t.Fatalf("ioutil.WriteFile: %s", err)
+		}
+	}
+	mustWrite("example.com-key.pem", internal.LocalhostKey)
+	mustWrite("example.com-cert.pem", internal.LocalhostCert)
+
+	// start tcp proxy
+	proxyAddr := "127.0.0.1:57779"
+	go func() {
+		cs := config.CertSource{Name: "cs", Type: "path", CertPath: dir}
+		src, err := cert.NewSource(cs)
+		if err != nil {
+			t.Fatal("cert.NewSource: ", err)
+		}
+		cfg, err := cert.TLSConfig(src, false)
+		if err != nil {
+			t.Fatal("cert.TLSConfig: ", err)
+		}
+
+		h := &tcp.Proxy{
+			Lookup: func(string) string { return srv.Addr },
+		}
+
+		l := config.Listen{Addr: proxyAddr}
+		if err := ListenAndServeTCP(l, h, cfg); err != nil {
+			// closing the listener returns this error from the accept loop
+			// which we can ignore.
+			if err.Error() != "accept tcp 127.0.0.1:57779: use of closed network connection" {
+				t.Log("ListenAndServeTCP: ", err)
+			}
+		}
+	}()
+	defer Close()
+
+	// give cert store some time to pick up certs
+	time.Sleep(250 * time.Millisecond)
+
+	rootCAs := x509.NewCertPool()
+	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
+		t.Fatal("could not parse cert")
+	}
+	cfg := &tls.Config{
+		RootCAs:    rootCAs,
+		ServerName: "example.com",
+	}
+
+	// connect to proxy
+	out, err := tls.Dial("tcp", proxyAddr, cfg)
+	if err != nil {
+		t.Fatalf("tls.Dial: %#v", err)
+	}
+	defer out.Close()
+
+	testRoundtrip(t, out)
+}
+
+// TestTCPSNIProxy tests proxying an encrypted TCP connection
+// to an upstream TCP service without decrypting the traffic.
+// The upstream server terminates the TLS connection.
 func TestTCPSNIProxy(t *testing.T) {
 	srv := tcptest.NewTLSServer(echoHandler)
 	defer srv.Close()
@@ -68,7 +151,7 @@ func TestTCPSNIProxy(t *testing.T) {
 			Lookup: func(string) string { return srv.Addr },
 		}
 		l := config.Listen{Addr: proxyAddr}
-		if err := ListenAndServeTCP(l, h); err != nil {
+		if err := ListenAndServeTCP(l, h, nil); err != nil {
 			t.Log("ListenAndServeTCP: ", err)
 		}
 	}()
@@ -86,7 +169,7 @@ func TestTCPSNIProxy(t *testing.T) {
 	// connect to proxy
 	out, err := tls.Dial("tcp", proxyAddr, cfg)
 	if err != nil {
-		t.Fatalf("net.Dial: %#v", err)
+		t.Fatalf("tls.Dial: %#v", err)
 	}
 	defer out.Close()
 

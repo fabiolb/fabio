@@ -35,7 +35,8 @@ func TestGracefulShutdown(t *testing.T) {
 				return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
 			},
 		}
-		if err := ListenAndServeHTTP(config.Listen{Addr: addr}, h); err != nil {
+		l := config.Listen{Addr: addr}
+		if err := ListenAndServeHTTP(l, h, nil); err != nil {
 			t.Log("ListenAndServeHTTP: ", err)
 		}
 	}()

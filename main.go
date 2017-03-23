@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -16,6 +17,7 @@ import (
 	"time"
 
 	"github.com/eBay/fabio/admin"
+	"github.com/eBay/fabio/cert"
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/exit"
 	"github.com/eBay/fabio/metrics"
@@ -37,7 +39,7 @@ import (
 // It is also set by the linker when fabio
 // is built via the Makefile or the build/docker.sh
 // script to ensure the correct version nubmer
-var version = "1.4beta2"
+var version = "1.4rc1"
 
 var shuttingDown int32
 
@@ -143,16 +145,33 @@ func startAdmin(cfg *config.Config) {
 
 func startServers(cfg *config.Config) {
 	for _, l := range cfg.Listen {
+		var tlscfg *tls.Config
+		if l.CertSource.Name != "" {
+			src, err := cert.NewSource(l.CertSource)
+			if err != nil {
+				exit.Fatal("[FATAL] Failed to create cert source %s. %s", l.CertSource.Name, err)
+			}
+			tlscfg, err = cert.TLSConfig(src, l.StrictMatch)
+			if err != nil {
+				exit.Fatal("[FATAL] Failed to create TLS config for cert source %s. %s", l.CertSource.Name, err)
+			}
+		}
+
+		log.Printf("[INFO] %s proxy listening on %s", strings.ToUpper(l.Proto), l.Addr)
+		if tlscfg != nil && tlscfg.ClientAuth == tls.RequireAndVerifyClientCert {
+			log.Printf("[INFO] Client certificate authentication enabled on %s", l.Addr)
+		}
+
 		switch l.Proto {
 		case "http", "https":
 			h := newHTTPProxy(cfg)
-			go proxy.ListenAndServeHTTP(l, h)
+			go proxy.ListenAndServeHTTP(l, h, tlscfg)
 		case "tcp":
 			h := &tcp.Proxy{cfg.Proxy.DialTimeout, lookupHostFn(cfg)}
-			go proxy.ListenAndServeTCP(l, h)
+			go proxy.ListenAndServeTCP(l, h, tlscfg)
 		case "tcp+sni":
 			h := &tcp.SNIProxy{cfg.Proxy.DialTimeout, lookupHostFn(cfg)}
-			go proxy.ListenAndServeTCP(l, h)
+			go proxy.ListenAndServeTCP(l, h, tlscfg)
 		default:
 			exit.Fatal("[FATAL] Invalid protocol ", l.Proto)
 		}
