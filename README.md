@@ -1,13 +1,13 @@
 # ![./fabio](https://github.com/eBay/fabio/blob/master/fabio.png)
 
-##### Current stable version: 1.3.8
+##### Current stable version: 1.4
 
 [![Build Status](https://travis-ci.org/eBay/fabio.svg?branch=master)](https://travis-ci.org/eBay/fabio)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/eBay/fabio/master/LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/eBay/fabio/total.svg)](https://github.com/eBay/fabio/releases)
 [![Docker Pulls](https://img.shields.io/docker/pulls/magiconair/fabio.svg)](https://hub.docker.com/r/magiconair/fabio/)
 
-fabio is a fast, modern, zero-conf load balancing HTTP(S) router
+fabio is a fast, modern, zero-conf load balancing HTTP(S) and TCP router
 for deploying applications managed by [consul](https://consul.io/).
 
 Register your services in consul, provide a health check and fabio will start routing traffic to them. No configuration required. Deployment, upgrading and refactoring has never been easier.
@@ -25,6 +25,7 @@ and more.
 
 It supports
 SSL,
+[TCP proxy](https://github.com/eBay/fabio/wiki/Features#tcp-proxy-support),
 [TCP+SNI proxy (full end-to-end TLS)](https://github.com/eBay/fabio/wiki/Features#tcpsni-proxy-support),
 [Websockets](https://github.com/eBay/fabio/wiki/Features#websocket-support),
 [SSE](https://github.com/eBay/fabio/wiki/Features#sse---server-sent-events),

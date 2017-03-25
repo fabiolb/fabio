@@ -1,7 +1,10 @@
 ## Changelog
 
-### Unreleased
+### [v1.4](https://github.com/eBay/fabio/releases/tag/v1.4) - 25 Mar 2017
 
+ * [Issue #1](https://github.com/eBay/fabio/issues/1): Add TCP proxying support
+ * [Issue #178](https://github.com/eBay/fabio/issues/178): Add tests and timeouts to TCP+SNI proxy
+ * [Issue #179](https://github.com/eBay/fabio/issues/179): Add generic TCP Proxy support
  * [Issue #163](https://github.com/eBay/fabio/issues/163): Support glob host matching
  * [Issue #248](https://github.com/eBay/fabio/issues/248): Start listener after routing table is initialized
 
