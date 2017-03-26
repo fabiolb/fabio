@@ -67,17 +67,25 @@ The full documentation is on the [Wiki](https://github.com/eBay/fabio/wiki).
 
 4. Register one `urlprefix-` tag per `host/path` prefix it serves, e.g.:
 
-   * `urlprefix-/css`
-   * `urlprefix-i.com/static`
-   * `urlprefix-mysite.com/`
+```
+# HTTP/S examples
+urlprefix-/css                   # path route
+urlprefix-i.com/static           # host specific path route
+urlprefix-mysite.com/            # host specific catch all route
+urlprefix-/foo/bar strip=/foo    # route with path stripping (forward only '/bar' to upstream)
 
-   Make sure the prefix contains **at least one slash** (`/`).
+# TCP examples
+urlprefix-:3306 proto=tcp        # route external port 3306
+```
+
+   Make sure the prefix for HTTP routes contains **at least one slash** (`/`).
 
 5. Start fabio without a config file (assuming a running consul agent on `localhost:8500`)
    Watch the log output how fabio picks up the route to your service.
    Try starting/stopping your service to see how the routing table changes instantly.
 
-6. Send all your HTTP traffic to fabio on port `9999`
+6. Send all your HTTP traffic to fabio on port `9999`. 
+   For TCP proxying see [TCP proxy](https://github.com/eBay/fabio/wiki/Features#tcp-proxy-support).
 
 7. Done
 
