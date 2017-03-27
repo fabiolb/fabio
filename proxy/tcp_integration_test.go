@@ -128,7 +128,7 @@ func TestTCPProxyWithTLS(t *testing.T) {
 	}
 
 	// connect to proxy
-	out, err := tls.Dial("tcp", proxyAddr, cfg)
+	out, err := tcptest.NewTLSRetryDialer(cfg).Dial("tcp", proxyAddr)
 	if err != nil {
 		t.Fatalf("tls.Dial: %#v", err)
 	}
@@ -167,7 +167,7 @@ func TestTCPSNIProxy(t *testing.T) {
 	}
 
 	// connect to proxy
-	out, err := tls.Dial("tcp", proxyAddr, cfg)
+	out, err := tcptest.NewTLSRetryDialer(cfg).Dial("tcp", proxyAddr)
 	if err != nil {
 		t.Fatalf("tls.Dial: %#v", err)
 	}
