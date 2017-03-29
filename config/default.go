@@ -60,4 +60,11 @@ var defaultConfig = &Config{
 			APIApp: "fabio",
 		},
 	},
+	LogServer: LogServer{
+		Enabled: false,
+		Protocol: "gelf",
+		Transport: "udp",
+		Port:      "12201",
+		Address:   "127.0.0.1",
+	},
 }

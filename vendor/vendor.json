@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "lqu+xdr6/yvJKjUOHOJY7N5OWg0=",
+			"path": "github.com/Graylog2/go-gelf/gelf",
+			"revision": "7029da823dad4ef3a876df61065156acb703b2ea",
+			"revisionTime": "2017-02-07T08:15:34Z"
+		},
+		{
 			"checksumSHA1": "eAall4ACaMG40mzSJ5Oc95GiF1A=",
 			"path": "github.com/armon/go-proxyproto",
 			"revision": "609d6338d3a76ec26ac3fe7045a164d9a58436e7",
