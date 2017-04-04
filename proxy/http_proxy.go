@@ -27,6 +27,11 @@ type HTTPProxy struct {
 	// The proxy will panic if this value is nil.
 	Transport http.RoundTripper
 
+	// InsecureTransport is the http connection pool configured with
+	// InsecureSkipVerify set. This is used for https proxies with
+	// self-signed certs.
+	InsecureTransport http.RoundTripper
+
 	// Lookup returns a target host for the given request.
 	// The proxy will panic if this value is nil.
 	Lookup func(*http.Request) *route.Target
@@ -89,6 +94,11 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	upgrade, accept := r.Header.Get("Upgrade"), r.Header.Get("Accept")
 
+	transport := p.Transport
+	if t.TLSSkipVerify {
+		transport = p.InsecureTransport
+	}
+
 	var h http.Handler
 	switch {
 	case upgrade == "websocket" || upgrade == "Websocket":
@@ -97,10 +107,10 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case accept == "text/event-stream":
 		// use the flush interval for SSE (server-sent events)
 		// must be > 0s to be effective
-		h = newHTTPProxy(targetURL, p.Transport, p.Config.FlushInterval)
+		h = newHTTPProxy(targetURL, transport, p.Config.FlushInterval)
 
 	default:
-		h = newHTTPProxy(targetURL, p.Transport, time.Duration(0))
+		h = newHTTPProxy(targetURL, transport, time.Duration(0))
 	}
 
 	if p.Config.GZIPContentTypes != nil {

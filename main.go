@@ -117,16 +117,22 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 	log.Printf("[INFO] Using routing strategy %q", cfg.Proxy.Strategy)
 	log.Printf("[INFO] Using route matching %q", cfg.Proxy.Matcher)
 
-	return &proxy.HTTPProxy{
-		Config: cfg.Proxy,
-		Transport: &http.Transport{
+	newTransport := func(tlscfg *tls.Config) *http.Transport {
+		return &http.Transport{
 			ResponseHeaderTimeout: cfg.Proxy.ResponseHeaderTimeout,
 			MaxIdleConnsPerHost:   cfg.Proxy.MaxConn,
 			Dial: (&net.Dialer{
 				Timeout:   cfg.Proxy.DialTimeout,
 				KeepAlive: cfg.Proxy.KeepAliveTimeout,
 			}).Dial,
-		},
+			TLSClientConfig: tlscfg,
+		}
+	}
+
+	return &proxy.HTTPProxy{
+		Config:            cfg.Proxy,
+		Transport:         newTransport(nil),
+		InsecureTransport: newTransport(&tls.Config{InsecureSkipVerify: true}),
 		Lookup: func(r *http.Request) *route.Target {
 			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match)
 			if t == nil {

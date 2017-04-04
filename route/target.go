@@ -17,6 +17,10 @@ type Target struct {
 	// request path
 	StripPath string
 
+	// TLSSkipVerify disables certificate validation for upstream
+	// TLS connections.
+	TLSSkipVerify bool
+
 	// URL is the endpoint the service instance listens on
 	URL *url.URL
 

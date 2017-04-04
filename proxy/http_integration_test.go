@@ -3,6 +3,8 @@ package proxy
 import (
 	"bytes"
 	"compress/gzip"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"net"
 	"net/http"
@@ -17,6 +19,7 @@ import (
 
 	"github.com/eBay/fabio/config"
 	"github.com/eBay/fabio/logger"
+	"github.com/eBay/fabio/proxy/internal"
 	"github.com/eBay/fabio/route"
 	"github.com/pascaldekloe/goe/verify"
 )
@@ -191,6 +194,78 @@ func TestProxyLogOutput(t *testing.T) {
 	sort.Strings(got)
 
 	verify.Values(t, "", got, want)
+}
+
+func TestProxyHTTPSUpstream(t *testing.T) {
+	var err error
+	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+	}))
+	server.TLS = &tls.Config{
+		Certificates: make([]tls.Certificate, 1),
+	}
+	server.TLS.Certificates[0], err = tls.X509KeyPair(internal.LocalhostCert, internal.LocalhostKey)
+	if err != nil {
+		t.Fatalf("failed to set cert")
+	}
+	server.StartTLS()
+	defer server.Close()
+
+	rootCAs := x509.NewCertPool()
+	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
+		t.Fatal("could not parse cert")
+	}
+	proxy := &HTTPProxy{
+		Config: config.Proxy{},
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{RootCAs: rootCAs},
+		},
+		Lookup: func(r *http.Request) *route.Target {
+			tbl, _ := route.NewTable("route add srv / " + server.URL + ` opts "proto=https"`)
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+		},
+	}
+	req := makeReq("/")
+	rec := httptest.NewRecorder()
+	proxy.ServeHTTP(rec, req)
+
+	if got, want := rec.Code, http.StatusOK; got != want {
+		t.Fatalf("got status %d want %d", got, want)
+	}
+	if got, want := rec.Body.String(), "OK"; got != want {
+		t.Fatalf("got body %q want %q", got, want)
+	}
+}
+
+func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
+	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+	}))
+	server.TLS = &tls.Config{}
+	server.StartTLS()
+	defer server.Close()
+
+	proxy := &HTTPProxy{
+		Config:    config.Proxy{},
+		Transport: http.DefaultTransport,
+		InsecureTransport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+		Lookup: func(r *http.Request) *route.Target {
+			tbl, _ := route.NewTable("route add srv / " + server.URL + ` opts "proto=https tlsskipverify=true"`)
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+		},
+	}
+	req := makeReq("/")
+	rec := httptest.NewRecorder()
+	proxy.ServeHTTP(rec, req)
+
+	if got, want := rec.Code, http.StatusOK; got != want {
+		t.Fatalf("got status %d want %d", got, want)
+	}
+	if got, want := rec.Body.String(), "OK"; got != want {
+		t.Fatalf("got body %q want %q", got, want)
+	}
 }
 
 func TestProxyGzipHandler(t *testing.T) {
