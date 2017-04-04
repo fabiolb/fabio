@@ -1,5 +1,9 @@
 ## Changelog
 
+### [v1.4.1](https://github.com/eBay/fabio/releases/tag/v1.4.1) - 4 Apr 2017
+
+ * [Issue #80](https://github.com/eBay/fabio/issues/80): Add support for access logging
+
 ### [v1.4](https://github.com/eBay/fabio/releases/tag/v1.4) - 25 Mar 2017
 
  * [Issue #1](https://github.com/eBay/fabio/issues/1): Add TCP proxying support
