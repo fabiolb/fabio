@@ -24,7 +24,7 @@ brew update
 (
 	cd $brewdir
 	git checkout -b fabio-$v origin/master
-	vim -s $prgdir/homebrew.vim $brewdir/Formula/fabio.rb
+	vim -u NONE -s $prgdir/homebrew.vim $brewdir/Formula/fabio.rb
 	git add Formula/fabio.rb
 	git commit -m "fabio $v"
 	git push --set-upstream magiconair fabio-$v
