@@ -116,6 +116,8 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 				dst := "http://" + addr + "/"
 				if strings.Contains(opts, "proto=tcp") {
 					dst = "tcp://" + addr
+				} else if strings.Contains(opts, "proto=https") {
+					dst = "https://" + addr
 				}
 				tags := strings.Join(svctags, ",")
 
