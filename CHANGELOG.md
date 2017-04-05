@@ -1,5 +1,10 @@
 ## Changelog
 
+### Unreleased
+
+ * [PR #257](https://github.com/eBay/fabio/pull/257): Add HTTPS upstream support
+ * [Issue #181](https://github.com/eBay/fabio/issues/181): Add HTTPS upstream support
+
 ### [v1.4.1](https://github.com/eBay/fabio/releases/tag/v1.4.1) - 4 Apr 2017
 
  * [Issue #80](https://github.com/eBay/fabio/issues/80): Add support for access logging

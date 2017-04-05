@@ -27,6 +27,7 @@ It supports
 SSL,
 [TCP proxy](https://github.com/eBay/fabio/wiki/Features#tcp-proxy-support),
 [TCP+SNI proxy (full end-to-end TLS)](https://github.com/eBay/fabio/wiki/Features#tcpsni-proxy-support),
+[HTTPS upstream](https://github.com/eBay/fabio/wiki/Features#https-upstream-support),
 [Websockets](https://github.com/eBay/fabio/wiki/Features#websocket-support),
 [SSE](https://github.com/eBay/fabio/wiki/Features#sse---server-sent-events),
 [dynamic reloading](https://github.com/eBay/fabio/wiki/Features#dynamic-reloading),
