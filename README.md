@@ -23,20 +23,19 @@ It integrates with
 [Amazon API Gateway](https://aws.amazon.com/api-gateway/)
 and more.
 
-It supports
-SSL,
-[TCP proxy](https://github.com/eBay/fabio/wiki/Features#tcp-proxy-support),
-[TCP+SNI proxy (full end-to-end TLS)](https://github.com/eBay/fabio/wiki/Features#tcpsni-proxy-support),
-[HTTPS upstream](https://github.com/eBay/fabio/wiki/Features#https-upstream-support),
-[Websockets](https://github.com/eBay/fabio/wiki/Features#websocket-support),
-[SSE](https://github.com/eBay/fabio/wiki/Features#sse---server-sent-events),
-[dynamic reloading](https://github.com/eBay/fabio/wiki/Features#dynamic-reloading),
-[traffic shaping](https://github.com/eBay/fabio/wiki/Features#traffic-shaping) for "blue/green" deployments,
-[Circonus metrics](https://github.com/eBay/fabio/wiki/Features#metrics-support),
-[Graphite metrics](https://github.com/eBay/fabio/wiki/Features#metrics-support),
-[StatsD/DataDog metrics](https://github.com/eBay/fabio/wiki/Features#metrics-support),
-[WebUI](https://github.com/eBay/fabio/wiki/Features#web-ui)
-and [more](https://github.com/eBay/fabio/wiki/Features).
+It supports ([Full feature list](https://github.com/eBay/fabio/wiki/Features))
+
+* [TLS termination with dynamic certificate stores](https://github.com/eBay/fabio/wiki/Features#certificate-stores)
+* [Raw TCP proxy](https://github.com/eBay/fabio/wiki/Features#tcp-proxy-support)
+* [TCP+SNI proxy for full end-to-end TLS](https://github.com/eBay/fabio/wiki/Features#tcpsni-proxy-support)
+* [HTTPS upstream support](https://github.com/eBay/fabio/wiki/Features#https-upstream-support)
+* [Websockets](https://github.com/eBay/fabio/wiki/Features#websocket-support) and [SSE](https://github.com/eBay/fabio/wiki/Features#sse---server-sent-events)
+* [Dynamic reloading without restart](https://github.com/eBay/fabio/wiki/Features#dynamic-reloading)
+* [Traffic shaping](https://github.com/eBay/fabio/wiki/Features#traffic-shaping) for "blue/green" deployments,
+* [Circonus metrics](https://github.com/eBay/fabio/wiki/Features#metrics-support)
+* [Graphite metrics](https://github.com/eBay/fabio/wiki/Features#metrics-support)
+* [StatsD/DataDog metrics](https://github.com/eBay/fabio/wiki/Features#metrics-support)
+* [WebUI](https://github.com/eBay/fabio/wiki/Features#web-ui)
 
 [Watch](https://www.youtube.com/watch?v=gf43TcWjBrE&list=PL81sUbsFNc5b-Gd59Lpz7BW0eHJBt0GvE&index=1) Kelsey Hightower demo Consul, Nomad, Vault and fabio at HashiConf EU 2016.
 
