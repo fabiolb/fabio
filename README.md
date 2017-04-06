@@ -1,4 +1,4 @@
-# ![./fabio](https://github.com/eBay/fabio/blob/master/fabio.png)
+![Fabio](https://cdn.rawgit.com/eBay/Fabio/41657eb/fabio.svg)
 
 ##### Current stable version: 1.4.1
 
