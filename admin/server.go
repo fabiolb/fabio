@@ -1,12 +1,14 @@
 package admin
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 
 	"github.com/eBay/fabio/admin/api"
 	"github.com/eBay/fabio/admin/ui"
 	"github.com/eBay/fabio/config"
+	"github.com/eBay/fabio/proxy"
 )
 
 // Server provides the HTTP server for the admin UI and API.
@@ -19,7 +21,7 @@ type Server struct {
 }
 
 // ListenAndServe starts the admin server.
-func (s *Server) ListenAndServe(addr string) error {
+func (s *Server) ListenAndServe(l config.Listen, tlscfg *tls.Config) error {
 	http.Handle("/api/config", &api.ConfigHandler{s.Cfg})
 	http.Handle("/api/manual", &api.ManualHandler{})
 	http.Handle("/api/routes", &api.RoutesHandler{})
@@ -28,7 +30,7 @@ func (s *Server) ListenAndServe(addr string) error {
 	http.Handle("/routes", &ui.RoutesHandler{Color: s.Color, Title: s.Title, Version: s.Version})
 	http.HandleFunc("/health", handleHealth)
 	http.Handle("/", http.RedirectHandler("/routes", http.StatusSeeOther))
-	return http.ListenAndServe(addr, nil)
+	return proxy.ListenAndServeHTTP(l, nil, tlscfg)
 }
 
 func handleHealth(w http.ResponseWriter, r *http.Request) {

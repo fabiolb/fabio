@@ -10,10 +10,12 @@ var defaultValues = struct {
 	CertSourcesValue      []map[string]string
 	ReadTimeout           time.Duration
 	WriteTimeout          time.Duration
+	UIListenerValue       string
 	GZIPContentTypesValue string
 }{
 	ListenerValue:    []string{":9999"},
 	CertSourcesValue: []map[string]string{},
+	UIListenerValue:  ":9998",
 }
 
 var defaultConfig = &Config{
@@ -51,6 +53,7 @@ var defaultConfig = &Config{
 			ServiceStatus: []string{"passing"},
 			CheckInterval: time.Second,
 			CheckTimeout:  3 * time.Second,
+			CheckScheme:   "http",
 		},
 		Timeout: 10 * time.Second,
 		Retry:   500 * time.Millisecond,
@@ -60,7 +63,10 @@ var defaultConfig = &Config{
 		GOMAXPROCS: runtime.NumCPU(),
 	},
 	UI: UI{
-		Addr:  ":9998",
+		Listen: Listen{
+			Addr:  ":9998",
+			Proto: "http",
+		},
 		Color: "light-green",
 	},
 }

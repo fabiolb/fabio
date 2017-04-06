@@ -42,7 +42,7 @@ func (b *be) Register() error {
 		return nil
 	}
 
-	service, err := serviceRegistration(b.cfg.ServiceAddr, b.cfg.ServiceName, b.cfg.ServiceTags, b.cfg.CheckInterval, b.cfg.CheckTimeout)
+	service, err := serviceRegistration(b.cfg)
 	if err != nil {
 		return err
 	}

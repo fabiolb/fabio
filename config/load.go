@@ -109,6 +109,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 
 	// config values
 	var listenerValue []string
+	var uiListenerValue string
 	var certSourcesValue []map[string]string
 	var readTimeout, writeTimeout time.Duration
 	var gzipContentTypesValue string
@@ -163,7 +164,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.DurationVar(&cfg.Registry.Consul.CheckTimeout, "registry.consul.register.checkTimeout", defaultConfig.Registry.Consul.CheckTimeout, "service check timeout")
 	f.IntVar(&cfg.Runtime.GOGC, "runtime.gogc", defaultConfig.Runtime.GOGC, "sets runtime.GOGC")
 	f.IntVar(&cfg.Runtime.GOMAXPROCS, "runtime.gomaxprocs", defaultConfig.Runtime.GOMAXPROCS, "sets runtime.GOMAXPROCS")
-	f.StringVar(&cfg.UI.Addr, "ui.addr", defaultConfig.UI.Addr, "address the UI/API is listening on")
+	f.StringVar(&uiListenerValue, "ui.addr", defaultValues.UIListenerValue, "Address the UI/API is listening on")
 	f.StringVar(&cfg.UI.Color, "ui.color", defaultConfig.UI.Color, "background color of the UI")
 	f.StringVar(&cfg.UI.Title, "ui.title", defaultConfig.UI.Title, "optional title for the UI")
 
@@ -191,9 +192,21 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 		return nil, err
 	}
 
+	if uiListenerValue != "" {
+		cfg.UI.Listen, err = parseListen(uiListenerValue, certSources, 0, 0)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	cfg.Listen, err = parseListeners(listenerValue, certSources, readTimeout, writeTimeout)
 	if err != nil {
 		return nil, err
+	}
+
+	cfg.Registry.Consul.CheckScheme = defaultConfig.Registry.Consul.CheckScheme
+	if cfg.UI.Listen.CertSource.Name != "" {
+		cfg.Registry.Consul.CheckScheme = "https"
 	}
 
 	if gzipContentTypesValue != "" {

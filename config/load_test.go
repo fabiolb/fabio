@@ -568,7 +568,20 @@ func TestLoad(t *testing.T) {
 		{
 			args: []string{"-ui.addr", "1.2.3.4:5555"},
 			cfg: func(cfg *Config) *Config {
-				cfg.UI.Addr = "1.2.3.4:5555"
+				cfg.UI.Listen.Addr = "1.2.3.4:5555"
+				cfg.UI.Listen.Proto = "http"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-ui.addr", ":9998;cs=ui", "-proxy.cs", "cs=ui;type=file;cert=value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.UI.Listen.Addr = ":9998"
+				cfg.UI.Listen.Proto = "https"
+				cfg.UI.Listen.CertSource.Name = "ui"
+				cfg.UI.Listen.CertSource.Type = "file"
+				cfg.UI.Listen.CertSource.CertPath = "value"
+				cfg.Registry.Consul.CheckScheme = "https"
 				return cfg
 			},
 		},
