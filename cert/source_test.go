@@ -184,13 +184,24 @@ func TestConsulSource(t *testing.T) {
 	// run a consul server if it isn't already running
 	_, err := http.Get("http://127.0.0.1:8500/v1/status/leader")
 	if err != nil {
-		t.Log("Starting consul server")
+		consul := os.Getenv("CONSUL_EXE")
+		if consul == "" {
+			consul = "consul"
+		}
+
+		version, err := exec.Command(consul, "--version").Output()
+		if err != nil {
+			t.Fatalf("Failed to run %s --version", consul)
+		}
+		cr := bytes.IndexRune(version, '\n')
+		t.Logf("Starting %s: %s", consul, string(version[:cr]))
+
 		start := time.Now()
-		consul := exec.Command("consul", "agent", "-bind", "127.0.0.1", "-server", "-dev")
-		if err := consul.Start(); err != nil {
+		cmd := exec.Command(consul, "agent", "-bind", "127.0.0.1", "-server", "-dev")
+		if err := cmd.Start(); err != nil {
 			t.Fatalf("Failed to start consul server. %s", err)
 		}
-		defer consul.Process.Kill()
+		defer cmd.Process.Kill()
 
 		isUp := func() bool {
 			resp, err := http.Get("http://127.0.0.1:8500/v1/status/leader")
@@ -237,10 +248,20 @@ func TestConsulSource(t *testing.T) {
 	testSource(t, ConsulSource{CertURL: certURL}, makeCertPool(certPEM), 500*time.Millisecond)
 }
 
-// vaultServer starts a vault server in dev mode and waits
-// until is ready.
+// vaultServer starts a vault server in dev mode and waits until is ready.
 func vaultServer(t *testing.T, addr, rootToken string) (*exec.Cmd, *vaultapi.Client) {
-	cmd := exec.Command("vault", "server", "-dev", "-dev-root-token-id="+rootToken, "-dev-listen-address="+addr)
+	vault := os.Getenv("VAULT_EXE")
+	if vault == "" {
+		vault = "vault"
+	}
+
+	version, err := exec.Command(vault, "--version").Output()
+	if err != nil {
+		t.Fatalf("Failed to run %s --version", vault)
+	}
+	t.Logf("Starting %s: %q", vault, string(version))
+
+	cmd := exec.Command(vault, "server", "-dev", "-dev-root-token-id="+rootToken, "-dev-listen-address="+addr)
 	if err := cmd.Start(); err != nil {
 		t.Fatalf("Failed to start vault server. %s", err)
 	}
