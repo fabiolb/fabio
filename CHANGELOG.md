@@ -1,6 +1,6 @@
 ## Changelog
 
-### Unreleased
+### [v1.4.2](https://github.com/eBay/fabio/releases/tag/v1.4.2) - 10 Apr 2017
 
 The vault tests do not yet pass with vault 0.7.0 and support for vault 0.7.0 has yet to be confirmed.
 fabio is known to work with vault 0.6.4.
