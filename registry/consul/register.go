@@ -76,12 +76,12 @@ func register(c *api.Client, service *api.AgentServiceRegistration) (dereg chan 
 	return dereg
 }
 
-func serviceRegistration(addr, name string, tags []string, interval, timeout time.Duration) (*api.AgentServiceRegistration, error) {
+func serviceRegistration(cfg *config.Consul) (*api.AgentServiceRegistration, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return nil, err
 	}
-	ipstr, portstr, err := net.SplitHostPort(addr)
+	ipstr, portstr, err := net.SplitHostPort(cfg.ServiceAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -101,23 +101,23 @@ func serviceRegistration(addr, name string, tags []string, interval, timeout tim
 		}
 	}
 
-	serviceID := fmt.Sprintf("%s-%s-%d", name, hostname, port)
+	serviceID := fmt.Sprintf("%s-%s-%d", cfg.ServiceName, hostname, port)
 
-	checkURL := fmt.Sprintf("http://%s:%d/health", ip, port)
+	checkURL := fmt.Sprintf("%s://%s:%d/health", cfg.CheckScheme, ip, port)
 	if ip.To16() != nil {
-		checkURL = fmt.Sprintf("http://[%s]:%d/health", ip, port)
+		checkURL = fmt.Sprintf("%s://[%s]:%d/health", cfg.CheckScheme, ip, port)
 	}
 
 	service := &api.AgentServiceRegistration{
 		ID:      serviceID,
-		Name:    name,
+		Name:    cfg.ServiceName,
 		Address: ip.String(),
 		Port:    port,
-		Tags:    tags,
+		Tags:    cfg.ServiceTags,
 		Check: &api.AgentServiceCheck{
 			HTTP:     checkURL,
-			Interval: interval.String(),
-			Timeout:  timeout.String(),
+			Interval: cfg.CheckInterval.String(),
+			Timeout:  cfg.CheckTimeout.String(),
 		},
 	}
 

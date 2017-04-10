@@ -37,9 +37,9 @@ type Listen struct {
 }
 
 type UI struct {
-	Addr  string
-	Color string
-	Title string
+	Listen Listen
+	Color  string
+	Title  string
 }
 
 type Proxy struct {
@@ -118,4 +118,5 @@ type Consul struct {
 	ServiceStatus []string
 	CheckInterval time.Duration
 	CheckTimeout  time.Duration
+	CheckScheme   string
 }
