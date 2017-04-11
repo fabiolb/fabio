@@ -1,5 +1,33 @@
 ## Changelog
 
+### Unreleased
+
+#### Improvements
+
+ * Demo server supports HTTPS
+ 
+   The `demo/server/server` now supports `https` and `wss` to test the 
+   HTTPS upstream support. To run an HTTPS server run the following
+
+   ```shell
+   # generate some test certs
+   cd $GOPATH/src/github.com/eBay/fabio
+   build/issue-225-gen-cert.bash
+
+   # build and run the demo server
+   cd demo/server
+   go build
+   ./server -certFile ../cert/server/server-cert.pem -keyFile ../cert/server/server-key.pem -proto https -prefix "/foo tlsskipverify=true"
+   ```
+   
+ * Add route options to UI
+ 
+   The UI now shows the combined options from all targets for a route.
+
+ * Add fabio logo to UI
+ 
+   The Fabio logo is displayed on all UI pages.
+
 ### [v1.4.2](https://github.com/eBay/fabio/releases/tag/v1.4.2) - 10 Apr 2017
 
 The vault tests do not yet pass with vault 0.7.0 and support for vault 0.7.0 has yet to be confirmed.
