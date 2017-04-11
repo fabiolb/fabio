@@ -19,7 +19,7 @@ var tmplRoutes = template.Must(template.New("routes").Parse(`
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>./fabio{{if .Title}} - {{.Title}}{{end}}</title>
+	<title>fabio{{if .Title}} - {{.Title}}{{end}}</title>
 	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
@@ -27,12 +27,9 @@ var tmplRoutes = template.Must(template.New("routes").Parse(`
 
 	<style type="text/css">
 		td.tags { display: none; }
+		.footer { padding-top: 10px; }
+		.logo { height: 32px; margin: 0 auto; display: block; }
 
-		/*
-		 * -- DESKTOP (AND UP) MEDIA QUERIES --
-		 * On desktops and other large devices, we want to over-ride some
-		 * of the mobile and tablet styles.
-		 */
 		@media (min-width: 78em) {
 			td.tags{ display: table-cell; }
 		}
@@ -44,7 +41,7 @@ var tmplRoutes = template.Must(template.New("routes").Parse(`
 
 	<div class="container">
 		<div class="nav-wrapper">
-			<a href="/" class="brand-logo">./fabio{{if .Title}} - {{.Title}}{{end}}</a>
+			<a href="/" class="brand-logo">fabio{{if .Title}} - {{.Title}}{{end}}</a>
 			<ul id="nav-mobile" class="right hide-on-med-and-down">
 				<li><a href="/manual">Overrides</a></li>
 				<li><a href="https://github.com/eBay/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
@@ -63,6 +60,10 @@ var tmplRoutes = template.Must(template.New("routes").Parse(`
 		<table class="routes highlight"></table>
 	</div>
 
+	<div class="section footer">
+		<img class="logo" src="/logo.svg">
+	</div>
+
 </div>
 
 <script>
@@ -77,6 +78,7 @@ $(function(){
 		tbl += '<th>Service</th>';
 		tbl += '<th>Source</th>';
 		tbl += '<th>Dest</th>';
+		tbl += '<th>Options</th>';
 		tbl += '<th>Weight</th>';
 		tbl += '</tr></thead><tbody>'
 		tbl += '<tbody>'
@@ -87,6 +89,7 @@ $(function(){
 			tbl += '<td>' + r.service + '</td>';
 			tbl += '<td>' + r.src + '</td>';
 			tbl += '<td>' + r.dst + '</td>';
+			tbl += '<td>' + r.opts + '</td>';
 			tbl += '<td>' + (r.weight * 100).toFixed(2) + '%</td>';
 			tbl += '</tr>';
 		}

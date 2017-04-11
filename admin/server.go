@@ -28,6 +28,7 @@ func (s *Server) ListenAndServe(l config.Listen, tlscfg *tls.Config) error {
 	http.Handle("/api/version", &api.VersionHandler{s.Version})
 	http.Handle("/manual", &ui.ManualHandler{Color: s.Color, Title: s.Title, Version: s.Version, Commands: s.Commands})
 	http.Handle("/routes", &ui.RoutesHandler{Color: s.Color, Title: s.Title, Version: s.Version})
+	http.HandleFunc("/logo.svg", ui.HandleLogo)
 	http.HandleFunc("/health", handleHealth)
 	http.Handle("/", http.RedirectHandler("/routes", http.StatusSeeOther))
 	return proxy.ListenAndServeHTTP(l, nil, tlscfg)

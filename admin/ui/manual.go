@@ -21,13 +21,15 @@ var tmplManual = template.Must(template.New("manual").Parse(`
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>./fabio{{if .Title}} - {{.Title}}{{end}}</title>
+	<title>fabio{{if .Title}} - {{.Title}}{{end}}</title>
 	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 	<style type="text/css">
+		.footer { padding-top: 10px; }
+		.logo { height: 32px; margin: 0 auto; display: block; }
 	</style>
 </head>
 <body>
@@ -36,7 +38,7 @@ var tmplManual = template.Must(template.New("manual").Parse(`
 
 	<div class="container">
 		<div class="nav-wrapper">
-			<a href="/" class="brand-logo">./fabio{{if .Title}} - {{.Title}}{{end}}</a>
+			<a href="/" class="brand-logo">fabio{{if .Title}} - {{.Title}}{{end}}</a>
 			<ul id="nav-mobile" class="right hide-on-med-and-down">
 				<li><a href="/routes">Routes</a></li>
 				<li><a href="https://github.com/eBay/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
@@ -69,6 +71,10 @@ var tmplManual = template.Must(template.New("manual").Parse(`
 		<div class="row">
 			<pre class="help hide">{{.Commands}}</pre>
 		</div>
+	</div>
+
+	<div class="section footer">
+		<img class="logo" src="/logo.svg">
 	</div>
 
 </div>

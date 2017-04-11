@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strings"
 
 	"github.com/eBay/fabio/route"
 )
@@ -16,6 +17,7 @@ type apiRoute struct {
 	Path    string   `json:"path"`
 	Src     string   `json:"src"`
 	Dst     string   `json:"dst"`
+	Opts    string   `json:"opts"`
 	Weight  float64  `json:"weight"`
 	Tags    []string `json:"tags,omitempty"`
 	Cmd     string   `json:"cmd"`
@@ -41,6 +43,11 @@ func (h *RoutesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var routes []apiRoute
 	for _, host := range hosts {
 		for _, tr := range t[host] {
+			var opts []string
+			for k, v := range tr.Opts {
+				opts = append(opts, k+"="+v)
+			}
+
 			for _, tg := range tr.Targets {
 				ar := apiRoute{
 					Service: tg.Service,
@@ -48,6 +55,7 @@ func (h *RoutesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					Path:    tr.Path,
 					Src:     tr.Host + tr.Path,
 					Dst:     tg.URL.String(),
+					Opts:    strings.Join(opts, " "),
 					Weight:  tg.Weight,
 					Tags:    tg.Tags,
 					Cmd:     "route add",
