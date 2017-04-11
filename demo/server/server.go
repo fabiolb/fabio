@@ -21,11 +21,15 @@
 //   ./server -addr 127.0.0.1:5000 -name svc-a -prefix /foo,/bar
 //   ./server -addr 127.0.0.1:5001 -name svc-b -prefix /baz,/bar
 //
+//   # https server
+//   ./server -addr 127.0.0.1:5000 -name svc-a -proto https -certFile ... -keyFile ... -prefix /foo
+//   ./server -addr 127.0.0.1:5000 -name svc-a -proto https -certFile ... -keyFile ... -prefix "/foo tlsskipverify=true"
+//
 //   # websocket server
-//   ./server -addr 127.0.0.1:6000 -name ws-a -prefix /echo1,/echo2 -proto ws
+//   ./server -addr 127.0.0.1:6000 -name ws-a -proto ws -prefix /echo1,/echo2
 //
 //   # tcp server
-//   ./server -addr 127.0.0.1:7000 -name tcp-a -proto tcp
+//   ./server -addr 127.0.0.1:7000 -name tcp-a -proto tcp -prefix :1234
 //
 package main
 
@@ -43,121 +47,75 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/net/websocket"
+
 	"github.com/eBay/fabio/proxy/tcp"
 	"github.com/hashicorp/consul/api"
-	"golang.org/x/net/websocket"
 )
 
-type Server interface {
-	// embedded server methods
-	ListenAndServe() error
-	ListenAndServeTLS(certFile, keyFile string) error
-
-	// consul register helpers
-	Tags() []string
-	Check() *api.AgentServiceCheck
-}
-
-type HTTPServer struct {
-	*http.Server
-	tags  []string
-	check *api.AgentServiceCheck
-}
-
-func (s *HTTPServer) Check() *api.AgentServiceCheck {
-	return s.check
-}
-
-func (s *HTTPServer) Tags() []string {
-	return s.tags
-}
-
-type TCPServer struct {
-	*tcp.Server
-	tags  []string
-	check *api.AgentServiceCheck
-}
-
-func (s *TCPServer) Check() *api.AgentServiceCheck {
-	return s.check
-}
-
-func (s *TCPServer) Tags() []string {
-	return s.tags
+type Args struct {
+	addr     string
+	consul   string
+	name     string
+	prefix   string
+	proto    string
+	rawtags  string
+	token    string
+	certFile string
+	keyFile  string
+	status   int
+	tags     []string
 }
 
 func main() {
-	var addr, consul, name, prefix, proto, token, rawtags string
-	var certFile, keyFile string
-	var status int
-	flag.StringVar(&addr, "addr", "127.0.0.1:5000", "host:port of the service")
-	flag.StringVar(&consul, "consul", "127.0.0.1:8500", "host:port of the consul agent")
-	flag.StringVar(&name, "name", filepath.Base(os.Args[0]), "name of the service")
-	flag.StringVar(&prefix, "prefix", "", "comma-sep list of 'host/path' or ':port' prefixes to register")
-	flag.StringVar(&proto, "proto", "http", "protocol for endpoints: http, ws or tcp")
-	flag.StringVar(&rawtags, "tags", "", "additional tags to register in consul")
-	flag.StringVar(&token, "token", "", "consul ACL token")
-	flag.StringVar(&certFile, "cert", "", "path to cert file")
-	flag.StringVar(&keyFile, "key", "", "path to key file")
-	flag.IntVar(&status, "status", http.StatusOK, "http status code")
+	var args Args
+	flag.StringVar(&args.addr, "addr", "127.0.0.1:5000", "host:port of the service")
+	flag.StringVar(&args.consul, "consul", "127.0.0.1:8500", "host:port of the consul agent")
+	flag.StringVar(&args.name, "name", filepath.Base(os.Args[0]), "name of the service")
+	flag.StringVar(&args.prefix, "prefix", "", "comma-sep list of 'host/path' or ':port' prefixes to register")
+	flag.StringVar(&args.proto, "proto", "http", "protocol for endpoints: http, ws or tcp")
+	flag.StringVar(&args.rawtags, "tags", "", "additional tags to register in consul")
+	flag.StringVar(&args.token, "token", "", "consul ACL token")
+	flag.StringVar(&args.certFile, "cert", "", "path to cert file")
+	flag.StringVar(&args.keyFile, "key", "", "path to key file")
+	flag.IntVar(&args.status, "status", http.StatusOK, "http status code")
 	flag.Parse()
 
-	if prefix == "" {
+	if args.prefix == "" {
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	var srv Server
-	switch proto {
-	case "http", "ws":
-		mux := http.NewServeMux()
-		mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintln(w, "OK")
-		})
-		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			http.Error(w, "not found", 404)
-			log.Printf("%s -> 404", r.URL)
-		})
+	if (args.proto == "https" || args.proto == "wss") && args.certFile == "" {
+		log.Fatalf("Proto %s requires a certificate. Please provide -cert/-key", args.proto)
+	}
 
-		tags := strings.Split(rawtags, ",")
-		for _, p := range strings.Split(prefix, ",") {
-			tags = append(tags, "urlprefix-"+p)
-			switch proto {
-			case "http":
-				mux.HandleFunc(p, func(w http.ResponseWriter, r *http.Request) {
-					w.WriteHeader(status)
-					fmt.Fprintf(w, "Serving %s from %s on %s\n", r.RequestURI, name, addr)
-				})
-			case "ws":
-				mux.Handle(p, websocket.Handler(WSEchoServer))
-			}
-		}
+	if args.rawtags != "" {
+		args.tags = strings.Split(args.rawtags, ",")
+	}
 
-		var check *api.AgentServiceCheck
-		if certFile != "" {
-			check = &api.AgentServiceCheck{TCP: addr, Interval: "2s", Timeout: "1s"}
-		} else {
-			check = &api.AgentServiceCheck{HTTP: "http://" + addr + "/health", Interval: "1s", Timeout: "1s"}
-		}
-		srv = &HTTPServer{&http.Server{Addr: addr, Handler: mux}, tags, check}
+	type server interface {
+		ListenAndServe() error
+		ListenAndServeTLS(certFile, keyFile string) error
+	}
 
+	var srv server
+	var tags []string
+	var check *api.AgentServiceCheck
+	switch args.proto {
+	case "http", "https", "ws", "wss":
+		srv, tags, check = newHTTPServer(args)
 	case "tcp":
-		tags := strings.Split(rawtags, ",")
-		for _, p := range strings.Split(prefix, ",") {
-			tags = append(tags, "urlprefix-"+p+" proto=tcp")
-		}
-		check := &api.AgentServiceCheck{TCP: addr, Interval: "2s", Timeout: "1s"}
-		srv = &TCPServer{&tcp.Server{Addr: addr, Handler: tcp.HandlerFunc(TCPEchoHandler)}, tags, check}
-
+		srv, tags, check = newTCPServer(args)
 	default:
-		log.Fatal("Invalid protocol ", proto)
+		log.Fatal("Invalid protocol ", args.proto)
 	}
 
 	// start server
 	go func() {
 		var err error
-		if certFile != "" {
-			err = srv.ListenAndServeTLS(certFile, keyFile)
+		if args.certFile != "" {
+			err = srv.ListenAndServeTLS(args.certFile, args.keyFile)
 		} else {
 			err = srv.ListenAndServe()
 		}
@@ -167,7 +125,7 @@ func main() {
 	}()
 
 	// get host and port as string/int
-	host, portstr, err := net.SplitHostPort(addr)
+	host, portstr, err := net.SplitHostPort(args.addr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -177,17 +135,17 @@ func main() {
 	}
 
 	// register service with health check
-	serviceID := name + "-" + addr
+	serviceID := args.name + "-" + args.addr
 	service := &api.AgentServiceRegistration{
 		ID:      serviceID,
-		Name:    name,
+		Name:    args.name,
 		Port:    port,
 		Address: host,
-		Tags:    srv.Tags(),
-		Check:   srv.Check(),
+		Tags:    tags,
+		Check:   check,
 	}
 
-	config := &api.Config{Address: consul, Scheme: "http", Token: token}
+	config := &api.Config{Address: args.consul, Scheme: "http", Token: args.token}
 	client, err := api.NewClient(config)
 	if err != nil {
 		log.Fatal(err)
@@ -196,7 +154,7 @@ func main() {
 	if err := client.Agent().ServiceRegister(service); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Registered %s service %q in consul with tags %q", proto, name, strings.Join(srv.Tags(), ","))
+	log.Printf("Registered %s service %q in consul with tags %q", args.proto, args.name, strings.Join(tags, ","))
 
 	// run until we get a signal
 	quit := make(chan os.Signal, 1)
@@ -207,7 +165,56 @@ func main() {
 	if err := client.Agent().ServiceDeregister(serviceID); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Deregistered service %q in consul", name)
+	log.Printf("Deregistered service %q in consul", args.name)
+}
+
+func newHTTPServer(args Args) (*http.Server, []string, *api.AgentServiceCheck) {
+	addr, proto, tags := args.addr, args.proto, args.tags
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "OK")
+	})
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "not found", 404)
+		log.Printf("%s -> 404", r.URL)
+	})
+
+	prefixes := strings.Split(args.prefix, ",")
+	for _, p := range prefixes {
+		uri := strings.Fields(p)[0]
+		switch proto {
+		case "http", "https":
+			mux.HandleFunc(uri, func(w http.ResponseWriter, r *http.Request) {
+				scheme := "http"
+				if r.TLS != nil {
+					scheme = "https"
+				}
+				w.WriteHeader(args.status)
+				fmt.Fprintf(w, "Serving %s via %s from %s on %s\n", r.RequestURI, scheme, args.name, addr)
+			})
+		case "ws", "wss":
+			mux.Handle(uri, websocket.Handler(WSEchoServer))
+		}
+
+		tag := "urlprefix-" + p
+		if proto == "https" || proto == "wss" {
+			tag += " proto=https"
+		}
+		tags = append(tags, tag)
+	}
+
+	checkScheme := "http"
+	if args.certFile != "" {
+		checkScheme = "https"
+	}
+	check := &api.AgentServiceCheck{
+		HTTP:          checkScheme + "://" + addr + "/health",
+		Interval:      "1s",
+		Timeout:       "1s",
+		TLSSkipVerify: true,
+	}
+	return &http.Server{Addr: addr, Handler: mux}, tags, check
 }
 
 func WSEchoServer(ws *websocket.Conn) {
@@ -232,6 +239,15 @@ func WSEchoServer(ws *websocket.Conn) {
 		}
 	}
 	log.Printf("ws disconnect on %s", addr)
+}
+
+func newTCPServer(args Args) (*tcp.Server, []string, *api.AgentServiceCheck) {
+	tags := args.tags
+	for _, p := range strings.Split(args.prefix, ",") {
+		tags = append(tags, "urlprefix-"+p+" proto=tcp")
+	}
+	check := &api.AgentServiceCheck{TCP: args.addr, Interval: "2s", Timeout: "1s"}
+	return &tcp.Server{Addr: args.addr, Handler: tcp.HandlerFunc(TCPEchoHandler)}, tags, check
 }
 
 func TCPEchoHandler(c net.Conn) error {
