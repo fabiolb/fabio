@@ -1,4 +1,12 @@
-![Fabio](https://cdn.rawgit.com/eBay/Fabio/41657eb/fabio.svg)
+<div>
+  <div style="width: 50%; height: 64px; float: left;">
+    <img src="https://cdn.rawgit.com/eBay/fabio/015e999/fabio.svg" height="64"/>
+  </div>
+  <div style="width: 50%; height: 64px; float: right; text-align: right; margin-top: 16px;">
+    <a href="http://ebay.github.io/"><img src="https://cdn.rawgit.com/eBay/fabio/015e999/ebay.png" height="32" style="padding-right: 4px"/></a>
+    <a href="http://www.ebayclassifiedsgroup.com"><img src="https://cdn.rawgit.com/eBay/fabio/015e999/ecg.png" height="32"/></a>
+  </div>
+</div>
 
 ##### Current stable version: 1.4.2
 
