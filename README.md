@@ -90,8 +90,8 @@ urlprefix-/css                                     # path route
 urlprefix-i.com/static                             # host specific path route
 urlprefix-mysite.com/                              # host specific catch all route
 urlprefix-/foo/bar strip=/foo                      # route with path stripping (forward only '/bar' to upstream)
-urlprefix-/foo/bar proto=https                     # route with HTTPS upstream server
-urlprefix-/foo/bar proto=https tlsskipverify=true  # route with HTTPS upstream server and self-signed cert
+urlprefix-/foo/bar proto=https                     # route with HTTPS upstream
+urlprefix-/foo/bar proto=https tlsskipverify=true  # route with HTTPS upstream and self-signed cert
 
 # TCP examples
 urlprefix-:3306 proto=tcp        # route external port 3306
