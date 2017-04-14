@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/eBay/fabio/proxy/internal"
-	"github.com/eBay/fabio/proxy/tcp"
+	"github.com/fabiolb/fabio/proxy/internal"
+	"github.com/fabiolb/fabio/proxy/tcp"
 )
 
 // Server is a TCP test server that binds to a random port.

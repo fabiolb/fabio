@@ -11,7 +11,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/eBay/fabio/metrics"
+	"github.com/fabiolb/fabio/metrics"
 	"github.com/ryanuber/go-glob"
 )
 

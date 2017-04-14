@@ -15,7 +15,7 @@ if [[ -z "$v" ]] ; then
 	exit 1
 fi
 
-srcurl=https://github.com/eBay/fabio/archive/v${v}.tar.gz
+srcurl=https://github.com/fabiolb/fabio/archive/v${v}.tar.gz
 shasum=$(wget -O- -q "$srcurl" | shasum -a 256 | awk '{ print $1; }')
 echo -e "/urlDAurl \"$srcurl\"/sha256DAsha256 \"$shasum\":wq" > $prgdir/homebrew.vim
 

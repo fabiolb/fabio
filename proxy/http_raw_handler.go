@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/eBay/fabio/metrics"
+	"github.com/fabiolb/fabio/metrics"
 )
 
 // conn measures the number of open web socket connections

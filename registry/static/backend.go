@@ -2,7 +2,7 @@
 // backend which uses statically configured routes.
 package static
 
-import "github.com/eBay/fabio/registry"
+import "github.com/fabiolb/fabio/registry"
 
 type be struct{}
 

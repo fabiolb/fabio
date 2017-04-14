@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/eBay/fabio/config"
+	"github.com/fabiolb/fabio/config"
 	"github.com/pascaldekloe/goe/verify"
 )
 

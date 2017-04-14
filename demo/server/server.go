@@ -49,7 +49,7 @@ import (
 
 	"golang.org/x/net/websocket"
 
-	"github.com/eBay/fabio/proxy/tcp"
+	"github.com/fabiolb/fabio/proxy/tcp"
 	"github.com/hashicorp/consul/api"
 )
 

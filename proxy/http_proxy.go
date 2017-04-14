@@ -7,11 +7,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/eBay/fabio/config"
-	"github.com/eBay/fabio/logger"
-	"github.com/eBay/fabio/metrics"
-	"github.com/eBay/fabio/proxy/gzip"
-	"github.com/eBay/fabio/route"
+	"github.com/fabiolb/fabio/config"
+	"github.com/fabiolb/fabio/logger"
+	"github.com/fabiolb/fabio/metrics"
+	"github.com/fabiolb/fabio/proxy/gzip"
+	"github.com/fabiolb/fabio/route"
 )
 
 // HTTPProxy is a dynamic reverse proxy for HTTP and HTTPS protocols.

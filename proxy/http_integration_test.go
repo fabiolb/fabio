@@ -17,10 +17,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/eBay/fabio/config"
-	"github.com/eBay/fabio/logger"
-	"github.com/eBay/fabio/proxy/internal"
-	"github.com/eBay/fabio/route"
+	"github.com/fabiolb/fabio/config"
+	"github.com/fabiolb/fabio/logger"
+	"github.com/fabiolb/fabio/proxy/internal"
+	"github.com/fabiolb/fabio/route"
 	"github.com/pascaldekloe/goe/verify"
 )
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# This script addresses issue #225 (https://github.com/eBay/fabio/issues/225)
+# This script addresses issue #225 (https://github.com/fabiolb/fabio/issues/225)
 # and generates a number of certificates for testing fabio with client
 # certificate authentication with signed client certificates.
 #

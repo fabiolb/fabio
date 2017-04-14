@@ -167,7 +167,7 @@ resource "aws_instance" "web" {
       "sudo apt-get -y update",
       "sudo apt-get -y install unzip",
       "wget https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip",
-      "wget https://github.com/eBay/fabio/releases/download/v1.1.2/fabio-1.1.2-go1.6.2_linux-amd64",
+      "wget https://github.com/fabiolb/fabio/releases/download/v1.1.2/fabio-1.1.2-go1.6.2_linux-amd64",
       "unzip consul*.zip"
     ]
   }

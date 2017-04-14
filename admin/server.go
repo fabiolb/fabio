@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/eBay/fabio/admin/api"
-	"github.com/eBay/fabio/admin/ui"
-	"github.com/eBay/fabio/config"
-	"github.com/eBay/fabio/proxy"
+	"github.com/fabiolb/fabio/admin/api"
+	"github.com/fabiolb/fabio/admin/ui"
+	"github.com/fabiolb/fabio/config"
+	"github.com/fabiolb/fabio/proxy"
 )
 
 // Server provides the HTTP server for the admin UI and API.

@@ -44,8 +44,8 @@ var tmplRoutes = template.Must(template.New("routes").Parse(`
 			<a href="/" class="brand-logo">fabio{{if .Title}} - {{.Title}}{{end}}</a>
 			<ul id="nav-mobile" class="right hide-on-med-and-down">
 				<li><a href="/manual">Overrides</a></li>
-				<li><a href="https://github.com/eBay/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
-				<li><a href="https://github.com/eBay/fabio">Github</a></li>
+				<li><a href="https://github.com/fabiolb/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
+				<li><a href="https://github.com/fabiolb/fabio">Github</a></li>
 			</ul>
 		</div>
 	</div>

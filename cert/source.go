@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/eBay/fabio/config"
+	"github.com/fabiolb/fabio/config"
 )
 
 // Source provides the interface for dynamic certificate sources.

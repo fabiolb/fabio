@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/eBay/fabio/config"
+	"github.com/fabiolb/fabio/config"
 )
 
 func TestRegistry(t *testing.T) {

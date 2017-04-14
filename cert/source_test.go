@@ -23,7 +23,7 @@ import (
 
 	"golang.org/x/net/http2"
 
-	"github.com/eBay/fabio/config"
+	"github.com/fabiolb/fabio/config"
 	consulapi "github.com/hashicorp/consul/api"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pascaldekloe/goe/verify"

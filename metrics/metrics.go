@@ -15,8 +15,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/eBay/fabio/config"
-	"github.com/eBay/fabio/exit"
+	"github.com/fabiolb/fabio/config"
+	"github.com/fabiolb/fabio/exit"
 )
 
 // DefaultRegistry stores the metrics library provider.
