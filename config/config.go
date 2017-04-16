@@ -84,6 +84,7 @@ type Metrics struct {
 	Names        string
 	Interval     time.Duration
 	GraphiteAddr string
+	RiemannAddr  string
 	StatsDAddr   string
 	Circonus     Circonus
 }

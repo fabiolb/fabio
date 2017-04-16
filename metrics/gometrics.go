@@ -11,6 +11,7 @@ import (
 
 	graphite "github.com/cyberdelia/go-metrics-graphite"
 	statsd "github.com/magiconair/go-metrics-statsd"
+	riemann "github.com/pingles/go-metrics-riemann"
 	gm "github.com/rcrowley/go-metrics"
 )
 
@@ -35,6 +36,17 @@ func gmGraphiteRegistry(prefix, addr string, interval time.Duration) (Registry, 
 
 	r := gm.NewRegistry()
 	go graphite.Graphite(r, interval, prefix, a)
+	return &gmRegistry{r}, nil
+}
+
+// gmRiemannRegistry returns a go-metrics registry that reports to a Riemann server.
+func gmRiemannRegistry(prefix, addr string, interval time.Duration) (Registry, error) {
+	if addr == "" {
+		return nil, errors.New("metrics: riemann addr missing")
+	}
+
+	r := gm.NewRegistry()
+	go riemann.Report(r, interval, addr)
 	return &gmRegistry{r}, nil
 }
 

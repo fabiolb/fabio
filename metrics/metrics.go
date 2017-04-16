@@ -62,6 +62,10 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 		log.Printf("[INFO] Sending metrics to Graphite on %s as %q", cfg.GraphiteAddr, prefix)
 		return gmGraphiteRegistry(prefix, cfg.GraphiteAddr, cfg.Interval)
 
+	case "riemann":
+		log.Printf("[INFO] Sending metrics to Riemann on %s as %q", cfg.RiemannAddr, prefix)
+		return gmRiemannRegistry(prefix, cfg.RiemannAddr, cfg.Interval)
+
 	case "statsd":
 		log.Printf("[INFO] Sending metrics to StatsD on %s as %q", cfg.StatsDAddr, prefix)
 		return gmStatsDRegistry(prefix, cfg.StatsDAddr, cfg.Interval)

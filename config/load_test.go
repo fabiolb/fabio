@@ -510,6 +510,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-metrics.riemann.addr", "1.2.3.4:5555"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.RiemannAddr = "1.2.3.4:5555"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-metrics.statsd.addr", "1.2.3.4:5555"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Metrics.StatsDAddr = "1.2.3.4:5555"
