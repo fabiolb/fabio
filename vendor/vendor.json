@@ -229,6 +229,42 @@
 			"path": "golang.org/x/net/websocket",
 			"revision": "9946ad7d5eae91d8edca4f54d1a1e130a052e823",
 			"revisionTime": "2015-10-20T22:50:55Z"
+		},
+		{
+			"checksumSHA1": "iu8/VOOD5biENcflGMyKEdYxZ8E=",
+			"path": "github.com/amir/raidman",
+			"revision": "91c20f3f475cab75bb40ad7951d9bbdde357ade7",
+			"revisionTime": "2016-04-09T18:19:39Z"
+		},
+		{
+			"checksumSHA1": "ZQehrJda2JBQEqRLnaP1uY4j4H4=",
+			"path": "github.com/amir/raidman/proto",
+			"revision": "91c20f3f475cab75bb40ad7951d9bbdde357ade7",
+			"revisionTime": "2016-04-09T18:19:39Z"
+		},
+		{
+			"checksumSHA1": "9NoxW1ZvnX4inGkH4SA9RW6rIgM=",
+			"path": "github.com/cenkalti/backoff",
+			"revision": "cdf48bbc1eb78d1349cbda326a4a037f7ba565c6",
+			"revisionTime": "2016-06-10T10:09:12Z"
+		},
+		{
+			"checksumSHA1": "piwYMQqpsfAur670v6rFg6gqk/c=",
+			"path": "github.com/golang/protobuf/proto",
+			"revision": "874264fbbb43f4d91e999fecb4b40143ed611400",
+			"revisionTime": "2016-07-11T13:55:00Z"
+		},
+		{
+			"checksumSHA1": "pl0nbbUVG6NepuNN80gwCgHzkHM=",
+			"path": "github.com/pingles/go-metrics-riemann",
+			"revision": "71e02d0ee52f2c9dd57f9733ce3ef15a1ddc743c",
+			"revisionTime": "2014-10-17T12:44:26Z"
+		},
+		{
+			"checksumSHA1": "LvdVRE0FqdR68SvVpRkHs1rxhcA=",
+			"path": "golang.org/x/net/proxy",
+			"revision": "e90d6d0afc4c315a0d87a568ae68577cc15149a0",
+			"revisionTime": "2016-07-15T16:59:30Z"
 		}
 	],
 	"rootPath": "github.com/fabiolb/fabio"
