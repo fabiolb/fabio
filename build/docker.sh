@@ -2,7 +2,7 @@
 #
 # docker.sh will build docker images from
 # the versions provided on the command line.
-# The binaries must already exist in the /vagrant
+# The binaries must already exist in the build/builds
 # directory and are usually built with the build.sh
 # or the release.sh script. The last specified
 # version will be used as the 'latest' image.
@@ -13,11 +13,11 @@
 #
 # will build three containers
 #
-# * magiconair/fabio:1.1-go1.5.4
-# * magiconair/fabio:1.1-go1.6.2
-# * magiconair/fabio (which contains 1.1-go1.6.2)
+# * fabiolb/fabio:1.1-go1.5.4
+# * fabiolb/fabio:1.1-go1.6.2
+# * fabiolb/fabio (which contains 1.1-go1.6.2)
 #
-tag=magiconair/fabio
+tag=fabiolb/fabio
 
 if [[ $# = 0 ]]; then
 	echo "Usage: docker.sh <version> <version>"
