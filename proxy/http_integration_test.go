@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -31,33 +32,34 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 	}))
 	defer server.Close()
 
-	proxy := &HTTPProxy{
+	proxy := httptest.NewServer(&HTTPProxy{
 		Config:    config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"},
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			return &route.Target{URL: mustParse(server.URL)}
 		},
-	}
-	req := makeReq("/")
-	req.Header.Set("X-Forwarded-For", "3.3.3.3")
-	proxy.ServeHTTP(httptest.NewRecorder(), req)
+	})
+	defer proxy.Close()
 
-	if want := "3.3.3.3, 2.2.2.2"; got != want {
+	req, _ := http.NewRequest("GET", proxy.URL, nil)
+	req.Header.Set("X-Forwarded-For", "3.3.3.3")
+	mustDo(req)
+
+	if want := "3.3.3.3, 127.0.0.1"; got != want {
 		t.Errorf("got %v, but want %v", got, want)
 	}
 }
 
 func TestProxyNoRouteStaus(t *testing.T) {
-	proxy := &HTTPProxy{
+	proxy := httptest.NewServer(&HTTPProxy{
 		Config:    config.Proxy{NoRouteStatus: 999},
 		Transport: http.DefaultTransport,
 		Lookup:    func(*http.Request) *route.Target { return nil },
-	}
-	req := makeReq("/")
-	rec := httptest.NewRecorder()
-	proxy.ServeHTTP(rec, req)
+	})
+	defer proxy.Close()
 
-	if got, want := rec.Code, proxy.Config.NoRouteStatus; got != want {
+	resp, _ := mustGet(proxy.URL)
+	if got, want := resp.StatusCode, 999; got != want {
 		t.Fatalf("got %d want %d", got, want)
 	}
 }
@@ -72,22 +74,20 @@ func TestProxyStripsPath(t *testing.T) {
 		}
 	}))
 
-	proxy := &HTTPProxy{
+	proxy := httptest.NewServer(&HTTPProxy{
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable("route add mock /foo/bar " + server.URL + ` opts "strip=/foo"`)
 			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
 		},
-	}
+	})
+	defer proxy.Close()
 
-	req := makeReq("/foo/bar")
-	rec := httptest.NewRecorder()
-	proxy.ServeHTTP(rec, req)
-
-	if got, want := rec.Code, http.StatusOK; got != want {
+	resp, body := mustGet(proxy.URL + "/foo/bar")
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
 		t.Fatalf("got status %d want %d", got, want)
 	}
-	if got, want := rec.Body.String(), "OK"; got != want {
+	if got, want := string(body), "OK"; got != want {
 		t.Fatalf("got body %q want %q", got, want)
 	}
 }
@@ -115,7 +115,7 @@ func TestProxyLogOutput(t *testing.T) {
 
 	// create a proxy handler with mocked time
 	tm := time.Date(2016, 1, 1, 0, 0, 0, 12345678, time.UTC)
-	proxy := &HTTPProxy{
+	proxyHandler := &HTTPProxy{
 		Time: func() time.Time {
 			defer func() { tm = tm.Add(1111111111 * time.Nanosecond) }()
 			return tm
@@ -130,24 +130,20 @@ func TestProxyLogOutput(t *testing.T) {
 	// start an http server with the proxy handler
 	// which captures some parameters from the request
 	var remoteAddr string
-	proxyServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		remoteAddr = r.RemoteAddr
-		proxy.ServeHTTP(w, r)
+		proxyHandler.ServeHTTP(w, r)
 	}))
-	defer proxyServer.Close()
+	defer proxy.Close()
 
 	// create the request
-	rawurl := proxyServer.URL + "/foo?x=y"
-	req, _ := http.NewRequest("GET", rawurl, nil)
+	req, _ := http.NewRequest("GET", proxy.URL+"/foo?x=y", nil)
 	req.Host = "example.com"
 	req.Header.Set("X-Foo", "bar")
 
 	// execute the request
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		t.Fatal("http.Get: ", err)
-	}
-	if resp.StatusCode != 200 {
+	resp, _ := mustDo(req)
+	if resp.StatusCode != http.StatusOK {
 		t.Fatal("http.Get: want 200 got ", resp.StatusCode)
 	}
 
@@ -215,7 +211,7 @@ func TestProxyHTTPSUpstream(t *testing.T) {
 	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
 		t.Fatal("could not parse cert")
 	}
-	proxy := &HTTPProxy{
+	proxy := httptest.NewServer(&HTTPProxy{
 		Config: config.Proxy{},
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{RootCAs: rootCAs},
@@ -224,15 +220,14 @@ func TestProxyHTTPSUpstream(t *testing.T) {
 			tbl, _ := route.NewTable("route add srv / " + server.URL + ` opts "proto=https"`)
 			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
 		},
-	}
-	req := makeReq("/")
-	rec := httptest.NewRecorder()
-	proxy.ServeHTTP(rec, req)
+	})
+	defer proxy.Close()
 
-	if got, want := rec.Code, http.StatusOK; got != want {
+	resp, body := mustGet(proxy.URL)
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
 		t.Fatalf("got status %d want %d", got, want)
 	}
-	if got, want := rec.Body.String(), "OK"; got != want {
+	if got, want := string(body), "OK"; got != want {
 		t.Fatalf("got body %q want %q", got, want)
 	}
 }
@@ -245,7 +240,7 @@ func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
 	server.StartTLS()
 	defer server.Close()
 
-	proxy := &HTTPProxy{
+	proxy := httptest.NewServer(&HTTPProxy{
 		Config:    config.Proxy{},
 		Transport: http.DefaultTransport,
 		InsecureTransport: &http.Transport{
@@ -255,15 +250,14 @@ func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
 			tbl, _ := route.NewTable("route add srv / " + server.URL + ` opts "proto=https tlsskipverify=true"`)
 			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
 		},
-	}
-	req := makeReq("/")
-	rec := httptest.NewRecorder()
-	proxy.ServeHTTP(rec, req)
+	})
+	defer proxy.Close()
 
-	if got, want := rec.Code, http.StatusOK; got != want {
+	resp, body := mustGet(proxy.URL)
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
 		t.Fatalf("got status %d want %d", got, want)
 	}
-	if got, want := rec.Body.String(), "OK"; got != want {
+	if got, want := string(body), "OK"; got != want {
 		t.Fatalf("got body %q want %q", got, want)
 	}
 }
@@ -326,7 +320,7 @@ func TestProxyGzipHandler(t *testing.T) {
 			server := httptest.NewServer(tt.content)
 			defer server.Close()
 
-			proxy := &HTTPProxy{
+			proxy := httptest.NewServer(&HTTPProxy{
 				Config: config.Proxy{
 					GZIPContentTypes: regexp.MustCompile("^text/plain(;.*)?$"),
 				},
@@ -334,19 +328,19 @@ func TestProxyGzipHandler(t *testing.T) {
 				Lookup: func(r *http.Request) *route.Target {
 					return &route.Target{URL: mustParse(server.URL)}
 				},
-			}
-			req := makeReq("/")
-			req.Header.Set("Accept-Encoding", tt.acceptEncoding)
-			rec := httptest.NewRecorder()
-			proxy.ServeHTTP(rec, req)
+			})
+			defer proxy.Close()
 
-			if got, want := rec.Code, 200; got != want {
+			req, _ := http.NewRequest("GET", proxy.URL, nil)
+			req.Header.Set("Accept-Encoding", tt.acceptEncoding)
+			resp, body := mustDo(req)
+			if got, want := resp.StatusCode, http.StatusOK; got != want {
 				t.Fatalf("got code %d want %d", got, want)
 			}
-			if got, want := rec.Header().Get("Content-Encoding"), tt.contentEncoding; got != want {
+			if got, want := resp.Header.Get("Content-Encoding"), tt.contentEncoding; got != want {
 				t.Errorf("got content-encoding %q want %q", got, want)
 			}
-			if got, want := rec.Body.Bytes(), tt.wantResponse; !bytes.Equal(got, want) {
+			if got, want := body, tt.wantResponse; !bytes.Equal(got, want) {
 				t.Errorf("got body %q want %q", got, want)
 			}
 		})
@@ -379,14 +373,30 @@ func mustParse(rawurl string) *url.URL {
 	return u
 }
 
-func makeReq(path string) *http.Request {
-	return &http.Request{
-		Method:     "GET",
-		RemoteAddr: "2.2.2.2:666",
-		Header:     http.Header{},
-		RequestURI: path,
-		URL:        &url.URL{Path: path},
+func mustDo(req *http.Request) (*http.Response, []byte) {
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		panic(err)
 	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	return resp, body
+}
+
+func mustGet(urlstr string) (*http.Response, []byte) {
+	resp, err := http.DefaultClient.Get(urlstr)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	return resp, body
 }
 
 // compress returns the gzip compressed content of b.
