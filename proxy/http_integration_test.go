@@ -387,16 +387,11 @@ func mustDo(req *http.Request) (*http.Response, []byte) {
 }
 
 func mustGet(urlstr string) (*http.Response, []byte) {
-	resp, err := http.DefaultClient.Get(urlstr)
+	req, err := http.NewRequest("GET", urlstr, nil)
 	if err != nil {
 		panic(err)
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-	return resp, body
+	return mustDo(req)
 }
 
 // compress returns the gzip compressed content of b.
