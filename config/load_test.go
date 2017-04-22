@@ -426,6 +426,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-registry.consul.register.checkTLSSkipVerify=true"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.CheckTLSSkipVerify = true
+				return cfg
+			},
+		},
+		{
 			args: []string{"-registry.consul.register.tags", "a, b, c, "},
 			cfg: func(cfg *Config) *Config {
 				cfg.Registry.Consul.ServiceTags = []string{"a", "b", "c"}
