@@ -115,9 +115,10 @@ func serviceRegistration(cfg *config.Consul) (*api.AgentServiceRegistration, err
 		Port:    port,
 		Tags:    cfg.ServiceTags,
 		Check: &api.AgentServiceCheck{
-			HTTP:     checkURL,
-			Interval: cfg.CheckInterval.String(),
-			Timeout:  cfg.CheckTimeout.String(),
+			HTTP:          checkURL,
+			Interval:      cfg.CheckInterval.String(),
+			Timeout:       cfg.CheckTimeout.String(),
+			TLSSkipVerify: cfg.CheckTLSSkipVerify,
 		},
 	}
 
