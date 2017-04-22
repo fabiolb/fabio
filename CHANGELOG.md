@@ -4,6 +4,14 @@
 
 #### Improvements
 
+ * [PR #268](https://github.com/fabiolb/fabio/pull/268): Add support for TLSSkipVerify for https consul fabio check
+
+   When the fabio admin port is configured to use HTTPS then the consul health check has
+   to use HTTPS as well. The new `registry.consul.register.checkTLSSkipVerify` option allows
+   to disable TLS certificate validation for this check. This requires consul 0.7.2 or higher.
+
+   Thanks to @Ginja for providing this patch.
+
  * Demo server supports HTTPS
  
    The `demo/server/server` now supports `https` and `wss` to test the 
