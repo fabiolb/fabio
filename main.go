@@ -95,7 +95,7 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 		log.Printf("[INFO] Writing access log to stdout")
 		w = os.Stdout
 	default:
-		log.Fatal("[FATAL] Invalid access log target ", cfg.Log.AccessTarget)
+		exit.Fatal("[FATAL] Invalid access log target ", cfg.Log.AccessTarget)
 	}
 
 	format := cfg.Log.AccessFormat
@@ -108,7 +108,7 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 
 	l, err := logger.New(w, format)
 	if err != nil {
-		log.Fatal("[FATAL] Invalid log format: ", err)
+		exit.Fatal("[FATAL] Invalid log format: ", err)
 	}
 
 	pick := route.Picker[cfg.Proxy.Strategy]
