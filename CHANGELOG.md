@@ -1,6 +1,6 @@
 ## Changelog
 
-### Unreleased
+### [v1.4.3](https://github.com/fabiolb/fabio/releases/tag/v1.4.3) - 24 Apr 2017
 
 #### Bug Fixes
 
