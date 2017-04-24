@@ -45,7 +45,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"sync"
 	"time"
 )
@@ -91,8 +90,12 @@ type Logger interface {
 }
 
 // New creates a new logger that writes log events in the given format to the
-// provided writer. If the format is empty or invalid an error is returned.
+// provided writer. If no writer was provided no log output is generated.
+// If the format is empty or invalid an error is returned.
 func New(w io.Writer, format string) (Logger, error) {
+	if w == nil {
+		return &noopLogger{}, nil
+	}
 	p, err := parse(format, fields)
 	if err != nil {
 		return nil, err
@@ -100,11 +103,12 @@ func New(w io.Writer, format string) (Logger, error) {
 	if len(p) == 0 {
 		return nil, errors.New("empty log format")
 	}
-	if w == nil {
-		w = os.Stdout
-	}
 	return &logger{p: p, w: w}, nil
 }
+
+type noopLogger struct{}
+
+func (l *noopLogger) Log(*Event) {}
 
 type logger struct {
 	p pattern
