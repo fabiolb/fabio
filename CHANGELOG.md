@@ -1,5 +1,12 @@
 ## Changelog
 
+### Unreleased
+
+#### Improvements
+
+ * The listener code no longer swallows the errors and exits if it cannot create
+   a listening socket.
+
 ### [v1.4.3](https://github.com/fabiolb/fabio/releases/tag/v1.4.3) - 24 Apr 2017
 
 #### Bug Fixes
