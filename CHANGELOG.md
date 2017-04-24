@@ -2,6 +2,14 @@
 
 ### Unreleased
 
+#### Bug Fixes
+
+ * [Issue #269](https://github.com/fabiolb/fabio/issue/269): Access log cannot be disabled
+
+   The access logging feature that was added in v1.4.1 did not allow to disable the access logging
+   output and all fabio instances were writing an access log by default. Also, the logging setup
+   code would leave fabio registered in consul in case of a failure.
+
 #### Improvements
 
  * [PR #268](https://github.com/fabiolb/fabio/pull/268): Add support for TLSSkipVerify for https consul fabio check
