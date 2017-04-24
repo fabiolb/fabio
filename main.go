@@ -205,14 +205,26 @@ func startServers(cfg *config.Config) {
 
 		switch l.Proto {
 		case "http", "https":
-			h := newHTTPProxy(cfg)
-			go proxy.ListenAndServeHTTP(l, h, tlscfg)
+			go func() {
+				h := newHTTPProxy(cfg)
+				if err := proxy.ListenAndServeHTTP(l, h, tlscfg); err != nil {
+					exit.Fatal("[FATAL] ", err)
+				}
+			}()
 		case "tcp":
-			h := &tcp.Proxy{cfg.Proxy.DialTimeout, lookupHostFn(cfg)}
-			go proxy.ListenAndServeTCP(l, h, tlscfg)
+			go func() {
+				h := &tcp.Proxy{cfg.Proxy.DialTimeout, lookupHostFn(cfg)}
+				if err := proxy.ListenAndServeTCP(l, h, tlscfg); err != nil {
+					exit.Fatal("[FATAL] ", err)
+				}
+			}()
 		case "tcp+sni":
-			h := &tcp.SNIProxy{cfg.Proxy.DialTimeout, lookupHostFn(cfg)}
-			go proxy.ListenAndServeTCP(l, h, tlscfg)
+			go func() {
+				h := &tcp.SNIProxy{cfg.Proxy.DialTimeout, lookupHostFn(cfg)}
+				if err := proxy.ListenAndServeTCP(l, h, tlscfg); err != nil {
+					exit.Fatal("[FATAL] ", err)
+				}
+			}()
 		default:
 			exit.Fatal("[FATAL] Invalid protocol ", l.Proto)
 		}
