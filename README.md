@@ -99,6 +99,8 @@ urlprefix-:3306 proto=tcp                          # route external port 3306
 
    Make sure the prefix for HTTP routes contains **at least one slash** (`/`).
 
+   See the full list of options in the [Documentation](https://github.com/fabiolb/fabio/wiki/Routing#config-language).
+
 5. Start fabio without a config file (assuming a running consul agent on `localhost:8500`)
    Watch the log output how fabio picks up the route to your service.
    Try starting/stopping your service to see how the routing table changes instantly.

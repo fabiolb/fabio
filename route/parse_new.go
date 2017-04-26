@@ -19,26 +19,17 @@ var (
 const Commands = `
 Route commands can have the following form:
 
-route add <svc> <src> <dst> weight <w> tags "<t1>,<t2>,..."
-  - Add route for service svc from src to dst and assign weight and tags
+route add <svc> <src> <dst>[ weight <w>][ tags "<t1>,<t2>,..."][ opts "k1=v1 k2=v2 ..."]
+  - Add route for service svc from src to dst with optional weight, tags and options.
+    Valid options are:
 
-route add <svc> <src> <dst> weight <w>
-  - Add route for service svc from src to dst and assign weight
+	  strip=/path        : forward '/path/to/file' as '/to/file'
+	  proto=tcp          : upstream service is TCP, dst is ':port'
+	  proto=https        : upstream service is HTTPS
+	  tlsskipverify=true : disable TLS cert validation for HTTPS upstream
 
-route add <svc> <src> <dst> tags "<t1>,<t2>,..."
-  - Add route for service svc from src to dst and assign tags
-
-route add <svc> <src> <dst>
-  - Add route for service svc from src to dst
-
-route del <svc> <src> <dst>
-  - Remove route matching svc, src and dst
-
-route del <svc> <src>
-  - Remove all routes of services matching svc and src
-
-route del <svc>
-  - Remove all routes of service matching svc
+route del <svc>[ <src>[ <dst>]]
+  - Remove route matching svc, src and/or dst
 
 route del <svc> tags "<t1>,<t2>,..."
   - Remove all routes of service matching svc and tags
