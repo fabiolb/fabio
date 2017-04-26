@@ -54,17 +54,7 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 
 	fwd := r.Header.Get("Forwarded")
 	if fwd == "" {
-		fwd = "for=" + remoteIP
-		switch {
-		case ws && r.TLS != nil:
-			fwd += "; proto=wss"
-		case ws && r.TLS == nil:
-			fwd += "; proto=ws"
-		case r.TLS != nil:
-			fwd += "; proto=https"
-		default:
-			fwd += "; proto=http"
-		}
+		fwd = "for=" + remoteIP + "; proto=" + scheme(r)
 	}
 	if cfg.LocalIP != "" {
 		fwd += "; by=" + cfg.LocalIP
