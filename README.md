@@ -60,7 +60,7 @@ The full documentation is on the [Wiki](https://github.com/fabiolb/fabio/wiki).
 ## Getting started
 
 1. Install from source, [binary](https://github.com/fabiolb/fabio/releases),
-   [Docker](https://hub.docker.com/r/magiconair/fabio/) or [Homebrew](http://brew.sh).
+   [Docker](https://hub.docker.com/r/fabiolb/fabio/) or [Homebrew](http://brew.sh).
     ```
 	# go 1.8 or higher is required
     go get github.com/fabiolb/fabio                     (>= go1.8)
@@ -68,7 +68,7 @@ The full documentation is on the [Wiki](https://github.com/fabiolb/fabio/wiki).
     brew install fabio                                  (OSX/macOS stable)
     brew install --devel fabio                          (OSX/macOS devel)
 
-    docker pull magiconair/fabio                        (Docker)
+    docker pull fabiolb/fabio                           (Docker)
 
     https://github.com/fabiolb/fabio/releases           (pre-built binaries)
     ```
