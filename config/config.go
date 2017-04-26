@@ -24,6 +24,7 @@ type CertSource struct {
 	ClientCAPath string
 	CAUpgradeCN  string
 	Refresh      time.Duration
+	RenewToken   time.Duration
 	Header       http.Header
 }
 

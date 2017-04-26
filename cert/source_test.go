@@ -103,6 +103,7 @@ func TestNewSource(t *testing.T) {
 				ClientCAPath: "clientca",
 				CAUpgradeCN:  "upgcn",
 				Refresh:      3 * time.Second,
+				RenewToken:   60 * time.Second,
 			},
 		},
 	}

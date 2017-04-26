@@ -63,6 +63,7 @@ func NewSource(cfg config.CertSource) (Source, error) {
 			ClientCAPath: cfg.ClientCAPath,
 			CAUpgradeCN:  cfg.CAUpgradeCN,
 			Refresh:      cfg.Refresh,
+			RenewToken:   cfg.RenewToken,
 			vaultToken:   os.Getenv("VAULT_TOKEN"),
 		}, nil
 

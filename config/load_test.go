@@ -133,13 +133,22 @@ func TestLoad(t *testing.T) {
 			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=vault;cert=value"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
-				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "vault", CertPath: "value", Refresh: 3 * time.Second}
+				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "vault", CertPath: "value", Refresh: 3 * time.Second, RenewToken: time.Hour}
+				return cfg
+			},
+		},
+		{
+			desc: "-proxy.addr with vault cert source and custom token renew interval",
+			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=vault;cert=value;renewtoken=30m"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "vault", CertPath: "value", Refresh: 3 * time.Second, RenewToken: 30 * time.Minute}
 				return cfg
 			},
 		},
 		{
 			desc: "-proxy.addr with cert source",
-			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;hdr=a: b;caupgcn=furb"},
+			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;renewtoken=60s;hdr=a: b;caupgcn=furb"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{
 					Listen{
@@ -152,6 +161,7 @@ func TestLoad(t *testing.T) {
 							CertPath:     "foo",
 							ClientCAPath: "bar",
 							Refresh:      2 * time.Second,
+							RenewToken:   60 * time.Second,
 							Header:       http.Header{"A": []string{"b"}},
 							CAUpgradeCN:  "furb",
 						},
@@ -162,7 +172,7 @@ func TestLoad(t *testing.T) {
 		},
 		{
 			desc: "-proxy.addr with cert source with full options",
-			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true;proto=https", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;hdr=a: b;caupgcn=furb"},
+			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true;proto=https", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;renewtoken=60s;hdr=a: b;caupgcn=furb"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{
 					Listen{
@@ -175,6 +185,7 @@ func TestLoad(t *testing.T) {
 							CertPath:     "foo",
 							ClientCAPath: "bar",
 							Refresh:      2 * time.Second,
+							RenewToken:   60 * time.Second,
 							Header:       http.Header{"A": []string{"b"}},
 							CAUpgradeCN:  "furb",
 						},

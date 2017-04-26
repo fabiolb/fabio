@@ -27,6 +27,7 @@ type VaultSource struct {
 	ClientCAPath string
 	CAUpgradeCN  string
 	Refresh      time.Duration
+	RenewToken   time.Duration
 
 	mu         sync.Mutex
 	token      string // actual token
@@ -131,9 +132,7 @@ func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error)
 	}
 
 	// renew token
-	// TODO(fs): make configurable
-	const oneHour = 3600
-	_, err = c.Auth().Token().RenewSelf(oneHour)
+	_, err = c.Auth().Token().RenewSelf(int(s.RenewToken / time.Second))
 	if err != nil {
 		// TODO(fs): danger of filling up log since default refresh is 1s
 		if !dropNotRenewableError {

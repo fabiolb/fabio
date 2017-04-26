@@ -12,10 +12,12 @@ var defaultValues = struct {
 	WriteTimeout          time.Duration
 	UIListenerValue       string
 	GZIPContentTypesValue string
+	RenewToken            time.Duration
 }{
 	ListenerValue:    []string{":9999"},
 	CertSourcesValue: []map[string]string{},
 	UIListenerValue:  ":9998",
+	RenewToken:       time.Hour,
 }
 
 var defaultConfig = &Config{

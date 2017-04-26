@@ -406,6 +406,12 @@ func parseCertSource(cfg map[string]string) (c CertSource, err error) {
 				return CertSource{}, err
 			}
 			c.Refresh = d
+		case "renewtoken":
+			d, err := time.ParseDuration(v)
+			if err != nil {
+				return CertSource{}, err
+			}
+			c.RenewToken = d
 		case "hdr":
 			p := strings.SplitN(v, ": ", 2)
 			if len(p) != 2 {
@@ -431,6 +437,9 @@ func parseCertSource(cfg map[string]string) (c CertSource, err error) {
 	}
 	if c.Type == "file" {
 		c.Refresh = 0
+	}
+	if c.Type == "vault" && c.RenewToken == 0 {
+		c.RenewToken = defaultValues.RenewToken
 	}
 	return
 }
