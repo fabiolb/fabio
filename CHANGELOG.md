@@ -15,6 +15,11 @@
  * The listener code no longer swallows the errors and exits if it cannot create
    a listening socket.
 
+ * [Issue #278](https://github.com/fabiolb/fabio/issue/278): Add service name to access log fields
+ 
+   Add `$upstream_service` which contains the service name of the selected target
+   to the available access log fields.
+
 ### [v1.4.3](https://github.com/fabiolb/fabio/releases/tag/v1.4.3) - 24 Apr 2017
 
 #### Bug Fixes
