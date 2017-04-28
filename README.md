@@ -116,4 +116,14 @@ urlprefix-:3306 proto=tcp                          # route external port 3306
 
 ## License
 
-MIT licensed
+* Contributions up to 14 Apr 2017 before [38f73da](https://github.com/fabiolb/fabio/commit/38f73da6413b68fed1631101ac1d0b79a2fac870)
+
+  MIT Licensed
+  Copyright (c) 2017 eBay Software Foundation. All rights reserved.
+
+* Contributions after 14 Apr 2017 starting with  [38f73da](https://github.com/fabiolb/fabio/commit/38f73da6413b68fed1631101ac1d0b79a2fac870)
+
+  MIT Licensed
+  Copyright (c) 2017 Frank Schroeder. All rights reserved.
+
+See [LICENSE](https://github.com/fabiolb/fabio/blob/master/LICENSE) for details.

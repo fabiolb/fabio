@@ -1,6 +1,8 @@
-Copyright (c) 2015 eBay Software Foundation. All rights reserved.
+All contributions up to 14 Apr 2017 (before commit 38f73da6413b68fed1631101ac1d0b79a2fac870)
+Copyright (c) 2017 eBay Software Foundation. All rights reserved.
 
-Initially written by Frank Schroeder.
+All contributions after 14 Apr 2017 (starting with commit 38f73da6413b68fed1631101ac1d0b79a2fac870)
+Copyright (c) 2017 Frank Schroeder. All rights reserved.
 
 Licensed under the MIT license.
 
