@@ -1,6 +1,8 @@
 package proxy
 
 import (
+	"crypto/tls"
+	"net"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -102,7 +104,13 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var h http.Handler
 	switch {
 	case upgrade == "websocket" || upgrade == "Websocket":
-		h = newRawProxy(targetURL)
+		if targetURL.Scheme == "https" || targetURL.Scheme == "wss" {
+			h = newRawProxy(targetURL, func(network, address string) (net.Conn, error) {
+				return tls.Dial(network, address, transport.(*http.Transport).TLSClientConfig)
+			})
+		} else {
+			h = newRawProxy(targetURL, net.Dial)
+		}
 
 	case accept == "text/event-stream":
 		// use the flush interval for SSE (server-sent events)

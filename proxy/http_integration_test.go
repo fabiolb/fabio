@@ -197,29 +197,14 @@ func TestProxyLogOutput(t *testing.T) {
 }
 
 func TestProxyHTTPSUpstream(t *testing.T) {
-	var err error
-	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("OK"))
-	}))
-	server.TLS = &tls.Config{
-		Certificates: make([]tls.Certificate, 1),
-	}
-	server.TLS.Certificates[0], err = tls.X509KeyPair(internal.LocalhostCert, internal.LocalhostKey)
-	if err != nil {
-		t.Fatalf("failed to set cert")
-	}
+	server := httptest.NewUnstartedServer(okHandler)
+	server.TLS = tlsServerConfig()
 	server.StartTLS()
 	defer server.Close()
 
-	rootCAs := x509.NewCertPool()
-	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
-		t.Fatal("could not parse cert")
-	}
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config: config.Proxy{},
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{RootCAs: rootCAs},
-		},
+		Config:    config.Proxy{},
+		Transport: &http.Transport{TLSClientConfig: tlsClientConfig()},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable("route add srv / " + server.URL + ` opts "proto=https"`)
 			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
@@ -237,9 +222,7 @@ func TestProxyHTTPSUpstream(t *testing.T) {
 }
 
 func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
-	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("OK"))
-	}))
+	server := httptest.NewUnstartedServer(okHandler)
 	server.TLS = &tls.Config{}
 	server.StartTLS()
 	defer server.Close()
@@ -367,6 +350,30 @@ func gzipHandler(contentType string) http.HandlerFunc {
 		w.Header().Set("Content-Encoding", "gzip")
 		w.Write(gzipContent)
 	}
+}
+
+var okHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))
+})
+
+func tlsInsecureConfig() *tls.Config {
+	return &tls.Config{InsecureSkipVerify: true}
+}
+
+func tlsClientConfig() *tls.Config {
+	rootCAs := x509.NewCertPool()
+	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
+		panic("could not parse cert")
+	}
+	return &tls.Config{RootCAs: rootCAs}
+}
+
+func tlsServerConfig() *tls.Config {
+	cert, err := tls.X509KeyPair(internal.LocalhostCert, internal.LocalhostKey)
+	if err != nil {
+		panic("failed to set cert")
+	}
+	return &tls.Config{Certificates: []tls.Certificate{cert}}
 }
 
 func mustParse(rawurl string) *url.URL {

@@ -13,10 +13,12 @@ import (
 // conn measures the number of open web socket connections
 var conn = metrics.DefaultRegistry.GetCounter("ws.conn")
 
+type dialFunc func(network, address string) (net.Conn, error)
+
 // newRawProxy returns an HTTP handler which forwards data between
 // an incoming and outgoing TCP connection including the original request.
 // This handler establishes a new outgoing connection per request.
-func newRawProxy(t *url.URL) http.Handler {
+func newRawProxy(t *url.URL, dial dialFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn.Inc(1)
 		defer func() { conn.Inc(-1) }()
@@ -35,7 +37,7 @@ func newRawProxy(t *url.URL) http.Handler {
 		}
 		defer in.Close()
 
-		out, err := net.Dial("tcp", t.Host)
+		out, err := dial("tcp", t.Host)
 		if err != nil {
 			log.Printf("[ERROR] WS error for %s. %s", r.URL, err)
 			http.Error(w, "error contacting backend server", http.StatusInternalServerError)
