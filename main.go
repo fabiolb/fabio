@@ -196,6 +196,7 @@ func startAdmin(cfg *config.Config) {
 
 func startServers(cfg *config.Config) {
 	for _, l := range cfg.Listen {
+		l := l // capture loop var for go routines below
 		tlscfg := makeTLSConfig(l)
 
 		log.Printf("[INFO] %s proxy listening on %s", strings.ToUpper(l.Proto), l.Addr)
