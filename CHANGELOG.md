@@ -6,9 +6,10 @@
 
  * [Issue #279](https://github.com/fabiolb/fabio/issue/279): fabio does not start with multiple listeners
 
-   Starting with 5a23cb19dc64a30ee40c42bd3ec1dde289a91033 found in #265 fabio
-   would not start when configured with multiple listeners because the
-   encompassing go routine would no longer capture the loop variable.
+   Commit https://github.com/fabiolb/fabio/commit/5a23cb19dc64a30ee40c42bd3ec1dde289a91033 found in
+   #265 added code for not swallowing the errors but did not capture the loop variable
+   for the go routines when starting listeners. This prevented fabio from starting up properly
+   when being configured with more than one listener.
 
 #### Improvements
 
