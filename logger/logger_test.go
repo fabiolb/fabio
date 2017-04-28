@@ -79,9 +79,10 @@ func TestLog(t *testing.T) {
 				RemoteAddr: "5.6.7.8:1234",
 			},
 		},
-		RequestURL:   rurl,
-		UpstreamAddr: uurl.Host,
-		UpstreamURL:  uurl,
+		RequestURL:      rurl,
+		UpstreamAddr:    uurl.Host,
+		UpstreamService: "svc-a",
+		UpstreamURL:     uurl,
 	}
 
 	tests := []struct {
@@ -121,6 +122,7 @@ func TestLog(t *testing.T) {
 		{"$upstream_request_scheme", "http\n"},
 		{"$upstream_request_uri", "/foo?q=x\n"},
 		{"$upstream_request_url", "http://7.8.9.0:5678/foo?q=x\n"},
+		{"$upstream_service", "svc-a\n"},
 	}
 
 	for _, tt := range tests {

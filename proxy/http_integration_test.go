@@ -122,7 +122,10 @@ func TestProxyLogOutput(t *testing.T) {
 		},
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
-			return &route.Target{URL: mustParse(server.URL)}
+			return &route.Target{
+				Service: "svc-a",
+				URL:     mustParse(server.URL),
+			}
 		},
 		Logger: l,
 	}
@@ -182,6 +185,7 @@ func TestProxyLogOutput(t *testing.T) {
 		"upstream_request_scheme:" + upstreamURL.Scheme,
 		"upstream_request_uri:/foo?x=y",
 		"upstream_request_url:" + upstreamURL.String() + "/foo?x=y",
+		"upstream_service:svc-a",
 	}
 
 	data := string(b.Bytes())

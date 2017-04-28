@@ -148,13 +148,14 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// write access log
 	if p.Logger != nil {
 		p.Logger.Log(&logger.Event{
-			Start:        start,
-			End:          end,
-			Request:      r,
-			Response:     resp,
-			RequestURL:   requestURL,
-			UpstreamAddr: targetURL.Host,
-			UpstreamURL:  targetURL,
+			Start:           start,
+			End:             end,
+			Request:         r,
+			Response:        resp,
+			RequestURL:      requestURL,
+			UpstreamAddr:    targetURL.Host,
+			UpstreamService: t.Service,
+			UpstreamURL:     targetURL,
 		})
 	}
 }

@@ -79,6 +79,10 @@ type Event struct {
 	// upstream server which handled the proxied request.
 	UpstreamAddr string
 
+	// UpstreamService is the name of the upstream service as
+	// defined in the route.
+	UpstreamService string
+
 	// UpstreamURL is the URL which was sent to the upstream server.
 	// It should only be set for HTTP log events.
 	UpstreamURL *url.URL

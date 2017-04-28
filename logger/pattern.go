@@ -256,6 +256,9 @@ var fields = map[string]field{
 		}
 		b.WriteString(e.UpstreamURL.String())
 	},
+	"$upstream_service": func(b *bytes.Buffer, e *Event) {
+		b.WriteString(e.UpstreamService)
+	},
 }
 
 var shortMonthNames = []string{
