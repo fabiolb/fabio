@@ -4,14 +4,14 @@
 
 #### Bug Fixes
 
- * [Issue #271](https://github.com/fabiolb/fabio/issue/271): Support websocket for HTTPS upstream
+ * [Issue #271](https://github.com/fabiolb/fabio/issues/271): Support websocket for HTTPS upstream
  
    This patch fixes that websocket connections are not forwarded to an HTTPS upstream server.
 
- * [Issue #279](https://github.com/fabiolb/fabio/issue/279): fabio does not start with multiple listeners
+ * [Issue #279](https://github.com/fabiolb/fabio/issues/279): fabio does not start with multiple listeners
 
    Commit [5a23cb1](https://github.com/fabiolb/fabio/commit/5a23cb19dc64a30ee40c42bd3ec1dde289a91033)
-   found in [#265](https://github.com/fabiolb/fabio/issue/265) added code for
+   found in [#265](https://github.com/fabiolb/fabio/issues/265) added code for
    not swallowing the errors but did not capture the loop variable for the go
    routines when starting listeners. This prevented fabio from starting up
    properly when being configured with more than one listener.
@@ -21,7 +21,7 @@
  * The listener code no longer swallows the errors and exits if it cannot create
    a listening socket.
 
- * [Issue #278](https://github.com/fabiolb/fabio/issue/278): Add service name to access log fields
+ * [Issue #278](https://github.com/fabiolb/fabio/issues/278): Add service name to access log fields
  
    Add `$upstream_service` which contains the service name of the selected target
    to the available access log fields.
@@ -30,7 +30,7 @@
 
 #### Bug Fixes
 
- * [Issue #269](https://github.com/fabiolb/fabio/issue/269): Access log cannot be disabled
+ * [Issue #269](https://github.com/fabiolb/fabio/issues/269): Access log cannot be disabled
 
    The access logging feature that was added in v1.4.1 did not allow to disable the access logging
    output and all fabio instances were writing an access log by default. Also, the logging setup
