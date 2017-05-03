@@ -4,6 +4,10 @@
 
 #### Bug Fixes
 
+ * [Issue #271](https://github.com/fabiolb/fabio/issue/271): Support websocket for HTTPS upstream
+ 
+   This patch fixes that websocket connections are not forwarded to an HTTPS upstream server.
+
  * [Issue #279](https://github.com/fabiolb/fabio/issue/279): fabio does not start with multiple listeners
 
    Commit [5a23cb1](https://github.com/fabiolb/fabio/commit/5a23cb19dc64a30ee40c42bd3ec1dde289a91033)
