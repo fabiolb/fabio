@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"net"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"strconv"
 	"strings"
@@ -96,9 +97,9 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	upgrade, accept := r.Header.Get("Upgrade"), r.Header.Get("Accept")
 
-	transport := p.Transport
+	tr := p.Transport
 	if t.TLSSkipVerify {
-		transport = p.InsecureTransport
+		tr = p.InsecureTransport
 	}
 
 	var h http.Handler
@@ -106,7 +107,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case upgrade == "websocket" || upgrade == "Websocket":
 		if targetURL.Scheme == "https" || targetURL.Scheme == "wss" {
 			h = newRawProxy(targetURL, func(network, address string) (net.Conn, error) {
-				return tls.Dial(network, address, transport.(*http.Transport).TLSClientConfig)
+				return tls.Dial(network, address, tr.(*http.Transport).TLSClientConfig)
 			})
 		} else {
 			h = newRawProxy(targetURL, net.Dial)
@@ -115,10 +116,10 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case accept == "text/event-stream":
 		// use the flush interval for SSE (server-sent events)
 		// must be > 0s to be effective
-		h = newHTTPProxy(targetURL, transport, p.Config.FlushInterval)
+		h = newHTTPProxy(targetURL, tr, p.Config.FlushInterval)
 
 	default:
-		h = newHTTPProxy(targetURL, transport, time.Duration(0))
+		h = newHTTPProxy(targetURL, tr, time.Duration(0))
 	}
 
 	if p.Config.GZIPContentTypes != nil {
@@ -143,15 +144,18 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get response and update metrics
-	hr, ok := h.(responseKeeper)
+	rp, ok := h.(*httputil.ReverseProxy)
 	if !ok {
 		return
 	}
-	resp := hr.response()
-	if resp == nil {
+	rpt, ok := rp.Transport.(*transport)
+	if !ok {
 		return
 	}
-	metrics.DefaultRegistry.GetTimer(key(resp.StatusCode)).Update(dur)
+	if rpt.resp == nil {
+		return
+	}
+	metrics.DefaultRegistry.GetTimer(key(rpt.resp.StatusCode)).Update(dur)
 
 	// write access log
 	if p.Logger != nil {
@@ -159,7 +163,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Start:           start,
 			End:             end,
 			Request:         r,
-			Response:        resp,
+			Response:        rpt.resp,
 			RequestURL:      requestURL,
 			UpstreamAddr:    targetURL.Host,
 			UpstreamService: t.Service,

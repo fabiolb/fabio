@@ -8,7 +8,7 @@ import (
 )
 
 func newHTTPProxy(target *url.URL, tr http.RoundTripper, flush time.Duration) http.Handler {
-	rp := &httputil.ReverseProxy{
+	return &httputil.ReverseProxy{
 		// this is a simplified director function based on the
 		// httputil.NewSingleHostReverseProxy() which does not
 		// mangle the request and target URL since the target
@@ -24,29 +24,8 @@ func newHTTPProxy(target *url.URL, tr http.RoundTripper, flush time.Duration) ht
 			}
 		},
 		FlushInterval: flush,
-		Transport:     &transport{tr, nil},
+		Transport:     &transport{tr, nil, nil},
 	}
-	return &httpHandler{rp}
-}
-
-// responseKeeper exposes the response from an HTTP request.
-type responseKeeper interface {
-	response() *http.Response
-}
-
-// httpHandler is a simple wrapper around a reverse proxy to access the
-// captured response object in the underlying transport object. There
-// may be a better way of doing this.
-type httpHandler struct {
-	rp *httputil.ReverseProxy
-}
-
-func (h *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.rp.ServeHTTP(w, r)
-}
-
-func (h *httpHandler) response() *http.Response {
-	return h.rp.Transport.(*transport).resp
 }
 
 // transport executes the roundtrip and captures the response. It is not
@@ -55,10 +34,10 @@ func (h *httpHandler) response() *http.Response {
 type transport struct {
 	http.RoundTripper
 	resp *http.Response
+	err  error
 }
 
 func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
-	resp, err := t.RoundTripper.RoundTrip(r)
-	t.resp = resp
-	return resp, err
+	t.resp, t.err = t.RoundTripper.RoundTrip(r)
+	return t.resp, t.err
 }
