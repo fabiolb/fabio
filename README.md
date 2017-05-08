@@ -8,7 +8,7 @@
   </div>
 </div>
 
-##### Current stable version: 1.4.3
+##### Current stable version: 1.4.4
 
 [![Build Status](https://travis-ci.org/fabiolb/fabio.svg?branch=master)](https://travis-ci.org/fabiolb/fabio)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/fabiolb/fabio/master/LICENSE)
