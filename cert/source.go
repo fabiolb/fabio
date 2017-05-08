@@ -87,7 +87,7 @@ func TLSConfig(src Source, strictMatch bool) (*tls.Config, error) {
 
 	store := NewStore()
 	x := &tls.Config{
-		NextProtos: []string{"h2"},
+		NextProtos: []string{"h2", "http/1.1"},
 		GetCertificate: func(clientHello *tls.ClientHelloInfo) (cert *tls.Certificate, err error) {
 			return getCertificate(store.certstore(), clientHello, strictMatch)
 		},
