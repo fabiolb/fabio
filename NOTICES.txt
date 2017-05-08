@@ -1,0 +1,148 @@
+fabio
+
+https://github.com/fabiolb/fabio
+License: MIT (https://github.com/fabiolb/fabio/LICENSE)
+Copyright (c) 2017 Frank Schroeder. All rights reserved. (after 15 Apr 2017/commit 38f73da6413b68fed1631101ac1d0b79a2fac870)
+Copyright (c) 2015 eBay Software Foundation. All rights reserved. (before 15 Apr 2017/commit 38f73da6413b68fed1631101ac1d0b79a2fac870)
+
+
+------------------------------------------------
+Attribution for Project Dependencies
+------------------------------------------------
+
+github.com/armon/go-proxyproto
+https://github.com/armon/go-proxyproto
+License: MIT (https://github.com/armon/go-proxyproto/LICENSE)
+Copyright (c) 2014 Armon Dadgar
+
+
+github.com/circonus-labs/circonus-gometrics
+https://github.com/circonus-labs/circonus-gometrics
+License: BSD 3-clause (https://github.com/circonus-labs/circonus-gometrics/LICENSE)
+Copyright (c) 2016, Circonus, Inc. All rights reserved.
+
+
+github.com/circonus-labs/circonusllhist
+https://github.com/circonus-labs/circonusllhist
+License: BSD 3-clause (https://github.com/circonus-labs/circonusllhist/LICENSE)
+Copyright (c) 2016 Circonus, Inc. All rights reserved.
+
+
+github.com/cyberdelia/go-metrics-graphite
+https://github.com/cyberdelia/go-metrics-graphite
+License: BSD 2-clause (https://github.com/cyberdelia/go-metrics-graphite/LICENSE)
+Copyright 2015 Timothée Peignier. All rights reserved.
+
+
+github.com/fatih/structs
+https://github.com/fatih/structs
+License: MIT (https://github.com/fatih/structs/LICENSE)
+Copyright (c) 2014 Fatih Arslan
+
+
+github.com/hashicorp/consul
+https://github.com/hashicorp/consul
+License: MPL-2 (https://github.com/hashicorp/consul/LICENSE)
+Copyright 2017 HashiCorp, Inc.
+
+
+github.com/hashicorp/errwrap
+https://github.com/hashicorp/errwrap
+License: MPL-2 (https://github.com/hashicorp/errwrap/LICENSE)
+Copyright 2017 HashiCorp, Inc.
+
+
+github.com/hashicorp/go-cleanhttp
+https://github.com/hashicorp/go-cleanhttp
+License: MPL-2 (https://github.com/hashicorp/go-cleanhttp/LICENSE)
+Copyright 2017 HashiCorp, Inc.
+
+
+github.com/hashicorp/go-multierror
+https://github.com/hashicorp/go-multierror
+License: MPL-2 (https://github.com/hashicorp/go-multierror/LICENSE)
+Copyright 2017 HashiCorp, Inc.
+
+
+github.com/hashicorp/go-retryablehttp
+https://github.com/hashicorp/go-retryablehttp
+License: MPL-2 (https://github.com/hashicorp/go-retryablehttp/LICENSE)
+Copyright 2017 HashiCorp, Inc.
+
+
+github.com/hashicorp/go-rootcerts
+https://github.com/hashicorp/go-rootcerts
+License: MPL-2 (https://github.com/hashicorp/go-rootcerts/LICENSE)
+Copyright 2017 HashiCorp, Inc.
+
+
+github.com/hashicorp/hcl
+https://github.com/hashicorp/hcl
+License: MPL-2 (https://github.com/hashicorp/hcl/LICENSE)
+Copyright 2017 HashiCorp, Inc.
+
+
+github.com/hashicorp/serf
+https://github.com/hashicorp/serf
+License: MPL-2 (https://github.com/hashicorp/serf/LICENSE)
+Copyright 2017 HashiCorp, Inc.
+
+
+github.com/hashicorp/vault
+https://github.com/hashicorp/vault
+License: MPL-2 (https://github.com/hashicorp/vault/LICENSE)
+Copyright 2017 HashiCorp, Inc.
+
+
+github.com/magiconair/go-metrics-statsd
+https://github.com/magiconair/go-metrics-statsd
+License: MIT (https://github.com/magiconair/go-metrics-statsd/LICENSE)
+Copyright (c) 2016 PubNub
+
+
+github.com/magiconair/properties
+https://github.com/magiconair/properties
+License: BSD 2-clause (https://github.com/magiconair/properties/LICENSE)
+Copyright (c) 2013-2017 - Frank Schroeder
+
+
+github.com/mitchellh/go-homedir
+https://github.com/mitchellh/go-homedir
+License: MIT (https://github.com/mitchellh/go-homedir/LICENSE)
+Copyright (c) 2013 Mitchell Hashimoto
+
+
+github.com/mitchellh/mapstructure
+https://github.com/mitchellh/mapstructure
+License: MIT (https://github.com/mitchellh/mapstructure/LICENSE)
+Copyright (c) 2013 Mitchell Hashimoto
+
+
+github.com/rcrowley/go-metrics
+https://github.com/rcrowley/go-metrics
+License: BSD 2-clause (https://github.com/rcrowley/go-metrics/LICENSE)
+Copyright 2012 Richard Crowley. All rights reserved.
+
+
+github.com/ryanuber/go-glob
+https://github.com/ryanuber/go-glob
+License: MIT (https://github.com/ryanuber/go-glob/LICENSE)
+Copyright (c) 2014 Ryan Uber
+
+
+github.com/sergi/go-diff
+https://github.com/sergi/go-diff
+License: MIT (https://github.com/sergi/go-diff/LICENSE)
+Copyright (c) 2012-2016 The go-diff Authors. All rights reserved.
+
+
+golang.org/x/net
+https://golang.org/x/net
+License: BSD 3-clause (https://golang.org/x/net/LICENSE)
+Copyright (c) 2009 The Go Authors. All rights reserved.
+
+
+golang.org/go
+https://github.com/golang/go
+License: BSD 3-clause (https://github.com/golang/go/LICENSE)
+Copyright (c) 2009 The Go Authors. All rights reserved.
