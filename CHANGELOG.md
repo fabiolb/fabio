@@ -16,6 +16,11 @@
    routines when starting listeners. This prevented fabio from starting up
    properly when being configured with more than one listener.
 
+ * [Issue #289](https://github.com/fabiolb/fabio/issues/289): Fabio does not advertise http/1.1 on TLS connections
+ 
+   This patch makes fabio announce both `h2` and `http/1.1` as application level protocols
+   on TLS connections.
+
 #### Improvements
 
  * The listener code no longer swallows the errors and exits if it cannot create
