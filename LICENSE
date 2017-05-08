@@ -1,10 +1,7 @@
-All contributions up to 14 Apr 2017 (before commit 38f73da6413b68fed1631101ac1d0b79a2fac870)
-Copyright (c) 2017 eBay Software Foundation. All rights reserved.
+The MIT License (MIT)
 
-All contributions after 14 Apr 2017 (starting with commit 38f73da6413b68fed1631101ac1d0b79a2fac870)
-Copyright (c) 2017 Frank Schroeder. All rights reserved.
-
-Licensed under the MIT license.
+Copyright (c) 2017 Frank Schroeder. All rights reserved. (after 15 Apr 2017/commit 38f73da6413b68fed1631101ac1d0b79a2fac870)
+Copyright (c) 2015 eBay Software Foundation. All rights reserved. (before 15 Apr 2017/commit 38f73da6413b68fed1631101ac1d0b79a2fac870)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
