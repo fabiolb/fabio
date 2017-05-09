@@ -49,6 +49,20 @@ func TestLoad(t *testing.T) {
 			cfg:  func(cfg *Config) *Config { return cfg },
 		},
 		{
+			args: []string{"-profile.mode", "foo"},
+			cfg: func(cfg *Config) *Config {
+				cfg.ProfileMode = "foo"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-profile.path", "foo"},
+			cfg: func(cfg *Config) *Config {
+				cfg.ProfilePath = "foo"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.addr", ":5555"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{{Addr: ":5555", Proto: "http"}}

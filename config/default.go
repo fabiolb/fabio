@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"runtime"
 	"time"
 )
@@ -19,6 +20,7 @@ var defaultValues = struct {
 }
 
 var defaultConfig = &Config{
+	ProfilePath: os.TempDir(),
 	Log: Log{
 		AccessFormat: "common",
 		RoutesFormat: "delta",
