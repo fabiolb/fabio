@@ -44,8 +44,22 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 		r.Header.Set("X-Forwarded-For", remoteIP)
 	}
 
+	// Issue #133: Setting the X-Forwarded-Proto header to
+	// anything other than 'http' or 'https' breaks java
+	// websocket clients which use java.net.URL for composing
+	// the forwarded URL. Since X-Forwarded-Proto is not
+	// specified the common practice is to set it to either
+	// 'http' for 'ws' and 'https' for 'wss' connections.
+	proto := scheme(r)
 	if r.Header.Get("X-Forwarded-Proto") == "" {
-		r.Header.Set("X-Forwarded-Proto", scheme(r))
+		switch proto {
+		case "ws":
+			r.Header.Set("X-Forwarded-Proto", "http")
+		case "wss":
+			r.Header.Set("X-Forwarded-Proto", "https")
+		default:
+			r.Header.Set("X-Forwarded-Proto", proto)
+		}
 	}
 
 	if r.Header.Get("X-Forwarded-Port") == "" {
@@ -54,7 +68,7 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 
 	fwd := r.Header.Get("Forwarded")
 	if fwd == "" {
-		fwd = "for=" + remoteIP + "; proto=" + scheme(r)
+		fwd = "for=" + remoteIP + "; proto=" + proto
 	}
 	if cfg.LocalIP != "" {
 		fwd += "; by=" + cfg.LocalIP
