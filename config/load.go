@@ -126,6 +126,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Proxy.ClientIPHeader, "proxy.header.clientip", defaultConfig.Proxy.ClientIPHeader, "header for the request ip")
 	f.StringVar(&cfg.Proxy.TLSHeader, "proxy.header.tls", defaultConfig.Proxy.TLSHeader, "header for TLS connections")
 	f.StringVar(&cfg.Proxy.TLSHeaderValue, "proxy.header.tls.value", defaultConfig.Proxy.TLSHeaderValue, "value for TLS connection header")
+	f.StringVar(&cfg.Proxy.RequestID, "proxy.header.requestid", defaultConfig.Proxy.RequestID, "header for reqest id")
 	f.StringVar(&gzipContentTypesValue, "proxy.gzip.contenttype", defaultValues.GZIPContentTypesValue, "regexp of content types to compress")
 	f.StringSliceVar(&listenerValue, "proxy.addr", defaultValues.ListenerValue, "listener config")
 	f.KVSliceVar(&certSourcesValue, "proxy.cs", defaultValues.CertSourcesValue, "certificate sources")

@@ -15,6 +15,7 @@ import (
 	"github.com/fabiolb/fabio/metrics"
 	"github.com/fabiolb/fabio/proxy/gzip"
 	"github.com/fabiolb/fabio/route"
+	"github.com/fabiolb/fabio/uuid"
 )
 
 // HTTPProxy is a dynamic reverse proxy for HTTP and HTTPS protocols.
@@ -48,6 +49,10 @@ type HTTPProxy struct {
 
 	// Logger is the access logger for the requests.
 	Logger logger.Logger
+
+	// UUID returns a unique id in uuid format.
+	// If UUID is nil, uuid.NewUUID() is used.
+	UUID func() string
 }
 
 func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -64,6 +69,14 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := addHeaders(r, p.Config); err != nil {
 		http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
 		return
+	}
+
+	if p.Config.RequestID != "" {
+		id := p.UUID
+		if id == nil {
+			id = uuid.NewUUID
+		}
+		r.Header.Set(p.Config.RequestID, id())
 	}
 
 	// build the request url since r.URL will get modified

@@ -303,6 +303,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-proxy.header.requestid", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.RequestID = "value"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.gzip.contenttype", `^text/.*$`},
 			cfg: func(cfg *Config) *Config {
 				cfg.Proxy.GZIPContentTypes = regexp.MustCompile(`^text/.*$`)
