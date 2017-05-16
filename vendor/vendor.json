@@ -189,6 +189,12 @@
 			"revisionTime": "2015-07-19T09:56:14-07:00"
 		},
 		{
+			"checksumSHA1": "ehRkDJisGCCSYdNgyvs1gSywSPE=",
+			"path": "github.com/rogpeppe/fastuuid",
+			"revision": "6724a57986aff9bff1a1770e9347036def7c89f6",
+			"revisionTime": "2015-01-06T09:31:45Z"
+		},
+		{
 			"checksumSHA1": "EYkx4sXDLSEd1xUtGoXRsfd5cpw=",
 			"path": "github.com/ryanuber/go-glob",
 			"revision": "572520ed46dbddaed19ea3d9541bdd0494163693",
