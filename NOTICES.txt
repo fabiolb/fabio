@@ -146,3 +146,9 @@ golang.org/go
 https://github.com/golang/go
 License: BSD 3-clause (https://github.com/golang/go/LICENSE)
 Copyright (c) 2009 The Go Authors. All rights reserved.
+
+
+github.com/rogpeppe/fastuuid
+https://github.com/rogpeppe/fastuuid.git
+License: BSD 3-clause (https://github.com/google/uuid/LICENSE)
+Copyright © 2014, Roger Peppe All rights reserved.
