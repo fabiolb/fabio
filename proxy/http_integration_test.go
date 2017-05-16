@@ -50,6 +50,31 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 	}
 }
 
+func TestProxyRequestIDHeader(t *testing.T) {
+	got := "not called"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got = r.Header.Get("X-Request-ID")
+	}))
+	defer server.Close()
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Config:    config.Proxy{RequestID: "X-Request-Id"},
+		Transport: http.DefaultTransport,
+		UUID:      func() string { return "f47ac10b-58cc-0372-8567-0e02b2c3d479" },
+		Lookup: func(r *http.Request) *route.Target {
+			return &route.Target{URL: mustParse(server.URL)}
+		},
+	})
+	defer proxy.Close()
+
+	req, _ := http.NewRequest("GET", proxy.URL, nil)
+	mustDo(req)
+
+	if want := "f47ac10b-58cc-0372-8567-0e02b2c3d479"; got != want {
+		t.Errorf("got %v, but want %v", got, want)
+	}
+}
+
 func TestProxyNoRouteStaus(t *testing.T) {
 	proxy := httptest.NewServer(&HTTPProxy{
 		Config:    config.Proxy{NoRouteStatus: 999},
