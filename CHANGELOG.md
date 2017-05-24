@@ -6,6 +6,8 @@
 
 #### Improvements
 
+ * Upgrade to go1.8.2
+
  * [Issue #133](https://github.com/fabiolb/fabio/issues/133): websockets failing with 500 on rancher
 
    Rancher is a Java application which uses `java.net.URL` to compose the original request URL from the `X-Forwarded-Proto` and other headers. The `java.net.URL` class does not support the `ws` or `wss` protocol without a matching `java.net.URLStreamHandler` implementation. Java code should use the `java.net.URI` class for these types of URLs instead. However, the `X-Forwarded-Proto` header isn't specified as the `Forwarded` header ([RFC 7239](https://tools.ietf.org/html/rfc7239#section-5.4)) and the common usage is to only use either `http` or `https` for websocket connections. In order not to break existing applications fabio now sets the `X-Forwarded-Proto` header to `http` for `ws` and to `https` for `wss` connections.
