@@ -6,7 +6,7 @@
 
 #### Improvements
 
- * Upgrade to go1.8.2
+ * Upgrade to go1.8.3
 
  * [Issue #133](https://github.com/fabiolb/fabio/issues/133): websockets failing with 500 on rancher
 
