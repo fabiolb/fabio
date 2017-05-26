@@ -11,7 +11,8 @@
 
 ##### Current stable version: 1.4.4
 
-[![Build Status](https://travis-ci.org/fabiolb/fabio.svg?branch=master)](https://travis-ci.org/fabiolb/fabio)
+[![Codeship CI Status](https://codeship.com/projects/3e8307d0-2426-0135-1183-6e6f38f65fc4/status?branch=master)](https://app.codeship.com/projects/222209)
+[![Travis CI Status](https://travis-ci.org/fabiolb/fabio.svg?branch=master)](https://travis-ci.org/fabiolb/fabio)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/fabiolb/fabio/master/LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/fabiolb/fabio/total.svg)](https://github.com/fabiolb/fabio/releases)
 [![Docker Pulls](https://img.shields.io/docker/pulls/magiconair/fabio.svg)](https://hub.docker.com/r/magiconair/fabio/)
