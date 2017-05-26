@@ -20,6 +20,12 @@
 
    Thanks to @bkmit for this patch.
 
+ * [Issue #290](https://github.com/fabiolb/fabio/issues/290): Add profiling support
+
+   fabio now supports optional memory, cpu, mutex and block (contention) profiling.
+   Profiling is enabled through the `profile.mode` flag which determines the mode.
+   The `profile.path` flag determines the output path.
+
 ### [v1.4.4](https://github.com/fabiolb/fabio/releases/tag/v1.4.3) - 8 May 2017
 
 #### Bug Fixes
