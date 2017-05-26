@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -30,7 +31,7 @@ func TestProxyWSUpstream(t *testing.T) {
 	routes += "route add ws /insecure " + wssServer.URL + ` opts "proto=https tlsskipverify=true"`
 
 	httpProxy := httptest.NewServer(&HTTPProxy{
-		Config:            config.Proxy{NoRouteStatus: 404},
+		Config:            config.Proxy{NoRouteStatus: 404, GZIPContentTypes: regexp.MustCompile(".*")},
 		Transport:         &http.Transport{TLSClientConfig: tlsClientConfig()},
 		InsecureTransport: &http.Transport{TLSClientConfig: tlsInsecureConfig()},
 		Lookup: func(r *http.Request) *route.Target {
@@ -60,24 +61,28 @@ func TestProxyWSUpstream(t *testing.T) {
 	httpProxyURL := httpProxy.URL[len("http://"):]
 	httpsProxyURL := httpsProxy.URL[len("https://"):]
 
-	t.Run("ws-ws direct", func(t *testing.T) { testWSEcho(t, "ws://"+wsServerURL+"/ws") })
-	t.Run("wss-wss direct", func(t *testing.T) { testWSEcho(t, "wss://"+wssServerURL+"/wss") })
+	t.Run("ws-ws direct", func(t *testing.T) { testWSEcho(t, "ws://"+wsServerURL+"/ws", nil) })
+	t.Run("wss-wss direct", func(t *testing.T) { testWSEcho(t, "wss://"+wssServerURL+"/wss", nil) })
 
-	t.Run("ws-ws via http proxy", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/ws") })
-	t.Run("wss-ws via https proxy", func(t *testing.T) { testWSEcho(t, "wss://"+httpsProxyURL+"/ws") })
+	t.Run("ws-ws via http proxy", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/ws", nil) })
+	t.Run("wss-ws via https proxy", func(t *testing.T) { testWSEcho(t, "wss://"+httpsProxyURL+"/ws", nil) })
 
-	t.Run("ws-wss via http proxy", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/wss") })
-	t.Run("wss-wss via https proxy", func(t *testing.T) { testWSEcho(t, "wss://"+httpsProxyURL+"/wss") })
+	t.Run("ws-wss via http proxy", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/wss", nil) })
+	t.Run("wss-wss via https proxy", func(t *testing.T) { testWSEcho(t, "wss://"+httpsProxyURL+"/wss", nil) })
 
-	t.Run("ws-wss tlsskipverify=true via http proxy", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/insecure") })
-	t.Run("wss-wss tlsskipverify=true via https proxy", func(t *testing.T) { testWSEcho(t, "wss://"+httpsProxyURL+"/insecure") })
+	t.Run("ws-wss tlsskipverify=true via http proxy", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/insecure", nil) })
+	t.Run("wss-wss tlsskipverify=true via https proxy", func(t *testing.T) { testWSEcho(t, "wss://"+httpsProxyURL+"/insecure", nil) })
+
+	h := http.Header{"Accept-Encoding": []string{"gzip"}}
+	t.Run("ws-ws via http proxy with gzip", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/ws", h) })
 }
 
-func testWSEcho(t *testing.T, url string) {
+func testWSEcho(t *testing.T, url string, hdr http.Header) {
 	cfg, err := websocket.NewConfig(url, "http://localhost/")
 	if err != nil {
 		t.Fatalf("NewConfig: ", err)
 	}
+	cfg.Header = hdr
 	if strings.HasPrefix(url, "wss://") {
 		cfg.TlsConfig = tlsClientConfig()
 	}

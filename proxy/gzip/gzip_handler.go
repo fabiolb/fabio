@@ -8,8 +8,11 @@
 package gzip
 
 import (
+	"bufio"
 	"compress/gzip"
+	"errors"
 	"io"
+	"net"
 	"net/http"
 	"regexp"
 	"strings"
@@ -89,6 +92,13 @@ func (grw *GzipResponseWriter) Close() {
 		grw.gzipWriter.Close()
 		gzipWriterPool.Put(grw.gzipWriter)
 	}
+}
+
+func (grw *GzipResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	if hj, ok := grw.ResponseWriter.(http.Hijacker); ok {
+		return hj.Hijack()
+	}
+	return nil, nil, errors.New("not a Hijacker")
 }
 
 func isCompressable(header http.Header, contentTypes *regexp.Regexp) bool {
