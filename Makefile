@@ -49,6 +49,20 @@ release: test
 homebrew:
 	build/homebrew.sh
 
+codeship: ci-setup test
+
+ci-setup:
+	go version
+	go env
+	wget --version
+	wget https://releases.hashicorp.com/consul/0.8.3/consul_0.8.0_linux_amd64.zip
+	wget https://releases.hashicorp.com/vault/0.6.4/vault_0.6.4_linux_amd64.zip
+	mkdir $(GOPATH)/bin/
+	unzip -d $(GOPATH)/bin consul_0.8.3_linux_amd64.zip
+	unzip -d $(GOPATH)/bin vault_0.6.4_linux_amd64.zip
+	vault --version
+	consul --version
+
 buildpkg: test
 	build/build.sh
 
