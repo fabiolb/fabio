@@ -60,6 +60,7 @@ ci-setup:
 	wget https://releases.hashicorp.com/vault/0.6.4/vault_0.6.4_linux_amd64.zip
 	unzip -d bin consul_0.8.3_linux_amd64.zip
 	unzip -d bin vault_0.6.4_linux_amd64.zip
+	ls -la bin
 	vault --version
 	consul --version
 
