@@ -21,6 +21,11 @@ type Target struct {
 	// TLS connections.
 	TLSSkipVerify bool
 
+	// UseUpstreamHostname causes the origin host header to be
+	// replaced by the upstream host header as its moving
+	// through the proxy.
+	UseUpstreamHostname bool
+
 	// URL is the endpoint the service instance listens on
 	URL *url.URL
 

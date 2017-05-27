@@ -117,6 +117,63 @@ func TestProxyStripsPath(t *testing.T) {
 	}
 }
 
+//	TestProxyUseUpstreamHostname
+func TestProxyUseUpstreamHostname(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, r.Host)
+	}))
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Transport: &http.Transport{
+			Dial: func(network, addr string) (net.Conn, error) {
+				addr = server.URL[len("http://"):]
+				return net.Dial(network, addr)
+			},
+		},
+		Lookup: func(r *http.Request) *route.Target {
+			tbl, _ := route.NewTable(`route add mock / http://a.com/ opts "useupstreamhostname=true"`)
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+		},
+	})
+	defer proxy.Close()
+
+	resp, body := mustGet(proxy.URL + "/")
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
+		t.Fatalf("got status %d want %d", got, want)
+	}
+	if got, want := string(body), "a.com"; got != want {
+		t.Fatalf("got body %q want %q", got, want)
+	}
+}
+
+func TestProxyDoNotUseUpstreamHostname(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, r.Host)
+	}))
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Transport: &http.Transport{
+			Dial: func(network, addr string) (net.Conn, error) {
+				addr = server.URL[len("http://"):]
+				return net.Dial(network, addr)
+			},
+		},
+		Lookup: func(r *http.Request) *route.Target {
+			tbl, _ := route.NewTable(`route add mock / http://a.com/ opts "useupstreamhostname=false"`)
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+		},
+	})
+	defer proxy.Close()
+
+	resp, body := mustGet(proxy.URL + "/")
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
+		t.Fatalf("got status %d want %d", got, want)
+	}
+	if got, want := string(body), proxy.URL[len("http://"):]; got != want {
+		t.Fatalf("got body %q want %q", got, want)
+	}
+}
+
 func TestProxyLogOutput(t *testing.T) {
 	// build a format string from all log fields and one header field
 	fields := []string{"header.X-Foo:$header.X-Foo"}

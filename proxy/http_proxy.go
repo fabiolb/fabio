@@ -100,6 +100,10 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		targetURL.RawQuery = t.URL.RawQuery + "&" + r.URL.RawQuery
 	}
 
+	if t.UseUpstreamHostname {
+		r.Host = targetURL.Host
+	}
+
 	// TODO(fs): The HasPrefix check seems redundant since the lookup function should
 	// TODO(fs): have found the target based on the prefix but there may be other
 	// TODO(fs): matchers which may have different rules. I'll keep this for

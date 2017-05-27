@@ -71,6 +71,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 	if r.Opts != nil {
 		t.StripPath = r.Opts["strip"]
 		t.TLSSkipVerify = r.Opts["tlsskipverify"] == "true"
+		t.UseUpstreamHostname = r.Opts["useupstreamhostname"] == "true"
 	}
 
 	r.Targets = append(r.Targets, t)
