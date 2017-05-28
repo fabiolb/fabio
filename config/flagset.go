@@ -2,81 +2,10 @@ package config
 
 import (
 	"flag"
-	"sort"
 	"strings"
 
 	"github.com/magiconair/properties"
 )
-
-// -- kvValue
-type kvValue map[string]string
-
-func newKVValue(val map[string]string, p *map[string]string) *kvValue {
-	*p = val
-	return (*kvValue)(p)
-}
-
-// kvParse k1=v1;k2=v2;... into a map[string]string{"k1":"v1","k2":"v2"}
-func kvParse(s string) kvValue {
-	m := map[string]string{}
-	for _, s := range strings.Split(s, ";") {
-		p := strings.SplitN(s, "=", 2)
-		key := strings.TrimSpace(p[0])
-		if len(p) == 1 {
-			m[key] = ""
-		} else {
-			m[key] = p[1]
-		}
-	}
-	return m
-}
-
-func kvString(kv kvValue) string {
-	var keys []string
-	for k := range kv {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	var p []string
-	for _, k := range keys {
-		p = append(p, k+"="+kv[k])
-	}
-	return strings.Join(p, ";")
-}
-
-func (v *kvValue) Set(s string) error {
-	*v = kvParse(s)
-	return nil
-}
-
-func (v *kvValue) Get() interface{} { return map[string]string(*v) }
-func (v *kvValue) String() string   { return kvString(*v) }
-
-// -- kvSliceValue
-type kvSliceValue []map[string]string
-
-func newKVSliceValue(val []map[string]string, p *[]map[string]string) *kvSliceValue {
-	*p = val
-	return (*kvSliceValue)(p)
-}
-
-func (v *kvSliceValue) Set(s string) error {
-	*v = []map[string]string{}
-	for _, x := range strings.Split(s, ",") {
-		*v = append(*v, kvParse(x))
-	}
-	return nil
-}
-
-func (v *kvSliceValue) Get() interface{} { return []map[string]string(*v) }
-func (v *kvSliceValue) String() string {
-	var p []string
-	for i := range *v {
-		p = append(p, kvString((*v)[i]))
-	}
-	return strings.Join(p, ",")
-}
 
 // -- stringSliceValue
 type stringSliceValue []string
@@ -116,14 +45,6 @@ func NewFlagSet(name string, errorHandling flag.ErrorHandling) *FlagSet {
 // IsSet returns true if a variable was set via any mechanism.
 func (f *FlagSet) IsSet(name string) bool {
 	return f.set[name]
-}
-
-func (f *FlagSet) KVVar(p *map[string]string, name string, value map[string]string, usage string) {
-	f.Var(newKVValue(value, p), name, usage)
-}
-
-func (f *FlagSet) KVSliceVar(p *[]map[string]string, name string, value []map[string]string, usage string) {
-	f.Var(newKVSliceValue(value, p), name, usage)
 }
 
 func (f *FlagSet) StringSliceVar(p *[]string, name string, value []string, usage string) {

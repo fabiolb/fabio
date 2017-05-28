@@ -7,16 +7,15 @@ import (
 )
 
 var defaultValues = struct {
-	ListenerValue         []string
-	CertSourcesValue      []map[string]string
+	ListenerValue         string
+	CertSourcesValue      string
 	ReadTimeout           time.Duration
 	WriteTimeout          time.Duration
 	UIListenerValue       string
 	GZIPContentTypesValue string
 }{
-	ListenerValue:    []string{":9999"},
-	CertSourcesValue: []map[string]string{},
-	UIListenerValue:  ":9998",
+	ListenerValue:   ":9999",
+	UIListenerValue: ":9998",
 }
 
 var defaultConfig = &Config{

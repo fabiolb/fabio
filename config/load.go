@@ -108,9 +108,9 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.Bool("version", false, "Show version")
 
 	// config values
-	var listenerValue []string
+	var listenerValue string
 	var uiListenerValue string
-	var certSourcesValue []map[string]string
+	var certSourcesValue string
 	var readTimeout, writeTimeout time.Duration
 	var gzipContentTypesValue string
 
@@ -128,8 +128,8 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Proxy.TLSHeaderValue, "proxy.header.tls.value", defaultConfig.Proxy.TLSHeaderValue, "value for TLS connection header")
 	f.StringVar(&cfg.Proxy.RequestID, "proxy.header.requestid", defaultConfig.Proxy.RequestID, "header for reqest id")
 	f.StringVar(&gzipContentTypesValue, "proxy.gzip.contenttype", defaultValues.GZIPContentTypesValue, "regexp of content types to compress")
-	f.StringSliceVar(&listenerValue, "proxy.addr", defaultValues.ListenerValue, "listener config")
-	f.KVSliceVar(&certSourcesValue, "proxy.cs", defaultValues.CertSourcesValue, "certificate sources")
+	f.StringVar(&listenerValue, "proxy.addr", defaultValues.ListenerValue, "listener config")
+	f.StringVar(&certSourcesValue, "proxy.cs", defaultValues.CertSourcesValue, "certificate sources")
 	f.DurationVar(&readTimeout, "proxy.readtimeout", defaultValues.ReadTimeout, "read timeout for incoming requests")
 	f.DurationVar(&writeTimeout, "proxy.writetimeout", defaultValues.WriteTimeout, "write timeout for outgoing responses")
 	f.DurationVar(&cfg.Proxy.FlushInterval, "proxy.flushinterval", defaultConfig.Proxy.FlushInterval, "flush interval for streaming responses")
@@ -198,7 +198,14 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	}
 
 	if uiListenerValue != "" {
-		cfg.UI.Listen, err = parseListen(uiListenerValue, certSources, 0, 0)
+		kvs, err := parseKVSlice(uiListenerValue)
+		if err != nil {
+			return nil, err
+		}
+		if len(kvs) != 1 {
+			return nil, fmt.Errorf("ui.addr must contain only one listener")
+		}
+		cfg.UI.Listen, err = parseListen(kvs[0], certSources, 0, 0)
 		if err != nil {
 			return nil, err
 		}
@@ -268,8 +275,9 @@ func parseScheme(s string) (scheme, addr string) {
 	return
 }
 
-func parseListeners(cfgs []string, cs map[string]CertSource, readTimeout, writeTimeout time.Duration) (listen []Listen, err error) {
-	for _, cfg := range cfgs {
+func parseListeners(cfgs string, cs map[string]CertSource, readTimeout, writeTimeout time.Duration) (listen []Listen, err error) {
+	kvs, err := parseKVSlice(cfgs)
+	for _, cfg := range kvs {
 		l, err := parseListen(cfg, cs, readTimeout, writeTimeout)
 		if err != nil {
 			return nil, err
@@ -279,21 +287,17 @@ func parseListeners(cfgs []string, cs map[string]CertSource, readTimeout, writeT
 	return
 }
 
-func parseListen(cfg string, cs map[string]CertSource, readTimeout, writeTimeout time.Duration) (l Listen, err error) {
-	if cfg == "" {
-		return Listen{}, nil
-	}
-
-	opts := strings.Split(cfg, ";")
+func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, writeTimeout time.Duration) (l Listen, err error) {
 	l = Listen{
-		Addr:         opts[0],
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
 	}
 
 	var csName string
-	for k, v := range kvParse(cfg) {
+	for k, v := range cfg {
 		switch k {
+		case "", "addr":
+			l.Addr = v
 		case "proto":
 			l.Proto = v
 			switch l.Proto {
@@ -332,6 +336,9 @@ func parseListen(cfg string, cs map[string]CertSource, readTimeout, writeTimeout
 	if l.Proto == "" {
 		l.Proto = "http"
 	}
+	if l.Addr == "" {
+		return Listen{}, fmt.Errorf("need listening host:port")
+	}
 	if csName != "" && l.Proto != "https" && l.Proto != "tcp" {
 		return Listen{}, fmt.Errorf("cert source requires proto 'https' or 'tcp'")
 	}
@@ -342,9 +349,13 @@ func parseListen(cfg string, cs map[string]CertSource, readTimeout, writeTimeout
 	return
 }
 
-func parseCertSources(cfgs []map[string]string) (cs map[string]CertSource, err error) {
+func parseCertSources(cfgs string) (cs map[string]CertSource, err error) {
+	kvs, err := parseKVSlice(cfgs)
+	if err != nil {
+		return nil, err
+	}
 	cs = map[string]CertSource{}
-	for _, cfg := range cfgs {
+	for _, cfg := range kvs {
 		src, err := parseCertSource(cfg)
 		if err != nil {
 			return nil, err
