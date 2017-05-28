@@ -71,7 +71,11 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 	if r.Opts != nil {
 		t.StripPath = r.Opts["strip"]
 		t.TLSSkipVerify = r.Opts["tlsskipverify"] == "true"
-		t.UseUpstreamHostname = r.Opts["useupstreamhostname"] == "true"
+		// If the 'usehost' key exists in the map, we set
+		// 't.UseHost = true'
+		if _, useHostExists := r.Opts["usehost"]; useHostExists {
+			t.UseHost = true
+		}
 	}
 
 	r.Targets = append(r.Targets, t)
