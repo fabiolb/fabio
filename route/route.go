@@ -73,9 +73,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		t.TLSSkipVerify = r.Opts["tlsskipverify"] == "true"
 		// If the 'usehost' key exists in the map, we set
 		// 't.UseHost = true'
-		if _, useHostExists := r.Opts["usehost"]; useHostExists {
-			t.UseHost = true
-		}
+		_, t.UseHost = r.Opts["usehost"]
 	}
 
 	r.Targets = append(r.Targets, t)
