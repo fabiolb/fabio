@@ -98,15 +98,6 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
-			desc: "-proxy.addr with legacy cert source config",
-			args: []string{"-proxy.addr", ":5555;pathA;pathB;pathC"},
-			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
-				cfg.Listen[0].CertSource = CertSource{Type: "file", CertPath: "pathA", KeyPath: "pathB", ClientCAPath: "pathC"}
-				return cfg
-			},
-		},
-		{
 			desc: "-proxy.addr with file cert source",
 			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=file;cert=value"},
 			cfg: func(cfg *Config) *Config {

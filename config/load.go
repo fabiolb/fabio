@@ -285,10 +285,6 @@ func parseListen(cfg string, cs map[string]CertSource, readTimeout, writeTimeout
 	}
 
 	opts := strings.Split(cfg, ";")
-	if len(opts) > 1 && !strings.Contains(opts[1], "=") {
-		return parseLegacyListen(cfg, readTimeout, writeTimeout)
-	}
-
 	l = Listen{
 		Addr:         opts[0],
 		ReadTimeout:  readTimeout,
@@ -344,35 +340,6 @@ func parseListen(cfg string, cs map[string]CertSource, readTimeout, writeTimeout
 	}
 
 	return
-}
-
-func parseLegacyListen(cfg string, readTimeout, writeTimeout time.Duration) (l Listen, err error) {
-	opts := strings.Split(cfg, ";")
-
-	l = Listen{
-		Addr:         opts[0],
-		Proto:        "http",
-		ReadTimeout:  readTimeout,
-		WriteTimeout: writeTimeout,
-	}
-
-	if len(opts) > 1 {
-		l.Proto = "https"
-		l.CertSource.Type = "file"
-		l.CertSource.CertPath = opts[1]
-	}
-	if len(opts) > 2 {
-		l.CertSource.KeyPath = opts[2]
-	}
-	if len(opts) > 3 {
-		l.CertSource.ClientCAPath = opts[3]
-	}
-	if len(opts) > 4 {
-		return Listen{}, fmt.Errorf("invalid listener configuration")
-	}
-
-	log.Printf("[WARN] proxy.addr legacy configuration for certificates is deprecated. Use cs=path configuration")
-	return l, nil
 }
 
 func parseCertSources(cfgs []map[string]string) (cs map[string]CertSource, err error) {
