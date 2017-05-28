@@ -95,7 +95,7 @@ func TestTCPProxyWithTLS(t *testing.T) {
 		if err != nil {
 			t.Fatal("cert.NewSource: ", err)
 		}
-		cfg, err := cert.TLSConfig(src, false)
+		cfg, err := cert.TLSConfig(src, false, 0, 0, nil)
 		if err != nil {
 			t.Fatal("cert.TLSConfig: ", err)
 		}

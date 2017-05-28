@@ -1,6 +1,7 @@
 package config
 
 import (
+	"crypto/tls"
 	"errors"
 	"flag"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -330,6 +332,24 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 			}
 		case "strictmatch":
 			l.StrictMatch = (v == "true")
+		case "tlsmin":
+			n, err := parseTLSVersion(v)
+			if err != nil {
+				return Listen{}, err
+			}
+			l.TLSMinVersion = n
+		case "tlsmax":
+			n, err := parseTLSVersion(v)
+			if err != nil {
+				return Listen{}, err
+			}
+			l.TLSMaxVersion = n
+		case "tlsciphers":
+			c, err := parseTLSCiphers(v)
+			if err != nil {
+				return Listen{}, err
+			}
+			l.TLSCiphers = c
 		}
 	}
 
@@ -347,6 +367,74 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 	}
 
 	return
+}
+
+var tlsver = map[string]uint16{
+	"ssl30": tls.VersionSSL30,
+	"tls10": tls.VersionTLS10,
+	"tls11": tls.VersionTLS11,
+	"tls12": tls.VersionTLS12,
+}
+
+var tlsciphers = map[string]uint16{
+	"TLS_RSA_WITH_RC4_128_SHA":                0x0005,
+	"TLS_RSA_WITH_3DES_EDE_CBC_SHA":           0x000a,
+	"TLS_RSA_WITH_AES_128_CBC_SHA":            0x002f,
+	"TLS_RSA_WITH_AES_256_CBC_SHA":            0x0035,
+	"TLS_RSA_WITH_AES_128_CBC_SHA256":         0x003c,
+	"TLS_RSA_WITH_AES_128_GCM_SHA256":         0x009c,
+	"TLS_RSA_WITH_AES_256_GCM_SHA384":         0x009d,
+	"TLS_ECDHE_ECDSA_WITH_RC4_128_SHA":        0xc007,
+	"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA":    0xc009,
+	"TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA":    0xc00a,
+	"TLS_ECDHE_RSA_WITH_RC4_128_SHA":          0xc011,
+	"TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA":     0xc012,
+	"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA":      0xc013,
+	"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA":      0xc014,
+	"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256": 0xc023,
+	"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256":   0xc027,
+	"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256":   0xc02f,
+	"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256": 0xc02b,
+	"TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384":   0xc030,
+	"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384": 0xc02c,
+	"TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305":    0xcca8,
+	"TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305":  0xcca9,
+}
+
+func parseTLSVersion(s string) (uint16, error) {
+	s = strings.ToLower(strings.TrimSpace(s))
+	if n, ok := tlsver[s]; ok {
+		return n, nil
+	}
+	return parseUint16(s)
+}
+
+func parseTLSCiphers(s string) ([]uint16, error) {
+	var c []uint16
+	for _, v := range strings.Split(s, ",") {
+		v = strings.ToUpper(strings.TrimSpace(v))
+		if n, ok := tlsciphers[v]; ok {
+			c = append(c, n)
+			continue
+		}
+		n, err := parseUint16(v)
+		if err != nil {
+			return nil, err
+		}
+		c = append(c, n)
+	}
+	return c, nil
+}
+
+func parseUint16(s string) (uint16, error) {
+	n, err := strconv.ParseUint(s, 0, 32)
+	if err != nil {
+		return 0, err
+	}
+	if n > 1<<16 {
+		return 0, fmt.Errorf("%d out of range: [0..65535]", n)
+	}
+	return uint16(n), nil
 }
 
 func parseCertSources(cfgs string) (cs map[string]CertSource, err error) {

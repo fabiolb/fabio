@@ -17,6 +17,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -28,6 +29,46 @@ import (
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pascaldekloe/goe/verify"
 )
+
+func TestTLSConfig(t *testing.T) {
+	certPEM, keyPEM := makePEM("localhost", time.Minute)
+	cert, err := tls.X509KeyPair(certPEM, keyPEM)
+	if err != nil {
+		t.Fatalf("X509KeyPair: got %s want nil", err)
+	}
+	pool := makeCertPool(certPEM)
+	src := &StaticSource{cert, pool}
+	tlsmin := uint16(0x1000)
+	tlsmax := uint16(0x2000)
+	tlsciphers := []uint16{0x1234, 0x5678}
+	nextprotos := []string{"h2", "http/1.1"}
+
+	cfg, err := TLSConfig(src, false, tlsmin, tlsmax, tlsciphers)
+	if err != nil {
+		t.Fatalf("got error %v want nil", err)
+	}
+	if got, want := cfg.MinVersion, tlsmin; got != want {
+		t.Fatalf("got tls min version %04x want %04x", got, want)
+	}
+	if got, want := cfg.MaxVersion, tlsmax; got != want {
+		t.Fatalf("got tls max version %04x want %04x", got, want)
+	}
+	if got, want := cfg.CipherSuites, tlsciphers; !reflect.DeepEqual(got, want) {
+		t.Fatalf("got tls ciphers %v want %v", got, want)
+	}
+	if got, want := cfg.NextProtos, nextprotos; !reflect.DeepEqual(got, want) {
+		t.Fatalf("got next protos %v want %v", got, want)
+	}
+	if got, want := cfg.ClientCAs, pool; got != want {
+		t.Fatalf("got client CAs %v want %v", got, want)
+	}
+	if got, want := cfg.ClientAuth, tls.RequireAndVerifyClientCert; got != want {
+		t.Fatalf("got client auth type %v want %v", got, want)
+	}
+	if cfg.GetCertificate == nil {
+		t.Fatalf("got GetCertificate() nil want not nil")
+	}
+}
 
 func TestNewSource(t *testing.T) {
 	certsource := func(typ string) config.CertSource {
@@ -126,6 +167,7 @@ func TestNewSource(t *testing.T) {
 
 type StaticSource struct {
 	cert tls.Certificate
+	pool *x509.CertPool
 }
 
 func (s StaticSource) Certificates() chan []tls.Certificate {
@@ -136,7 +178,7 @@ func (s StaticSource) Certificates() chan []tls.Certificate {
 }
 
 func (s StaticSource) LoadClientCAs() (*x509.CertPool, error) {
-	return nil, nil
+	return s.pool, nil
 }
 
 func TestStaticSource(t *testing.T) {
@@ -145,7 +187,7 @@ func TestStaticSource(t *testing.T) {
 	if err != nil {
 		t.Fatalf("X509KeyPair: got %s want nil", err)
 	}
-	testSource(t, StaticSource{cert}, makeCertPool(certPEM), 0)
+	testSource(t, StaticSource{cert, nil}, makeCertPool(certPEM), 0)
 }
 
 func TestFileSource(t *testing.T) {
@@ -408,7 +450,7 @@ func TestVaultSource(t *testing.T) {
 // server.
 func testSource(t *testing.T, source Source, rootCAs *x509.CertPool, sleep time.Duration) {
 	const NoStrictMatch = false
-	srvConfig, err := TLSConfig(source, NoStrictMatch)
+	srvConfig, err := TLSConfig(source, NoStrictMatch, 0, 0, nil)
 	if err != nil {
 		t.Fatalf("TLSConfig: got %q want nil", err)
 	}

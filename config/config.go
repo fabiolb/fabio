@@ -30,12 +30,15 @@ type CertSource struct {
 }
 
 type Listen struct {
-	Addr         string
-	Proto        string
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
-	CertSource   CertSource
-	StrictMatch  bool
+	Addr          string
+	Proto         string
+	ReadTimeout   time.Duration
+	WriteTimeout  time.Duration
+	CertSource    CertSource
+	StrictMatch   bool
+	TLSMinVersion uint16
+	TLSMaxVersion uint16
+	TLSCiphers    []uint16
 }
 
 type UI struct {

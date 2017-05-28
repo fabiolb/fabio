@@ -191,19 +191,19 @@ func lookupHostFn(cfg *config.Config) func(string) string {
 	}
 }
 
-func makeTLSConfig(l config.Listen) *tls.Config {
+func makeTLSConfig(l config.Listen) (*tls.Config, error) {
 	if l.CertSource.Name == "" {
-		return nil
+		return nil, nil
 	}
 	src, err := cert.NewSource(l.CertSource)
 	if err != nil {
-		exit.Fatalf("[FATAL] Failed to create cert source %s. %s", l.CertSource.Name, err)
+		return nil, fmt.Errorf("Failed to create cert source %s. %s", l.CertSource.Name, err)
 	}
-	tlscfg, err := cert.TLSConfig(src, l.StrictMatch)
+	tlscfg, err := cert.TLSConfig(src, l.StrictMatch, l.TLSMinVersion, l.TLSMaxVersion, l.TLSCiphers)
 	if err != nil {
-		exit.Fatalf("[FATAL] Failed to create TLS config for cert source %s. %s", l.CertSource.Name, err)
+		return nil, fmt.Errorf("[FATAL] Failed to create TLS config for cert source %s. %s", l.CertSource.Name, err)
 	}
-	return tlscfg
+	return tlscfg, nil
 }
 
 func startAdmin(cfg *config.Config) {
@@ -211,7 +211,10 @@ func startAdmin(cfg *config.Config) {
 	log.Printf("[INFO] Admin server listening on %q", cfg.UI.Listen.Addr)
 	go func() {
 		l := cfg.UI.Listen
-		tlscfg := makeTLSConfig(l)
+		tlscfg, err := makeTLSConfig(l)
+		if err != nil {
+			exit.Fatal("[FATAL] ", err)
+		}
 		srv := &admin.Server{
 			Access:   cfg.UI.Access,
 			Color:    cfg.UI.Color,
@@ -229,7 +232,10 @@ func startAdmin(cfg *config.Config) {
 func startServers(cfg *config.Config) {
 	for _, l := range cfg.Listen {
 		l := l // capture loop var for go routines below
-		tlscfg := makeTLSConfig(l)
+		tlscfg, err := makeTLSConfig(l)
+		if err != nil {
+			exit.Fatal("[FATAL] ", err)
+		}
 
 		log.Printf("[INFO] %s proxy listening on %s", strings.ToUpper(l.Proto), l.Addr)
 		if tlscfg != nil && tlscfg.ClientAuth == tls.RequireAndVerifyClientCert {

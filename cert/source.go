@@ -79,7 +79,7 @@ func NewSource(cfg config.CertSource) (Source, error) {
 // It also sets the ClientCAs field if
 // src.LoadClientCAs returns a non-nil value
 // and sets ClientAuth to RequireAndVerifyClientCert.
-func TLSConfig(src Source, strictMatch bool) (*tls.Config, error) {
+func TLSConfig(src Source, strictMatch bool, minVersion, maxVersion uint16, cipherSuites []uint16) (*tls.Config, error) {
 	clientCAs, err := src.LoadClientCAs()
 	if err != nil {
 		return nil, err
@@ -87,7 +87,10 @@ func TLSConfig(src Source, strictMatch bool) (*tls.Config, error) {
 
 	store := NewStore()
 	x := &tls.Config{
-		NextProtos: []string{"h2", "http/1.1"},
+		MinVersion:   minVersion,
+		MaxVersion:   maxVersion,
+		CipherSuites: cipherSuites,
+		NextProtos:   []string{"h2", "http/1.1"},
 		GetCertificate: func(clientHello *tls.ClientHelloInfo) (cert *tls.Certificate, err error) {
 			return getCertificate(store.certstore(), clientHello, strictMatch)
 		},
