@@ -86,7 +86,33 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 	return nil
 }
 
+// scheme derives the request scheme used on the initial
+// request first from headers and then from the connection
+// using the following heuristic:
+//
+// If either X-Forwarded-Proto or Forwarded is set then use
+// its value to set the other header. If both headers are
+// set do not modify the protocol. If none are set derive
+// the protocol from the connection.
 func scheme(r *http.Request) string {
+	xfp := r.Header.Get("X-Forwarded-Proto")
+	fwd := r.Header.Get("Forwarded")
+	switch {
+	case xfp != "" && fwd == "":
+		return xfp
+
+	case fwd != "" && xfp == "":
+		p := strings.SplitAfterN(fwd, "proto=", 2)
+		if len(p) == 1 {
+			break
+		}
+		n := strings.IndexRune(p[1], ';')
+		if n >= 0 {
+			return p[1][:n]
+		}
+		return p[1]
+	}
+
 	ws := r.Header.Get("Upgrade") == "websocket"
 	switch {
 	case ws && r.TLS != nil:

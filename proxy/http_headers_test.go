@@ -180,8 +180,50 @@ func TestAddHeaders(t *testing.T) {
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"X-Forwarded-Proto": {"some value"}}},
 			config.Proxy{},
 			http.Header{
-				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
+				"Forwarded":         []string{"for=1.2.3.4; proto=some value"},
 				"X-Forwarded-Proto": []string{"some value"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
+			"",
+		},
+
+		{"set scheme from X-Forwarded-Proto, if present and Forwarded is missing",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"X-Forwarded-Proto": {"some value"}}},
+			config.Proxy{},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=some value"},
+				"X-Forwarded-Proto": []string{"some value"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
+			"",
+		},
+
+		{"set scheme from Forwarded, if present and X-Forwarded-Proto is missing",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Forwarded": {"for=1.2.3.4; proto=some value"}}},
+			config.Proxy{},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=some value"},
+				"X-Forwarded-Proto": []string{"some value"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
+			"",
+		},
+
+		{"do not modify scheme when both Forwarded and X-Forwarded-Proto are present",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header: http.Header{
+					"Forwarded":         {"for=1.2.3.4; proto=some value"},
+					"X-Forwarded-Proto": {"other value"},
+				},
+			},
+			config.Proxy{},
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=some value"},
+				"X-Forwarded-Proto": []string{"other value"},
 				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
