@@ -26,7 +26,20 @@
    Profiling is enabled through the `profile.mode` flag which determines the mode.
    The `profile.path` flag determines the output path.
 
-### [v1.4.4](https://github.com/fabiolb/fabio/releases/tag/v1.4.3) - 8 May 2017
+ * [Issue #296](https://github.com/fabiolb/fabio/issues/296): Sync X-Forwarded-Proto and Forwarded header when possible
+
+   The X-Forwarded-Proto header and the proto value of the Forwarded
+   header can get out of sync when an upstream load balancer sets the
+   one but not the other header. Fabio would then not touch the existing
+   header and derive the value for the unset header based on the
+   connection.
+
+   This patch changes this behavior so that the value for the missing
+   header is derived from the other one. When both headers are set they are
+   both left untouched since it cannot be decided which one is the source
+   of truth.
+
+### v1.4.4](https://github.com/fabiolb/fabio/releases/tag/v1.4.3) - 8 May 2017
 
 #### Bug Fixes
 
