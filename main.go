@@ -207,11 +207,13 @@ func makeTLSConfig(l config.Listen) *tls.Config {
 }
 
 func startAdmin(cfg *config.Config) {
+	log.Printf("[INFO] Admin server access mode %q", cfg.UI.Access)
 	log.Printf("[INFO] Admin server listening on %q", cfg.UI.Listen.Addr)
 	go func() {
 		l := cfg.UI.Listen
 		tlscfg := makeTLSConfig(l)
 		srv := &admin.Server{
+			Access:   cfg.UI.Access,
 			Color:    cfg.UI.Color,
 			Title:    cfg.UI.Title,
 			Version:  version,

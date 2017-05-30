@@ -166,6 +166,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.BoolVar(&cfg.Registry.Consul.CheckTLSSkipVerify, "registry.consul.register.checkTLSSkipVerify", defaultConfig.Registry.Consul.CheckTLSSkipVerify, "service check TLS verifcation")
 	f.IntVar(&cfg.Runtime.GOGC, "runtime.gogc", defaultConfig.Runtime.GOGC, "sets runtime.GOGC")
 	f.IntVar(&cfg.Runtime.GOMAXPROCS, "runtime.gomaxprocs", defaultConfig.Runtime.GOMAXPROCS, "sets runtime.GOMAXPROCS")
+	f.StringVar(&cfg.UI.Access, "ui.access", defaultConfig.UI.Access, "access mode, one of [ro, rw]")
 	f.StringVar(&uiListenerValue, "ui.addr", defaultValues.UIListenerValue, "Address the UI/API is listening on")
 	f.StringVar(&cfg.UI.Color, "ui.color", defaultConfig.UI.Color, "background color of the UI")
 	f.StringVar(&cfg.UI.Title, "ui.title", defaultConfig.UI.Title, "optional title for the UI")
@@ -226,6 +227,10 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 
 	if cfg.Proxy.Matcher != "prefix" && cfg.Proxy.Matcher != "glob" {
 		return nil, fmt.Errorf("invalid proxy.matcher: %s", cfg.Proxy.Matcher)
+	}
+
+	if cfg.UI.Access != "ro" && cfg.UI.Access != "rw" {
+		return nil, fmt.Errorf("invalid ui.access: %s", cfg.UI.Access)
 	}
 
 	// handle deprecations

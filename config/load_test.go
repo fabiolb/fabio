@@ -594,6 +594,20 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-ui.access", "ro"},
+			cfg: func(cfg *Config) *Config {
+				cfg.UI.Access = "ro"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-ui.access", "rw"},
+			cfg: func(cfg *Config) *Config {
+				cfg.UI.Access = "rw"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-ui.addr", "1.2.3.4:5555"},
 			cfg: func(cfg *Config) *Config {
 				cfg.UI.Listen.Addr = "1.2.3.4:5555"

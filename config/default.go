@@ -69,6 +69,7 @@ var defaultConfig = &Config{
 			Addr:  ":9998",
 			Proto: "http",
 		},
-		Color: "light-green",
+		Color:  "light-green",
+		Access: "rw",
 	},
 }

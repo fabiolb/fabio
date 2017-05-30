@@ -17,6 +17,12 @@ type manual struct {
 }
 
 func (h *ManualHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// we need this for testing.
+	// under normal circumstances this is never nil
+	if registry.Default == nil {
+		return
+	}
+
 	switch r.Method {
 	case "GET":
 		value, version, err := registry.Default.ReadManual()

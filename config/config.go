@@ -42,6 +42,7 @@ type UI struct {
 	Listen Listen
 	Color  string
 	Title  string
+	Access string
 }
 
 type Proxy struct {
