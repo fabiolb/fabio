@@ -39,6 +39,11 @@
    both left untouched since it cannot be decided which one is the source
    of truth.
 
+ * [Issue #302](https://github.com/fabiolb/fabio/issues/302): Add support for read-only UI
+
+   The `ui.access` parameter can be used to configure the ui endpoint to
+   be in either read-write or read-only mode.
+
 ### v1.4.4](https://github.com/fabiolb/fabio/releases/tag/v1.4.3) - 8 May 2017
 
 #### Bug Fixes
