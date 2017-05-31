@@ -100,7 +100,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		targetURL.RawQuery = t.URL.RawQuery + "&" + r.URL.RawQuery
 	}
 
-	if t.UseHost {
+	if t.Host == "dst" {
 		r.Host = targetURL.Host
 	}
 

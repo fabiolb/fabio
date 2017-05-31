@@ -21,9 +21,11 @@ type Target struct {
 	// TLS connections.
 	TLSSkipVerify bool
 
-	// UseHost determines whether the origin or the target hostname
-	// is used for the upstream request
-	UseHost bool
+	// Host signifies what the proxy will set the host header to.
+	// The proxy does nothing to the host header by default. (src)
+	// Setting Host=dst will signify to the proxy that the host header
+	// should be reset to the destination service.
+	Host string
 
 	// URL is the endpoint the service instance listens on
 	URL *url.URL

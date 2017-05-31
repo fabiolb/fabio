@@ -117,8 +117,8 @@ func TestProxyStripsPath(t *testing.T) {
 	}
 }
 
-//	TestProxyUseHost
-func TestProxyUsehost(t *testing.T) {
+//	TestProxyHost
+func TestProxyHost(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, r.Host)
 	}))
@@ -131,7 +131,9 @@ func TestProxyUsehost(t *testing.T) {
 			},
 		},
 		Lookup: func(r *http.Request) *route.Target {
-			routes := "route add mock /usehost http://a.com/ opts \"usehost\"\n"
+			routes := "route add mock /hostdst http://a.com/ opts \"host=dst\"\n"
+			routes += "route add mock /hostsrc http://a.com/ opts \"host=src\"\n"
+			routes += "route add mock /hostunknown http://a.com/ opts \"host=garbble\"\n"
 			routes += "route add mock / http://a.com/"
 			tbl, _ := route.NewTable(routes)
 			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
@@ -150,7 +152,9 @@ func TestProxyUsehost(t *testing.T) {
 	}
 
 	proxyHost := proxy.URL[len("http://"):]
-	t.Run("use host", func(t *testing.T) { check("/usehost", "a.com") })
+	t.Run("host eq dst", func(t *testing.T) { check("/hostdst", "a.com") })
+	t.Run("host eq src", func(t *testing.T) { check("/hostsrc", proxyHost) })
+	t.Run("host is unknown", func(t *testing.T) { check("/hostunknown", proxyHost) })
 	t.Run("no host", func(t *testing.T) { check("/", proxyHost) })
 }
 
