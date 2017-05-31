@@ -21,6 +21,12 @@ type Target struct {
 	// TLS connections.
 	TLSSkipVerify bool
 
+	// Host signifies what the proxy will set the Host header to.
+	// The proxy does not modify the Host header by default.
+	// When Host is set to 'dst' the proxy will use the host name
+	// of the target host for the outgoing request.
+	Host string
+
 	// URL is the endpoint the service instance listens on
 	URL *url.URL
 

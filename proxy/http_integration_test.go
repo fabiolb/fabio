@@ -117,6 +117,45 @@ func TestProxyStripsPath(t *testing.T) {
 	}
 }
 
+//	TestProxyHost
+func TestProxyHost(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, r.Host)
+	}))
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Transport: &http.Transport{
+			Dial: func(network, addr string) (net.Conn, error) {
+				addr = server.URL[len("http://"):]
+				return net.Dial(network, addr)
+			},
+		},
+		Lookup: func(r *http.Request) *route.Target {
+			routes := "route add mock /hostdst http://a.com/ opts \"host=dst\"\n"
+			routes += "route add mock /hostunknown http://a.com/ opts \"host=garbble\"\n"
+			routes += "route add mock / http://a.com/"
+			tbl, _ := route.NewTable(routes)
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+		},
+	})
+	defer proxy.Close()
+
+	check := func(uri, host string) {
+		resp, body := mustGet(proxy.URL + uri)
+		if got, want := resp.StatusCode, http.StatusOK; got != want {
+			t.Fatalf("got status %d want %d", got, want)
+		}
+		if got, want := string(body), host; got != want {
+			t.Fatalf("got body %q want %q", got, want)
+		}
+	}
+
+	proxyHost := proxy.URL[len("http://"):]
+	t.Run("host eq dst", func(t *testing.T) { check("/hostdst", "a.com") })
+	t.Run("host is unknown", func(t *testing.T) { check("/hostunknown", proxyHost) })
+	t.Run("no host", func(t *testing.T) { check("/", proxyHost) })
+}
+
 func TestProxyLogOutput(t *testing.T) {
 	// build a format string from all log fields and one header field
 	fields := []string{"header.X-Foo:$header.X-Foo"}
