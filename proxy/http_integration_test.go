@@ -132,7 +132,6 @@ func TestProxyHost(t *testing.T) {
 		},
 		Lookup: func(r *http.Request) *route.Target {
 			routes := "route add mock /hostdst http://a.com/ opts \"host=dst\"\n"
-			routes += "route add mock /hostsrc http://a.com/ opts \"host=src\"\n"
 			routes += "route add mock /hostunknown http://a.com/ opts \"host=garbble\"\n"
 			routes += "route add mock / http://a.com/"
 			tbl, _ := route.NewTable(routes)
@@ -153,7 +152,6 @@ func TestProxyHost(t *testing.T) {
 
 	proxyHost := proxy.URL[len("http://"):]
 	t.Run("host eq dst", func(t *testing.T) { check("/hostdst", "a.com") })
-	t.Run("host eq src", func(t *testing.T) { check("/hostsrc", proxyHost) })
 	t.Run("host is unknown", func(t *testing.T) { check("/hostunknown", proxyHost) })
 	t.Run("no host", func(t *testing.T) { check("/", proxyHost) })
 }

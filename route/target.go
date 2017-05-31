@@ -21,10 +21,10 @@ type Target struct {
 	// TLS connections.
 	TLSSkipVerify bool
 
-	// Host signifies what the proxy will set the host header to.
-	// The proxy does nothing to the host header by default. (src)
-	// Setting Host=dst will signify to the proxy that the host header
-	// should be reset to the destination service.
+	// Host signifies what the proxy will set the Host header to.
+	// The proxy does not modify the Host header by default.
+	// When Host is set to 'dst' the proxy will use the host name
+	// of the target host for the outgoing request.
 	Host string
 
 	// URL is the endpoint the service instance listens on
