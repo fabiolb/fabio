@@ -26,6 +26,12 @@
    Profiling is enabled through the `profile.mode` flag which determines the mode.
    The `profile.path` flag determines the output path.
 
+ * [Issue #294](https://github.com/fabiolb/fabio/issues/294): Use upstream host name for request
+
+    Add support for a `host=dst` option on the route to trigger fabio to
+	use the target hostname for the outgoing request instead of the 
+	host name provided by the original request.
+
  * [Issue #296](https://github.com/fabiolb/fabio/issues/296): Sync X-Forwarded-Proto and Forwarded header when possible
 
    The X-Forwarded-Proto header and the proto value of the Forwarded
