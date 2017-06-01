@@ -84,19 +84,19 @@ The full documentation is on the [Wiki](https://github.com/fabiolb/fabio/wiki).
    Make sure the health check is **passing** since fabio will only watch services
    which have a passing health check.
 
-4. Register one `urlprefix-` tag per `host/path` prefix it serves, e.g.:
+4. Register one `urlprefix-` tag per `host/path` prefix it serves. Add options as additional tag e.g.:
 
 ```
 # HTTP/S examples
-urlprefix-/css                                     # path route
-urlprefix-i.com/static                             # host specific path route
-urlprefix-mysite.com/                              # host specific catch all route
-urlprefix-/foo/bar strip=/foo                      # path stripping (forward '/bar' to upstream)
-urlprefix-/foo/bar proto=https                     # HTTPS upstream
-urlprefix-/foo/bar proto=https tlsskipverify=true  # HTTPS upstream and self-signed cert
+urlprefix-/css                                       # path route
+urlprefix-i.com/static                               # host specific path route
+urlprefix-mysite.com/                                # host specific catch all route
+urlprefix-/foo/bar, strip=/foo                       # path stripping (forward '/bar' to upstream)
+urlprefix-/foo/bar, proto=https                      # HTTPS upstream
+urlprefix-/foo/bar, proto=https, tlsskipverify=true  # HTTPS upstream and self-signed cert
 
 # TCP examples
-urlprefix-:3306 proto=tcp                          # route external port 3306
+urlprefix-:3306, proto=tcp                          # route external port 3306
 ```
 
    Make sure the prefix for HTTP routes contains **at least one slash** (`/`).
