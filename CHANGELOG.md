@@ -45,6 +45,12 @@
    both left untouched since it cannot be decided which one is the source
    of truth.
 
+ * [Issue #300](https://github.com/fabiolb/fabio/issues/300): Support Gzip encoding for websockets
+
+   Setting the `Accept-Encoding` header to `gzip` and enabling gzip compression
+   triggered a bug in fabio which prevented the use of gzip compression on
+   websocket connections.
+
  * [Issue #302](https://github.com/fabiolb/fabio/issues/302): Add support for read-only UI
 
    The `ui.access` parameter can be used to configure the ui endpoint to
