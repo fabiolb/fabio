@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"crypto/tls"
 	"errors"
 	"net"
 	"net/http"
@@ -77,6 +78,19 @@ func addHeaders(r *http.Request, cfg config.Proxy, stripPath string) error {
 	if cfg.LocalIP != "" {
 		fwd += "; by=" + cfg.LocalIP
 	}
+	if r.Proto != "" {
+		fwd += "; httpproto=" + strings.ToLower(r.Proto)
+	}
+	if r.TLS != nil && r.TLS.Version > 0 {
+		v := tlsver[r.TLS.Version]
+		if v == "" {
+			v = uint16base16(r.TLS.Version)
+		}
+		fwd += "; tlsver=" + v
+	}
+	if r.TLS != nil && r.TLS.CipherSuite != 0 {
+		fwd += "; tlscipher=" + uint16base16(r.TLS.CipherSuite)
+	}
 	r.Header.Set("Forwarded", fwd)
 
 	if cfg.TLSHeader != "" {
@@ -88,6 +102,28 @@ func addHeaders(r *http.Request, cfg config.Proxy, stripPath string) error {
 	}
 
 	return nil
+}
+
+var tlsver = map[uint16]string{
+	tls.VersionSSL30: "ssl30",
+	tls.VersionTLS10: "tls10",
+	tls.VersionTLS11: "tls11",
+	tls.VersionTLS12: "tls12",
+}
+
+var digit16 = []byte("0123456789abcdef")
+
+// uint16base64 is a faster version of fmt.Sprintf("0x%04x", n)
+//
+// BenchmarkUint16Base16/fmt.Sprintf-8         	10000000	       154 ns/op	       8 B/op	       2 allocs/op
+// BenchmarkUint16Base16/uint16base16-8        	50000000	        35.0 ns/op	       8 B/op	       1 allocs/op
+func uint16base16(n uint16) string {
+	b := []byte("0x0000")
+	b[5] = digit16[n&0x000f]
+	b[4] = digit16[n&0x00f0>>4]
+	b[3] = digit16[n&0x0f00>>8]
+	b[2] = digit16[n&0xf000>>12]
+	return string(b)
 }
 
 // scheme derives the request scheme used on the initial

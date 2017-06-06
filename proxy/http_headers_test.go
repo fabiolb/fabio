@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -118,6 +119,32 @@ func TestAddHeaders(t *testing.T) {
 				"Forwarded":         []string{"for=1.2.3.4; proto=https; by=5.6.7.8"},
 				"X-Forwarded-Proto": []string{"https"},
 				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
+			"",
+		},
+
+		{"set httpproto, tlsver and tlscipher on Forwarded for https",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Proto: "HTTP/1.1", TLS: &tls.ConnectionState{Version: tls.VersionTLS10, CipherSuite: tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256}},
+			config.Proxy{},
+			"",
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=https; httpproto=http/1.1; tlsver=tls10; tlscipher=0xc023"},
+				"X-Forwarded-Proto": []string{"https"},
+				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
+			"",
+		},
+
+		{"set httpproto on Forwarded",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Proto: "HTTP/1.1"},
+			config.Proxy{},
+			"",
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=http; httpproto=http/1.1"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
 			"",
@@ -349,4 +376,26 @@ func TestLocalPort(t *testing.T) {
 			t.Errorf("%d: got %q want %q", i, got, want)
 		}
 	}
+}
+
+func TestUint16Base16(t *testing.T) {
+	for i := uint16(0); i <= 9999; i++ {
+		if got, want := uint16base16(i), fmt.Sprintf("0x%04x", i); got != want {
+			t.Fatalf("got %q for %04x want %q", got, i, want)
+		}
+	}
+}
+
+func BenchmarkUint16Base16(b *testing.B) {
+	var s string
+	b.Run("fmt.Sprintf", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			s = fmt.Sprintf("0x%04x", uint16(i))
+		}
+	})
+	b.Run("uint16base16", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			s = uint16base16(uint16(i))
+		}
+	})
 }
