@@ -17,7 +17,7 @@ import (
 // * ClientIPHeader != "": Set header with that name to <remote ip>
 // * TLS connection: Set header with name from `cfg.TLSHeader` to `cfg.TLSHeaderValue`
 //
-func addHeaders(r *http.Request, cfg config.Proxy) error {
+func addHeaders(r *http.Request, cfg config.Proxy, stripPath string) error {
 	remoteIP, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return errors.New("cannot parse " + r.RemoteAddr)
@@ -64,6 +64,10 @@ func addHeaders(r *http.Request, cfg config.Proxy) error {
 
 	if r.Header.Get("X-Forwarded-Port") == "" {
 		r.Header.Set("X-Forwarded-Port", localPort(r))
+	}
+
+	if stripPath != "" {
+		r.Header.Set("X-Forwarded-Prefix", stripPath)
 	}
 
 	fwd := r.Header.Get("Forwarded")

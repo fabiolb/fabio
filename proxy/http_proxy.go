@@ -66,19 +66,6 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := addHeaders(r, p.Config); err != nil {
-		http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
-		return
-	}
-
-	if p.Config.RequestID != "" {
-		id := p.UUID
-		if id == nil {
-			id = uuid.NewUUID
-		}
-		r.Header.Set(p.Config.RequestID, id())
-	}
-
 	// build the request url since r.URL will get modified
 	// by the reverse proxy and contains only the RequestURI anyway
 	requestURL := &url.URL{
@@ -110,6 +97,19 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// TODO(fs): a defensive approach.
 	if t.StripPath != "" && strings.HasPrefix(r.URL.Path, t.StripPath) {
 		targetURL.Path = targetURL.Path[len(t.StripPath):]
+	}
+
+	if err := addHeaders(r, p.Config, t.StripPath); err != nil {
+		http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
+		return
+	}
+
+	if p.Config.RequestID != "" {
+		id := p.UUID
+		if id == nil {
+			id = uuid.NewUUID
+		}
+		r.Header.Set(p.Config.RequestID, id())
 	}
 
 	upgrade, accept := r.Header.Get("Upgrade"), r.Header.Get("Accept")
