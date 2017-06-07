@@ -20,6 +20,11 @@
 
    Thanks to @bkmit for this patch.
 
+ * [Issue #249](https://github.com/fabiolb/fabio/issues/249): Make TLS version and cipher suites configurable
+
+   fabio now allows to configure the TLS parameters for the handshake as part of the
+   `proxy.addr` configuration. See `fabio.properties` for details.
+
  * [Issue #290](https://github.com/fabiolb/fabio/issues/290): Add profiling support
 
    fabio now supports optional memory, cpu, mutex and block (contention) profiling.
