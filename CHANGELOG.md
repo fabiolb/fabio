@@ -56,6 +56,12 @@
    The `ui.access` parameter can be used to configure the ui endpoint to
    be in either read-write or read-only mode.
 
+ * [Issue #304](https://github.com/fabiolb/fabio/issues/304): Add support for X-Forwarded-Prefix header
+
+   The `X-Forwarded-Prefix` header is added when the `strip=/foo` option
+   is used on a route and contains the path that was stripped (e.g.
+   `/foo`).
+
 ### [v1.4.4](https://github.com/fabiolb/fabio/releases/tag/v1.4.3) - 8 May 2017
 
 #### Bug Fixes
