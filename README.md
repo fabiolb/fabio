@@ -9,7 +9,7 @@
   </div>
 </div>
 
-##### Current stable version: 1.4.4
+##### Current stable version: 1.5.0
 
 [![Codeship CI Status](https://codeship.com/projects/3e8307d0-2426-0135-1183-6e6f38f65fc4/status?branch=master)](https://app.codeship.com/projects/222209)
 [![Travis CI Status](https://travis-ci.org/fabiolb/fabio.svg?branch=master)](https://travis-ci.org/fabiolb/fabio)
