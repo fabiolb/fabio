@@ -25,6 +25,10 @@
    fabio now allows to configure the TLS parameters for the handshake as part of the
    `proxy.addr` configuration. See `fabio.properties` for details.
 
+ * [Issue #280](https://github.com/fabiolb/fabio/issues/280): Add protocol data to `Forwarded` header
+
+   fabio adds `httpproto`, `tlsver` and `tlsciphers` to the `Forwarded` header.
+
  * [Issue #290](https://github.com/fabiolb/fabio/issues/290): Add profiling support
 
    fabio now supports optional memory, cpu, mutex and block (contention) profiling.
