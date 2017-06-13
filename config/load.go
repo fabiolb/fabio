@@ -503,7 +503,7 @@ func parseCertSource(cfg map[string]string) (c CertSource, err error) {
 	if c.Type != "file" && c.Type != "path" && c.Type != "http" && c.Type != "consul" && c.Type != "vault" {
 		return CertSource{}, fmt.Errorf("unknown cert source type %s", c.Type)
 	}
-	if c.Type == "file" {
+	if c.Type == "file" || c.Type == "consul" {
 		c.Refresh = 0
 	}
 	return

@@ -159,7 +159,7 @@ func TestLoad(t *testing.T) {
 			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=consul;cert=value"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
-				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "consul", CertPath: "value", Refresh: 3 * time.Second}
+				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "consul", CertPath: "value"}
 				return cfg
 			},
 		},
