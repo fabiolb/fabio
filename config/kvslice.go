@@ -29,6 +29,7 @@ func parseKVSlice(in string) ([]map[string]string, error) {
 		}
 	}
 
+	v := ""
 	s := []rune(in)
 	state := stateFirstKey
 	for {
@@ -37,7 +38,7 @@ func parseKVSlice(in string) ([]map[string]string, error) {
 		}
 		typ, val, n := lex(s)
 		s = s[n:]
-		// fmt.Println("parse:", "typ:", typ, "val:", val, "state:", string(state), "s:", string(s))
+		// fmt.Println("parse:", "typ:", typ, "val:", val, "v:", v, "state:", string(state), "s:", string(s))
 		switch state {
 		case stateFirstKey:
 			switch typ {
@@ -92,27 +93,29 @@ func parseKVSlice(in string) ([]map[string]string, error) {
 
 		case stateVal:
 			switch typ {
-			case itemText:
-				m[keyOrFirstVal] = val
-				state = stateNextKVOrNewMap
-			default:
-				return nil, errors.New(val)
-			}
-
-		case stateNextKVOrNewMap:
-			switch typ {
+			case itemText, itemEqual:
+				v += val
 			case itemComma:
+				m[keyOrFirstVal] = v
+				v = ""
 				newMap()
 				state = stateFirstKey
 			case itemSemicolon:
+				m[keyOrFirstVal] = v
+				v = ""
 				state = stateKey
 			default:
 				return nil, errors.New(val)
 			}
 		}
 	}
-	if state == stateAfterFirstKey && keyOrFirstVal != "" {
-		m[""] = keyOrFirstVal
+	switch state {
+	case stateVal:
+		m[keyOrFirstVal] = v
+	case stateAfterFirstKey:
+		if keyOrFirstVal != "" {
+			m[""] = keyOrFirstVal
+		}
 	}
 	if len(m) > 0 {
 		maps = append(maps, m)
@@ -149,12 +152,11 @@ const (
 	stateQTextEsc       = "qtextesc"
 
 	// parser states
-	stateFirstKey       = "first-key"
-	stateKey            = "key"
-	stateEqual          = "equal"
-	stateVal            = "val"
-	stateNextKVOrNewMap = "comma-semicolon"
-	stateAfterFirstKey  = "equal-comma-semicolon"
+	stateFirstKey      = "first-key"
+	stateKey           = "key"
+	stateEqual         = "equal"
+	stateVal           = "val"
+	stateAfterFirstKey = "equal-comma-semicolon"
 )
 
 func lex(s []rune) (itemType, string, int) {

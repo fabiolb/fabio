@@ -219,6 +219,26 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			desc: "issue 305",
+			args: []string{
+				"-proxy.addr", ":443;cs=consul-cs,:80,:2375;proto=tcp+sni",
+				"-proxy.cs", "cs=consul-cs;type=consul;cert=http://localhost:8500/v1/kv/ssl?token=token",
+			},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{
+					Listen{Addr: ":443", Proto: "https"},
+					Listen{Addr: ":80", Proto: "http"},
+					Listen{Addr: ":2375", Proto: "tcp+sni"},
+				}
+				cfg.Listen[0].CertSource = CertSource{
+					Name:     "consul-cs",
+					Type:     "consul",
+					CertPath: "http://localhost:8500/v1/kv/ssl?token=token",
+				}
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.localip", "1.2.3.4"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Proxy.LocalIP = "1.2.3.4"

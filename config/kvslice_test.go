@@ -29,6 +29,9 @@ func TestParseKVSlice(t *testing.T) {
 		{"first key empty and more values", "b;c=d", []map[string]string{{"": "b", "c": "d"}}, nil},
 		{"first key empty and more maps", "b,c", []map[string]string{{"": "b"}, {"": "c"}}, nil},
 		{"first key empty and more maps and values", "b;c=d,e;f=g", []map[string]string{{"": "b", "c": "d"}, {"": "e", "f": "g"}}, nil},
+		{"issue 305", "a=b=c,d=e=f", []map[string]string{{"a": "b=c"}, {"d": "e=f"}}, nil},
+		{"issue 305", "a=b=c;d=e=f", []map[string]string{{"a": "b=c", "d": "e=f"}}, nil},
+		{"issue 305", "a=b;d=e=f", []map[string]string{{"a": "b", "d": "e=f"}}, nil},
 	}
 
 	for _, tt := range tests {
