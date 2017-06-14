@@ -1,0 +1,9 @@
+syntax = "proto3";
+package echosvc;
+
+message Msg {
+	string text = 1;
+}
+service EchoSvc {
+	rpc Send(Msg) returns (Msg);
+}

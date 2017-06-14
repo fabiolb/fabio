@@ -1,5 +1,7 @@
 package internal
 
+import "crypto/tls"
+
 // LocalhostCert is a PEM-encoded TLS cert with SAN IPs
 // "127.0.0.1" and "[::1]", expiring at Jan 29 16:00:00 2084 GMT.
 // generated from src/crypto/tls:
@@ -35,3 +37,13 @@ ZYz4pNoKEVxbAgKdy1XzsGTNN/gN+GO1+JJYKK23RRidNkDrNe3RIAhH3inBKRUf
 4/AnjFkqwDkDRTh0htkCQQDfrRZr+gazwzDTSp23+l6MEbqBbc+TTC3c40zpNj4a
 egxjd5+SkMj6zXEJxAOgo+LmQDGWsu1YQ+XXL87VPwIP
 -----END RSA PRIVATE KEY-----`)
+
+var LocalhostTLSCert tls.Certificate
+
+func init() {
+	cert, err := tls.X509KeyPair(LocalhostCert, LocalhostKey)
+	if err != nil {
+		panic(err)
+	}
+	LocalhostTLSCert = cert
+}

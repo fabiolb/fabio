@@ -17,6 +17,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"golang.org/x/net/http2"
+
 	"github.com/fabiolb/fabio/admin"
 	"github.com/fabiolb/fabio/cert"
 	"github.com/fabiolb/fabio/config"
@@ -169,7 +171,7 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 	log.Printf("[INFO] Using route matching %q", cfg.Proxy.Matcher)
 
 	newTransport := func(tlscfg *tls.Config) *http.Transport {
-		return &http.Transport{
+		tr := &http.Transport{
 			ResponseHeaderTimeout: cfg.Proxy.ResponseHeaderTimeout,
 			MaxIdleConnsPerHost:   cfg.Proxy.MaxConn,
 			Dial: (&net.Dialer{
@@ -178,6 +180,10 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 			}).Dial,
 			TLSClientConfig: tlscfg,
 		}
+		if err := http2.ConfigureTransport(tr); err != nil {
+			panic(err)
+		}
+		return tr
 	}
 
 	return &proxy.HTTPProxy{

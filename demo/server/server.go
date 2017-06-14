@@ -198,7 +198,7 @@ func newHTTPServer(args Args) (*http.Server, []string, *api.AgentServiceCheck) {
 					scheme = "https"
 				}
 				w.WriteHeader(args.status)
-				fmt.Fprintf(w, "Serving %s via %s from %s on %s\n", r.RequestURI, scheme, args.name, addr)
+				fmt.Fprintf(w, "Serving %s via %s proto %s from %s on %s\n", r.RequestURI, scheme, r.Proto, args.name, addr)
 			})
 		case "ws", "wss":
 			mux.Handle(uri, websocket.Handler(WSEchoServer))
