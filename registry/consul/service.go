@@ -112,21 +112,33 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 				}
 
 				// build route command
+				weight := ""
+				ropts := []string{}
+				tags := strings.Join(svctags, ",")
 				addr = net.JoinHostPort(addr, strconv.Itoa(port))
 				dst := "http://" + addr + "/"
-				if strings.Contains(opts, "proto=tcp") {
-					dst = "tcp://" + addr
-				} else if strings.Contains(opts, "proto=https") {
-					dst = "https://" + addr
+				for _, o := range strings.Fields(opts) {
+					switch {
+					case o == "proto=tcp":
+						dst = "tcp://" + addr
+					case o == "proto=https":
+						dst = "https://" + addr
+					case strings.HasPrefix(o, "weight="):
+						weight = o[len("weight="):]
+					default:
+						ropts = append(ropts, o)
+					}
 				}
-				tags := strings.Join(svctags, ",")
 
 				cfg := "route add " + name + " " + route + " " + dst
+				if weight != "" {
+					cfg += " weight " + weight
+				}
 				if tags != "" {
 					cfg += " tags " + strconv.Quote(tags)
 				}
-				if opts != "" {
-					cfg += " opts " + strconv.Quote(opts)
+				if len(ropts) > 0 {
+					cfg += " opts " + strconv.Quote(strings.Join(ropts, " "))
 				}
 				config = append(config, cfg)
 			}
