@@ -366,14 +366,14 @@ func watchBackend(cfg *config.Config, first chan bool) {
 			continue
 		}
 		route.SetTable(t)
-		logRoutes(last, next, cfg.Log.RoutesFormat)
+		logRoutes(t, last, next, cfg.Log.RoutesFormat)
 		last = next
 
 		once.Do(func() { close(first) })
 	}
 }
 
-func logRoutes(last, next, format string) {
+func logRoutes(t route.Table, last, next, format string) {
 	fmtDiff := func(diffs []dmp.Diff) string {
 		var b bytes.Buffer
 		for _, d := range diffs {
@@ -395,6 +395,9 @@ func logRoutes(last, next, format string) {
 
 	const defFormat = "delta"
 	switch format {
+	case "detail":
+		log.Printf("[INFO] Updated config to\n%s", t.Dump())
+
 	case "delta":
 		if delta := fmtDiff(dmp.New().DiffMain(last, next, true)); delta != "" {
 			log.Printf("[INFO] Config updates\n%s", delta)
@@ -405,7 +408,7 @@ func logRoutes(last, next, format string) {
 
 	default:
 		log.Printf("[WARN] Invalid route format %q. Defaulting to %q", format, defFormat)
-		logRoutes(last, next, defFormat)
+		logRoutes(t, last, next, defFormat)
 	}
 }
 
