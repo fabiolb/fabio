@@ -12,7 +12,7 @@ import (
 )
 
 // Route maps a path prefix to one or more target URLs.
-// routes can have a share value which describes the
+// routes can have a weight value which describes the
 // amount of traffic this route should get. You can specify
 // that a route should get a fixed percentage of the traffic
 // independent of how many instances are running.
@@ -32,9 +32,7 @@ type Route struct {
 	// Targets contains the list of URLs
 	Targets []*Target
 
-	// wTargets contains 100 targets distributed
-	// according to their weight and ordered RR in the
-	// same order as targets
+	// wTargets contains targets distributed according to their weight
 	wTargets []*Target
 
 	// total contains the total number of requests for this route.
