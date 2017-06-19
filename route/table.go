@@ -1,6 +1,7 @@
 package route
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"log"
@@ -381,4 +382,59 @@ func (t Table) config(addWeight bool) []string {
 // be read by Parse() again.
 func (t Table) String() string {
 	return strings.Join(t.config(false), "\n")
+}
+
+// Dump returns the routing table as a detailed
+func (t Table) Dump() string {
+	w := new(bytes.Buffer)
+
+	hosts := []string{}
+	for k := range t {
+		hosts = append(hosts, k)
+	}
+	sort.Strings(hosts)
+
+	last := func(n, total int) bool {
+		return n == total-1
+	}
+
+	for i, h := range hosts {
+		fmt.Fprintf(w, "+-- host=%s\n", h)
+
+		routes := t[h]
+		for j, r := range routes {
+			p0 := "|   "
+			if last(i, len(hosts)) {
+				p0 = "    "
+			}
+			p1 := "|-- "
+			if last(j, len(routes)) {
+				p1 = "+-- "
+			}
+
+			fmt.Fprintf(w, "%s%spath=%s\n", p0, p1, r.Path)
+
+			m := map[*Target]int{}
+			for _, t := range r.wTargets {
+				m[t] += 1
+			}
+
+			total := len(r.wTargets)
+			k := 0
+			for t, n := range m {
+				p1 := "|    "
+				if last(j, len(routes)) {
+					p1 = "    "
+				}
+				p2 := "|-- "
+				if last(k, len(m)) {
+					p2 = "+-- "
+				}
+				weight := float64(n) / float64(total)
+				fmt.Fprintf(w, "%s%s%saddr=%s weight %2.2f slots %d/%d\n", p0, p1, p2, t.URL.Host, weight, n, total)
+				k++
+			}
+		}
+	}
+	return w.String()
 }
