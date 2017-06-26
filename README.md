@@ -64,7 +64,7 @@ The full documentation is on the [Wiki](https://github.com/fabiolb/fabio/wiki).
 
 1. Install from source, [binary](https://github.com/fabiolb/fabio/releases),
    [Docker](https://hub.docker.com/r/fabiolb/fabio/) or [Homebrew](http://brew.sh).
-    ```
+    ```shell
 	# go 1.8 or higher is required
     go get github.com/fabiolb/fabio                     (>= go1.8)
 
