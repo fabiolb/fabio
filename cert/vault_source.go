@@ -3,6 +3,7 @@ package cert
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -29,8 +30,12 @@ type VaultSource struct {
 	Refresh      time.Duration
 
 	mu         sync.Mutex
-	token      string // actual token
 	vaultToken string // VAULT_TOKEN env var. Might be wrapped.
+	auth       struct {
+		token          string    // actual token
+		expireTime     time.Time // zero value if the token isn't renewable
+		renewIncrement int
+	}
 }
 
 func (s *VaultSource) client() (*api.Client, error) {
@@ -45,20 +50,27 @@ func (s *VaultSource) client() (*api.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := s.setToken(c); err != nil {
+
+	if err := s.setAuth(c); err != nil {
 		return nil, err
 	}
+
 	return c, nil
 }
 
-func (s *VaultSource) setToken(c *api.Client) error {
+func (s *VaultSource) setAuth(c *api.Client) error {
+	firstCall := true
 	s.mu.Lock()
 	defer func() {
-		c.SetToken(s.token)
+		c.SetToken(s.auth.token)
+		if firstCall {
+			s.checkRenewal(c)
+		}
 		s.mu.Unlock()
 	}()
 
-	if s.token != "" {
+	if s.auth.token != "" {
+		firstCall = false
 		return nil
 	}
 
@@ -71,15 +83,51 @@ func (s *VaultSource) setToken(c *api.Client) error {
 	if err != nil {
 		// not a wrapped token?
 		if strings.HasPrefix(err.Error(), "no value found at") {
-			s.token = s.vaultToken
+			s.auth.token = s.vaultToken
 			return nil
 		}
 		return err
 	}
 	log.Printf("[INFO] vault: Unwrapped token %s", s.vaultToken)
 
-	s.token = resp.Auth.ClientToken
+	s.auth.token = resp.Auth.ClientToken
 	return nil
+}
+
+// dropNotRenewableWarning controls whether the 'Token is not renewable'
+// warning is logged. This is useful for testing where this is the expected
+// behavior. On production, this should always be set to false.
+var dropNotRenewableWarning bool
+
+// checkRenewal checks if the Vault token can be renewed, and if so when it
+// expires and how big the renewal increment should be.
+func (s *VaultSource) checkRenewal(c *api.Client) {
+	response, err := c.Auth().Token().LookupSelf()
+	if err != nil {
+		log.Printf("[WARN] vault: lookup-self failed, token renewal is disabled: %s", err)
+		return
+	}
+
+	b, _ := json.Marshal(response.Data)
+	var data struct {
+		CreationTTL int       `json:"creation_ttl"`
+		ExpireTime  time.Time `json:"expire_time"`
+		Renewable   bool      `json:"renewable"`
+	}
+	if err := json.Unmarshal(b, &data); err != nil {
+		log.Printf("[WARN] vault: lookup-self failed, token renewal is disabled: %s", err)
+		return
+	}
+
+	if data.Renewable {
+		s.auth.renewIncrement = data.CreationTTL
+		s.auth.expireTime = data.ExpireTime
+	} else if !data.ExpireTime.IsZero() && !dropNotRenewableWarning {
+		ttl := time.Until(data.ExpireTime)
+		ttl = ttl / time.Second * time.Second // truncate to seconds
+		log.Printf("[WARN] vault: Token is not renewable and will expire %s from now (at %s)",
+			ttl, data.ExpireTime.Format(time.RFC3339))
+	}
 }
 
 func (s *VaultSource) LoadClientCAs() (*x509.CertPool, error) {
@@ -91,11 +139,6 @@ func (s *VaultSource) Certificates() chan []tls.Certificate {
 	go watch(ch, s.Refresh, s.CertPath, s.load)
 	return ch
 }
-
-// dropNotRenewableError controls whether the 'lease is not renewable'
-// error is logged. This is useful for testing where this is the expected
-// behavior. On production, this should always be set to false.
-var dropNotRenewableError bool
 
 func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error) {
 	pemBlocks = map[string][]byte{}
@@ -130,15 +173,8 @@ func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error)
 		return nil, fmt.Errorf("vault: client: %s", err)
 	}
 
-	// renew token
-	// TODO(fs): make configurable
-	const oneHour = 3600
-	_, err = c.Auth().Token().RenewSelf(oneHour)
-	if err != nil {
-		// TODO(fs): danger of filling up log since default refresh is 1s
-		if !dropNotRenewableError {
-			log.Printf("[WARN] vault: Failed to renew token. %s", err)
-		}
+	if err := s.renewToken(c); err != nil {
+		log.Printf("[WARN] vault: Failed to renew token: %s", err)
 	}
 
 	// get the subkeys under 'path'.
@@ -164,4 +200,38 @@ func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error)
 	}
 
 	return pemBlocks, nil
+}
+
+func (s *VaultSource) renewToken(c *api.Client) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	ttl := time.Until(s.auth.expireTime)
+	switch {
+	case s.auth.expireTime.IsZero():
+		// Token isn't renewable.
+		return nil
+	case ttl < 2*s.Refresh:
+		// Renew the token if it isn't valid for two more refresh intervals.
+		break
+	case ttl < 1*time.Minute:
+		// Renew the token if it isn't valid for one more minute. This happens
+		// if s.Refresh is small, say one second. It is risky to renew the
+		// token just one or two seconds before expiration; networks are
+		// unreliable, clocks can be skewed, etc.
+		break
+	default:
+		// Token doesn't need to be renewed yet.
+		return nil
+	}
+
+	response, err := c.Auth().Token().RenewSelf(s.auth.renewIncrement)
+	if err != nil {
+		return err
+	}
+
+	leaseDuration := time.Duration(response.Auth.LeaseDuration) * time.Second
+	s.auth.expireTime = time.Now().Add(leaseDuration)
+
+	return nil
 }
