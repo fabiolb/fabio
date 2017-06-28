@@ -325,7 +325,12 @@ func vaultServer(t *testing.T, addr, rootToken string) (*exec.Cmd, *vaultapi.Cli
 	}
 
 	policy := `
+	# Vault < 0.7
 	path "secret/fabio/cert" {
+	  capabilities = ["list"]
+	}
+	# Vault >= 0.7. Note the trailing slash.
+	path "secret/fabio/cert/" {
 	  capabilities = ["list"]
 	}
 
