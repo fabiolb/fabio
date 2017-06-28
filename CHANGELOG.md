@@ -10,6 +10,29 @@
 
  * Added Code of Conduct
 
+ * Add support for `detail` format for `log.routes.format`
+
+   The `detail` format prints the routing table with more detail than the other formats
+   and it isn't intended to be machine readable.
+
+```
+./fabio -log.routes.format detail
+2017/06/19 11:51:14 [INFO] Updated config to
++-- host=:3306
+|   +-- path=
+|       |-- addr=127.0.0.1:5001 weight 0.20 slots 2000/10000
+|       +-- addr=127.0.0.1:5000 weight 0.80 slots 8000/10000
++-- host=:3307
+    +-- path=
+        +-- addr=127.0.0.1:5002 weight 1.00 slots 1/1
+```
+
+ * [Issue #42](https://github.com/fabiolb/fabio/issues/42): Add support for 'weight=f' option in urlprefix tag
+
+   This allows to specify a manual weight on the `urlprefix-` tag. This can be used to
+   manually distribute the load between multiple TCP endpoints or to have an active/standby
+   setup by setting `weight=1` on the active and `weight=0` on the standby server.
+
  * [PR #313](https://github.com/fabiolb/fabio/pull/313): Tests work now with Vault 0.7.x
 
 ### [v1.5.0](https://github.com/fabiolb/fabio/releases/tag/v1.5.0) - 7 Jun 2017
