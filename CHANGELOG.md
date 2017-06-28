@@ -1,10 +1,22 @@
 ## Changelog
 
+### Unreleased
+
+#### Breaking Changes
+
+#### Bug Fixes
+
+#### Improvements
+
+ * Added Code of Conduct
+
+ * [PR #313](https://github.com/fabiolb/fabio/pull/313): Tests work now with Vault 0.7.x
+
 ### [v1.5.0](https://github.com/fabiolb/fabio/releases/tag/v1.5.0) - 7 Jun 2017
 
 #### Breaking Changes
 
- * Support for the deprecated `proxy.addr` format `:port;certfile;keyfile;cafile` has been dropped. 
+ * Support for the deprecated `proxy.addr` format `:port;certfile;keyfile;cafile` has been dropped.
    Please use instead `proxy.addr` in combination with a
    [certificate store](https://github.com/fabiolb/fabio/wiki/Features#certificate-stores).
 
@@ -55,7 +67,7 @@
  * [Issue #294](https://github.com/fabiolb/fabio/issues/294): Use upstream host name for request
 
     Add support for a `host=dst` option on the route to trigger fabio to
-	use the target hostname for the outgoing request instead of the 
+	use the target hostname for the outgoing request instead of the
 	host name provided by the original request.
 
  * [Issue #296](https://github.com/fabiolb/fabio/issues/296): Sync X-Forwarded-Proto and Forwarded header when possible
@@ -93,7 +105,7 @@
 #### Bug Fixes
 
  * [Issue #271](https://github.com/fabiolb/fabio/issues/271): Support websocket for HTTPS upstream
- 
+
    This patch fixes that websocket connections are not forwarded to an HTTPS upstream server.
 
  * [Issue #279](https://github.com/fabiolb/fabio/issues/279): fabio does not start with multiple listeners
@@ -105,7 +117,7 @@
    properly when being configured with more than one listener.
 
  * [Issue #289](https://github.com/fabiolb/fabio/issues/289): Fabio does not advertise http/1.1 on TLS connections
- 
+
    This patch makes fabio announce both `h2` and `http/1.1` as application level protocols
    on TLS connections.
 
@@ -115,7 +127,7 @@
    a listening socket.
 
  * [Issue #278](https://github.com/fabiolb/fabio/issues/278): Add service name to access log fields
- 
+
    Add `$upstream_service` which contains the service name of the selected target
    to the available access log fields.
 
@@ -140,8 +152,8 @@
    Thanks to @Ginja for providing this patch.
 
  * Demo server supports HTTPS
- 
-   The `demo/server/server` now supports `https` and `wss` to test the 
+
+   The `demo/server/server` now supports `https` and `wss` to test the
    HTTPS upstream support. To run an HTTPS server run the following
 
    ```shell
@@ -154,13 +166,13 @@
    go build
    ./server -certFile ../cert/server/server-cert.pem -keyFile ../cert/server/server-key.pem -proto https -prefix "/foo tlsskipverify=true"
    ```
-   
+
  * Add route options to UI
- 
+
    The UI now shows the combined options from all targets for a route.
 
  * Add fabio logo to UI
- 
+
    The Fabio logo is displayed on all UI pages.
 
 ### [v1.4.2](https://github.com/fabiolb/fabio/releases/tag/v1.4.2) - 10 Apr 2017
@@ -302,7 +314,7 @@ fabio is known to work with vault 0.6.4.
 
 ### [v1.3.3](https://github.com/fabiolb/fabio/releases/tag/v1.3.3) - 12 Oct 2016
 
-#### Improvements 
+#### Improvements
 
  * Drop support for Go 1.6 since tests now use `t.Run()`
  * [PR #167](https://github.com/fabiolb/fabio/pull/167): Use Go's net.JoinHostPort which will auto-detect ipv6
