@@ -33,7 +33,16 @@
    manually distribute the load between multiple TCP endpoints or to have an active/standby
    setup by setting `weight=1` on the active and `weight=0` on the standby server.
 
+ * [Issue #274](https://github.com/fabiolb/fabio/issues/274)/[PR #314](https://github.com/fabiolb/fabio/pull/313): Avoid premature Vault token renewal
+
+   Non-renewable tokens are no longer renewed. In addition, the token TTL is honored for token that can
+   be renewed.
+
+   Thanks to @pschultz for this patch.
+
  * [PR #313](https://github.com/fabiolb/fabio/pull/313): Tests work now with Vault 0.7.x
+
+   Thanks to @pschultz for this patch.
 
 ### [v1.5.0](https://github.com/fabiolb/fabio/releases/tag/v1.5.0) - 7 Jun 2017
 
