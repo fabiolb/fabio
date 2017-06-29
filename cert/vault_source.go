@@ -44,8 +44,6 @@ type VaultSource struct {
 		// This value is advisory and the Vault server may ignore or silently
 		// change it.
 		renewTTL int
-
-		once sync.Once
 	}
 }
 
@@ -71,13 +69,10 @@ func (s *VaultSource) client() (*api.Client, error) {
 
 func (s *VaultSource) setAuth(c *api.Client) error {
 	s.mu.Lock()
-	defer func() {
-		c.SetToken(s.auth.token)
-		s.auth.once.Do(func() { s.checkRenewal(c) })
-		s.mu.Unlock()
-	}()
+	defer s.mu.Unlock()
 
 	if s.auth.token != "" {
+		c.SetToken(s.auth.token)
 		return nil
 	}
 
@@ -87,17 +82,20 @@ func (s *VaultSource) setAuth(c *api.Client) error {
 
 	// did we get a wrapped token?
 	resp, err := c.Logical().Unwrap(s.vaultToken)
-	if err != nil {
-		// not a wrapped token?
-		if strings.HasPrefix(err.Error(), "no value found at") {
-			s.auth.token = s.vaultToken
-			return nil
-		}
+	switch {
+	case err == nil:
+		log.Printf("[INFO] vault: Unwrapped token %s", s.vaultToken)
+		s.auth.token = resp.Auth.ClientToken
+	case strings.HasPrefix(err.Error(), "no value found at"):
+		// not a wrapped token
+		s.auth.token = s.vaultToken
+	default:
 		return err
 	}
-	log.Printf("[INFO] vault: Unwrapped token %s", s.vaultToken)
 
-	s.auth.token = resp.Auth.ClientToken
+	c.SetToken(s.auth.token)
+	s.checkRenewal(c)
+
 	return nil
 }
 
