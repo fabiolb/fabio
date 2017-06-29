@@ -32,9 +32,12 @@ type VaultSource struct {
 	mu         sync.Mutex
 	vaultToken string // VAULT_TOKEN env var. Might be wrapped.
 	auth       struct {
-		token          string    // actual token
-		expireTime     time.Time // zero value if the token isn't renewable
-		renewIncrement int
+		token      string    // actual token
+		expireTime time.Time // zero value if the token isn't renewable
+
+		// The desired token lifetime after renewal, in seconds. This value is
+		// advisory and the Vault server may ignore or silently change it.
+		renewTTL int
 	}
 }
 
@@ -59,8 +62,10 @@ func (s *VaultSource) client() (*api.Client, error) {
 }
 
 func (s *VaultSource) setAuth(c *api.Client) error {
-	firstCall := true
 	s.mu.Lock()
+
+	firstCall := true
+
 	defer func() {
 		c.SetToken(s.auth.token)
 		if firstCall {
@@ -102,13 +107,13 @@ var dropNotRenewableWarning bool
 // checkRenewal checks if the Vault token can be renewed, and if so when it
 // expires and how big the renewal increment should be.
 func (s *VaultSource) checkRenewal(c *api.Client) {
-	response, err := c.Auth().Token().LookupSelf()
+	resp, err := c.Auth().Token().LookupSelf()
 	if err != nil {
 		log.Printf("[WARN] vault: lookup-self failed, token renewal is disabled: %s", err)
 		return
 	}
 
-	b, _ := json.Marshal(response.Data)
+	b, _ := json.Marshal(resp.Data)
 	var data struct {
 		CreationTTL int       `json:"creation_ttl"`
 		ExpireTime  time.Time `json:"expire_time"`
@@ -119,15 +124,21 @@ func (s *VaultSource) checkRenewal(c *api.Client) {
 		return
 	}
 
-	if data.Renewable {
-		s.auth.renewIncrement = data.CreationTTL
+	switch {
+	case data.Renewable:
+		s.auth.renewTTL = data.CreationTTL
 		s.auth.expireTime = data.ExpireTime
-	} else if !data.ExpireTime.IsZero() && !dropNotRenewableWarning {
-		ttl := time.Until(data.ExpireTime)
-		ttl = ttl / time.Second * time.Second // truncate to seconds
-		log.Printf("[WARN] vault: Token is not renewable and will expire %s from now (at %s)",
-			ttl, data.ExpireTime.Format(time.RFC3339))
+	case data.ExpireTime.IsZero():
+		// token doesn't expire
+		return
+	case dropNotRenewableWarning:
+		return
 	}
+
+	ttl := time.Until(data.ExpireTime)
+	ttl = ttl / time.Second * time.Second // truncate to seconds
+	log.Printf("[WARN] vault: Token is not renewable and will expire %s from now (at %s)",
+		ttl, data.ExpireTime.Format(time.RFC3339))
 }
 
 func (s *VaultSource) LoadClientCAs() (*x509.CertPool, error) {
@@ -225,12 +236,12 @@ func (s *VaultSource) renewToken(c *api.Client) error {
 		return nil
 	}
 
-	response, err := c.Auth().Token().RenewSelf(s.auth.renewIncrement)
+	resp, err := c.Auth().Token().RenewSelf(s.auth.renewTTL)
 	if err != nil {
 		return err
 	}
 
-	leaseDuration := time.Duration(response.Auth.LeaseDuration) * time.Second
+	leaseDuration := time.Duration(resp.Auth.LeaseDuration) * time.Second
 	s.auth.expireTime = time.Now().Add(leaseDuration)
 
 	return nil
