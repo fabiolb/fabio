@@ -228,7 +228,7 @@ func (s *VaultSource) renewToken(c *api.Client) error {
 	case ttl < 2*s.Refresh:
 		// Renew the token if it isn't valid for two more refresh intervals.
 		break
-	case ttl < 1*time.Minute:
+	case ttl < time.Minute:
 		// Renew the token if it isn't valid for one more minute. This happens
 		// if s.Refresh is small, say one second. It is risky to renew the
 		// token just one or two seconds before expiration; networks are
