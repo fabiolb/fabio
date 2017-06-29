@@ -5,6 +5,9 @@ import (
 	"log"
 	"net"
 	"time"
+
+	"github.com/fabiolb/fabio/metrics"
+	"github.com/fabiolb/fabio/route"
 )
 
 // Proxy implements a generic TCP proxying handler.
@@ -13,36 +16,60 @@ type Proxy struct {
 	// connection.
 	DialTimeout time.Duration
 
-	// Lookup returns a target host for the given server name.
+	// Lookup returns a target host for the given request.
 	// The proxy will panic if this value is nil.
-	Lookup func(host string) string
+	Lookup func(host string) *route.Target
+
+	// Conn counts the number of connections.
+	Conn metrics.Counter
+
+	// ConnFail counts the failed upstream connection attempts.
+	ConnFail metrics.Counter
+
+	// Noroute counts the failed Lookup() calls.
+	Noroute metrics.Counter
 }
 
 func (p *Proxy) ServeTCP(in net.Conn) error {
 	defer in.Close()
 
+	if p.Conn != nil {
+		p.Conn.Inc(1)
+	}
+
 	_, port, _ := net.SplitHostPort(in.LocalAddr().String())
 	port = ":" + port
-	addr := p.Lookup(port)
-	if addr == "" {
+	t := p.Lookup(port)
+	if t == nil {
+		if p.Noroute != nil {
+			p.Noroute.Inc(1)
+		}
 		return nil
 	}
+	addr := t.URL.Host
 
 	out, err := net.DialTimeout("tcp", addr, p.DialTimeout)
 	if err != nil {
 		log.Print("[WARN] tcp: cannot connect to upstream ", addr)
+		if p.ConnFail != nil {
+			p.ConnFail.Inc(1)
+		}
 		return err
 	}
 	defer out.Close()
 
 	errc := make(chan error, 2)
-	cp := func(dst io.Writer, src io.Reader) {
-		_, err := io.Copy(dst, src)
-		errc <- err
+	cp := func(dst io.Writer, src io.Reader, c metrics.Counter) {
+		errc <- copyBuffer(dst, src, c)
 	}
 
-	go cp(out, in)
-	go cp(in, out)
+	// rx measures the traffic to the upstream server (in <- out)
+	// tx measures the traffic from the upstream server (out <- in)
+	rx := metrics.DefaultRegistry.GetCounter(t.TimerName + ".rx")
+	tx := metrics.DefaultRegistry.GetCounter(t.TimerName + ".tx")
+
+	go cp(in, out, rx)
+	go cp(out, in, tx)
 	err = <-errc
 	if err != nil && err != io.EOF {
 		log.Print("[WARN]: tcp:  ", err)
