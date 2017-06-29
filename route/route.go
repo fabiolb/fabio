@@ -64,7 +64,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		URL:         targetURL,
 		FixedWeight: fixedWeight,
 		Timer:       ServiceRegistry.GetTimer(name),
-		timerName:   name,
+		TimerName:   name,
 	}
 	if r.Opts != nil {
 		t.StripPath = r.Opts["strip"]

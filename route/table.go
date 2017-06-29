@@ -73,7 +73,7 @@ func syncRegistry(t Table) {
 	for _, routes := range t {
 		for _, r := range routes {
 			for _, tg := range r.Targets {
-				timers[tg.timerName] = true
+				timers[tg.TimerName] = true
 			}
 		}
 	}

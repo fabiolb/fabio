@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"io/ioutil"
 	"net"
+	"net/url"
 	"os"
 	"path/filepath"
 	"testing"
@@ -41,10 +42,9 @@ func TestTCPProxy(t *testing.T) {
 	proxyAddr := "127.0.0.1:57778"
 	go func() {
 		h := &tcp.Proxy{
-			Lookup: func(h string) string {
+			Lookup: func(h string) *route.Target {
 				tbl, _ := route.NewTable("route add srv :57778 tcp://" + srv.Addr)
-				t := tbl.LookupHost(h, route.Picker["rr"])
-				return t.URL.Host
+				return tbl.LookupHost(h, route.Picker["rr"])
 			},
 		}
 		l := config.Listen{Addr: proxyAddr}
@@ -101,7 +101,9 @@ func TestTCPProxyWithTLS(t *testing.T) {
 		}
 
 		h := &tcp.Proxy{
-			Lookup: func(string) string { return srv.Addr },
+			Lookup: func(string) *route.Target {
+				return &route.Target{URL: &url.URL{Host: srv.Addr}}
+			},
 		}
 
 		l := config.Listen{Addr: proxyAddr}
@@ -148,7 +150,9 @@ func TestTCPSNIProxy(t *testing.T) {
 	proxyAddr := "127.0.0.1:57778"
 	go func() {
 		h := &tcp.SNIProxy{
-			Lookup: func(string) string { return srv.Addr },
+			Lookup: func(string) *route.Target {
+				return &route.Target{URL: &url.URL{Host: srv.Addr}}
+			},
 		}
 		l := config.Listen{Addr: proxyAddr}
 		if err := ListenAndServeTCP(l, h, nil); err != nil {

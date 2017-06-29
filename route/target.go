@@ -40,6 +40,6 @@ type Target struct {
 	// Timer measures throughput and latency of this target
 	Timer metrics.Timer
 
-	// timerName is the name of the timer in the metrics registry
-	timerName string
+	// TimerName is the name of the timer in the metrics registry
+	TimerName string
 }

@@ -177,17 +177,16 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 	}
 }
 
-func lookupHostFn(cfg *config.Config) func(string) string {
+func lookupHostFn(cfg *config.Config) func(string) *route.Target {
 	pick := route.Picker[cfg.Proxy.Strategy]
 	notFound := metrics.DefaultRegistry.GetCounter("notfound")
-	return func(host string) string {
+	return func(host string) *route.Target {
 		t := route.GetTable().LookupHost(host, pick)
 		if t == nil {
 			notFound.Inc(1)
 			log.Print("[WARN] No route for ", host)
-			return ""
 		}
-		return t.URL.Host
+		return t
 	}
 }
 
@@ -252,14 +251,26 @@ func startServers(cfg *config.Config) {
 			}()
 		case "tcp":
 			go func() {
-				h := &tcp.Proxy{cfg.Proxy.DialTimeout, lookupHostFn(cfg)}
+				h := &tcp.Proxy{
+					DialTimeout: cfg.Proxy.DialTimeout,
+					Lookup:      lookupHostFn(cfg),
+					Conn:        metrics.DefaultRegistry.GetCounter("tcp.conn"),
+					ConnFail:    metrics.DefaultRegistry.GetCounter("tcp.connfail"),
+					Noroute:     metrics.DefaultRegistry.GetCounter("tcp.noroute"),
+				}
 				if err := proxy.ListenAndServeTCP(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
 				}
 			}()
 		case "tcp+sni":
 			go func() {
-				h := &tcp.SNIProxy{cfg.Proxy.DialTimeout, lookupHostFn(cfg)}
+				h := &tcp.SNIProxy{
+					DialTimeout: cfg.Proxy.DialTimeout,
+					Lookup:      lookupHostFn(cfg),
+					Conn:        metrics.DefaultRegistry.GetCounter("tcp_sni.conn"),
+					ConnFail:    metrics.DefaultRegistry.GetCounter("tcp_sni.connfail"),
+					Noroute:     metrics.DefaultRegistry.GetCounter("tcp_sni.noroute"),
+				}
 				if err := proxy.ListenAndServeTCP(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
 				}
