@@ -44,6 +44,8 @@ type VaultSource struct {
 		// This value is advisory and the Vault server may ignore or silently
 		// change it.
 		renewTTL int
+
+		once sync.Once
 	}
 }
 
@@ -69,19 +71,13 @@ func (s *VaultSource) client() (*api.Client, error) {
 
 func (s *VaultSource) setAuth(c *api.Client) error {
 	s.mu.Lock()
-
-	firstCall := true
-
 	defer func() {
 		c.SetToken(s.auth.token)
-		if firstCall {
-			s.checkRenewal(c)
-		}
+		s.auth.once.Do(func() { s.checkRenewal(c) })
 		s.mu.Unlock()
 	}()
 
 	if s.auth.token != "" {
-		firstCall = false
 		return nil
 	}
 
