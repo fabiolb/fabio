@@ -371,7 +371,7 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 	if cs[csName].Type == "vault-pki" && !l.StrictMatch {
 		// Without StrictMatch the first issued certificate is used for all
 		// subsequent requests, even if the common name doesn't match.
-		log.Print("[INFO] vault-pki requires strictmatch; enabling strictmatch for listener %q", l.Addr)
+		log.Printf("[INFO] vault-pki requires strictmatch; enabling strictmatch for listener %s", l.Addr)
 		l.StrictMatch = true
 	}
 
