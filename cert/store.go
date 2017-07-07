@@ -38,9 +38,11 @@ func (s *Store) certstore() certstore {
 	return s.cs.Load().(certstore)
 }
 
+var ErrNoCertsStored = errors.New("cert: no certificates stored")
+
 func getCertificate(cs certstore, clientHello *tls.ClientHelloInfo, strictMatch bool) (cert *tls.Certificate, err error) {
 	if len(cs.Certificates) == 0 {
-		return nil, errors.New("cert: no certificates stored")
+		return nil, ErrNoCertsStored
 	}
 
 	// There's only one choice, so no point doing any work.

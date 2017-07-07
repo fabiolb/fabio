@@ -205,7 +205,7 @@ func TestPathSource(t *testing.T) {
 	defer os.RemoveAll(dir)
 	certPEM, keyPEM := makePEM("localhost", time.Minute)
 	saveCert(dir, "localhost", certPEM, keyPEM)
-	testSource(t, PathSource{CertPath: dir}, makeCertPool(certPEM), 0)
+	testSource(t, PathSource{CertPath: dir}, makeCertPool(certPEM), 10*time.Millisecond)
 }
 
 func TestHTTPSource(t *testing.T) {
@@ -505,19 +505,18 @@ func testSource(t *testing.T, source Source, rootCAs *x509.CertPool, sleep time.
 		}
 	}
 
-	// make a call for which certificate validation fails.
-	fail(http11)
-	fail(http20)
-
-	// now make the call that should succeed
+	// make a call for which certificate validation succeeds.
 	succeed(http11, "OK HTTP/1.1")
 	succeed(http20, "OK HTTP/2.0")
+
+	// now make the call that should fail.
+	fail(http11)
+	fail(http20)
 }
 
 // roundtrip starts a TLS server with the given server configuration and
-// then calls "https://<host>/" with the given client. "host" must resolve
-// to 127.0.0.1.
-func roundtrip(host string, srvConfig *tls.Config, client *http.Client) (code int, body string, err error) {
+// then sends an SNI request with the given serverName.
+func roundtrip(serverName string, srvConfig *tls.Config, client *http.Client) (code int, body string, err error) {
 	// create an HTTPS server and start it. It will be listening on 127.0.0.1
 	srv := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "OK ", r.Proto)
@@ -526,11 +525,9 @@ func roundtrip(host string, srvConfig *tls.Config, client *http.Client) (code in
 	srv.StartTLS()
 	defer srv.Close()
 
-	// for the certificate validation to work we need to use a hostname
-	// in the URL which resolves to 127.0.0.1. We can't fake the hostname
-	// via the Host header.
-	url := strings.Replace(srv.URL, "127.0.0.1", host, 1)
-	resp, err := client.Get(url)
+	// configure SNI
+	client.Transport.(*http.Transport).TLSClientConfig.ServerName = serverName
+	resp, err := client.Get(srv.URL)
 	if err != nil {
 		return 0, "", err
 	}

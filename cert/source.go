@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/fabiolb/fabio/config"
+	"golang.org/x/sync/singleflight"
 )
 
 // Source provides the interface for dynamic certificate sources.
@@ -20,6 +21,14 @@ type Source interface {
 	// LoadClientCAs() provides certificates for client certificate
 	// authentication.
 	LoadClientCAs() (*x509.CertPool, error)
+}
+
+// Issuer is the interface implemented by sources that can issue certificates
+// on-demand.
+type Issuer interface {
+	// Issue issues a new certificate for the given common name. Issue must
+	// return a certificate or an error, never (nil, nil).
+	Issue(commonName string) (*tls.Certificate, error)
 }
 
 // NewSource generates a cert source from the config options.
@@ -71,20 +80,19 @@ func NewSource(cfg config.CertSource) (Source, error) {
 	}
 }
 
-// TLSConfig creates a tls.Config which sets the
-// GetCertificate field to a certificate store
-// which uses the given source to update the
-// the certificates on demand.
+// TLSConfig creates a tls.Config which sets the GetCertificate field to a
+// certificate store which uses the given source to update the the certificates
+// on-demand.
 //
-// It also sets the ClientCAs field if
-// src.LoadClientCAs returns a non-nil value
-// and sets ClientAuth to RequireAndVerifyClientCert.
+// It also sets the ClientCAs field if src.LoadClientCAs returns a non-nil
+// value and sets ClientAuth to RequireAndVerifyClientCert.
 func TLSConfig(src Source, strictMatch bool, minVersion, maxVersion uint16, cipherSuites []uint16) (*tls.Config, error) {
 	clientCAs, err := src.LoadClientCAs()
 	if err != nil {
 		return nil, err
 	}
 
+	sf := &singleflight.Group{}
 	store := NewStore()
 	x := &tls.Config{
 		MinVersion:   minVersion,
@@ -92,7 +100,33 @@ func TLSConfig(src Source, strictMatch bool, minVersion, maxVersion uint16, ciph
 		CipherSuites: cipherSuites,
 		NextProtos:   []string{"h2", "http/1.1"},
 		GetCertificate: func(clientHello *tls.ClientHelloInfo) (cert *tls.Certificate, err error) {
-			return getCertificate(store.certstore(), clientHello, strictMatch)
+			cert, err = getCertificate(store.certstore(), clientHello, strictMatch)
+			if cert != nil {
+				return
+			}
+
+			switch err {
+			case nil, ErrNoCertsStored:
+				// Store doesn't contain a suitable cert. Perhaps the source can issue one?
+			default:
+				// an unrecoverable error
+				return
+			}
+
+			ca, ok := src.(Issuer)
+			if !ok {
+				return
+			}
+
+			serverName := clientHello.ServerName
+			x, err, _ := sf.Do(serverName, func() (interface{}, error) {
+				return ca.Issue(serverName)
+			})
+			if err != nil {
+				return cert, err
+			}
+
+			return x.(*tls.Certificate), nil
 		},
 	}
 
