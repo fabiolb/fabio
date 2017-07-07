@@ -173,6 +173,32 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			desc: "-proxy.addr with vault-pki cert source",
+			args: []string{
+				"-proxy.addr", ":5555;cs=name",
+				"-proxy.cs", "cs=name;type=vault-pki;cert=pki/issue/value",
+			},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "vault-pki", CertPath: "pki/issue/value", Refresh: 3 * time.Second}
+				cfg.Listen[0].StrictMatch = true // implicit
+				return cfg
+			},
+		},
+		{
+			desc: "-proxy.addr with vault-pki cert source, -proxy.cs first",
+			args: []string{
+				"-proxy.cs", "cs=name;type=vault-pki;cert=pki/issue/value",
+				"-proxy.addr", ":5555;cs=name",
+			},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "vault-pki", CertPath: "pki/issue/value", Refresh: 3 * time.Second}
+				cfg.Listen[0].StrictMatch = true // implicit
+				return cfg
+			},
+		},
+		{
 			desc: "-proxy.addr with cert source",
 			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;hdr=a: b;caupgcn=furb"},
 			cfg: func(cfg *Config) *Config {

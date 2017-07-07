@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"os"
 
 	"github.com/fabiolb/fabio/config"
 	"golang.org/x/sync/singleflight"
@@ -67,13 +66,20 @@ func NewSource(cfg config.CertSource) (Source, error) {
 
 	case "vault":
 		return &VaultSource{
-			Addr:         os.Getenv("VAULT_ADDR"),
 			CertPath:     cfg.CertPath,
 			ClientCAPath: cfg.ClientCAPath,
 			CAUpgradeCN:  cfg.CAUpgradeCN,
 			Refresh:      cfg.Refresh,
-			vaultToken:   os.Getenv("VAULT_TOKEN"),
+			Client:       DefaultVaultClient,
 		}, nil
+	case "vault-pki":
+		src := NewVaultPKISource()
+		src.CertPath = cfg.CertPath
+		src.ClientCAPath = cfg.ClientCAPath
+		src.CAUpgradeCN = cfg.CAUpgradeCN
+		src.Refresh = cfg.Refresh
+		src.Client = DefaultVaultClient
+		return src, nil
 
 	default:
 		return nil, fmt.Errorf("invalid certificate source %q", cfg.Type)
