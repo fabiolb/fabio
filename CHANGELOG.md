@@ -1,6 +1,6 @@
 ## Changelog
 
-### [v1.5.1](https://github.com/fabiolb/fabio/releases/tag/v1.5.1) - 6 Jul 2017
+### Unreleased
 
 #### Breaking Changes
 
