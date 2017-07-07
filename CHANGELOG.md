@@ -2,6 +2,19 @@
 
 ### [v1.5.1](https://github.com/fabiolb/fabio/releases/tag/v1.5.1) - 6 Jul 2017
 
+#### Breaking Changes
+
+#### Bug Fixes
+
+ * [Issue #305](https://github.com/fabiolb/fabio/issues/305): 1.5.0 config compatibility problem
+ 
+   In fabio 1.5.0 the key/value parsing was refactored and that introduced a bug where a second `=`
+   failed to parse correctly and prevented fabio from starting.
+
+#### Improvements
+
+### [v1.5.1](https://github.com/fabiolb/fabio/releases/tag/v1.5.1) - 6 Jul 2017
+
 #### Improvements
 
  * Added Code of Conduct
