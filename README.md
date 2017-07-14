@@ -131,3 +131,7 @@ urlprefix-:3306 proto=tcp                          # route external port 3306
   Copyright (c) 2017 Frank Schroeder. All rights reserved.
 
 See [LICENSE](https://github.com/fabiolb/fabio/blob/master/LICENSE) for details.
+
+## Stargazers over Time
+
+[![Stargazers over time](https://starcharts.herokuapp.com/fabiolb/fabio.svg)](https://starcharts.herokuapp.com/fabiolb/fabio)
