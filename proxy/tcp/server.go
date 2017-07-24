@@ -83,10 +83,7 @@ func (s *Server) Serve(l net.Listener) error {
 
 		go func() {
 			defer func() {
-				// Explicitly close the connection
 				c.Close()
-
-				// Delete the connection from the conns map
 				s.mu.Lock()
 				delete(s.conns, c)
 				s.mu.Unlock()
