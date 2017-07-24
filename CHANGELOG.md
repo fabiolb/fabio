@@ -13,6 +13,12 @@
 
 #### Improvements
 
+ * [PR #321](https://github.com/fabiolb/fabio/pull/321): Cleanup TCP proxy connections
+
+   This patch updates the internal connection map when a connection is closed.
+
+   Thanks to @crypto89 for this patch.
+
 ### [v1.5.1](https://github.com/fabiolb/fabio/releases/tag/v1.5.1) - 6 Jul 2017
 
 #### Improvements
