@@ -287,12 +287,24 @@ func initMetrics(cfg *config.Config) {
 		return
 	}
 
+	var deadline = time.Now().Add(cfg.Metrics.Timeout)
 	var err error
-	if metrics.DefaultRegistry, err = metrics.NewRegistry(cfg.Metrics); err != nil {
-		exit.Fatal("[FATAL] ", err)
-	}
-	if route.ServiceRegistry, err = metrics.NewRegistry(cfg.Metrics); err != nil {
-		exit.Fatal("[FATAL] ", err)
+	for {
+		metrics.DefaultRegistry, err = metrics.NewRegistry(cfg.Metrics)
+		if err == nil {
+			route.ServiceRegistry, err = metrics.NewRegistry(cfg.Metrics)
+		}
+		if err == nil {
+			return
+		}
+		if time.Now().After(deadline) {
+			exit.Fatal("[FATAL] ", err)
+		}
+		log.Print("[WARN] Error initializing metrics. ", err)
+		time.Sleep(cfg.Metrics.Retry)
+		if atomic.LoadInt32(&shuttingDown) > 0 {
+			exit.Exit(1)
+		}
 	}
 }
 

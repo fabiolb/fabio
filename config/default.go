@@ -28,6 +28,8 @@ var defaultConfig = &Config{
 		Prefix:   "{{clean .Hostname}}.{{clean .Exec}}",
 		Names:    "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
 		Interval: 30 * time.Second,
+		Timeout:  10 * time.Second,
+		Retry:    500 * time.Millisecond,
 		Circonus: Circonus{
 			APIApp: "fabio",
 		},

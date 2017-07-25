@@ -90,6 +90,8 @@ type Metrics struct {
 	Prefix       string
 	Names        string
 	Interval     time.Duration
+	Timeout      time.Duration
+	Retry        time.Duration
 	GraphiteAddr string
 	StatsDAddr   string
 	Circonus     Circonus

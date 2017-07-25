@@ -572,6 +572,20 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-metrics.timeout", "5s"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.Timeout = 5 * time.Second
+				return cfg
+			},
+		},
+		{
+			args: []string{"-metrics.retry", "500ms"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.Retry = 500 * time.Millisecond
+				return cfg
+			},
+		},
+		{
 			args: []string{"-metrics.graphite.addr", "1.2.3.4:5555"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Metrics.GraphiteAddr = "1.2.3.4:5555"
