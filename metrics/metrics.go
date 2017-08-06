@@ -20,6 +20,7 @@ import (
 	"github.com/fabiolb/fabio/metrics/circonus"
 	"github.com/fabiolb/fabio/metrics/gometrics"
 	"github.com/fabiolb/fabio/metrics/noop"
+	"github.com/fabiolb/fabio/metrics/statsdraw"
 )
 
 var M Registry = &noop.Registry{}
@@ -67,6 +68,10 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 	case "statsd":
 		log.Printf("[INFO] Sending metrics to StatsD on %s as %q", cfg.StatsDAddr, prefix)
 		return gometrics.NewStatsDRegistry(prefix, cfg.StatsDAddr, cfg.Interval)
+
+	case "statsd_raw":
+		log.Printf("[INFO] Sending metrics to StatsD (raw) on %s as %q", cfg.StatsDAddr, prefix)
+		return statsdraw.NewRegistry(prefix, cfg.StatsDAddr, cfg.Interval)
 
 	case "circonus":
 		return circonus.NewRegistry(prefix, cfg.Circonus, cfg.Interval)
