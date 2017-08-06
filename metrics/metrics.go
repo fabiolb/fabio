@@ -66,6 +66,10 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 		log.Printf("[INFO] Sending metrics to StatsD on %s as %q", cfg.StatsDAddr, prefix)
 		return gmStatsDRegistry(prefix, cfg.StatsDAddr, cfg.Interval)
 
+	case "statsd_raw":
+		log.Printf("[INFO] Sending metrics to StatsD (raw) on %s as %q", cfg.StatsDAddr, prefix)
+		return newRawStatsDRegistry(prefix, cfg.StatsDAddr, cfg.Interval)
+
 	case "circonus":
 		return circonusRegistry(prefix, cfg.Circonus, cfg.Interval)
 
