@@ -2,6 +2,7 @@
 	"comment": "",
 	"ignore": "test",
 	"package": [
+		{"checksumSHA1":"U3+w41n+fYxSL3FsXo0kR7zuGho=","path":"github.com/alexcesaro/statsd","revision":"7fea3f0d2fab1ad973e641e51dba45443a311a90","revisionTime":"2016-03-20T18:21:10Z"},
 		{"checksumSHA1":"eAall4ACaMG40mzSJ5Oc95GiF1A=","path":"github.com/armon/go-proxyproto","revision":"609d6338d3a76ec26ac3fe7045a164d9a58436e7","revisionTime":"2015-02-06T18:58:55-08:00"},
 		{"checksumSHA1":"ZAdLZ0e/hin4AXxdS9F8y0yi/bg=","path":"github.com/circonus-labs/circonus-gometrics","revision":"f8c68ed96a065c10344dcaf802f608781fc0a981","revisionTime":"2016-08-30T16:47:25Z"},
 		{"checksumSHA1":"2hV0W0wM75u+OJ4kGv0i7B95cmY=","path":"github.com/circonus-labs/circonus-gometrics/api","revision":"f8c68ed96a065c10344dcaf802f608781fc0a981","revisionTime":"2016-08-30T16:47:25Z"},
