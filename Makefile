@@ -19,10 +19,12 @@ help:
 	@echo "clean     - remove temp files"
 
 build: checkdeps
+	vendorfmt
 	$(GO) build -i $(GOFLAGS)
 	$(GO) test -i ./...
 
 test: checkdeps
+	vendorfmt
 	$(GO) test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 
 checkdeps:
