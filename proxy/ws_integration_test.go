@@ -16,7 +16,14 @@ import (
 )
 
 func TestProxyWSUpstream(t *testing.T) {
-	wsServer := httptest.NewServer(websocket.Handler(wsEchoHandler))
+	wsServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.RequestURI {
+		case "/ws", "/wss", "/insecure", "/strip":
+			websocket.Handler(wsEchoHandler).ServeHTTP(w, r)
+		default:
+			w.WriteHeader(404)
+		}
+	}))
 	defer wsServer.Close()
 	t.Log("Started WS server: ", wsServer.URL)
 
@@ -28,7 +35,8 @@ func TestProxyWSUpstream(t *testing.T) {
 
 	routes := "route add ws /ws  " + wsServer.URL + "\n"
 	routes += "route add ws /wss " + wssServer.URL + ` opts "proto=https"` + "\n"
-	routes += "route add ws /insecure " + wssServer.URL + ` opts "proto=https tlsskipverify=true"`
+	routes += "route add ws /insecure " + wssServer.URL + ` opts "proto=https tlsskipverify=true"` + "\n"
+	routes += "route add ws /foo/strip  " + wsServer.URL + ` opts "strip=/foo"` + "\n"
 
 	httpProxy := httptest.NewServer(&HTTPProxy{
 		Config:            config.Proxy{NoRouteStatus: 404, GZIPContentTypes: regexp.MustCompile(".*")},
@@ -75,6 +83,8 @@ func TestProxyWSUpstream(t *testing.T) {
 
 	h := http.Header{"Accept-Encoding": []string{"gzip"}}
 	t.Run("ws-ws via http proxy with gzip", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/ws", h) })
+
+	t.Run("ws-ws via http proxy with strip", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/foo/strip", nil) })
 }
 
 func testWSEcho(t *testing.T, url string, hdr http.Header) {
