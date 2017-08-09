@@ -3,6 +3,7 @@
 GO = GOGC=off go
 GOFLAGS = -ldflags "-X main.version=$(shell git describe --tags)"
 GOVENDOR = $(shell which govendor)
+VENDORFMT = $(shell which vendorfmt)
 
 all: build test
 
@@ -18,18 +19,20 @@ help:
 	@echo "pkg       - build, test and create pkg/fabio.tar.gz"
 	@echo "clean     - remove temp files"
 
-build: checkdeps
-	vendorfmt
+build: checkdeps vendorfmt
 	$(GO) build -i $(GOFLAGS)
 	$(GO) test -i ./...
 
-test: checkdeps
-	vendorfmt
+test: checkdeps vendorfmt
 	$(GO) test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 
 checkdeps:
 	[ -x "$(GOVENDOR)" ] || $(GO) get -u github.com/kardianos/govendor
 	govendor list +e | grep '^ e ' && { echo "Found missing packages. Please run 'govendor add +e'"; exit 1; } || : echo
+
+vendorfmt:
+	[ -x "$(VENDORFMT)" ] || $(GO) get -u github.com/magiconair/vendorfmt
+	vendorfmt
 
 gofmt:
 	gofmt -w `find . -type f -name '*.go' | grep -v vendor`
@@ -77,4 +80,4 @@ clean:
 	$(GO) clean
 	rm -rf pkg
 
-.PHONY: build linux gofmt install release docker test homebrew buildpkg pkg clean
+.PHONY: build buildpkg clean docker gofmt homebrew install linux pkg release test vendorfmt
