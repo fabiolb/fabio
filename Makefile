@@ -3,6 +3,7 @@
 GO = GOGC=off go
 GOFLAGS = -ldflags "-X main.version=$(shell git describe --tags)"
 GOVENDOR = $(shell which govendor)
+VENDORFMT = $(shell which vendorfmt)
 
 all: build test
 
@@ -18,18 +19,20 @@ help:
 	@echo "pkg       - build, test and create pkg/fabio.tar.gz"
 	@echo "clean     - remove temp files"
 
-build: checkdeps
-	vendorfmt
+build: checkdeps vendorfmt
 	$(GO) build -i $(GOFLAGS)
 	$(GO) test -i ./...
 
-test: checkdeps
-	vendorfmt
+test: checkdeps vendorfmt
 	$(GO) test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 
 checkdeps:
 	[ -x "$(GOVENDOR)" ] || $(GO) get -u github.com/kardianos/govendor
 	govendor list +e | grep '^ e ' && { echo "Found missing packages. Please run 'govendor add +e'"; exit 1; } || : echo
+
+vendorfmt:
+	[ -x "$(VENDORFMT)" ] || $(GO) get -u github.com/magiconair/vendorfmt/cmd/vendorfmt
+	vendorfmt
 
 gofmt:
 	gofmt -w `find . -type f -name '*.go' | grep -v vendor`
@@ -54,7 +57,7 @@ homebrew:
 codeship:
 	go version
 	go env
-	wget -O ~/consul.zip https://releases.hashicorp.com/consul/0.8.5/consul_0.8.5_linux_amd64.zip
+	wget -O ~/consul.zip https://releases.hashicorp.com/consul/0.9.1/consul_0.9.1_linux_amd64.zip
 	wget -O ~/vault.zip https://releases.hashicorp.com/vault/0.7.3/vault_0.7.3_linux_amd64.zip
 	unzip -o -d ~/bin ~/consul.zip
 	unzip -o -d ~/bin ~/vault.zip
@@ -77,4 +80,4 @@ clean:
 	$(GO) clean
 	rm -rf pkg
 
-.PHONY: build linux gofmt install release docker test homebrew buildpkg pkg clean
+.PHONY: build buildpkg clean docker gofmt homebrew install linux pkg release test vendorfmt
