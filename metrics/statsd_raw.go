@@ -1,7 +1,6 @@
 package metrics
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -9,20 +8,16 @@ import (
 )
 
 func newRawStatsDRegistry(prefix, addr string, interval time.Duration) (Registry, error) {
-	if addr == "" {
-		return nil, errors.New(" statsd addr missing")
-	}
-
 	c, err := alstatsd.New(alstatsd.Address(addr), alstatsd.FlushPeriod(interval))
 	if err != nil {
 		return nil, fmt.Errorf(" cannot init statsd client: %s", err)
 	}
-
-	return &rawStatsDRegistry{c}, nil
+	return &rawStatsDRegistry{c, prefix}, nil
 }
 
 type rawStatsDRegistry struct {
-	c *alstatsd.Client
+	c      *alstatsd.Client
+	prefix string
 }
 
 func (r *rawStatsDRegistry) Names() []string        { return nil }
@@ -30,11 +25,11 @@ func (r *rawStatsDRegistry) Unregister(name string) {}
 func (r *rawStatsDRegistry) UnregisterAll()         {}
 
 func (r *rawStatsDRegistry) GetCounter(name string) Counter {
-	return &rawStatsDCounter{r.c, name}
+	return &rawStatsDCounter{r.c, r.prefix + "." + name}
 }
 
 func (r *rawStatsDRegistry) GetTimer(name string) Timer {
-	return &rawStatsDTimer{r.c, name}
+	return &rawStatsDTimer{r.c, r.prefix + "." + name}
 }
 
 type rawStatsDCounter struct {
