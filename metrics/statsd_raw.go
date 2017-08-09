@@ -16,8 +16,8 @@ func newRawStatsDRegistry(prefix, addr string, interval time.Duration) (Registry
 }
 
 type rawStatsDRegistry struct {
-	c      *alstatsd.Client
-	prefix string
+	c *alstatsd.Client
+	p string
 }
 
 func (r *rawStatsDRegistry) Names() []string        { return nil }
@@ -25,11 +25,11 @@ func (r *rawStatsDRegistry) Unregister(name string) {}
 func (r *rawStatsDRegistry) UnregisterAll()         {}
 
 func (r *rawStatsDRegistry) GetCounter(name string) Counter {
-	return &rawStatsDCounter{r.c, r.prefix + "." + name}
+	return &rawStatsDCounter{r.c, r.p + name}
 }
 
 func (r *rawStatsDRegistry) GetTimer(name string) Timer {
-	return &rawStatsDTimer{r.c, r.prefix + "." + name}
+	return &rawStatsDTimer{r.c, r.p + name}
 }
 
 type rawStatsDCounter struct {
