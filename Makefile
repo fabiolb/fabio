@@ -31,7 +31,7 @@ checkdeps:
 	govendor list +e | grep '^ e ' && { echo "Found missing packages. Please run 'govendor add +e'"; exit 1; } || : echo
 
 vendorfmt:
-	[ -x "$(VENDORFMT)" ] || $(GO) get -u github.com/magiconair/vendorfmt
+	[ -x "$(VENDORFMT)" ] || $(GO) get -u github.com/magiconair/vendorfmt/cmd/vendorfmt
 	vendorfmt
 
 gofmt:
