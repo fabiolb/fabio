@@ -8,16 +8,21 @@ import (
 )
 
 func newRawStatsDRegistry(prefix, addr string, interval time.Duration) (Registry, error) {
-	c, err := alstatsd.New(alstatsd.Address(addr), alstatsd.FlushPeriod(interval))
+	var c *alstatsd.Client
+	var err error
+	if prefix != "" {
+		c, err = alstatsd.New(alstatsd.Address(addr), alstatsd.FlushPeriod(interval), alstatsd.Prefix(prefix))
+	} else {
+		c, err = alstatsd.New(alstatsd.Address(addr), alstatsd.FlushPeriod(interval))
+	}
 	if err != nil {
 		return nil, fmt.Errorf(" cannot init statsd client: %s", err)
 	}
-	return &rawStatsDRegistry{c, prefix}, nil
+	return &rawStatsDRegistry{c}, nil
 }
 
 type rawStatsDRegistry struct {
 	c *alstatsd.Client
-	p string
 }
 
 func (r *rawStatsDRegistry) Names() []string        { return nil }
@@ -25,11 +30,11 @@ func (r *rawStatsDRegistry) Unregister(name string) {}
 func (r *rawStatsDRegistry) UnregisterAll()         {}
 
 func (r *rawStatsDRegistry) GetCounter(name string) Counter {
-	return &rawStatsDCounter{r.c, r.p + name}
+	return &rawStatsDCounter{r.c, name}
 }
 
 func (r *rawStatsDRegistry) GetTimer(name string) Timer {
-	return &rawStatsDTimer{r.c, r.p + name}
+	return &rawStatsDTimer{r.c, name}
 }
 
 type rawStatsDCounter struct {
