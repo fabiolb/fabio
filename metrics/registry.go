@@ -10,45 +10,37 @@ type Registry interface {
 	// Names returns the list of registered metrics acquired
 	// through the GetXXX() functions. It should return them
 	// sorted in alphabetical order.
-	Names() []string
+	Names(group string) []string
 
 	// Unregister removes the registered metric and stops
 	// reporting it to an external backend.
-	Unregister(name string)
+	Unregister(group, name string)
 
 	// UnregisterAll removes all registered metrics and stops
 	// reporting  them to an external backend.
-	UnregisterAll()
+	UnregisterAll(group string)
 
-	// GetCounter returns a counter metric for the given name.
-	// If the metric does not exist yet it should be created
-	// otherwise the existing metric should be returned.
-	GetCounter(name string) Counter
+	// Gauge increments or decrements a gauge metric with the given name.
+	Gauge(group, name string, n float64)
 
-	// GetTimer returns a timer metric for the given name.
-	// If the metric does not exist yet it should be created
-	// otherwise the existing metric should be returned.
-	GetTimer(name string) Timer
+	// Inc increments a counter metric with the given name.
+	Inc(group, name string, n int64)
+
+	// Time updates a timer metric with the given name.
+	Time(group, name string, d time.Duration)
 }
 
-// Counter defines a metric for counting events.
-type Counter interface {
-	// Inc increases the counter value by 'n'.
-	Inc(n int64)
-}
+const (
+	// when adding more groups make sure to update the
+	// gometrics registry
+	DefaultGroup = "default"
+	ServiceGroup = "services"
+)
 
-// Timer defines a metric for counting and timing durations for events.
-type Timer interface {
-	// Percentile returns the nth percentile of the duration.
-	Percentile(nth float64) float64
+func GaugeDefault(name string, n float64)      { M.Gauge(DefaultGroup, name, n) }
+func IncDefault(name string, n int64)          { M.Inc(DefaultGroup, name, n) }
+func TimeDefault(name string, d time.Duration) { M.Time(DefaultGroup, name, d) }
 
-	// Rate1 returns the 1min rate.
-	Rate1() float64
-
-	// Update counts an event and records the duration.
-	Update(time.Duration)
-
-	// UpdateSince counts an event and records the duration
-	// as the delta between 'start' and the function is called.
-	UpdateSince(start time.Time)
-}
+func GaugeService(name string, n float64)      { M.Gauge(ServiceGroup, name, n) }
+func IncService(name string, n int64)          { M.Inc(ServiceGroup, name, n) }
+func TimeService(name string, d time.Duration) { M.Time(ServiceGroup, name, d) }

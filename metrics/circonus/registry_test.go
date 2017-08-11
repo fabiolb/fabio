@@ -1,4 +1,4 @@
-package metrics
+package circonus
 
 import (
 	"os"
@@ -11,43 +11,19 @@ import (
 func TestRegistry(t *testing.T) {
 	t.Log("Testing registry interface")
 
-	p := &cgmRegistry{}
+	p := &registry{}
 
 	t.Log("\tNames()")
-	names := p.Names()
+	names := p.Names("")
 	if names != nil {
 		t.Errorf("Expected nil got '%+v'", names)
 	}
 
 	t.Log("\tUnregister()")
-	p.Unregister("foo")
+	p.Unregister("", "foo")
 
 	t.Log("\tUnregisterAll()")
-	p.UnregisterAll()
-
-	t.Log("\tGetTimer()")
-	timer := p.GetTimer("foo")
-	if timer == nil {
-		t.Error("Expected a timer, got nil")
-	}
-}
-
-func TestTimer(t *testing.T) {
-	t.Log("Testing timer interface")
-
-	timer := &cgmTimer{}
-
-	t.Log("\tPercentile()")
-	pct := timer.Percentile(99.9)
-	if pct != 0 {
-		t.Errorf("Expected 0 got '%+v'", pct)
-	}
-
-	t.Log("\tRate1()")
-	rate := timer.Rate1()
-	if rate != 0 {
-		t.Errorf("Expected 0 got '%+v'", rate)
-	}
+	p.UnregisterAll("")
 }
 
 func TestAll(t *testing.T) {
@@ -72,16 +48,12 @@ func TestAll(t *testing.T) {
 		t.Fatalf("Unable to parse interval %+v", err)
 	}
 
-	circ, err := circonusRegistry("test", cfg, interval)
+	r, err := NewRegistry("test", cfg, interval)
 	if err != nil {
 		t.Fatalf("Unable to initialize Circonus +%v", err)
 	}
 
-	counter := circ.GetCounter("fooCounter")
-	counter.Inc(3)
-
-	timer := circ.GetTimer("fooTimer")
-	timer.UpdateSince(start)
-
-	circonus.metrics.Flush()
+	r.Inc("", "fooCounter", 3)
+	r.Time("", "fooTimer", time.Since(start))
+	r.metrics.Flush()
 }

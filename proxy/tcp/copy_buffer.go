@@ -8,16 +8,14 @@ import (
 
 // copyBuffer is an adapted version of io.copyBuffer which updates a
 // counter instead of returning the total bytes written.
-func copyBuffer(dst io.Writer, src io.Reader, c metrics.Counter) (err error) {
+func copyBuffer(dst io.Writer, src io.Reader, name string) (err error) {
 	buf := make([]byte, 32*1024)
 	for {
 		nr, er := src.Read(buf)
 		if nr > 0 {
 			nw, ew := dst.Write(buf[0:nr])
 			if nw > 0 {
-				if c != nil {
-					c.Inc(int64(nw))
-				}
+				metrics.IncService(name, int64(nw))
 			}
 			if ew != nil {
 				err = ew

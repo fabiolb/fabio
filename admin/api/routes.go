@@ -59,8 +59,8 @@ func (h *RoutesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					Weight:  tg.Weight,
 					Tags:    tg.Tags,
 					Cmd:     "route add",
-					Rate1:   tg.Timer.Rate1(),
-					Pct99:   tg.Timer.Percentile(0.99),
+					// Rate1:   tg.Timer.Rate1(),
+					// Pct99:   tg.Timer.Percentile(0.99),
 				}
 				routes = append(routes, ar)
 			}

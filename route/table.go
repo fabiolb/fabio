@@ -23,9 +23,6 @@ var errNoMatch = errors.New("route: no target match")
 // table stores the active routing table. Must never be nil.
 var table atomic.Value
 
-// ServiceRegistry stores the metrics for the services.
-var ServiceRegistry metrics.Registry = metrics.NoopRegistry{}
-
 // init initializes the routing table.
 func init() {
 	table.Store(make(Table))
@@ -62,7 +59,7 @@ func syncRegistry(t Table) {
 	timers := map[string]bool{}
 
 	// get all registered timers
-	for _, name := range ServiceRegistry.Names() {
+	for _, name := range metrics.M.Names(metrics.ServiceGroup) {
 		timers[name] = false
 	}
 
@@ -81,7 +78,7 @@ func syncRegistry(t Table) {
 	// unregister inactive timers
 	for name, active := range timers {
 		if !active {
-			ServiceRegistry.Unregister(name)
+			metrics.M.Unregister(metrics.ServiceGroup, name)
 			log.Printf("[INFO] Unregistered timer %s", name)
 		}
 	}

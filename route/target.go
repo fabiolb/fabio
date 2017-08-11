@@ -2,8 +2,6 @@ package route
 
 import (
 	"net/url"
-
-	"github.com/fabiolb/fabio/metrics"
 )
 
 type Target struct {
@@ -36,9 +34,6 @@ type Target struct {
 
 	// Weight is the actual weight for this service in percent.
 	Weight float64
-
-	// Timer measures throughput and latency of this target
-	Timer metrics.Timer
 
 	// TimerName is the name of the timer in the metrics registry
 	TimerName string

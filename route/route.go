@@ -63,7 +63,6 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		Tags:        tags,
 		URL:         targetURL,
 		FixedWeight: fixedWeight,
-		Timer:       ServiceRegistry.GetTimer(name),
 		TimerName:   name,
 	}
 	if r.Opts != nil {
@@ -71,6 +70,9 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		t.TLSSkipVerify = r.Opts["tlsskipverify"] == "true"
 		t.Host = r.Opts["host"]
 	}
+
+	// hack: register name by triggering an event. We need this only for a test. Maybe refactor test?
+	metrics.TimeService(t.TimerName, 0)
 
 	r.Targets = append(r.Targets, t)
 	r.weighTargets()

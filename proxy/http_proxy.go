@@ -40,12 +40,8 @@ type HTTPProxy struct {
 	// The proxy will panic if this value is nil.
 	Lookup func(*http.Request) *route.Target
 
-	// Requests is a timer metric which is updated for every request.
-	Requests metrics.Timer
-
-	// Noroute is a counter metric which is updated for every request
-	// where Lookup() returns nil.
-	Noroute metrics.Counter
+	// Requests is the metric name which times every request.
+	Requests string
 
 	// Logger is the access logger for the requests.
 	Logger logger.Logger
@@ -153,12 +149,8 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	end := timeNow()
 	dur := end.Sub(start)
 
-	if p.Requests != nil {
-		p.Requests.Update(dur)
-	}
-	if t.Timer != nil {
-		t.Timer.Update(dur)
-	}
+	metrics.TimeService(p.Requests, dur)
+	metrics.TimeService(t.TimerName, dur)
 
 	// get response and update metrics
 	rp, ok := h.(*httputil.ReverseProxy)
@@ -172,7 +164,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if rpt.resp == nil {
 		return
 	}
-	metrics.DefaultRegistry.GetTimer(key(rpt.resp.StatusCode)).Update(dur)
+	metrics.TimeDefault(key(rpt.resp.StatusCode), dur)
 
 	// write access log
 	if p.Logger != nil {

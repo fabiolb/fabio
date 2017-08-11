@@ -143,7 +143,6 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 
 	pick := route.Picker[cfg.Proxy.Strategy]
 	match := route.Matcher[cfg.Proxy.Matcher]
-	notFound := metrics.DefaultRegistry.GetCounter("notfound")
 	log.Printf("[INFO] Using routing strategy %q", cfg.Proxy.Strategy)
 	log.Printf("[INFO] Using route matching %q", cfg.Proxy.Matcher)
 
@@ -166,24 +165,22 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 		Lookup: func(r *http.Request) *route.Target {
 			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match)
 			if t == nil {
-				notFound.Inc(1)
+				metrics.IncDefault("notfound", 1)
 				log.Print("[WARN] No route for ", r.Host, r.URL)
 			}
 			return t
 		},
-		Requests: metrics.DefaultRegistry.GetTimer("requests"),
-		Noroute:  metrics.DefaultRegistry.GetCounter("notfound"),
+		Requests: "requests",
 		Logger:   l,
 	}
 }
 
 func lookupHostFn(cfg *config.Config) func(string) *route.Target {
 	pick := route.Picker[cfg.Proxy.Strategy]
-	notFound := metrics.DefaultRegistry.GetCounter("notfound")
 	return func(host string) *route.Target {
 		t := route.GetTable().LookupHost(host, pick)
 		if t == nil {
-			notFound.Inc(1)
+			metrics.IncDefault("notfound", 1)
 			log.Print("[WARN] No route for ", host)
 		}
 		return t
@@ -254,9 +251,9 @@ func startServers(cfg *config.Config) {
 				h := &tcp.Proxy{
 					DialTimeout: cfg.Proxy.DialTimeout,
 					Lookup:      lookupHostFn(cfg),
-					Conn:        metrics.DefaultRegistry.GetCounter("tcp.conn"),
-					ConnFail:    metrics.DefaultRegistry.GetCounter("tcp.connfail"),
-					Noroute:     metrics.DefaultRegistry.GetCounter("tcp.noroute"),
+					Conn:        "tcp.conn",
+					ConnFail:    "tcp.connfail",
+					Noroute:     "tcp.noroute",
 				}
 				if err := proxy.ListenAndServeTCP(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
@@ -267,9 +264,9 @@ func startServers(cfg *config.Config) {
 				h := &tcp.SNIProxy{
 					DialTimeout: cfg.Proxy.DialTimeout,
 					Lookup:      lookupHostFn(cfg),
-					Conn:        metrics.DefaultRegistry.GetCounter("tcp_sni.conn"),
-					ConnFail:    metrics.DefaultRegistry.GetCounter("tcp_sni.connfail"),
-					Noroute:     metrics.DefaultRegistry.GetCounter("tcp_sni.noroute"),
+					Conn:        "tcp_sni.conn",
+					ConnFail:    "tcp_sni.connfail",
+					Noroute:     "tcp_sni.noroute",
 				}
 				if err := proxy.ListenAndServeTCP(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
@@ -288,10 +285,7 @@ func initMetrics(cfg *config.Config) {
 	}
 
 	var err error
-	if metrics.DefaultRegistry, err = metrics.NewRegistry(cfg.Metrics); err != nil {
-		exit.Fatal("[FATAL] ", err)
-	}
-	if route.ServiceRegistry, err = metrics.NewRegistry(cfg.Metrics); err != nil {
+	if metrics.M, err = metrics.NewRegistry(cfg.Metrics); err != nil {
 		exit.Fatal("[FATAL] ", err)
 	}
 }
