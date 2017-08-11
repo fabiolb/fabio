@@ -8,7 +8,14 @@ import (
 )
 
 func newRawStatsDRegistry(prefix, addr string, interval time.Duration) (Registry, error) {
-	c, err := alstatsd.New(alstatsd.Address(addr), alstatsd.FlushPeriod(interval))
+	opts := []alstatsd.Option{
+		alstatsd.Address(addr),
+		alstatsd.FlushPeriod(interval),
+	}
+	if prefix != "" {
+		opts = append(opts, alstatsd.Prefix(prefix))
+	}
+	c, err := alstatsd.New(opts...)
 	if err != nil {
 		return nil, fmt.Errorf(" cannot init statsd client: %s", err)
 	}
