@@ -1,5 +1,17 @@
 ## Changelog
 
+### Unreleased
+
+#### Breaking Changes
+
+#### Bug Fixes
+
+ * [Issue #306](https://github.com/fabiolb/fabio/issues/306): Add metrics for TCP and TCP+SNI proxy
+ 
+   fabio now reports metrics for TCP and TCP+SNI connections.
+
+#### Improvements
+
 ### [v1.5.2](https://github.com/fabiolb/fabio/releases/tag/v1.5.2) - 24 Jul 2017
 
 #### Breaking Changes
