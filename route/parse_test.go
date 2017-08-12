@@ -181,3 +181,72 @@ func TestParse(t *testing.T) {
 		t.Run("Parse-"+tt.desc, func(t *testing.T) { run(tt.in, tt.out, tt.fail, Parse) })
 	}
 }
+
+func TestParseAliases(t *testing.T) {
+	tests := []struct {
+		desc string
+		in   string
+		out  []string
+		fail bool
+	}{
+		// error flows
+		{"FailEmpty", ``, nil, false},
+		{"FailNoRoute", `bang`, nil, true},
+		{"FailRouteNoCmd", `route x`, nil, true},
+		{"FailRouteAddNoService", `route add`, nil, true},
+		{"FailRouteAddNoSrc", `route add svc`, nil, true},
+
+		// happy flows with and without aliases
+		{
+			desc: "RouteAddServiceWithoutAlias",
+			in:   `route add alpha-be alpha/ http://1.2.3.4/ opts "strip=/path proto=https"`,
+			out:  []string(nil),
+		},
+		{
+			desc: "RouteAddServiceWithAlias",
+			in:   `route add alpha-be alpha/ http://1.2.3.4/ opts "strip=/path proto=https register=alpha"`,
+			out:  []string{"alpha"},
+		},
+		{
+			desc: "RouteAddServicesWithoutAliases",
+			in: `route add alpha-be alpha/ http://1.2.3.4/ opts "strip=/path proto=tcp"
+			route add bravo-be bravo/ http://1.2.3.5/
+			route add charlie-be charlie/ http://1.2.3.6/ opts "host=charlie"`,
+			out: []string(nil),
+		},
+		{
+			desc: "RouteAddServicesWithAliases",
+			in: `route add alpha-be alpha/ http://1.2.3.4/ opts "register=alpha"
+			route add bravo-be bravo/ http://1.2.3.5/ opts "strip=/foo register=bravo"
+			route add charlie-be charlie/ http://1.2.3.5/ opts "host=charlie proto=https"
+			route add delta-be delta/ http://1.2.3.5/ opts "host=delta proto=https register=delta"`,
+			out: []string{"alpha", "bravo", "delta"},
+		},
+	}
+
+	reSyntaxError := regexp.MustCompile(`syntax error`)
+
+	run := func(in string, aliases []string, fail bool, parseFn func(string) ([]string, error)) {
+		out, err := parseFn(in)
+		switch {
+		case err == nil && fail:
+			t.Errorf("got error nil want fail")
+			return
+		case err != nil && !fail:
+			t.Errorf("got error %v want nil", err)
+			return
+		case err != nil:
+			if !reSyntaxError.MatchString(err.Error()) {
+				t.Errorf("got error %q want 'syntax error.*'", err)
+			}
+			return
+		}
+		if got, want := out, aliases; !reflect.DeepEqual(got, want) {
+			t.Errorf("\ngot  %#v\nwant %#v", got, want)
+		}
+	}
+
+	for _, tt := range tests {
+		t.Run("ParseAliases-"+tt.desc, func(t *testing.T) { run(tt.in, tt.out, tt.fail, ParseAliases) })
+	}
+}

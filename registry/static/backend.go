@@ -15,11 +15,15 @@ func NewBackend(cfg *config.Static) (registry.Backend, error) {
 	return &be{cfg}, nil
 }
 
-func (b *be) Register() error {
+func (b *be) Register(services []string) error {
 	return nil
 }
 
-func (b *be) Deregister() error {
+func (b *be) Deregister(serviceName string) error {
+	return nil
+}
+
+func (b *be) DeregisterAll() error {
 	return nil
 }
 

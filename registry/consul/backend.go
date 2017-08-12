@@ -15,7 +15,7 @@ type be struct {
 	c     *api.Client
 	dc    string
 	cfg   *config.Consul
-	dereg chan bool
+	dereg map[string](chan bool)
 }
 
 func NewBackend(cfg *config.Consul) (registry.Backend, error) {
@@ -36,25 +36,66 @@ func NewBackend(cfg *config.Consul) (registry.Backend, error) {
 	return &be{c: c, dc: dc, cfg: cfg}, nil
 }
 
-func (b *be) Register() error {
-	if !b.cfg.Register {
-		log.Printf("[INFO] consul: Not registering fabio in consul")
-		return nil
+func (b *be) Register(services []string) error {
+	if b.dereg == nil {
+		b.dereg = make(map[string](chan bool))
 	}
 
-	service, err := serviceRegistration(b.cfg)
-	if err != nil {
-		return err
+	if b.cfg.Register {
+		services = append(services, b.cfg.ServiceName)
 	}
 
-	b.dereg = register(b.c, service)
+	// deregister unneeded services
+	for service := range b.dereg {
+		if stringInSlice(service, services) {
+			continue
+		}
+		err := b.Deregister(service)
+		if err != nil {
+			return err
+		}
+	}
+
+	// register new services
+	for _, service := range services {
+		if b.dereg[service] != nil {
+			log.Printf("[DEBUG] %q already registered", service)
+			continue
+		}
+
+		serviceReg, err := serviceRegistration(b.cfg, service)
+		if err != nil {
+			return err
+		}
+
+		b.dereg[service] = register(b.c, serviceReg)
+	}
+
 	return nil
 }
 
-func (b *be) Deregister() error {
-	if b.dereg != nil {
-		b.dereg <- true // trigger deregistration
-		<-b.dereg       // wait for completion
+func (b *be) Deregister(service string) error {
+	dereg := b.dereg[service]
+	if dereg == nil {
+		log.Printf("[WARN]: Attempted to deregister unknown service %q", service)
+		return nil
+	}
+	dereg <- true // trigger deregistration
+	<-dereg       // wait for completion
+	delete(b.dereg, service)
+
+	return nil
+}
+
+func (b *be) DeregisterAll() error {
+	log.Printf("[DEBUG]: consul: Deregistering all registered aliases.")
+	for name, dereg := range b.dereg {
+		if dereg == nil {
+			continue
+		}
+		log.Printf("[INFO] consul: Deregistering %q", name)
+		dereg <- true // trigger deregistration
+		<-dereg       // wait for completion
 	}
 	return nil
 }
@@ -121,4 +162,13 @@ func datacenter(c *api.Client) (string, error) {
 		return "", errors.New("consul: self.Datacenter not found")
 	}
 	return dc, nil
+}
+
+func stringInSlice(str string, strSlice []string) bool {
+	for _, s := range strSlice {
+		if s == str {
+			return true
+		}
+	}
+	return false
 }
