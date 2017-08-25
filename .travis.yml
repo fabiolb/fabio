@@ -4,7 +4,7 @@ language: go
 
 go:
     - 1.8.x
-    - 1.9rc1
+    - 1.9
     - tip
 
 before_script:
