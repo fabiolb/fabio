@@ -58,7 +58,7 @@ codeship:
 	go version
 	go env
 	wget -O ~/consul.zip https://releases.hashicorp.com/consul/0.9.2/consul_0.9.2_linux_amd64.zip
-	wget -O ~/vault.zip https://releases.hashicorp.com/vault/0.7.3/vault_0.7.3_linux_amd64.zip
+	wget -O ~/vault.zip https://releases.hashicorp.com/vault/0.8.1/vault_0.8.1_linux_amd64.zip
 	unzip -o -d ~/bin ~/consul.zip
 	unzip -o -d ~/bin ~/vault.zip
 	vault --version
