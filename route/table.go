@@ -122,7 +122,7 @@ func NewTable(s string) (t Table, err error) {
 		case RouteDelCmd:
 			err = t.delRoute(d)
 		case RouteWeightCmd:
-			err = t.weighRoute(d)
+			t.weighRoute(d)
 		default:
 			err = fmt.Errorf("route: invalid command: %s", d.Cmd)
 		}
