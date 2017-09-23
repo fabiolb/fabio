@@ -16,6 +16,12 @@
 
 #### Improvements
 
+ * [Issue #320](https://github.com/fabiolb/fabio/issues/320): FATAL error when metrics cannot be delivered
+ 
+   fabio adds a `metrics.timeout` and a `metrics.retry` config parameter to control when the
+   the metrics backend should become available and changes the default behavior to retry for
+   some time before giving up.
+
 ### [v1.5.2](https://github.com/fabiolb/fabio/releases/tag/v1.5.2) - 24 Jul 2017
 
 #### Breaking Changes
