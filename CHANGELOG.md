@@ -10,6 +10,10 @@
  
    fabio now reports metrics for TCP and TCP+SNI connections.
 
+ * [Issue #350](https://github.com/fabiolb/fabio/issues/350): statsd - unable to parse line - gf metric
+ 
+   fabio now correctly reports mean values for timers as gauge values to statsd.
+
 #### Improvements
 
 ### [v1.5.2](https://github.com/fabiolb/fabio/releases/tag/v1.5.2) - 24 Jul 2017
