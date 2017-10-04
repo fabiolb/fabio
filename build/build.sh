@@ -17,4 +17,4 @@ for go in go1.8.4 go1.9.1; do
 done
 
 ( cd ${basedir}/build/builds/fabio-${v} && shasum -a 256 fabio-${v}-* > fabio-${v}.sha256 )
-( cd ${basedir}/build/builds/fabio-${v} && gpg2 --output fabio-${v}.sha256.sig --detach-sig fabio-${v}.sha256 )
+( cd ${basedir}/build/builds/fabio-${v} && gpg --output fabio-${v}.sha256.sig --detach-sig fabio-${v}.sha256 )
