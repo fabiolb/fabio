@@ -83,6 +83,7 @@ type Log struct {
 	AccessFormat string
 	AccessTarget string
 	RoutesFormat string
+	Level        string
 }
 
 type Metrics struct {

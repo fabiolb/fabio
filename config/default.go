@@ -23,6 +23,7 @@ var defaultConfig = &Config{
 	Log: Log{
 		AccessFormat: "common",
 		RoutesFormat: "delta",
+		Level:        "INFO",
 	},
 	Metrics: Metrics{
 		Prefix:   "{{clean .Hostname}}.{{clean .Exec}}",
