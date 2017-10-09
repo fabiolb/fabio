@@ -26,6 +26,10 @@
    the metrics backend should become available and changes the default behavior to retry for
    some time before giving up.
 
+ * [PR #366](https://github.com/fabiolb/fabio/pull/366): add leveled logging
+ 
+   Add a `-log-level` parameter which allows to control the log level.
+
 ### [v1.5.2](https://github.com/fabiolb/fabio/releases/tag/v1.5.2) - 24 Jul 2017
 
 #### Breaking Changes
