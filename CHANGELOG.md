@@ -10,6 +10,10 @@
  
    fabio now reports metrics for TCP and TCP+SNI connections.
 
+ * [Issue #330](https://github.com/fabiolb/fabio/issues/330): Strip option has no effect on websockets
+ 
+   The `strip=/prefix` option now works correctly on web sockets
+
  * [Issue #350](https://github.com/fabiolb/fabio/issues/350): statsd - unable to parse line - gf metric
  
    fabio now correctly reports mean values for timers as gauge values to statsd.
