@@ -46,7 +46,12 @@ var version = "1.5.2"
 
 var shuttingDown int32
 
+var logOutput logger.LevelWriter
+
 func main() {
+	logOutput := logger.NewLevelWriter(os.Stderr, "INFO", "2017/01/01 00:00:00 ")
+	log.SetOutput(logOutput)
+
 	cfg, err := config.Load(os.Args, os.Environ())
 	if err != nil {
 		exit.Fatalf("[FATAL] %s. %s", version, err)
@@ -54,6 +59,11 @@ func main() {
 	if cfg == nil {
 		fmt.Println(version)
 		return
+	}
+
+	log.Printf("[INFO] Setting log level to %s", logOutput.Level())
+	if !logOutput.SetLevel(cfg.Log.Level) {
+		log.Printf("[INFO] Cannot set log level to %s", cfg.Log.Level)
 	}
 
 	log.Printf("[INFO] Runtime config\n" + toJSON(cfg))
