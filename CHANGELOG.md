@@ -7,28 +7,33 @@
 #### Bug Fixes
 
  * [Issue #306](https://github.com/fabiolb/fabio/issues/306): Add metrics for TCP and TCP+SNI proxy
- 
+
    fabio now reports metrics for TCP and TCP+SNI connections.
 
  * [Issue #330](https://github.com/fabiolb/fabio/issues/330): Strip option has no effect on websockets
- 
+
    The `strip=/prefix` option now works correctly on web sockets
 
  * [Issue #350](https://github.com/fabiolb/fabio/issues/350): statsd - unable to parse line - gf metric
- 
+
    fabio now correctly reports mean values for timers as gauge values to statsd.
 
 #### Improvements
 
  * [Issue #320](https://github.com/fabiolb/fabio/issues/320): FATAL error when metrics cannot be delivered
- 
+
    fabio adds a `metrics.timeout` and a `metrics.retry` config parameter to control when the
    the metrics backend should become available and changes the default behavior to retry for
    some time before giving up.
 
  * [PR #366](https://github.com/fabiolb/fabio/pull/366): add leveled logging
- 
+
    Add a `-log-level` parameter which allows to control the log level.
+
+ * [Issue #367](https://github.com/fabiolb/fabio/issues/367): nodes and services in maintenance can cause excessive logging
+
+   Notifications about nodes and services in maintenance mode are now logged as DEBUG and therefore
+   filtered out by default.
 
 ### [v1.5.2](https://github.com/fabiolb/fabio/releases/tag/v1.5.2) - 24 Jul 2017
 
@@ -37,7 +42,7 @@
 #### Bug Fixes
 
  * [Issue #305](https://github.com/fabiolb/fabio/issues/305): 1.5.0 config compatibility problem
- 
+
    In fabio 1.5.0 the key/value parsing was refactored and that introduced a bug where a second `=`
    failed to parse correctly and prevented fabio from starting.
 
