@@ -544,6 +544,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-log.level", "foobar"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Log.Level = "foobar"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-metrics.target", "some-target"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Metrics.Target = "some-target"
