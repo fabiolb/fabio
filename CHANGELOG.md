@@ -601,6 +601,8 @@ fabio is known to work with vault 0.6.4.
 
  * Add Docker support and official Docker image `magiconair/fabio`
 
+ * [PR #5](https://github.com/fabiolb/fabio/pull/5): Fix typo
+
 ### [v1.0.2](https://github.com/fabiolb/fabio/releases/tag/v1.0.2) - 23 Oct 2015
 
 #### Improvements
