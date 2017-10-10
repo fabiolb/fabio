@@ -2,6 +2,13 @@
 
 ### Unreleased
 
+#### Features
+
+ * [PR #315](https://github.com/fabiolb/fabio/pull/315)/[Issue #135](https://github.com/fabiolb/fabio/issues/135): Vault PKI cert source
+
+   This adds support for using [Vault](https://vaultproject.io/) as a PKI cert source.
+   Thanks to @pschultz for providing this patch!
+
 #### Breaking Changes
 
 #### Bug Fixes
