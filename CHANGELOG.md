@@ -90,7 +90,7 @@
    manually distribute the load between multiple TCP endpoints or to have an active/standby
    setup by setting `weight=1` on the active and `weight=0` on the standby server.
 
- * [Issue #274](https://github.com/fabiolb/fabio/issues/274)/[PR #314](https://github.com/fabiolb/fabio/pull/313): Avoid premature Vault token renewal
+ * [Issue #274](https://github.com/fabiolb/fabio/issues/274)/[PR #314](https://github.com/fabiolb/fabio/pull/314): Avoid premature Vault token renewal
 
    Non-renewable tokens are no longer renewed. In addition, the token TTL is honored for token that can
    be renewed.
