@@ -368,6 +368,12 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 	if csName == "" && l.Proto == "https" {
 		return Listen{}, fmt.Errorf("proto 'https' requires cert source")
 	}
+	if cs[csName].Type == "vault-pki" && !l.StrictMatch {
+		// Without StrictMatch the first issued certificate is used for all
+		// subsequent requests, even if the common name doesn't match.
+		log.Printf("[INFO] vault-pki requires strictmatch; enabling strictmatch for listener %s", l.Addr)
+		l.StrictMatch = true
+	}
 
 	return
 }
@@ -497,17 +503,19 @@ func parseCertSource(cfg map[string]string) (c CertSource, err error) {
 	if c.Name == "" {
 		return CertSource{}, fmt.Errorf("missing 'cs' in %s", cfg)
 	}
-	if c.Type == "" {
-		return CertSource{}, fmt.Errorf("missing 'type' in %s", cfg)
-	}
 	if c.CertPath == "" {
 		return CertSource{}, fmt.Errorf("missing 'cert' in %s", cfg)
 	}
-	if c.Type != "file" && c.Type != "path" && c.Type != "http" && c.Type != "consul" && c.Type != "vault" {
+	switch c.Type {
+	case "":
+		return CertSource{}, fmt.Errorf("missing 'type' in %s", cfg)
+	case "file", "consul":
+		c.Refresh = 0
+	case "path", "http", "vault", "vault-pki":
+		// no-op
+	default:
 		return CertSource{}, fmt.Errorf("unknown cert source type %s", c.Type)
 	}
-	if c.Type == "file" || c.Type == "consul" {
-		c.Refresh = 0
-	}
+
 	return
 }

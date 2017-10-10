@@ -140,8 +140,7 @@ func TestNewSource(t *testing.T) {
 			desc: "vault",
 			cfg:  certsource("vault"),
 			src: &VaultSource{
-				Addr:         os.Getenv("VAULT_ADDR"),
-				vaultToken:   os.Getenv("VAULT_TOKEN"),
+				Client:       DefaultVaultClient,
 				CertPath:     "cert",
 				ClientCAPath: "clientca",
 				CAUpgradeCN:  "upgcn",
@@ -205,7 +204,7 @@ func TestPathSource(t *testing.T) {
 	defer os.RemoveAll(dir)
 	certPEM, keyPEM := makePEM("localhost", time.Minute)
 	saveCert(dir, "localhost", certPEM, keyPEM)
-	testSource(t, PathSource{CertPath: dir}, makeCertPool(certPEM), 0)
+	testSource(t, PathSource{CertPath: dir}, makeCertPool(certPEM), 10*time.Millisecond)
 }
 
 func TestHTTPSource(t *testing.T) {
@@ -339,6 +338,10 @@ func vaultServer(t *testing.T, addr, rootToken string) (*exec.Cmd, *vaultapi.Cli
 	path "secret/fabio/cert/*" {
 	  capabilities = ["read"]
 	}
+
+	path "test-pki/issue/fabio" {
+	  capabilities = ["update"]
+	}
 	`
 
 	if err := c.Sys().PutPolicy("fabio", policy); err != nil {
@@ -371,6 +374,43 @@ func makeToken(t *testing.T, c *vaultapi.Client, wrapTTL string, req *vaultapi.T
 	return resp.Auth.ClientToken
 }
 
+var vaultTestCases = []struct {
+	desc     string
+	wrapTTL  string
+	req      *vaultapi.TokenCreateRequest
+	dropWarn bool
+}{
+	{
+		desc: "renewable token",
+		req:  &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Policies: []string{"fabio"}},
+	},
+	{
+		desc:     "non-renewable token",
+		req:      &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Renewable: new(bool), Policies: []string{"fabio"}},
+		dropWarn: true,
+	},
+	{
+		desc: "renewable orphan token",
+		req:  &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", NoParent: true, Policies: []string{"fabio"}},
+	},
+	{
+		desc:     "non-renewable orphan token",
+		req:      &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", NoParent: true, Renewable: new(bool), Policies: []string{"fabio"}},
+		dropWarn: true,
+	},
+	{
+		desc:    "renewable wrapped token",
+		wrapTTL: "10s",
+		req:     &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Policies: []string{"fabio"}},
+	},
+	{
+		desc:     "non-renewable wrapped token",
+		wrapTTL:  "10s",
+		req:      &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Renewable: new(bool), Policies: []string{"fabio"}},
+		dropWarn: true,
+	},
+}
+
 func TestVaultSource(t *testing.T) {
 	const (
 		addr      = "127.0.0.1:58421"
@@ -389,61 +429,87 @@ func TestVaultSource(t *testing.T) {
 		t.Fatalf("logical.Write failed: %s", err)
 	}
 
-	newBool := func(b bool) *bool { return &b }
-
-	// run tests
-	tests := []struct {
-		desc     string
-		wrapTTL  string
-		req      *vaultapi.TokenCreateRequest
-		dropWarn bool
-	}{
-		{
-			desc: "renewable token",
-			req:  &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Policies: []string{"fabio"}},
-		},
-		{
-			desc:     "non-renewable token",
-			req:      &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Renewable: newBool(false), Policies: []string{"fabio"}},
-			dropWarn: true,
-		},
-		{
-			desc: "renewable orphan token",
-			req:  &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", NoParent: true, Policies: []string{"fabio"}},
-		},
-		{
-			desc:     "non-renewable orphan token",
-			req:      &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", NoParent: true, Renewable: newBool(false), Policies: []string{"fabio"}},
-			dropWarn: true,
-		},
-		{
-			desc:    "renewable wrapped token",
-			wrapTTL: "10s",
-			req:     &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Policies: []string{"fabio"}},
-		},
-		{
-			desc:     "non-renewable wrapped token",
-			wrapTTL:  "10s",
-			req:      &vaultapi.TokenCreateRequest{Lease: "1m", TTL: "1m", Renewable: newBool(false), Policies: []string{"fabio"}},
-			dropWarn: true,
-		},
-	}
-
 	pool := makeCertPool(certPEM)
 	timeout := 500 * time.Millisecond
-	for _, tt := range tests {
+	for _, tt := range vaultTestCases {
 		tt := tt // capture loop var
 		t.Run(tt.desc, func(t *testing.T) {
 			src := &VaultSource{
-				Addr:       "http://" + addr,
-				CertPath:   certPath,
-				vaultToken: makeToken(t, client, tt.wrapTTL, tt.req),
+				Client: &vaultClient{
+					addr:  "http://" + addr,
+					token: makeToken(t, client, tt.wrapTTL, tt.req),
+				},
+				CertPath: certPath,
 			}
 
 			// suppress the log warning about a non-renewable token
 			// since this is the expected behavior.
 			dropNotRenewableWarning = tt.dropWarn
 			testSource(t, src, pool, timeout)
+			dropNotRenewableWarning = false
+		})
+	}
+}
+
+func TestVaultPKISource(t *testing.T) {
+	const (
+		addr      = "127.0.0.1:58421"
+		rootToken = "token"
+		certPath  = "test-pki/issue/fabio"
+	)
+
+	// start a vault server
+	vault, client := vaultServer(t, addr, rootToken)
+	defer vault.Process.Kill()
+
+	// mount the PKI backend
+	err := client.Sys().Mount("test-pki", &vaultapi.MountInput{
+		Type: "pki",
+		Config: vaultapi.MountConfigInput{
+			DefaultLeaseTTL: "1h", // default validity period of issued certificates
+			MaxLeaseTTL:     "2h", // maximum validity period of issued certificates
+		},
+	})
+	if err != nil {
+		t.Fatalf("Mount pki backend failed: %s", err)
+	}
+
+	// generate root CA cert
+	resp, err := client.Logical().Write("test-pki/root/generate/internal", map[string]interface{}{
+		"common_name": "Fabio Test CA",
+		"ttl":         "2h",
+	})
+	if err != nil {
+		t.Fatalf("Generate root failed: %s", err)
+	}
+	caPool := makeCertPool([]byte(resp.Data["certificate"].(string)))
+
+	// create role
+	role := filepath.Base(certPath)
+	_, err = client.Logical().Write("test-pki/roles/"+role, map[string]interface{}{
+		"allowed_domains": "",
+		"allow_localhost": true,
+		"allow_ip_sans":   true,
+		"organization":    "Fabio Test",
+	})
+	if err != nil {
+		t.Fatalf("Write role failed: %s", err)
+	}
+
+	for _, tt := range vaultTestCases {
+		tt := tt // capture loop var
+		t.Run(tt.desc, func(t *testing.T) {
+			src := NewVaultPKISource()
+			src.Client = &vaultClient{
+				addr:  "http://" + addr,
+				token: makeToken(t, client, tt.wrapTTL, tt.req),
+			}
+			src.CertPath = certPath
+
+			// suppress the log warning about a non-renewable token
+			// since this is the expected behavior.
+			dropNotRenewableWarning = tt.dropWarn
+			testSource(t, src, caPool, 0)
 			dropNotRenewableWarning = false
 		})
 	}
@@ -505,19 +571,18 @@ func testSource(t *testing.T, source Source, rootCAs *x509.CertPool, sleep time.
 		}
 	}
 
-	// make a call for which certificate validation fails.
-	fail(http11)
-	fail(http20)
-
-	// now make the call that should succeed
+	// make a call for which certificate validation succeeds.
 	succeed(http11, "OK HTTP/1.1")
 	succeed(http20, "OK HTTP/2.0")
+
+	// now make the call that should fail.
+	fail(http11)
+	fail(http20)
 }
 
 // roundtrip starts a TLS server with the given server configuration and
-// then calls "https://<host>/" with the given client. "host" must resolve
-// to 127.0.0.1.
-func roundtrip(host string, srvConfig *tls.Config, client *http.Client) (code int, body string, err error) {
+// then sends an SNI request with the given serverName.
+func roundtrip(serverName string, srvConfig *tls.Config, client *http.Client) (code int, body string, err error) {
 	// create an HTTPS server and start it. It will be listening on 127.0.0.1
 	srv := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "OK ", r.Proto)
@@ -526,11 +591,9 @@ func roundtrip(host string, srvConfig *tls.Config, client *http.Client) (code in
 	srv.StartTLS()
 	defer srv.Close()
 
-	// for the certificate validation to work we need to use a hostname
-	// in the URL which resolves to 127.0.0.1. We can't fake the hostname
-	// via the Host header.
-	url := strings.Replace(srv.URL, "127.0.0.1", host, 1)
-	resp, err := client.Get(url)
+	// configure SNI
+	client.Transport.(*http.Transport).TLSClientConfig.ServerName = serverName
+	resp, err := client.Get(srv.URL)
 	if err != nil {
 		return 0, "", err
 	}
