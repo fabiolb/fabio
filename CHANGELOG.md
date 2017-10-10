@@ -7,7 +7,7 @@
  * [PR #315](https://github.com/fabiolb/fabio/pull/315)/[Issue #135](https://github.com/fabiolb/fabio/issues/135): Vault PKI cert source
 
    This adds support for using [Vault](https://vaultproject.io/) as a PKI cert source.
-   Thanks to @pschultz for providing this patch!
+   Thanks to [@pschultz](https://github.com/pschultz) for providing this patch!
 
 #### Breaking Changes
 
@@ -59,7 +59,7 @@
 
    This patch updates the internal connection map when a connection is closed.
 
-   Thanks to @crypto89 for this patch.
+   Thanks to [@crypto89](https://github.com/crypto89) for this patch.
 
 ### [v1.5.1](https://github.com/fabiolb/fabio/releases/tag/v1.5.1) - 6 Jul 2017
 
@@ -95,11 +95,11 @@
    Non-renewable tokens are no longer renewed. In addition, the token TTL is honored for token that can
    be renewed.
 
-   Thanks to @pschultz for this patch.
+   Thanks to [@pschultz](https://github.com/pschultz) for this patch.
 
  * [PR #313](https://github.com/fabiolb/fabio/pull/313): Tests work now with Vault 0.7.x
 
-   Thanks to @pschultz for this patch.
+   Thanks to [@pschultz](https://github.com/pschultz) for this patch.
 
 ### [v1.5.0](https://github.com/fabiolb/fabio/releases/tag/v1.5.0) - 7 Jun 2017
 
@@ -136,7 +136,7 @@
    The name of the header is configurable and the value of the header can be logged
    to the access log.
 
-   Thanks to @bkmit for this patch.
+   Thanks to [@bkmit](https://github.com/bkmit) for this patch.
 
  * [Issue #249](https://github.com/fabiolb/fabio/issues/249): Make TLS version and cipher suites configurable
 
@@ -238,7 +238,7 @@
    to use HTTPS as well. The new `registry.consul.register.checkTLSSkipVerify` option allows
    to disable TLS certificate validation for this check. This requires consul 0.7.2 or higher.
 
-   Thanks to @Ginja for providing this patch.
+   Thanks to [@Ginja](https://github.com/Ginja) for providing this patch.
 
  * Demo server supports HTTPS
 
@@ -279,7 +279,7 @@ fabio is known to work with vault 0.6.4.
    `tlsskipverify=true` option. Support for certificate stores for upstream servers may come at a later
    point.
 
-   Thanks to @shadowfax-chc for providing this patch.
+   Thanks to [@shadowfax-chc](https://github.com/shadowfax) for providing this patch.
 
    See: https://github.com/fabiolb/fabio/wiki/Features#https-upstream-support
 
@@ -288,7 +288,7 @@ fabio is known to work with vault 0.6.4.
    The UI/API endpoint can now be served via HTTPS. To enable this configure the `ui.addr` property
    with a `cs=<cert store>` option like the `proxy.addr` listeners.
 
-   Thanks to @shadowfax-chc for providing this patch.
+   Thanks to [@shadowfax-chc](https://github.com/shadowfax) for providing this patch.
 
 #### Improvements
 
@@ -308,7 +308,7 @@ fabio is known to work with vault 0.6.4.
    to either the [Combined Log Format](https://httpd.apache.org/docs/1.3/logs.html#combined)
    or a custom log format by setting `log.access.format`
 
-   Thanks to @beyondblog for providing the initial patch.
+   Thanks to [@beyondblog](https://github.com/beyondblog) for providing the initial patch.
 
    See: https://github.com/fabiolb/fabio/wiki/Features#access-logging
 
@@ -607,7 +607,7 @@ fabio is known to work with vault 0.6.4.
 
 #### Improvements
 
- * [PR #3](https://github.com/fabiolb/fabio/pull/3): Honor consul.url and consul.addr from config file (@jeinwag)
+ * [PR #3](https://github.com/fabiolb/fabio/pull/3): Honor consul.url and consul.addr from config file ([@jeinwag](https://github.com/jeinwag))
 
 ### [v1.0.1](https://github.com/fabiolb/fabio/releases/tag/v1.0.1) - 21 Oct 2015
 
