@@ -271,7 +271,7 @@ fabio is known to work with vault 0.6.4.
 
 #### Features
 
- * [PR #257](https://github.com/fabiolb/fabio/pull/257), [Issue #181](https://github.com/eBay/fabio/issues/181): Add HTTPS Upstream Support
+ * [PR #257](https://github.com/fabiolb/fabio/pull/257), [Issue #181](https://github.com/fabiolb/fabio/issues/181): Add HTTPS Upstream Support
 
    Upstream servers can now be served via HTTPS. To enable this for a route add the `proto=https` option
    to the `urlprefix-` tag. The upstream certificate needs to be in the system certificate chain for the
@@ -316,7 +316,7 @@ fabio is known to work with vault 0.6.4.
 
 #### Features
 
- * [Issue #1](https://github.com/fabiolb/fabio/issues/1), [Issue #179](https://github.com/eBay/fabio/issues/179): Add generic TCP Proxy support
+ * [Issue #1](https://github.com/fabiolb/fabio/issues/1), [Issue #179](https://github.com/fabiolb/fabio/issues/179): Add generic TCP Proxy support
 
    fabio now supports raw TCP proxying support by setting the `proto=tcp` option on the
    `urlprefix-` tag. The target needs to be the external port of the service, e.g.
@@ -362,7 +362,7 @@ fabio is known to work with vault 0.6.4.
 
 #### Features
 
- * [Issue #44, #124, #164](https://github.com/fabiolb/fabio/issues/44, https://github.com/eBay/fabio/issues/124, https://github.com/eBay/fabio/issues/164): Support path stripping
+ * [Issue #44](https://github.com/fabiolb/fabio/issues/44), [Issue #124](https://github.com/fabiolb/fabio/issues/124), [Issue #164](https://github.com/fabiolb/fabio/issues/164): Support path stripping
  * [Issue #201](https://github.com/fabiolb/fabio/issues/201): Support deleting routes by tag
 
 #### Bug Fixes
@@ -432,7 +432,7 @@ fabio is known to work with vault 0.6.4.
  * [Issue #1](https://github.com/fabiolb/fabio/issues/1): Add TCP proxy with SNI support (EXPERIMENTAL)
  * [Issue #138](https://github.com/fabiolb/fabio/issues/138): Add option to disable cert fallback
  * [Issue #147](https://github.com/fabiolb/fabio/issues/147): Support multiple metrics libraries
- * [Issue #151](https://github.com/fabiolb/fabio/issues/151)/[PR #150](https://github.com/eBay/fabio/pull/150): Add support for Circonus metrics
+ * [Issue #151](https://github.com/fabiolb/fabio/issues/151)/[PR #150](https://github.com/fabiolb/fabio/pull/150): Add support for Circonus metrics
 
 #### Improvements
 
@@ -444,7 +444,7 @@ fabio is known to work with vault 0.6.4.
 
 #### Features
 
- * [Issue #73](https://github.com/fabiolb/fabio/pull/73)/[PR #139](https://github.com/eBay/fabio/pull/139): Add statsd support
+ * [Issue #73](https://github.com/fabiolb/fabio/pull/73)/[PR #139](https://github.com/fabiolb/fabio/pull/139): Add statsd support
  * [Issue #129](https://github.com/fabiolb/fabio/issues/129): Server-sent events support
 
 #### Improvements
