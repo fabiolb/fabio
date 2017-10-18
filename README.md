@@ -79,7 +79,7 @@ The full documentation is on the [Wiki](https://github.com/fabiolb/fabio/wiki).
 
 2. Register your service in [consul](https://consul.io/).
 
-   Make sure that each instance registers with a **unique ServiceID**.
+   Make sure that each instance registers with a **unique ServiceID** and a service name **without spaces**.
 
 3. Register a **health check** in consul as described [here](https://consul.io/docs/agent/checks.html).
 
