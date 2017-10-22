@@ -89,6 +89,8 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if t.Host == "dst" {
 		r.Host = targetURL.Host
+	} else if t.Host != "" {
+		r.Host = t.Host
 	}
 
 	// TODO(fs): The HasPrefix check seems redundant since the lookup function should
