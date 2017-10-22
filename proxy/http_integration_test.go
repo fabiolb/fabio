@@ -140,7 +140,7 @@ func TestProxyHost(t *testing.T) {
 	})
 	defer proxy.Close()
 
-	check := func(uri, host string) {
+	check := func(t *testing.T, uri, host string) {
 		resp, body := mustGet(proxy.URL + uri)
 		if got, want := resp.StatusCode, http.StatusOK; got != want {
 			t.Fatalf("got status %d want %d", got, want)
@@ -151,9 +151,9 @@ func TestProxyHost(t *testing.T) {
 	}
 
 	proxyHost := proxy.URL[len("http://"):]
-	t.Run("host eq dst", func(t *testing.T) { check("/hostdst", "a.com") })
-	t.Run("host is unknown", func(t *testing.T) { check("/hostunknown", proxyHost) })
-	t.Run("no host", func(t *testing.T) { check("/", proxyHost) })
+	t.Run("host eq dst", func(t *testing.T) { check(t, "/hostdst", "a.com") })
+	t.Run("host is unknown", func(t *testing.T) { check(t, "/hostunknown", proxyHost) })
+	t.Run("no host", func(t *testing.T) { check(t, "/", proxyHost) })
 }
 
 func TestProxyLogOutput(t *testing.T) {
