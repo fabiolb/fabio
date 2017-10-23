@@ -116,6 +116,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	var readTimeout, writeTimeout time.Duration
 	var gzipContentTypesValue string
 
+	f.BoolVar(&cfg.Insecure, "insecure", defaultConfig.Insecure, "allow fabio to run as root when set to true")
 	f.IntVar(&cfg.Proxy.MaxConn, "proxy.maxconn", defaultConfig.Proxy.MaxConn, "maximum number of cached connections")
 	f.StringVar(&cfg.Proxy.Strategy, "proxy.strategy", defaultConfig.Proxy.Strategy, "load balancing strategy")
 	f.StringVar(&cfg.Proxy.Matcher, "proxy.matcher", defaultConfig.Proxy.Matcher, "path matching algorithm")

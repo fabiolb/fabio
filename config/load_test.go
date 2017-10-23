@@ -50,6 +50,13 @@ func TestLoad(t *testing.T) {
 			cfg:  func(cfg *Config) *Config { return cfg },
 		},
 		{
+			args: []string{"-insecure=true"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Insecure = true
+				return cfg
+			},
+		},
+		{
 			args: []string{"-profile.mode", "foo"},
 			cfg: func(cfg *Config) *Config {
 				cfg.ProfileMode = "foo"
