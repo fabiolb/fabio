@@ -42,6 +42,10 @@
    Notifications about nodes and services in maintenance mode are now logged as DEBUG and therefore
    filtered out by default.
 
+ * [Issue #375](https://github.com/fabiolb/fabio/issues/375): `host` option allows to set `Host` header
+
+   The `host` option now allows to set the `Host` header to the provided value in addition to the special `dst` value.
+
 ### [v1.5.2](https://github.com/fabiolb/fabio/releases/tag/v1.5.2) - 24 Jul 2017
 
 #### Breaking Changes
