@@ -1,6 +1,10 @@
 ## Changelog
 
-### Unreleased
+### [v1.5.3](https://github.com/fabiolb/fabio/releases/tag/v1.5.3) - 3 Nov 2017
+
+#### Breaking Changes
+
+ * None
 
 #### Features
 
@@ -8,8 +12,6 @@
 
    This adds support for using [Vault](https://vaultproject.io/) as a PKI cert source.
    Thanks to [@pschultz](https://github.com/pschultz) for providing this patch!
-
-#### Breaking Changes
 
 #### Bug Fixes
 
@@ -49,6 +51,8 @@
 ### [v1.5.2](https://github.com/fabiolb/fabio/releases/tag/v1.5.2) - 24 Jul 2017
 
 #### Breaking Changes
+
+ * None
 
 #### Bug Fixes
 
