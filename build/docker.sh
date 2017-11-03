@@ -17,16 +17,20 @@
 # * fabiolb/fabio:1.1-go1.6.2
 # * fabiolb/fabio (which contains 1.1-go1.6.2)
 #
-tag=fabiolb/fabio
-
 if [[ $# = 0 ]]; then
-	echo "Usage: docker.sh <version> <version>"
+	echo "Usage: docker.sh <1.x-go1.x.x> <1.x-go1.x.y>"
 	exit 1
 fi
 
 for v in "$@" ; do
-	echo "Building docker image $tag:$v"
-	( cp build/builds/fabio-${v/-*/}/fabio-${v}-linux_amd64 fabio ; docker build -q -t ${tag}:${v} . )
+	echo "Building docker image fabiolb/fabio:$v"
+	(
+		cp build/builds/fabio-${v/-*/}/fabio-${v}-linux_amd64 fabio
+		docker build -q -t fabiolb/fabio:${v} .
+	)
+	docker tag fabiolb/fabio:$v magiconair/fabio:$v
+	docker tag fabiolb/fabio:$v magiconair/fabio:latest
+	docker tag fabiolb/fabio:$v fabiolb/fabio:latest
 done
 
 echo "Building docker image $tag"
