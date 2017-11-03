@@ -593,6 +593,10 @@ func roundtrip(serverName string, srvConfig *tls.Config, client *http.Client) (c
 
 	// configure SNI
 	client.Transport.(*http.Transport).TLSClientConfig.ServerName = serverName
+
+	// give the tls server some time to start up
+	time.Sleep(10 * time.Millisecond)
+
 	resp, err := client.Get(srv.URL)
 	if err != nil {
 		return 0, "", err
