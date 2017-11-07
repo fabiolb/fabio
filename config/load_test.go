@@ -131,7 +131,7 @@ func TestLoad(t *testing.T) {
 			desc: "-proxy.addr with file cert source",
 			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=file;cert=value"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "file", CertPath: "value"}
 				return cfg
 			},
@@ -140,7 +140,7 @@ func TestLoad(t *testing.T) {
 			desc: "-proxy.addr with path cert source",
 			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=path;cert=value"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "path", CertPath: "value", Refresh: 3 * time.Second}
 				return cfg
 			},
@@ -149,7 +149,7 @@ func TestLoad(t *testing.T) {
 			desc: "-proxy.addr with http cert source",
 			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=http;cert=value"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "http", CertPath: "value", Refresh: 3 * time.Second}
 				return cfg
 			},
@@ -158,7 +158,7 @@ func TestLoad(t *testing.T) {
 			desc: "-proxy.addr with consul cert source",
 			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=consul;cert=value"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "consul", CertPath: "value"}
 				return cfg
 			},
@@ -167,7 +167,7 @@ func TestLoad(t *testing.T) {
 			desc: "-proxy.addr with vault cert source",
 			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=vault;cert=value"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "vault", CertPath: "value", Refresh: 3 * time.Second}
 				return cfg
 			},
@@ -179,7 +179,7 @@ func TestLoad(t *testing.T) {
 				"-proxy.cs", "cs=name;type=vault-pki;cert=pki/issue/value",
 			},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "vault-pki", CertPath: "pki/issue/value", Refresh: 3 * time.Second}
 				cfg.Listen[0].StrictMatch = true // implicit
 				return cfg
@@ -192,7 +192,7 @@ func TestLoad(t *testing.T) {
 				"-proxy.addr", ":5555;cs=name",
 			},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "vault-pki", CertPath: "pki/issue/value", Refresh: 3 * time.Second}
 				cfg.Listen[0].StrictMatch = true // implicit
 				return cfg
@@ -203,7 +203,7 @@ func TestLoad(t *testing.T) {
 			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;hdr=a: b;caupgcn=furb"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{
-					Listen{
+					{
 						Addr:        ":5555",
 						Proto:       "https",
 						StrictMatch: true,
@@ -226,7 +226,7 @@ func TestLoad(t *testing.T) {
 			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true;proto=https", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;hdr=a: b;caupgcn=furb"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{
-					Listen{
+					{
 						Addr:        ":5555",
 						Proto:       "https",
 						StrictMatch: true,
@@ -252,9 +252,9 @@ func TestLoad(t *testing.T) {
 			},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{
-					Listen{Addr: ":443", Proto: "https"},
-					Listen{Addr: ":80", Proto: "http"},
-					Listen{Addr: ":2375", Proto: "tcp+sni"},
+					{Addr: ":443", Proto: "https"},
+					{Addr: ":80", Proto: "http"},
+					{Addr: ":2375", Proto: "tcp+sni"},
 				}
 				cfg.Listen[0].CertSource = CertSource{
 					Name:     "consul-cs",
