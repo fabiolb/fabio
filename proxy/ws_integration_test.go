@@ -90,7 +90,7 @@ func TestProxyWSUpstream(t *testing.T) {
 func testWSEcho(t *testing.T, url string, hdr http.Header) {
 	cfg, err := websocket.NewConfig(url, "http://localhost/")
 	if err != nil {
-		t.Fatalf("NewConfig: ", err)
+		t.Fatal("NewConfig: ", err)
 	}
 	cfg.Header = hdr
 	if strings.HasPrefix(url, "wss://") {
