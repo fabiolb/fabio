@@ -483,10 +483,7 @@ func compress(b []byte) []byte {
 }
 
 func BenchmarkProxyLogger(b *testing.B) {
-	got := "not called"
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		got = r.Header.Get("X-Forwarded-For")
-	}))
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
 	defer server.Close()
 
 	format := "remote_addr time request body_bytes_sent http_referer http_user_agent server_name proxy_endpoint response_time request_args "
