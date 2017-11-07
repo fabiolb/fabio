@@ -258,7 +258,7 @@ func TestConsulSource(t *testing.T) {
 		// figured out whether we can speed this up. Make sure that this is
 		// less than the global test timeout in Makefile.
 		if !waitFor(12*time.Second, isUp) {
-			t.Fatal("Timeout waiting for consul server after %2.1f seconds", time.Since(start).Seconds())
+			t.Fatalf("Timeout waiting for consul server after %2.1f seconds", time.Since(start).Seconds())
 		}
 		t.Logf("Consul is ready after %2.1f seconds", time.Since(start).Seconds())
 	} else {
