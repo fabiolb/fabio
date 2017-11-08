@@ -23,10 +23,8 @@ import (
 //    dereg <- true // trigger deregistration
 //    <-dereg       // wait for completion
 //
-func register(c *api.Client, service *api.AgentServiceRegistration) (dereg chan bool) {
-	var serviceID string
-
-	registered := func() bool {
+func register(c *api.Client, service *api.AgentServiceRegistration) chan bool {
+	registered := func(serviceID string) bool {
 		if serviceID == "" {
 			return false
 		}
@@ -38,10 +36,10 @@ func register(c *api.Client, service *api.AgentServiceRegistration) (dereg chan 
 		return services[serviceID] != nil
 	}
 
-	register := func() {
+	register := func() string {
 		if err := c.Agent().ServiceRegister(service); err != nil {
 			log.Printf("[ERROR] consul: Cannot register fabio in consul. %s", err)
-			return
+			return ""
 		}
 
 		log.Printf("[INFO] consul: Registered fabio with id %q", service.ID)
@@ -49,27 +47,29 @@ func register(c *api.Client, service *api.AgentServiceRegistration) (dereg chan 
 		log.Printf("[INFO] consul: Registered fabio with tags %q", strings.Join(service.Tags, ","))
 		log.Printf("[INFO] consul: Registered fabio with health check to %q", service.Check.HTTP)
 
-		serviceID = service.ID
+		return service.ID
 	}
 
-	deregister := func() {
+	deregister := func(serviceID string) {
 		log.Printf("[INFO] consul: Deregistering fabio")
 		c.Agent().ServiceDeregister(serviceID)
 	}
 
-	dereg = make(chan bool)
+	dereg := make(chan bool)
 	go func() {
-		register()
+		var serviceID string
 		for {
+			if !registered(serviceID) {
+				serviceID = register()
+			}
+
 			select {
 			case <-dereg:
-				deregister()
+				deregister(serviceID)
 				dereg <- true
 				return
 			case <-time.After(time.Second):
-				if !registered() {
-					register()
-				}
+				// continue
 			}
 		}
 	}()
