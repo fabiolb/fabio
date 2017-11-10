@@ -153,20 +153,20 @@ func (t Table) addRoute(d *RouteDef) error {
 	switch {
 	// add new host
 	case t[host] == nil:
-		r := &Route{Host: host, Path: path, Opts: d.Opts}
-		r.addTarget(d.Service, targetURL, d.Weight, d.Tags)
+		r := &Route{Host: host, Path: path}
+		r.addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
 		t[host] = Routes{r}
 
 	// add new route to existing host
 	case t[host].find(path) == nil:
-		r := &Route{Host: host, Path: path, Opts: d.Opts}
-		r.addTarget(d.Service, targetURL, d.Weight, d.Tags)
+		r := &Route{Host: host, Path: path}
+		r.addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
 		t[host] = append(t[host], r)
 		sort.Sort(t[host])
 
 	// add new target to existing route
 	default:
-		t[host].find(path).addTarget(d.Service, targetURL, d.Weight, d.Tags)
+		t[host].find(path).addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
 	}
 
 	return nil

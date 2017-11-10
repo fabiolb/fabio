@@ -117,11 +117,19 @@ func TestProxyStripsPath(t *testing.T) {
 	}
 }
 
-//	TestProxyHost
 func TestProxyHost(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, r.Host)
 	}))
+
+	// create a static route table so that we can see the effect
+	// of round robin distribution. The other tests generate the
+	// route table on the fly since order does not matter to them.
+	routes := "route add mock /hostdst http://a.com/ opts \"host=dst\"\n"
+	routes += "route add mock /hostcustom http://a.com/ opts \"host=foo.com\"\n"
+	routes += "route add mock /hostcustom http://b.com/ opts \"host=bar.com\"\n"
+	routes += "route add mock / http://a.com/"
+	tbl, _ := route.NewTable(routes)
 
 	proxy := httptest.NewServer(&HTTPProxy{
 		Transport: &http.Transport{
@@ -131,10 +139,6 @@ func TestProxyHost(t *testing.T) {
 			},
 		},
 		Lookup: func(r *http.Request) *route.Target {
-			routes := "route add mock /hostdst http://a.com/ opts \"host=dst\"\n"
-			routes += "route add mock /hostcustom http://a.com/ opts \"host=foo.com\"\n"
-			routes += "route add mock / http://a.com/"
-			tbl, _ := route.NewTable(routes)
 			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
 		},
 	})
@@ -151,9 +155,26 @@ func TestProxyHost(t *testing.T) {
 	}
 
 	proxyHost := proxy.URL[len("http://"):]
+
+	// test that for 'host=dst' the Host header is set to the hostname of the
+	// target, in this case 'a.com'
 	t.Run("host eq dst", func(t *testing.T) { check(t, "/hostdst", "a.com") })
-	t.Run("host is custom", func(t *testing.T) { check(t, "/hostcustom", "foo.com") })
+
+	// test that without a 'host' option no Host header is set
 	t.Run("no host", func(t *testing.T) { check(t, "/", proxyHost) })
+
+	// 1. Test that a host header is set when the 'host' option is used.
+	//
+	// 2. Test that the host header is set per target, i.e. that different
+	//    targets can have different 'host' options.
+	//
+	//    The proxy is configured to use "rr" (round-robin) distribution
+	//    for the requests. Therefore, requests to '/hostcustom' will be
+	//    sent to the two different targets in alternating order.
+	t.Run("host is custom", func(t *testing.T) {
+		check(t, "/hostcustom", "foo.com")
+		check(t, "/hostcustom", "bar.com")
+	})
 }
 
 func TestProxyLogOutput(t *testing.T) {

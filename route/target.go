@@ -13,6 +13,9 @@ type Target struct {
 	// Tags are the list of tags for this target
 	Tags []string
 
+	// Opts is the raw options for the target.
+	Opts map[string]string
+
 	// StripPath will be removed from the front of the outgoing
 	// request path
 	StripPath string

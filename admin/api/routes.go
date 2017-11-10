@@ -43,12 +43,12 @@ func (h *RoutesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var routes []apiRoute
 	for _, host := range hosts {
 		for _, tr := range t[host] {
-			var opts []string
-			for k, v := range tr.Opts {
-				opts = append(opts, k+"="+v)
-			}
-
 			for _, tg := range tr.Targets {
+				var opts []string
+				for k, v := range tg.Opts {
+					opts = append(opts, k+"="+v)
+				}
+
 				ar := apiRoute{
 					Service: tg.Service,
 					Host:    tr.Host,
