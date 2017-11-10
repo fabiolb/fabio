@@ -21,8 +21,8 @@ func mustParse(rawurl string) *url.URL {
 
 func TestRndPicker(t *testing.T) {
 	r := &Route{Host: "www.bar.com", Path: "/foo"}
-	r.addTarget("svc", fooDotCom, 0, nil)
-	r.addTarget("svc", barDotCom, 0, nil)
+	r.addTarget("svc", fooDotCom, 0, nil, nil)
+	r.addTarget("svc", barDotCom, 0, nil, nil)
 
 	tests := []struct {
 		rnd       int
@@ -45,8 +45,8 @@ func TestRndPicker(t *testing.T) {
 
 func TestRRPicker(t *testing.T) {
 	r := &Route{Host: "www.bar.com", Path: "/foo"}
-	r.addTarget("svc", fooDotCom, 0, nil)
-	r.addTarget("svc", barDotCom, 0, nil)
+	r.addTarget("svc", fooDotCom, 0, nil, nil)
+	r.addTarget("svc", barDotCom, 0, nil, nil)
 
 	tests := []*url.URL{fooDotCom, barDotCom, fooDotCom, barDotCom, fooDotCom, barDotCom}
 

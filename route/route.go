@@ -26,9 +26,6 @@ type Route struct {
 	// Path is the path prefix from a request uri
 	Path string
 
-	// Opts is the raw route options
-	Opts map[string]string
-
 	// Targets contains the list of URLs
 	Targets []*Target
 
@@ -40,7 +37,7 @@ type Route struct {
 	total uint64
 }
 
-func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float64, tags []string) {
+func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float64, tags []string, opts map[string]string) {
 	if fixedWeight < 0 {
 		fixedWeight = 0
 	}
@@ -61,15 +58,16 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 	t := &Target{
 		Service:     service,
 		Tags:        tags,
+		Opts:        opts,
 		URL:         targetURL,
 		FixedWeight: fixedWeight,
 		Timer:       ServiceRegistry.GetTimer(name),
 		TimerName:   name,
 	}
-	if r.Opts != nil {
-		t.StripPath = r.Opts["strip"]
-		t.TLSSkipVerify = r.Opts["tlsskipverify"] == "true"
-		t.Host = r.Opts["host"]
+	if opts != nil {
+		t.StripPath = opts["strip"]
+		t.TLSSkipVerify = opts["tlsskipverify"] == "true"
+		t.Host = opts["host"]
 	}
 
 	r.Targets = append(r.Targets, t)
@@ -145,16 +143,16 @@ func (r *Route) TargetConfig(t *Target, addWeight bool) string {
 	if len(t.Tags) > 0 {
 		s += fmt.Sprintf(" tags %q", strings.Join(t.Tags, ","))
 	}
-	if len(r.Opts) > 0 {
+	if len(t.Opts) > 0 {
 		var keys []string
-		for k := range r.Opts {
+		for k := range t.Opts {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
 
 		var vals []string
 		for _, k := range keys {
-			vals = append(vals, k+"="+r.Opts[k])
+			vals = append(vals, k+"="+t.Opts[k])
 		}
 		s += fmt.Sprintf(" opts \"%s\"", strings.Join(vals, " "))
 	}

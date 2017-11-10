@@ -46,6 +46,28 @@ func TestTableParse(t *testing.T) {
 			},
 		},
 
+		{"1 service, 1 prefix with option",
+			[]string{
+				`route add svc-a / http://aaa.com/ opts "strip=/foo"`,
+				`route add svc-b / http://bbb.com/ opts "strip=/bar"`,
+			},
+			[]string{
+				`route add svc-a / http://aaa.com/ weight 0.5000 opts "strip=/foo"`,
+				`route add svc-b / http://bbb.com/ weight 0.5000 opts "strip=/bar"`,
+			},
+		},
+
+		{"1 service, 1 prefix, 2 instances with different options",
+			[]string{
+				`route add svc-a / http://aaa.com/ opts "strip=/foo"`,
+				`route add svc-b / http://bbb.com/ opts "strip=/bar"`,
+			},
+			[]string{
+				`route add svc-a / http://aaa.com/ weight 0.5000 opts "strip=/foo"`,
+				`route add svc-b / http://bbb.com/ weight 0.5000 opts "strip=/bar"`,
+			},
+		},
+
 		{"2 service, 1 prefix",
 			[]string{
 				`route add svc-a / http://aaa.com/`,
