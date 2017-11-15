@@ -470,6 +470,7 @@ func TestTableLookup(t *testing.T) {
 	route add svc abc.com/foo/ http://foo.com:2000
 	route add svc abc.com/foo/bar http://foo.com:2500
 	route add svc abc.com/foo/bar/ http://foo.com:3000
+	route add svc z.abc.com/foo/ http://foo.com:3100
 	route add svc *.abc.com/ http://foo.com:4000
 	route add svc *.abc.com/foo/ http://foo.com:5000
 	`
@@ -513,6 +514,9 @@ func TestTableLookup(t *testing.T) {
 		{&http.Request{Host: "x.y.abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000"},
 		{&http.Request{Host: "y.abc.com:80", URL: mustParse("/foo/")}, "http://foo.com:5000"},
 		{&http.Request{Host: "y.abc.com:443", URL: mustParse("/foo/"), TLS: &tls.ConnectionState{}}, "http://foo.com:5000"},
+
+		// exact match has precedence over glob match
+		{&http.Request{Host: "z.abc.com", URL: mustParse("/foo/")}, "http://foo.com:3100"},
 	}
 
 	for i, tt := range tests {
