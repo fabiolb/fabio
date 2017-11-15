@@ -293,7 +293,7 @@ func (t Table) matchingHosts(req *http.Request) (hosts []string) {
 			hosts = append(hosts, pattern)
 		}
 	}
-	sort.Strings(hosts)
+	sort.Sort(sort.Reverse(sort.StringSlice(hosts)))
 	return hosts
 }
 
@@ -364,7 +364,7 @@ func (t Table) config(addWeight bool) []string {
 			hosts = append(hosts, host)
 		}
 	}
-	sort.Strings(hosts)
+	sort.Sort(sort.Reverse(sort.StringSlice(hosts)))
 
 	// entries without host come last
 	hosts = append(hosts, "")
