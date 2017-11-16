@@ -1,5 +1,20 @@
 ## Changelog
 
+### Unreleased
+
+#### Breaking Changes
+
+#### Features
+
+#### Bug Fixes
+
+ * [Issue #389](https://github.com/fabiolb/fabio/issues/389): match exact host before glob matches
+
+   When there is an exact match and a glob match for a hostname then the exact match
+   is preferred.
+
+#### Improvements
+
 ### [v1.5.3](https://github.com/fabiolb/fabio/releases/tag/v1.5.3) - 3 Nov 2017
 
 #### Breaking Changes
