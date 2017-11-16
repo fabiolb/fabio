@@ -387,6 +387,10 @@ func TestUint16Base16(t *testing.T) {
 }
 
 func BenchmarkUint16Base16(b *testing.B) {
+	// keep a variable outside of the tests so that the compiler doesn't
+	// optimize the body of the loop away. Go 1.10 will complain about the
+	// variable not being used since it is never read. For that reason, we
+	// print it at the end of the function.
 	var s string
 	b.Run("fmt.Sprintf", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
@@ -398,4 +402,5 @@ func BenchmarkUint16Base16(b *testing.B) {
 			s = uint16base16(uint16(i))
 		}
 	})
+	fmt.Println("please ignore:", s) // dummy write to use 's'
 }
