@@ -35,8 +35,10 @@ func (s *Server) Start() {
 
 	s.Addr = s.Listener.Addr().String()
 	s.srv = new(tcp.Server)
-	*s.srv = *s.Config
-	s.srv.Addr = s.Addr
+	s.srv.Addr = s.Config.Addr
+	s.srv.Handler = s.Config.Handler
+	s.srv.ReadTimeout = s.Config.ReadTimeout
+	s.srv.WriteTimeout = s.Config.WriteTimeout
 	go s.srv.Serve(s.Listener)
 }
 
@@ -47,8 +49,10 @@ func (s *Server) StartTLS() {
 
 	s.Addr = s.Listener.Addr().String()
 	s.srv = new(tcp.Server)
-	*s.srv = *s.Config
-	s.srv.Addr = s.Addr
+	s.srv.Addr = s.Config.Addr
+	s.srv.Handler = s.Config.Handler
+	s.srv.ReadTimeout = s.Config.ReadTimeout
+	s.srv.WriteTimeout = s.Config.WriteTimeout
 
 	cert, err := tls.X509KeyPair(internal.LocalhostCert, internal.LocalhostKey)
 	if err != nil {

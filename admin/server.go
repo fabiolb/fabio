@@ -38,9 +38,9 @@ func (s *Server) handler() http.Handler {
 		mux.Handle("/manual", &ui.ManualHandler{Color: s.Color, Title: s.Title, Version: s.Version, Commands: s.Commands})
 	}
 
-	mux.Handle("/api/config", &api.ConfigHandler{s.Cfg})
+	mux.Handle("/api/config", &api.ConfigHandler{Config: s.Cfg})
 	mux.Handle("/api/routes", &api.RoutesHandler{})
-	mux.Handle("/api/version", &api.VersionHandler{s.Version})
+	mux.Handle("/api/version", &api.VersionHandler{Version: s.Version})
 	mux.Handle("/routes", &ui.RoutesHandler{Color: s.Color, Title: s.Title, Version: s.Version})
 	mux.HandleFunc("/logo.svg", ui.HandleLogo)
 	mux.HandleFunc("/health", handleHealth)
