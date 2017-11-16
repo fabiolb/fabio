@@ -12,6 +12,7 @@ help:
 	@echo "install   - go install"
 	@echo "test      - go test"
 	@echo "gofmt     - go fmt"
+	@echo "vet       - go vet"
 	@echo "linux     - go build linux/amd64"
 	@echo "release   - build/release.sh"
 	@echo "homebrew  - build/homebrew.sh"
@@ -19,7 +20,7 @@ help:
 	@echo "pkg       - build, test and create pkg/fabio.tar.gz"
 	@echo "clean     - remove temp files"
 
-build: checkdeps vendorfmt
+build: checkdeps vendorfmt vet
 	$(GO) build -i $(GOFLAGS)
 	$(GO) test -i ./...
 
@@ -42,6 +43,9 @@ linux:
 
 install:
 	$(GO) install $(GOFLAGS)
+
+vet:
+	$(GO) vet ./...
 
 pkg: build test
 	rm -rf pkg
@@ -80,4 +84,4 @@ clean:
 	$(GO) clean
 	rm -rf pkg
 
-.PHONY: build buildpkg clean docker gofmt homebrew install linux pkg release test vendorfmt
+.PHONY: build buildpkg clean docker gofmt homebrew install linux pkg release test vendorfmt vet
