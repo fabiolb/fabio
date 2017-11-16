@@ -27,7 +27,7 @@
 		{"path":"github.com/hashicorp/serf/coordinate","checksumSHA1":"o8In5byYGDCY/mnTuV4Tfmci+3w=","revision":"0df3e3df1703f838243a7f3f12bf0b88566ade5a","revisionTime":"2015-12-21T18:49:50Z","version":"v0.6.4","versionExact":"v0.6.4"},
 		{"path":"github.com/hashicorp/vault/api","checksumSHA1":"9/RHDTjqflfK3/f2Tfvwx+82I40=","revision":"f627c01df8d7bebb403cf899ca1beb24f5fc84cd","revisionTime":"2016-06-14T07:51:08Z","version":"v0.6.0","versionExact":"v0.6.0"},
 		{"path":"github.com/magiconair/go-metrics-statsd","checksumSHA1":"1I3MjrGSOw5rPtlrHcGI8bJfLyA=","revision":"380638b554e36fe109711b41e09917d94b235e86","revisionTime":"2017-01-25T16:17:32Z"},
-		{"path":"github.com/magiconair/properties","checksumSHA1":"eqs9e0Fw1wlUZCj/ZtrSwnPsJ54=","revision":"c265cfa48dda6474e208715ca93e987829f572f8","revisionTime":"2016-03-20T21:54:47+01:00"},
+		{"path":"github.com/magiconair/properties","checksumSHA1":"8ae1DyNE/yY9NvY3PmvtQdLBJnc=","revision":"49d762b9817ba1c2e9d0c69183c2b4a8b8f1d934","revisionTime":"2017-10-31T21:05:36Z"},
 		{"path":"github.com/mitchellh/go-homedir","checksumSHA1":"AXacfEchaUqT5RGmPmMXsOWRhv8=","revision":"1111e456ffea841564ac0fa5f69c26ef44dafec9","revisionTime":"2016-06-06T03:01:22Z"},
 		{"path":"github.com/mitchellh/mapstructure","checksumSHA1":"KCJhN9Dx329wAN/SeL4CxeypPyk=","revision":"d2dd0262208475919e1a362f675cfc0e7c10e905","revisionTime":"2016-02-11T19:18:39-08:00"},
 		{"path":"github.com/pascaldekloe/goe/verify","checksumSHA1":"4tr8yNUt5DB8GXc5y+uq6J7TJ54=","revision":"f99183613f483cd9b8c79359d572836e243e0763","revisionTime":"2015-07-19T21:56:08+02:00"},
