@@ -61,6 +61,8 @@ var defaultConfig = &Config{
 			CheckScheme:                         "http",
 			CheckDeregisterCriticalServiceAfter: "90m",
 			ChecksRequired:                      "one",
+			EnableSSL:                           false,
+			VerifySSL:                           false,
 		},
 		Timeout: 10 * time.Second,
 		Retry:   500 * time.Millisecond,

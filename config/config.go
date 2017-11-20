@@ -143,4 +143,9 @@ type Consul struct {
 	CheckTLSSkipVerify                  bool
 	CheckDeregisterCriticalServiceAfter string
 	ChecksRequired                      string
+	EnableSSL                           bool
+	VerifySSL                           bool
+	CAFile                              string
+	CertFile                            string
+	KeyFile                             string
 }
