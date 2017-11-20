@@ -19,8 +19,23 @@ type be struct {
 }
 
 func NewBackend(cfg *config.Consul) (registry.Backend, error) {
+
+	var tls api.TLSConfig
+
+	if cfg.EnableSSL {
+		cfg.Scheme = "https"
+
+		tls := &api.TLSConfig{
+			Address:  cfg.Addr,
+			CAFile:   cfg.CAFile,
+			CertFile: cfg.CertFile,
+			KeyFile:  cfg.KeyFile,
+		}
+		tls.InsecureSkipVerify = !cfg.VerifySSL
+	}
+
 	// create a reusable client
-	c, err := api.NewClient(&api.Config{Address: cfg.Addr, Scheme: cfg.Scheme, Token: cfg.Token})
+	c, err := api.NewClient(&api.Config{Address: cfg.Addr, Scheme: cfg.Scheme, Token: cfg.Token, TLSConfig: tls})
 	if err != nil {
 		return nil, err
 	}

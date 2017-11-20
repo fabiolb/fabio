@@ -130,4 +130,9 @@ type Consul struct {
 	CheckTimeout       time.Duration
 	CheckScheme        string
 	CheckTLSSkipVerify bool
+	EnableSSL          bool
+	VerifySSL          bool
+	CAFile             string
+	CertFile           string
+	KeyFile            string
 }

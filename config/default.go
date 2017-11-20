@@ -58,6 +58,8 @@ var defaultConfig = &Config{
 			CheckInterval: time.Second,
 			CheckTimeout:  3 * time.Second,
 			CheckScheme:   "http",
+			EnableSSL:     false,
+			VerifySSL:     false,
 		},
 		Timeout: 10 * time.Second,
 		Retry:   500 * time.Millisecond,
