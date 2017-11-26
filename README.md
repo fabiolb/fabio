@@ -12,12 +12,12 @@
 
 ##### Current stable version: 1.5.3
 
-[![Codeship CI Status](https://codeship.com/projects/3e8307d0-2426-0135-1183-6e6f38f65fc4/status?branch=master)](https://app.codeship.com/projects/222209)
-[![Travis CI Status](https://travis-ci.org/fabiolb/fabio.svg?branch=master)](https://travis-ci.org/fabiolb/fabio)
-[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/fabiolb/fabio/master/LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/fabiolb/fabio/total.svg)](https://github.com/fabiolb/fabio/releases)
-[![Docker Pulls magiconair](https://img.shields.io/docker/pulls/magiconair/fabio.svg?label=docker+pulls+magiconair)](https://hub.docker.com/r/magiconair/fabio/)
-[![Docker Pulls fabiolb](https://img.shields.io/docker/pulls/fabiolb/fabio.svg?label=docker+pulls+fabiolb)](https://hub.docker.com/r/fabiolb/fabio/)
+[![Codeship CI Status](https://img.shields.io/codeship/3e8307d0-2426-0135-1183-6e6f38f65fc4/master.svg?label=codeship&style=flat-square)](https://app.codeship.com/projects/222209)
+[![Travis CI Status](https://img.shields.io/travis/fabiolb/fabio.svg?label=travis-ci&style=flat-square)](https://travis-ci.org/fabiolb/fabio)
+[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/fabiolb/fabio/master/LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/fabiolb/fabio/total.svg?style=flat-square)](https://github.com/fabiolb/fabio/releases)
+[![Docker Pulls magiconair](https://img.shields.io/docker/pulls/magiconair/fabio.svg?style=flat-square&label=docker+pulls+magiconair)](https://hub.docker.com/r/magiconair/fabio/)
+[![Docker Pulls fabiolb](https://img.shields.io/docker/pulls/fabiolb/fabio.svg?style=flat-square&label=docker+pulls+fabiolb)](https://hub.docker.com/r/fabiolb/fabio/)
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) and TCP router
 for deploying applications managed by [consul](https://consul.io/).
