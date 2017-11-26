@@ -1,23 +1,25 @@
-<div>
-  <div style="width: 50%; height: 64px;">
+<p align="center">
+  <p align="center" style="width: 50%; height: 64px;">
     <img src="https://cdn.rawgit.com/fabiolb/fabio/015e999/fabio.svg" height="64"/>
-  </div>
-  <div style="width: 50%; height: 64px; margin-top: 16px;">
+  </p>
+  <p align="center" style="margin-top: 16px">
     <a href="http://ebay.github.io/"><img src="https://cdn.rawgit.com/fabiolb/fabio/7a02e1f/ebay.png" height="32" style="padding-right: 4px"/></a>
     <a href="http://www.ebayclassifiedsgroup.com"><img src="https://cdn.rawgit.com/fabiolb/fabio/7a02e1f/ecg.png" height="32"/></a>
     <a href="http://www.mytaxi.de"><img src="https://cdn.rawgit.com/fabiolb/fabio/7a02e1f/mytaxi.png" height="32"/></a>
     <a href="http://www.classmarkets.com"><img src="https://cdn.rawgit.com/fabiolb/fabio/7a02e1f/classmarkets.png" height="32"/></a>
-  </div>
-</div>
+  </p>
+  <p align="center" style="margin-top: 16px">
+    <a href="https://github.com/fabiolb/fabio/releases/latest"><img alt="Release" src="https://img.shields.io/github/release/fabiolb/fabio.svg?style=flat-square"></a>
+    <a href="https://raw.githubusercontent.com/fabiolb/fabio/master/LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
+    <a href="https://app.codeship.com/projects/222209"><img alt="Codeship CI Status" src="https://img.shields.io/codeship/3e8307d0-2426-0135-1183-6e6f38f65fc4/master.svg?label=codeship&style=flat-square"></a>
+    <a href="https://travis-ci.org/fabiolb/fabio"><img alt="Travis CI Status" src="https://img.shields.io/travis/fabiolb/fabio.svg?label=travis-ci&style=flat-square"></a>
+    <a href="https://github.com/fabiolb/fabio/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/fabiolb/fabio/total.svg?style=flat-square"></a>
+    <a href="https://hub.docker.com/r/magiconair/fabio/"><img alt="Docker Pulls magiconair" src="https://img.shields.io/docker/pulls/magiconair/fabio.svg?style=flat-square&label=docker+pulls+magiconair"></a>
+    <a href="https://hub.docker.com/r/fabiolb/fabio/"><img alt="Docker Pulls fabiolb" src="https://img.shields.io/docker/pulls/fabiolb/fabio.svg?style=flat-square&label=docker+pulls+fabiolb"></a>
+  </p>
+</p>
 
-##### Current stable version: 1.5.3
-
-[![Codeship CI Status](https://img.shields.io/codeship/3e8307d0-2426-0135-1183-6e6f38f65fc4/master.svg?label=codeship&style=flat-square)](https://app.codeship.com/projects/222209)
-[![Travis CI Status](https://img.shields.io/travis/fabiolb/fabio.svg?label=travis-ci&style=flat-square)](https://travis-ci.org/fabiolb/fabio)
-[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/fabiolb/fabio/master/LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/fabiolb/fabio/total.svg?style=flat-square)](https://github.com/fabiolb/fabio/releases)
-[![Docker Pulls magiconair](https://img.shields.io/docker/pulls/magiconair/fabio.svg?style=flat-square&label=docker+pulls+magiconair)](https://hub.docker.com/r/magiconair/fabio/)
-[![Docker Pulls fabiolb](https://img.shields.io/docker/pulls/fabiolb/fabio.svg?style=flat-square&label=docker+pulls+fabiolb)](https://hub.docker.com/r/fabiolb/fabio/)
+---
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) and TCP router
 for deploying applications managed by [consul](https://consul.io/).
