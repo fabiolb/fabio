@@ -416,6 +416,9 @@ func TestTableParse(t *testing.T) {
 				targetURLs := make([]string, len(r.wTargets))
 				for i, tg := range r.wTargets {
 					targetURLs[i] = tg.URL.Scheme + "://" + tg.URL.Host + tg.URL.Path
+					if tg.RedirectCode != 0 {
+						targetURLs[i] = fmt.Sprintf("%d|%s", tg.RedirectCode, targetURLs[i])
+					}
 				}
 
 				// count how often the 'url' from 'route add svc <path> <url>'
@@ -477,7 +480,7 @@ func TestNormalizeHost(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		if got, want := normalizeHost(tt.req), tt.host; got != want {
+		if got, want := normalizeHost(tt.req.Host, tt.req), tt.host; got != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}
@@ -495,6 +498,7 @@ func TestTableLookup(t *testing.T) {
 	route add svc z.abc.com/foo/ http://foo.com:3100
 	route add svc *.abc.com/ http://foo.com:4000
 	route add svc *.abc.com/foo/ http://foo.com:5000
+	route add svc xyz.com:80/ https://xyz.com
 	`
 
 	tbl, err := NewTable(s)
@@ -539,6 +543,9 @@ func TestTableLookup(t *testing.T) {
 
 		// exact match has precedence over glob match
 		{&http.Request{Host: "z.abc.com", URL: mustParse("/foo/")}, "http://foo.com:3100"},
+
+		// explicit port on route
+		{&http.Request{Host: "xyz.com", URL: mustParse("/")}, "https://xyz.com"},
 	}
 
 	for i, tt := range tests {

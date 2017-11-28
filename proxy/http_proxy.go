@@ -114,6 +114,15 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		r.Header.Set(p.Config.RequestID, id())
 	}
 
+	if t.RedirectCode != 0 {
+		http.Redirect(w, r, targetURL.String(), t.RedirectCode)
+		if t.Timer != nil {
+			t.Timer.Update(0)
+		}
+		metrics.DefaultRegistry.GetTimer(key(t.RedirectCode)).Update(0)
+		return
+	}
+
 	upgrade, accept := r.Header.Get("Upgrade"), r.Header.Get("Accept")
 
 	tr := p.Transport

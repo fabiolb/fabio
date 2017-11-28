@@ -33,6 +33,9 @@ type Target struct {
 	// URL is the endpoint the service instance listens on
 	URL *url.URL
 
+	// RedirectCode is the HTTP status code used for redirects.
+	RedirectCode int
+
 	// FixedWeight is the weight assigned to this target.
 	// If the value is 0 the targets weight is dynamic.
 	FixedWeight float64

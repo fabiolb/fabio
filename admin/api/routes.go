@@ -62,6 +62,9 @@ func (h *RoutesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					Rate1:   tg.Timer.Rate1(),
 					Pct99:   tg.Timer.Percentile(0.99),
 				}
+				if tg.RedirectCode != 0 {
+					ar.Dst = fmt.Sprintf("%d|%s", tg.RedirectCode, tg.URL)
+				}
 				routes = append(routes, ar)
 			}
 		}

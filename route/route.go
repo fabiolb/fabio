@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/fabiolb/fabio/metrics"
@@ -68,6 +69,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		t.StripPath = opts["strip"]
 		t.TLSSkipVerify = opts["tlsskipverify"] == "true"
 		t.Host = opts["host"]
+		t.RedirectCode, _ = strconv.Atoi(opts["redirect"])
 	}
 
 	r.Targets = append(r.Targets, t)
@@ -134,7 +136,12 @@ func contains(src, dst []string) bool {
 }
 
 func (r *Route) TargetConfig(t *Target, addWeight bool) string {
-	s := fmt.Sprintf("route add %s %s %s", t.Service, r.Host+r.Path, t.URL)
+	s := fmt.Sprintf("route add %s %s", t.Service, r.Host+r.Path)
+	if t.RedirectCode != 0 {
+		s += fmt.Sprintf(" %d|%s", t.RedirectCode, t.URL)
+	} else {
+		s += fmt.Sprintf(" %s", t.URL)
+	}
 	if addWeight {
 		s += fmt.Sprintf(" weight %2.4f", t.Weight)
 	} else if t.FixedWeight > 0 {
@@ -215,7 +222,7 @@ func (r *Route) weighTargets() {
 	}
 
 	// compute the weight for the targets with dynamic weights
-	dynamic := (1 - sumFixed) / float64(len(r.Targets)-nFixed)
+	dynamic := float64(1-sumFixed) / float64(len(r.Targets)-nFixed)
 	if dynamic < 0 {
 		dynamic = 0
 	}
