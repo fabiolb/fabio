@@ -5,7 +5,6 @@ language: go
 go:
     - 1.8.x
     - 1.9.x
-    - tip
 
 before_script:
   - echo $HOSTNAME
