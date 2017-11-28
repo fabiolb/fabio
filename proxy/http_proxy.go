@@ -60,6 +60,14 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		panic("no lookup function")
 	}
 
+	if p.Config.RequestID != "" {
+		id := p.UUID
+		if id == nil {
+			id = uuid.NewUUID
+		}
+		r.Header.Set(p.Config.RequestID, id())
+	}
+
 	t := p.Lookup(r)
 	if t == nil {
 		w.WriteHeader(p.Config.NoRouteStatus)
@@ -73,6 +81,16 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Host:     r.Host,
 		Path:     r.URL.Path,
 		RawQuery: r.URL.RawQuery,
+	}
+
+	if t.RedirectCode != 0 {
+		redirectURL := t.GetRedirectURL(requestURL)
+		http.Redirect(w, r, redirectURL.String(), t.RedirectCode)
+		if t.Timer != nil {
+			t.Timer.Update(0)
+		}
+		metrics.DefaultRegistry.GetTimer(key(t.RedirectCode)).Update(0)
+		return
 	}
 
 	// build the real target url that is passed to the proxy
@@ -104,14 +122,6 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := addHeaders(r, p.Config, t.StripPath); err != nil {
 		http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
 		return
-	}
-
-	if p.Config.RequestID != "" {
-		id := p.UUID
-		if id == nil {
-			id = uuid.NewUUID
-		}
-		r.Header.Set(p.Config.RequestID, id())
 	}
 
 	upgrade, accept := r.Header.Get("Upgrade"), r.Header.Get("Accept")

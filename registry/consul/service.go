@@ -1,6 +1,7 @@
 package consul
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"runtime"
@@ -125,6 +126,15 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 						dst = "https://" + addr
 					case strings.HasPrefix(o, "weight="):
 						weight = o[len("weight="):]
+					case strings.HasPrefix(o, "redirect="):
+						redir := strings.Split(o[len("redirect="):], ",")
+						if len(redir) == 2 {
+							dst = redir[1]
+							ropts = append(ropts, fmt.Sprintf("redirect=%s", redir[0]))
+						} else {
+							log.Printf("[ERROR] Invalid syntax for redirect: %s. should be redirect=<code>,<url>", o)
+							continue
+						}
 					default:
 						ropts = append(ropts, o)
 					}
