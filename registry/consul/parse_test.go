@@ -47,6 +47,12 @@ func TestParseTag(t *testing.T) {
 			route: "xx/Yy",
 			ok:    true,
 		},
+		{
+			tag:   "p-www.bar.com:80/foo redirect=302,https://www.bar.com",
+			route: "www.bar.com:80/foo",
+			opts:  "redirect=302,https://www.bar.com",
+			ok:    true,
+		},
 	}
 
 	for i, tt := range tests {
