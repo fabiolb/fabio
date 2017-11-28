@@ -8,6 +8,12 @@
 
 #### Bug Fixes
 
+ * [Issue #385](https://github.com/fabiolb/fabio/issues/385): opts with host= with multiple routes does not work as expected
+
+   When multiple routes for the same path had different `host` options then only the one set on the 
+   first route worked. This has been fixed so that the `Host` header is now set according to the
+   selected target.
+
  * [Issue #389](https://github.com/fabiolb/fabio/issues/389): match exact host before glob matches
 
    When there is an exact match and a glob match for a hostname then the exact match
