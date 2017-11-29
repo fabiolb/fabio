@@ -76,7 +76,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 				log.Printf("[ERROR] redirect status code should be numeric in 3xx range. Got: %s", opts["redirect"])
 			} else if t.RedirectCode < 300 || t.RedirectCode > 399 {
 				t.RedirectCode = 0
-				log.Printf("[ERROR] redirect status code should in 3xx range. Got: %s", opts["redirect"])
+				log.Printf("[ERROR] redirect status code should be in 3xx range. Got: %s", opts["redirect"])
 			}
 		}
 	}
