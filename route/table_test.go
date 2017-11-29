@@ -416,9 +416,6 @@ func TestTableParse(t *testing.T) {
 				targetURLs := make([]string, len(r.wTargets))
 				for i, tg := range r.wTargets {
 					targetURLs[i] = tg.URL.Scheme + "://" + tg.URL.Host + tg.URL.Path
-					if tg.RedirectCode != 0 {
-						targetURLs[i] = fmt.Sprintf("%d|%s", tg.RedirectCode, targetURLs[i])
-					}
 				}
 
 				// count how often the 'url' from 'route add svc <path> <url>'

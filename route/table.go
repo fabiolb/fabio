@@ -273,12 +273,12 @@ func (t Table) route(host, path string) *Route {
 
 // normalizeHost returns the hostname from the request
 // and removes the default port if present.
-func normalizeHost(host string, req *http.Request) string {
+func normalizeHost(host string, tls bool) string {
 	host = strings.ToLower(host)
-	if req.TLS == nil && strings.HasSuffix(host, ":80") {
+	if !tls && strings.HasSuffix(host, ":80") {
 		return host[:len(host)-len(":80")]
 	}
-	if req.TLS != nil && strings.HasSuffix(host, ":443") {
+	if tls && strings.HasSuffix(host, ":443") {
 		return host[:len(host)-len(":443")]
 	}
 	return host
@@ -287,9 +287,9 @@ func normalizeHost(host string, req *http.Request) string {
 // matchingHosts returns all keys (host name patterns) from the
 // routing table which match the normalized request hostname.
 func (t Table) matchingHosts(req *http.Request) (hosts []string) {
-	host := normalizeHost(req.Host, req)
+	host := normalizeHost(req.Host, req.TLS != nil)
 	for pattern := range t {
-		normpat := normalizeHost(pattern, req)
+		normpat := normalizeHost(pattern, req.TLS != nil)
 		if glob.Glob(normpat, host) {
 			hosts = append(hosts, pattern)
 		}

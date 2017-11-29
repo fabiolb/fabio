@@ -34,6 +34,7 @@ type Target struct {
 	URL *url.URL
 
 	// RedirectCode is the HTTP status code used for redirects.
+	// When set to a value > 0 the client is redirected to the target url.
 	RedirectCode int
 
 	// FixedWeight is the weight assigned to this target.

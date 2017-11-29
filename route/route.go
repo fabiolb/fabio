@@ -69,9 +69,15 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		t.StripPath = opts["strip"]
 		t.TLSSkipVerify = opts["tlsskipverify"] == "true"
 		t.Host = opts["host"]
-		t.RedirectCode, _ = strconv.Atoi(opts["redirect"])
-		if t.RedirectCode < 300 || t.RedirectCode > 399 {
-			t.RedirectCode = 0
+
+		if opts["redirect"] != "" {
+			t.RedirectCode, err = strconv.Atoi(opts["redirect"])
+			if err != nil {
+				log.Printf("[ERROR] redirect status code should be numeric in 3xx range. Got: %s", opts["redirect"])
+			} else if t.RedirectCode < 300 || t.RedirectCode > 399 {
+				t.RedirectCode = 0
+				log.Printf("[ERROR] redirect status code should in 3xx range. Got: %s", opts["redirect"])
+			}
 		}
 	}
 
@@ -139,12 +145,7 @@ func contains(src, dst []string) bool {
 }
 
 func (r *Route) TargetConfig(t *Target, addWeight bool) string {
-	s := fmt.Sprintf("route add %s %s", t.Service, r.Host+r.Path)
-	if t.RedirectCode != 0 {
-		s += fmt.Sprintf(" %d|%s", t.RedirectCode, t.URL)
-	} else {
-		s += fmt.Sprintf(" %s", t.URL)
-	}
+	s := fmt.Sprintf("route add %s %s %s", t.Service, r.Host+r.Path, t.URL)
 	if addWeight {
 		s += fmt.Sprintf(" weight %2.4f", t.Weight)
 	} else if t.FixedWeight > 0 {
@@ -225,7 +226,7 @@ func (r *Route) weighTargets() {
 	}
 
 	// compute the weight for the targets with dynamic weights
-	dynamic := float64(1-sumFixed) / float64(len(r.Targets)-nFixed)
+	dynamic := (1 - sumFixed) / float64(len(r.Targets)-nFixed)
 	if dynamic < 0 {
 		dynamic = 0
 	}
