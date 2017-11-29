@@ -70,6 +70,9 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		t.TLSSkipVerify = opts["tlsskipverify"] == "true"
 		t.Host = opts["host"]
 		t.RedirectCode, _ = strconv.Atoi(opts["redirect"])
+		if t.RedirectCode < 300 || t.RedirectCode > 399 {
+			t.RedirectCode = 0
+		}
 	}
 
 	r.Targets = append(r.Targets, t)
