@@ -477,7 +477,7 @@ func TestNormalizeHost(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		if got, want := normalizeHost(tt.req.Host, tt.req), tt.host; got != want {
+		if got, want := normalizeHost(tt.req.Host, tt.req.TLS != nil), tt.host; got != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}
