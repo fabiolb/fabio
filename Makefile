@@ -20,11 +20,11 @@ help:
 	@echo "pkg       - build, test and create pkg/fabio.tar.gz"
 	@echo "clean     - remove temp files"
 
-build: checkdeps vendorfmt vet
+build: checkdeps vendorfmt vet gofmt
 	$(GO) build -i $(GOFLAGS)
 	$(GO) test -i ./...
 
-test: checkdeps vendorfmt
+test: checkdeps vendorfmt gofmt
 	$(GO) test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 
 checkdeps:
@@ -36,7 +36,7 @@ vendorfmt:
 	vendorfmt
 
 gofmt:
-	gofmt -w `find . -type f -name '*.go' | grep -v vendor`
+	gofmt -s -w `find . -type f -name '*.go' | grep -v vendor`
 
 linux:
 	GOOS=linux GOARCH=amd64 $(GO) build -i -tags netgo $(GOFLAGS)
