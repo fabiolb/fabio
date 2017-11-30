@@ -25,10 +25,10 @@ import (
 	"github.com/pascaldekloe/goe/verify"
 )
 
-func TestProxyProducesCorrectXffHeader(t *testing.T) {
-	got := "not called"
+func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
+	var hdr http.Header = make(http.Header)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		got = r.Header.Get("X-Forwarded-For")
+		hdr = r.Header
 	}))
 	defer server.Close()
 
@@ -42,11 +42,15 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 	defer proxy.Close()
 
 	req, _ := http.NewRequest("GET", proxy.URL, nil)
+	req.Host = "foo.com"
 	req.Header.Set("X-Forwarded-For", "3.3.3.3")
 	mustDo(req)
 
-	if want := "3.3.3.3, 127.0.0.1"; got != want {
-		t.Errorf("got %v, but want %v", got, want)
+	if got, want := hdr.Get("X-Forwarded-For"), "3.3.3.3, 127.0.0.1"; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+	if got, want := hdr.Get("X-Forwarded-Host"), "foo.com"; got != want {
+		t.Errorf("got %v want %v", got, want)
 	}
 }
 
