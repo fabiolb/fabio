@@ -67,6 +67,10 @@ func addHeaders(r *http.Request, cfg config.Proxy, stripPath string) error {
 		r.Header.Set("X-Forwarded-Port", localPort(r))
 	}
 
+	if r.Header.Get("X-Forwarded-Host") == "" {
+		r.Header.Set("X-Forwarded-Host", r.Host)
+	}
+
 	if stripPath != "" {
 		r.Header.Set("X-Forwarded-Prefix", stripPath)
 	}
