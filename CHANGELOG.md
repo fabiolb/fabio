@@ -21,6 +21,10 @@
 
 #### Improvements
 
+ * [Pull #380](https://github.com/fabiolb/fabio/issues/380): Set X-Forwared-Host header if not present
+
+   Fabio now sets the `X-Forwarded-Host` header if it isn't present.
+
 ### [v1.5.3](https://github.com/fabiolb/fabio/releases/tag/v1.5.3) - 3 Nov 2017
 
 #### Breaking Changes
