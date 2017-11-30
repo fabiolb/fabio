@@ -2,6 +2,7 @@ package route
 
 import (
 	"net/url"
+	"strings"
 
 	"github.com/fabiolb/fabio/metrics"
 )
@@ -49,4 +50,30 @@ type Target struct {
 
 	// TimerName is the name of the timer in the metrics registry
 	TimerName string
+}
+
+func (t *Target) GetRedirectURL(requestURL *url.URL) *url.URL {
+	redirectURL := &url.URL{
+		Scheme:   t.URL.Scheme,
+		Host:     t.URL.Host,
+		Path:     t.URL.Path,
+		RawQuery: t.URL.RawQuery,
+	}
+	if strings.HasSuffix(redirectURL.Host, "$path") {
+		redirectURL.Host = redirectURL.Host[:len(redirectURL.Host)-len("$path")]
+		redirectURL.Path = "$path"
+	}
+	if strings.Contains(redirectURL.Path, "/$path") {
+		redirectURL.Path = strings.Replace(redirectURL.Path, "/$path", "$path", 1)
+	}
+	if strings.Contains(redirectURL.Path, "$path") {
+		redirectURL.Path = strings.Replace(redirectURL.Path, "$path", requestURL.Path, 1)
+		if t.StripPath != "" && strings.HasPrefix(redirectURL.Path, t.StripPath) {
+			redirectURL.Path = redirectURL.Path[len(t.StripPath):]
+		}
+		if redirectURL.RawQuery == "" && requestURL.RawQuery != "" {
+			redirectURL.RawQuery = requestURL.RawQuery
+		}
+	}
+	return redirectURL
 }

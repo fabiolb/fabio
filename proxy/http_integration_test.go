@@ -178,9 +178,9 @@ func TestProxyHost(t *testing.T) {
 }
 
 func TestRedirect(t *testing.T) {
-	routes := "route add mock / http://a.com opts \"redirect=301\"\n"
+	routes := "route add mock / http://a.com/$path opts \"redirect=301\"\n"
 	routes += "route add mock /foo http://a.com/abc opts \"redirect=301\"\n"
-	routes += "route add mock /bar http://b.com opts \"redirect=302\"\n"
+	routes += "route add mock /bar http://b.com/$path opts \"redirect=302 strip=/bar\"\n"
 	tbl, _ := route.NewTable(routes)
 
 	proxy := httptest.NewServer(&HTTPProxy{
@@ -197,8 +197,10 @@ func TestRedirect(t *testing.T) {
 		wantLoc  string
 	}{
 		{req: "/", wantCode: 301, wantLoc: "http://a.com/"},
+		{req: "/aaa/bbb", wantCode: 301, wantLoc: "http://a.com/aaa/bbb"},
 		{req: "/foo", wantCode: 301, wantLoc: "http://a.com/abc"},
 		{req: "/bar", wantCode: 302, wantLoc: "http://b.com"},
+		{req: "/bar/aaa", wantCode: 302, wantLoc: "http://b.com/aaa"},
 	}
 
 	http.DefaultClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
