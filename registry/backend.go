@@ -22,6 +22,10 @@ type Backend interface {
 	// WatchManual watches the registry for changes in the manual
 	// overrides and pushes them if there is a difference.
 	WatchManual() chan string
+
+	// WatchNoRouteHTML watches the registry for changes in the html returned
+	// when a requested route is not found
+	WatchNoRouteHTML() chan string
 }
 
 var Default Backend

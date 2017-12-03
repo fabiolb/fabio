@@ -2,7 +2,13 @@
 // backend which uses statically configured routes.
 package static
 
-import "github.com/fabiolb/fabio/registry"
+import (
+	"io/ioutil"
+	"log"
+
+	"github.com/fabiolb/fabio/registry"
+	"github.com/fabiolb/fabio/route"
+)
 
 type be struct{}
 
@@ -36,5 +42,16 @@ func (b *be) WatchServices() chan string {
 }
 
 func (b *be) WatchManual() chan string {
+	return make(chan string)
+}
+
+// WatchNoRouteHTML implementation that reads the noroute html from a
+// noroute.html file if it exists
+func (b *be) WatchNoRouteHTML() chan string {
+	data, err := ioutil.ReadFile("noroute.html")
+	if err != nil {
+		log.Println("[WARN] No noroute.html to read noroute html from")
+	}
+	route.SetHTML(string(data))
 	return make(chan string)
 }

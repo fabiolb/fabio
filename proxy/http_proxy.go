@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"crypto/tls"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -71,6 +72,10 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t := p.Lookup(r)
 	if t == nil {
 		w.WriteHeader(p.Config.NoRouteStatus)
+		html := route.GetHTML()
+		if html != "" {
+			io.WriteString(w, html)
+		}
 		return
 	}
 

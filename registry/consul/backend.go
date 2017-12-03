@@ -92,6 +92,14 @@ func (b *be) WatchManual() chan string {
 	return kv
 }
 
+func (b *be) WatchNoRouteHTML() chan string {
+	log.Printf("[INFO] consul: Watching KV path %q", b.cfg.NoRouteHTMLPath)
+
+	html := make(chan string)
+	go watchKV(b.c, b.cfg.NoRouteHTMLPath, html)
+	return html
+}
+
 // datacenter returns the datacenter of the local agent
 func datacenter(c *api.Client) (string, error) {
 	self, err := c.Agent().Self()
