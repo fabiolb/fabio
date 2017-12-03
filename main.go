@@ -115,6 +115,8 @@ func main() {
 	initBackend(cfg)
 	startAdmin(cfg)
 
+	go watchNoRouteHTML(cfg)
+
 	first := make(chan bool)
 	go watchBackend(cfg, first)
 	log.Print("[INFO] Waiting for first routing table")
@@ -403,6 +405,21 @@ func watchBackend(cfg *config.Config, first chan bool) {
 		last = next
 
 		once.Do(func() { close(first) })
+	}
+}
+
+func watchNoRouteHTML(cfg *config.Config) {
+	var last string
+	html := registry.Default.WatchNoRouteHTML()
+
+	for {
+		next := <-html
+
+		if next == last {
+			continue
+		}
+		route.SetHTML(next)
+		last = next
 	}
 }
 

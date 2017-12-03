@@ -120,6 +120,7 @@ type Consul struct {
 	Scheme             string
 	Token              string
 	KVPath             string
+	NoRouteHTMLPath    string
 	TagPrefix          string
 	Register           bool
 	ServiceAddr        string
