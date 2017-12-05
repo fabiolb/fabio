@@ -19,6 +19,8 @@
    The `$path` pseudo-variable can be used to include the original request URI
    in the destination target.
 
+   Thanks to [@ctlajoie](https://github.com/ctlajoie) for providing this patch!
+
 ```
 # redirect /foo to https://www.foo.com/
 route add svc /foo https://www.foo.com/ opts "redirect=301"
