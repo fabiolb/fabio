@@ -18,15 +18,16 @@
 // Example:
 //
 //   # http server
-//   ./server -addr 127.0.0.1:5000 -name svc-a -prefix /foo,/bar
-//   ./server -addr 127.0.0.1:5001 -name svc-b -prefix /baz,/bar
+//   ./server -addr 127.0.0.1:5000 -name svc-a -prefix /foo -prefix /bar
+//   ./server -addr 127.0.0.1:5001 -name svc-b -prefix /baz -prefix /bar
+//   ./server -addr 127.0.0.1:5002 -name svc-c -prefix "/gogl redirect=301,https://www.google.de/"
 //
 //   # https server
 //   ./server -addr 127.0.0.1:5000 -name svc-a -proto https -certFile ... -keyFile ... -prefix /foo
 //   ./server -addr 127.0.0.1:5000 -name svc-a -proto https -certFile ... -keyFile ... -prefix "/foo tlsskipverify=true"
 //
 //   # websocket server
-//   ./server -addr 127.0.0.1:6000 -name ws-a -proto ws -prefix /echo1,/echo2
+//   ./server -addr 127.0.0.1:6000 -name ws-a -proto ws -prefix /echo1 -prefix /echo2
 //
 //   # tcp server
 //   ./server -addr 127.0.0.1:7000 -name tcp-a -proto tcp -prefix :1234
@@ -47,51 +48,58 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/net/websocket"
-
 	"github.com/fabiolb/fabio/proxy/tcp"
+
 	"github.com/hashicorp/consul/api"
+	"golang.org/x/net/websocket"
 )
 
 type Args struct {
 	addr     string
 	consul   string
 	name     string
-	prefix   string
 	proto    string
-	rawtags  string
 	token    string
 	certFile string
 	keyFile  string
 	status   int
+	prefixes []string
 	tags     []string
+}
+
+type stringsVar []string
+
+func (s *stringsVar) Set(value string) error {
+	*s = append(*s, value)
+	return nil
+}
+
+func (s stringsVar) String() string {
+	return strings.Join(s, " ")
 }
 
 func main() {
 	var args Args
+
 	flag.StringVar(&args.addr, "addr", "127.0.0.1:5000", "host:port of the service")
 	flag.StringVar(&args.consul, "consul", "127.0.0.1:8500", "host:port of the consul agent")
 	flag.StringVar(&args.name, "name", filepath.Base(os.Args[0]), "name of the service")
-	flag.StringVar(&args.prefix, "prefix", "", "comma-sep list of 'host/path' or ':port' prefixes to register")
 	flag.StringVar(&args.proto, "proto", "http", "protocol for endpoints: http, ws or tcp")
-	flag.StringVar(&args.rawtags, "tags", "", "additional tags to register in consul")
 	flag.StringVar(&args.token, "token", "", "consul ACL token")
 	flag.StringVar(&args.certFile, "cert", "", "path to cert file")
 	flag.StringVar(&args.keyFile, "key", "", "path to key file")
 	flag.IntVar(&args.status, "status", http.StatusOK, "http status code")
+	flag.Var((*stringsVar)(&args.prefixes), "prefix", "'host/path' or ':port' prefix to register. Can be specified multiple times")
+	flag.Var((*stringsVar)(&args.tags), "tags", "additional tags to register in consul. Can be specified multiple times")
 	flag.Parse()
 
-	if args.prefix == "" {
+	if len(args.prefixes) == 0 {
 		flag.Usage()
 		os.Exit(1)
 	}
 
 	if (args.proto == "https" || args.proto == "wss") && args.certFile == "" {
 		log.Fatalf("Proto %s requires a certificate. Please provide -cert/-key", args.proto)
-	}
-
-	if args.rawtags != "" {
-		args.tags = strings.Split(args.rawtags, ",")
 	}
 
 	type server interface {
@@ -180,8 +188,7 @@ func newHTTPServer(args Args) (*http.Server, []string, *api.AgentServiceCheck) {
 		log.Printf("%s -> 404", r.URL)
 	})
 
-	prefixes := strings.Split(args.prefix, ",")
-	for _, p := range prefixes {
+	for _, p := range args.prefixes {
 		uri := strings.Fields(p)[0]
 		switch proto {
 		case "http", "https":
@@ -243,7 +250,7 @@ func WSEchoServer(ws *websocket.Conn) {
 
 func newTCPServer(args Args) (*tcp.Server, []string, *api.AgentServiceCheck) {
 	tags := args.tags
-	for _, p := range strings.Split(args.prefix, ",") {
+	for _, p := range args.prefixes {
 		tags = append(tags, "urlprefix-"+p+" proto=tcp")
 	}
 	check := &api.AgentServiceCheck{TCP: args.addr, Interval: "2s", Timeout: "1s"}
