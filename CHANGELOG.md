@@ -6,6 +6,30 @@
 
 #### Features
 
+ * [Issue #87](https://github.com/fabiolb/fabio/issues/87)/[PR #395](https://github.com/fabiolb/fabio/pull/395): Add redirect support
+
+   This patch adds support to redirect a request for a matching route to
+   another URL. If the `redirect=<code>` option is set on a route fabio will
+   send a redirect response to the dst address with the given code.
+
+   The syntax for the `urlprefix-` tag is slightly different since the
+   destination address is usually generated from the service registration
+   stored in Consul.
+
+   The `$path` pseudo-variable can be used to include the original request URI
+   in the destination target.
+
+```
+# redirect /foo to https://www.foo.com/
+route add svc /foo https://www.foo.com/ opts "redirect=301"
+
+# redirect /foo to https://www.foo.com/
+urlprefix-/foo redirect=301,https://www.foo.com/
+
+# redirect /foo to https://www.foo.com/foo
+urlprefix-/foo redirect=301,https://www.foo.com$path
+```
+
 #### Bug Fixes
 
  * [Issue #385](https://github.com/fabiolb/fabio/issues/385): opts with host= with multiple routes does not work as expected
