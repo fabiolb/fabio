@@ -75,7 +75,22 @@ func TestProxyRequestIDHeader(t *testing.T) {
 	}
 }
 
-func TestProxyNoRouteStaus(t *testing.T) {
+func TestProxyNoRouteHTML(t *testing.T) {
+	want := "<html>503</html>"
+	route.SetHTML(want)
+	proxy := httptest.NewServer(&HTTPProxy{
+		Transport: http.DefaultTransport,
+		Lookup:    func(*http.Request) *route.Target { return nil },
+	})
+	defer proxy.Close()
+
+	_, got := mustGet(proxy.URL)
+	if !bytes.Equal(got, []byte(want)) {
+		t.Fatalf("got %d want %d", got, want)
+	}
+}
+
+func TestProxyNoRouteStatus(t *testing.T) {
 	proxy := httptest.NewServer(&HTTPProxy{
 		Config:    config.Proxy{NoRouteStatus: 999},
 		Transport: http.DefaultTransport,
