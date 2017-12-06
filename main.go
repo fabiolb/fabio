@@ -343,9 +343,9 @@ func initBackend(cfg *config.Config) {
 	for {
 		switch cfg.Registry.Backend {
 		case "file":
-			registry.Default, err = file.NewBackend(cfg.Registry.File.Path)
+			registry.Default, err = file.NewBackend(&cfg.Registry.File)
 		case "static":
-			registry.Default, err = static.NewBackend(cfg.Registry.Static.Routes)
+			registry.Default, err = static.NewBackend(&cfg.Registry.Static)
 		case "consul":
 			registry.Default, err = consul.NewBackend(&cfg.Registry.Consul)
 		default:
