@@ -14,6 +14,7 @@ import (
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/logger"
 	"github.com/fabiolb/fabio/metrics"
+	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy/gzip"
 	"github.com/fabiolb/fabio/route"
 	"github.com/fabiolb/fabio/uuid"
@@ -72,7 +73,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t := p.Lookup(r)
 	if t == nil {
 		w.WriteHeader(p.Config.NoRouteStatus)
-		html := route.GetHTML()
+		html := noroute.GetHTML()
 		if html != "" {
 			io.WriteString(w, html)
 		}
