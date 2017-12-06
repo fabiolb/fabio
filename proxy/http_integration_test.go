@@ -87,7 +87,7 @@ func TestProxyNoRouteHTML(t *testing.T) {
 
 	_, got := mustGet(proxy.URL)
 	if !bytes.Equal(got, []byte(want)) {
-		t.Fatalf("got %d want %d", got, want)
+		t.Fatalf("got %s want %s", got, want)
 	}
 }
 
