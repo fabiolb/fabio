@@ -108,11 +108,13 @@ type Registry struct {
 }
 
 type Static struct {
-	Routes string
+	NoRouteHTMLPath string
+	Routes          string
 }
 
 type File struct {
-	Path string
+	NoRouteHTMLPath string
+	Path            string
 }
 
 type Consul struct {
