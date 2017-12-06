@@ -2,7 +2,6 @@ package route
 
 import (
     "log"
-    "sync"
     "sync/atomic"
 )
 
@@ -24,15 +23,9 @@ func GetHTML() string {
     return store.Load().(HTML).value
 }
 
-// hmu guards the atomic writes in SetHTML.
-var hmu sync.Mutex
-
 // SetHTML sets the current noroute html. The function is safe to be called from
 // multiple goroutines.
 func SetHTML(h string) {
-    hmu.Lock()
-    defer hmu.Unlock()
-
     html := HTML{h}
     store.Store(html)
 
