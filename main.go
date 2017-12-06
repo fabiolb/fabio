@@ -23,6 +23,7 @@ import (
 	"github.com/fabiolb/fabio/exit"
 	"github.com/fabiolb/fabio/logger"
 	"github.com/fabiolb/fabio/metrics"
+	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy"
 	"github.com/fabiolb/fabio/proxy/tcp"
 	"github.com/fabiolb/fabio/registry"
@@ -418,7 +419,7 @@ func watchNoRouteHTML(cfg *config.Config) {
 		if next == last {
 			continue
 		}
-		route.SetHTML(next)
+		noroute.SetHTML(next)
 		last = next
 	}
 }

@@ -20,6 +20,7 @@ import (
 
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/logger"
+	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy/internal"
 	"github.com/fabiolb/fabio/route"
 	"github.com/pascaldekloe/goe/verify"
@@ -77,7 +78,7 @@ func TestProxyRequestIDHeader(t *testing.T) {
 
 func TestProxyNoRouteHTML(t *testing.T) {
 	want := "<html>503</html>"
-	route.SetHTML(want)
+	noroute.SetHTML(want)
 	proxy := httptest.NewServer(&HTTPProxy{
 		Transport: http.DefaultTransport,
 		Lookup:    func(*http.Request) *route.Target { return nil },

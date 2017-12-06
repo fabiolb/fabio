@@ -7,8 +7,8 @@ import (
 	"log"
 
 	"github.com/fabiolb/fabio/config"
+	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/registry"
-	"github.com/fabiolb/fabio/route"
 )
 
 type be struct {
@@ -52,6 +52,6 @@ func (b *be) WatchNoRouteHTML() chan string {
 	if err != nil {
 		log.Printf("[WARN] Could not read NoRouteHTMLPath (%s)", b.cfg.NoRouteHTMLPath)
 	}
-	route.SetHTML(string(data))
+	noroute.SetHTML(string(data))
 	return make(chan string)
 }
