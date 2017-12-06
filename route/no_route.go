@@ -5,29 +5,21 @@ import (
     "sync/atomic"
 )
 
-// HTML Wrapper struct so we can store the html string in an atomic.Value
-type HTML struct {
-    value string
-}
-
-// html stores the no route html string
-var store atomic.Value
+var store atomic.Value // string
 
 func init() {
-    store.Store(HTML{""})
+    store.Store("")
 }
 
-// GetHTML returns the HTML for not found routes. The function is safe to be
-// called from multiple goroutines.
+// GetHTML returns the HTML for not found routes.
 func GetHTML() string {
-    return store.Load().(HTML).value
+    return store.Load().(string)
 }
 
-// SetHTML sets the current noroute html. The function is safe to be called from
-// multiple goroutines.
+// SetHTML sets the current noroute html.
 func SetHTML(h string) {
-    html := HTML{h}
-    store.Store(html)
+    // html := HTML{h}
+    store.Store(h)
 
     if h == "" {
         log.Print("[INFO] Unset noroute HTML")
