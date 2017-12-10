@@ -13,7 +13,6 @@ if [[ -z "$v" ]]; then
 	exit 1
 fi
 
-grep -q "$v" README.md || echo "README.md not updated"
 grep -q "$v" CHANGELOG.md || echo "CHANGELOG.md not updated"
 
 read -p "Release fabio version $v? (y/N) " -n 1 -r
