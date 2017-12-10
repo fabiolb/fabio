@@ -30,8 +30,17 @@ func Listen(fn func(os.Signal)) {
 			var sig os.Signal
 			select {
 			case sig = <-sigchan:
-				if sig == syscall.SIGHUP {
+				switch sig {
+				case syscall.SIGHUP:
+					log.Print("[INFO] Caught SIGHUP. Ignoring")
 					continue
+				case os.Interrupt:
+					log.Print("[INFO] Caught SIGINT. Exiting")
+				case syscall.SIGTERM:
+					log.Print("[INFO] Caught SIGTERM. Exiting")
+				default:
+					// fallthrough in case we forgot to add a switch clause.
+					log.Printf("[INFO] Caught signal %v. Exiting", sig)
 				}
 			case <-quit:
 			}
