@@ -15,14 +15,14 @@ var wg sync.WaitGroup
 var quit = make(chan bool)
 
 // Listen registers an exit handler which is called on
-// SIGINT/SIGKILL/SIGTERM or when Exit/Fatal/Fatalf is called.
+// SIGINT/SIGTERM or when Exit/Fatal/Fatalf is called.
 func Listen(fn func(os.Signal)) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		// we use buffered to mitigate losing the signal
 		sigchan := make(chan os.Signal, 1)
-		signal.Notify(sigchan, os.Interrupt, os.Kill, syscall.SIGTERM)
+		signal.Notify(sigchan, os.Interrupt, syscall.SIGTERM)
 
 		var sig os.Signal
 		select {
