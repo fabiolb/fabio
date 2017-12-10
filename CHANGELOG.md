@@ -4,6 +4,8 @@
 
 #### Breaking Changes
 
+ * None
+
 #### Features
 
  * [Issue #87](https://github.com/fabiolb/fabio/issues/87)/[PR #395](https://github.com/fabiolb/fabio/pull/395): Add redirect support
