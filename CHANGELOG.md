@@ -47,9 +47,13 @@ urlprefix-/foo redirect=301,https://www.foo.com$path
 
 #### Improvements
 
- * [Pull #380](https://github.com/fabiolb/fabio/issues/380): Set X-Forwared-Host header if not present
+ * [PR #380](https://github.com/fabiolb/fabio/pull/380): Set X-Forwared-Host header if not present
 
    Fabio now sets the `X-Forwarded-Host` header if it isn't present.
+
+ * [Issue #400](https://github.com/fabiolb/fabio/issues/400): Do not exit on SIGHUP
+
+   Fabio will now ignore the `SIGHUP` signal. Additionally, the caught signal is logged with the action (exit or ignore).
 
 ### [v1.5.3](https://github.com/fabiolb/fabio/releases/tag/v1.5.3) - 3 Nov 2017
 
