@@ -16,21 +16,29 @@ var quit = make(chan bool)
 
 // Listen registers an exit handler which is called on
 // SIGINT/SIGTERM or when Exit/Fatal/Fatalf is called.
+// SIGHUP is ignored since that is usually used for
+// triggering a reload of configuration which isn't
+// supported but shouldn't kill the process either.
 func Listen(fn func(os.Signal)) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		// we use buffered to mitigate losing the signal
-		sigchan := make(chan os.Signal, 1)
-		signal.Notify(sigchan, os.Interrupt, syscall.SIGTERM)
+		for {
+			sigchan := make(chan os.Signal, 1)
+			signal.Notify(sigchan, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 
-		var sig os.Signal
-		select {
-		case sig = <-sigchan:
-		case <-quit:
-		}
-		if fn != nil {
-			fn(sig)
+			var sig os.Signal
+			select {
+			case sig = <-sigchan:
+				if sig == syscall.SIGHUP {
+					continue
+				}
+			case <-quit:
+			}
+			if fn != nil {
+				fn(sig)
+			}
+			return
 		}
 	}()
 }
