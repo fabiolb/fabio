@@ -33,7 +33,17 @@ for v in "$@" ; do
 	docker tag fabiolb/fabio:$v fabiolb/fabio:latest
 done
 
-echo "Building docker image $tag"
-docker build -q -t $tag .
+docker images | grep '/fabio' | egrep "($v|latest)"
 
-docker images
+read -p "Push docker images? (y/N) " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+	echo "Not pushing images. Exiting"
+	exit 0
+fi
+
+echo "Pushing images..."
+docker push fabiolb/fabio:$v
+docker push fabiolb/fabio:latest
+docker push magiconair/fabio:$v
+docker push magiconair/fabio:latest
