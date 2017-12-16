@@ -3,11 +3,7 @@
 package static
 
 import (
-	"io/ioutil"
-	"log"
-
 	"github.com/fabiolb/fabio/config"
-	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/registry"
 )
 
@@ -45,13 +41,8 @@ func (b *be) WatchManual() chan string {
 	return make(chan string)
 }
 
-// WatchNoRouteHTML implementation that reads the noroute html from a
-// noroute.html file if it exists
 func (b *be) WatchNoRouteHTML() chan string {
-	data, err := ioutil.ReadFile(b.cfg.NoRouteHTMLPath)
-	if err != nil {
-		log.Printf("[WARN] Could not read NoRouteHTMLPath (%s)", b.cfg.NoRouteHTMLPath)
-	}
-	noroute.SetHTML(string(data))
-	return make(chan string)
+	ch := make(chan string, 1)
+	ch <- b.cfg.NoRouteHTML
+	return ch
 }

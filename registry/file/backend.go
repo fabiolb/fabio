@@ -12,11 +12,19 @@ import (
 )
 
 func NewBackend(cfg *config.File) (registry.Backend, error) {
-	data, err := ioutil.ReadFile(cfg.Path)
+	routes, err := ioutil.ReadFile(cfg.RoutesPath)
 	if err != nil {
-		log.Println("[ERROR] Cannot read routes from ", cfg.Path)
+		log.Println("[ERROR] Cannot read routes from ", cfg.RoutesPath)
 		return nil, err
 	}
-	staticCfg := config.Static{cfg.NoRouteHTMLPath, string(data)}
-	return static.NewBackend(&staticCfg)
+	noroutehtml, err := ioutil.ReadFile(cfg.NoRouteHTMLPath)
+	if err != nil {
+		log.Println("[ERROR] Cannot read no route HTML from ", cfg.NoRouteHTMLPath)
+		return nil, err
+	}
+	staticCfg := &config.Static{
+		NoRouteHTML: string(noroutehtml),
+		Routes:      string(routes),
+	}
+	return static.NewBackend(staticCfg)
 }
