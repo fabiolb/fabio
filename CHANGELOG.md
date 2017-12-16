@@ -1,5 +1,20 @@
 ## Changelog
 
+### Unreleased
+
+#### Breaking Changes
+
+#### Features
+
+ * [PR #398](https://github.com/fabiolb/fabio/pull/398): Add custom no route HTML page
+
+   This patch adds support for a custom HTML template stored in Consul or on the file system which will be returned when
+   there is no route.
+
+#### Bug Fixes
+
+#### Improvements
+
 ### [v1.5.4](https://github.com/fabiolb/fabio/releases/tag/v1.5.4) - 10 Dec 2017
 
 #### Breaking Changes
