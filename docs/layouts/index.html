@@ -1,0 +1,15 @@
+{{partial "header" .}}
+
+<main class="container">
+  <div class="row">
+    {{partial "sidebar" .}}
+    <article class="col-sm-9 main-content" role="main">
+      <section>
+        <h2>{{.Title}}</h2>
+        {{.Content}}
+      </section>
+    </article>
+  </div>
+</main>
+
+{{partial "footer" .}}
