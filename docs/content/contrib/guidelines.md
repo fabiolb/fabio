@@ -1,5 +1,5 @@
 ---
-title: "Contribution Guidelines"
+title: "Guidelines"
 weight: 100
 ---
 

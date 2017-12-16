@@ -1,10 +1,10 @@
 ---
-title: "Developing"
+title: "Development"
 weight: 200
 ---
 
 For newcomers to Go, you can't just git clone your forked repo and work from
-there, due to how Go's GOPATH works. Follow the following steps to easily get
+there, due to how Go's `GOPATH` works. Follow the following steps to easily get
 started.
 
 1. Fork this repository to your own account (named "myfork" below)

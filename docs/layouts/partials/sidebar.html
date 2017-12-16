@@ -1,15 +1,15 @@
 {{$currentPage := .}}
 <aside class="col-sm-3 sidebar sidebar-line">
 
-  <ul class="nav sidenav dropable sticky">
+  <ul class="nav sidenav sticky">
     {{range .Site.Sections}}
     {{$section := .}}
     <li>
-      <a{{if eq $currentPage.URL .URL}} class="active"{{end}} href="{{.URL}}">{{.Title}}</a>
-      {{if .Pages}}
-      <ul>
+      <a class="{{if eq $currentPage.URL .URL}} active{{end}}" href="{{.URL}}">{{.Title}}</a>
+      {{if and .Pages (hasPrefix $currentPage.URL $section.URL)}}
+      <ul class="open">
       {{range .Pages}}
-        <li><a href="#{{printf "%s %s" $section.Title .Title | urlize}}">{{.Title}}</a></li>
+        <li><a{{if eq $currentPage.URL .URL}} class="active"{{end}} href="{{.URL}}">{{.Title}}</a></li>
       {{end}}
       </ul>
       {{end}}
