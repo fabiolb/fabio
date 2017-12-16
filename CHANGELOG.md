@@ -11,6 +11,8 @@
    This patch adds support for a custom HTML template stored in Consul or on the file system which will be returned when
    there is no route.
 
+   Thanks to [@tino](https://github.com/tino) for the patch!
+
 #### Bug Fixes
 
 #### Improvements
