@@ -23,6 +23,7 @@ import (
 	"github.com/fabiolb/fabio/exit"
 	"github.com/fabiolb/fabio/logger"
 	"github.com/fabiolb/fabio/metrics"
+	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy"
 	"github.com/fabiolb/fabio/proxy/tcp"
 	"github.com/fabiolb/fabio/registry"
@@ -114,6 +115,8 @@ func main() {
 	initRuntime(cfg)
 	initBackend(cfg)
 	startAdmin(cfg)
+
+	go watchNoRouteHTML(cfg)
 
 	first := make(chan bool)
 	go watchBackend(cfg, first)
@@ -341,9 +344,9 @@ func initBackend(cfg *config.Config) {
 	for {
 		switch cfg.Registry.Backend {
 		case "file":
-			registry.Default, err = file.NewBackend(cfg.Registry.File.Path)
+			registry.Default, err = file.NewBackend(&cfg.Registry.File)
 		case "static":
-			registry.Default, err = static.NewBackend(cfg.Registry.Static.Routes)
+			registry.Default, err = static.NewBackend(&cfg.Registry.Static)
 		case "consul":
 			registry.Default, err = consul.NewBackend(&cfg.Registry.Consul)
 		default:
@@ -403,6 +406,21 @@ func watchBackend(cfg *config.Config, first chan bool) {
 		last = next
 
 		once.Do(func() { close(first) })
+	}
+}
+
+func watchNoRouteHTML(cfg *config.Config) {
+	var last string
+	html := registry.Default.WatchNoRouteHTML()
+
+	for {
+		next := <-html
+
+		if next == last {
+			continue
+		}
+		noroute.SetHTML(next)
+		last = next
 	}
 }
 
