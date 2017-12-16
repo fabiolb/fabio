@@ -428,7 +428,14 @@ func TestLoad(t *testing.T) {
 		{
 			args: []string{"-registry.file.path", "value"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Registry.File.Path = "value"
+				cfg.Registry.File.RoutesPath = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.file.noroutehtmlpath", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.File.NoRouteHTMLPath = "value"
 				return cfg
 			},
 		},
@@ -436,6 +443,13 @@ func TestLoad(t *testing.T) {
 			args: []string{"-registry.static.routes", "value"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Registry.Static.Routes = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.static.noroutehtml", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Static.NoRouteHTML = "value"
 				return cfg
 			},
 		},
@@ -482,6 +496,13 @@ func TestLoad(t *testing.T) {
 			args: []string{"-registry.consul.kvpath", "/some/path"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Registry.Consul.KVPath = "/some/path"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.noroutehtmlpath", "/some/path"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.NoRouteHTMLPath = "/some/path"
 				return cfg
 			},
 		},

@@ -410,17 +410,18 @@ func watchBackend(cfg *config.Config, first chan bool) {
 }
 
 func watchNoRouteHTML(cfg *config.Config) {
-	var last string
 	html := registry.Default.WatchNoRouteHTML()
-
 	for {
 		next := <-html
-
-		if next == last {
+		if next == noroute.GetHTML() {
 			continue
 		}
 		noroute.SetHTML(next)
-		last = next
+		if next == "" {
+			log.Print("[INFO] Unset noroute HTML")
+		} else {
+			log.Printf("[INFO] Set noroute HTML (%d bytes)", len(next))
+		}
 	}
 }
 
