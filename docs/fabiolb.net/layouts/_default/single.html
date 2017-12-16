@@ -1,0 +1,27 @@
+{{partial "header" .}}
+
+<main class="container">
+  <div class="row">
+    {{partial "sidebar" .}}
+
+    <!-- Main content -->
+    <article class="col-sm-9 main-content" role="main">
+
+      {{$section := .}}
+      <section>
+        <h2>{{.Title}}</h2>
+        {{.Content}}
+        {{range .Pages}}
+        <h3 id="{{printf "%s %s" $section.Title .Title | urlize}}">{{.Title}} <a href="#top">^</a></h3>
+          {{if .Params.since}}<p class="since">{{.Params.since}}</p>{{end}}
+          {{.Content}}
+        {{end}}
+      </section>
+
+    </article>
+    <!-- END Main content -->
+
+  </div>
+</main>
+
+{{partial "footer" .}}
