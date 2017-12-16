@@ -7,6 +7,6 @@ title: "proxy.header.tls"
 When set to a non-empty value the proxy will set this header on every
 TLS request to the value of [proxy.header.tls.value](/ref/proxy.header.tls.value/)
 
-#### Default
+The default is
 
     proxy.header.tls =

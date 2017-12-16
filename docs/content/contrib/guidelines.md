@@ -3,11 +3,14 @@ title: "Guidelines"
 weight: 100
 ---
 
-Your contribution is welcome. To make merging code as seamless as possible
+### Your contribution is welcome!
+
+To make merging code as seamless as possible
 we ask for the following:
 
 * For small changes and bug fixes go ahead, fork the project, make your changes
-  and send a pull request.
+  and send a pull request. Check out the [Development](/contrib/development/)
+  page for some useful tips.
 * Larger changes should start with a proposal in an issue. This should ensure
   that the requested change is in line with the project and similar work is not
   already underway.

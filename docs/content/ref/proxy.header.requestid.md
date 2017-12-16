@@ -6,7 +6,7 @@ title: "proxy.header.requestid"
 When set non-empty value the proxy will set this header on every request to the
 unique UUID value.
 
-#### Default
+The default is
 
     proxy.header.requestid =
 

@@ -8,6 +8,6 @@ After a signal is caught the proxy will immediately suspend
 routing traffic and respond with a `503 Service Unavailable`
 for the duration of the given period.
 
-#### Default
+The default is
 
     proxy.shutdownwait = 0s

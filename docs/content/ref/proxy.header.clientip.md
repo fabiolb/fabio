@@ -6,7 +6,7 @@ title: "proxy.header.clientip"
 
 The remote ip address is taken from [http.Request.RemoteAddr](https://golang.org/pkg/net/http/#Request.RemoteAddr).
 
-#### Default
+The default is
 
     proxy.header.clientip =
 

@@ -8,6 +8,6 @@ to the Header configured by [`header.clientip`](/ref/header.clientip/) and to th
 The local non-loopback address is detected during startup
 but can be overwritten with this property.
 
-#### Default
+The default is
 
     proxy.localip =

@@ -6,6 +6,6 @@ title: "proxy.dialtimeout"
 outgoing connections by setting the [Timeout](https://golang.org/pkg/net/#Dialer.Timeout)
 of the [net.Dialer](https://golang.org/pkg/net/#Dialer)
 
-#### Default
+The default is
 
     proxy.dialtimeout = 30s

@@ -11,7 +11,7 @@ title: "proxy.strategy"
 * `rr`:  round-robin distribution
   configures a round-robin distribution.
 
-#### Default
+The default is
 
     proxy.strategy = rnd
 

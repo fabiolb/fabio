@@ -2,6 +2,6 @@
 
 This configures the KeepAliveTimeout of the network dialer.
 
-#### Default
+The default is
 
     proxy.keepalivetimeout     = 0s

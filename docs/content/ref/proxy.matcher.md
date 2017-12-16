@@ -8,6 +8,6 @@ title: "proxy.matcher"
 * `prefix`: prefix matching
 * `glob`:  glob matching
 
-#### Default
+The default is
 
     proxy.matcher = prefix

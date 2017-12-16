@@ -83,6 +83,6 @@ to the destination without decrypting the traffic.
     # TCP listener on port 443 with SNI routing
     proxy.addr = :443;proto=tcp+sni
 
-#### Default value
+The default is
 
     proxy.addr = :9999

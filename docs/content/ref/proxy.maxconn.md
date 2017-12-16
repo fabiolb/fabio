@@ -8,7 +8,7 @@ incoming and outgoing connections.
 This configures the [MaxConnsPerHost](https://golang.org/pkg/net/http/#Transport.MaxConnsPerHost)
 of the [http.Transport](https://golang.org/pkg/net/http/#Transport).
 
-#### Default
+The default is
 
     proxy.maxconn = 10000
 
