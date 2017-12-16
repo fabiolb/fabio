@@ -39,7 +39,10 @@ func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix str
 	// map service name to list of service passing for which the health check is ok
 	m := map[string]map[string]bool{}
 	for _, check := range checks {
-		name, id := check.ServiceName, check.ServiceID
+		// Make the node part of the id, because according to the Consul docs
+		// the ServiceID is unique per agent but not cluster wide
+		// https://www.consul.io/api/agent/service.html#id
+		name, id := check.ServiceName, check.ServiceID+check.Node
 
 		if _, ok := m[name]; !ok {
 			m[name] = map[string]bool{}
@@ -85,7 +88,7 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 	for _, svc := range svcs {
 		// check if the instance is in the list of instances
 		// which passed the health check
-		if _, ok := passing[svc.ServiceID]; !ok {
+		if _, ok := passing[svc.ServiceID+svc.Node]; !ok {
 			continue
 		}
 

@@ -34,7 +34,7 @@ func passingServices(checks []*api.HealthCheck, status []string) []*api.HealthCh
 				log.Printf("[DEBUG] consul: Skipping service %q since node %q is in maintenance mode: %s", svc.ServiceID, svc.Node, c.Output)
 				goto skip
 			}
-			if c.CheckID == "_service_maintenance:"+svc.ServiceID && c.Status == "critical" {
+			if c.CheckID == "_service_maintenance:"+svc.ServiceID && c.Node == svc.Node && c.Status == "critical" {
 				log.Printf("[DEBUG] consul: Skipping service %q since it is in maintenance mode: %s", svc.ServiceID, c.Output)
 				goto skip
 			}
