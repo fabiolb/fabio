@@ -1,8 +1,6 @@
 ## Changelog
 
-### Unreleased
-
-#### Breaking Changes
+### [v1.5.5](https://github.com/fabiolb/fabio/releases/tag/v1.5.5) - 21 Dec 2017
 
 #### Features
 
@@ -12,10 +10,6 @@
    there is no route.
 
    Thanks to [@tino](https://github.com/tino) for the patch!
-
-#### Bug Fixes
-
-#### Improvements
 
 ### [v1.5.4](https://github.com/fabiolb/fabio/releases/tag/v1.5.4) - 10 Dec 2017
 
