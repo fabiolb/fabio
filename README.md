@@ -43,25 +43,25 @@ It integrates with
 [Amazon API Gateway](https://aws.amazon.com/api-gateway/)
 and more.
 
-It supports ([Full feature list](https://github.com/fabiolb/fabio/wiki/Features))
+It supports ([Full feature list](https://fabiolb.net/feature/))
 
-* [TLS termination with dynamic certificate stores](https://github.com/fabiolb/fabio/wiki/Features#certificate-stores)
-* [Raw TCP proxy](https://github.com/fabiolb/fabio/wiki/Features#tcp-proxy-support)
-* [TCP+SNI proxy for full end-to-end TLS](https://github.com/fabiolb/fabio/wiki/Features#tcpsni-proxy-support) without decryption
-* [HTTPS upstream support](https://github.com/fabiolb/fabio/wiki/Features#https-upstream-support)
-* [Websockets](https://github.com/fabiolb/fabio/wiki/Features#websocket-support) and
-  [SSE](https://github.com/fabiolb/fabio/wiki/Features#sse---server-sent-events)
-* [Dynamic reloading without restart](https://github.com/fabiolb/fabio/wiki/Features#dynamic-reloading)
-* [Traffic shaping](https://github.com/fabiolb/fabio/wiki/Features#traffic-shaping) for "blue/green" deployments,
-* [Circonus](https://github.com/fabiolb/fabio/wiki/Features#metrics-support),
-  [Graphite](https://github.com/fabiolb/fabio/wiki/Features#metrics-support) and
-  [StatsD/DataDog](https://github.com/fabiolb/fabio/wiki/Features#metrics-support) metrics
-* [WebUI](https://github.com/fabiolb/fabio/wiki/Features#web-ui)
+* [TLS termination with dynamic certificate stores](https://fabiolb.net/feature/certificate-stores/)
+* [Raw TCP proxy](https://fabiolb.net/feature/tcp-proxy/)
+* [TCP+SNI proxy for full end-to-end TLS](https://fabiolb.net/feature/tcp-sni-proxy/) without decryption
+* [HTTPS upstream support](https://fabiolb.net/feature/https-upstream/)
+* [Websockets](https://fabiolb.net/feature/websocket-support/) and
+  [SSE](https://fabiolb.net/feature/sse/)
+* [Dynamic reloading without restart](https://fabiolb.net/feature/dynamic-reloading/)
+* [Traffic shaping](https://fabiolb.net/feature/traffic-shaping/) for "blue/green" deployments,
+* [Circonus](https://fabiolb.net/feature/metrics/),
+  [Graphite](https://fabiolb.net/feature/metrics/) and
+  [StatsD/DataDog](https://fabiolb.net/feature/metrics/) metrics
+* [WebUI](https://fabiolb.net/feature/web-ui/)
 
 [Watch](https://www.youtube.com/watch?v=gf43TcWjBrE&list=PL81sUbsFNc5b-Gd59Lpz7BW0eHJBt0GvE&index=1)
 Kelsey Hightower demo Consul, Nomad, Vault and fabio at HashiConf EU 2016.
 
-The full documentation is on the [Wiki](https://github.com/fabiolb/fabio/wiki).
+The full documentation is on [fabiolb.net](https://fabiolb.net/)
 
 ## Getting started
 
@@ -112,7 +112,7 @@ urlprefix-:3306 proto=tcp                          # route external port 3306
    Try starting/stopping your service to see how the routing table changes instantly.
 
 6. Send all your HTTP traffic to fabio on port `9999`.
-   For TCP proxying see [TCP proxy](https://github.com/fabiolb/fabio/wiki/Features#tcp-proxy-support).
+   For TCP proxying see [TCP proxy](https://fabiolb.net/feature/tcp-proxy/).
 
 7. Done
 
