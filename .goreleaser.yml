@@ -1,6 +1,6 @@
 builds:
   -
-    binary: release-test
+    binary: fabio
     env:
       - CGO_ENABLED=0
     goos:
