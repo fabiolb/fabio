@@ -17,3 +17,4 @@ fabio
 fabio.sublime-*
 demo/cert/
 pkg/
+dist/

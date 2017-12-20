@@ -1,9 +1,14 @@
 
+CUR_TAG = $(shell git describe)
+LAST_TAG = $(shell git describe --abbrev=0)
+
 # do not specify a full path for go since travis will fail
 GO = GOGC=off go
-GOFLAGS = -ldflags "-X main.version=$(shell git describe --tags)"
+GOFLAGS = -ldflags "-X main.version=$(CUR_TAG)"
+GORELEASER = $(shell which goreleaser)
 GOVENDOR = $(shell which govendor)
 VENDORFMT = $(shell which vendorfmt)
+GOVERSION = $(shell go version | awk '{print $$3;}')
 
 all: build test
 
@@ -15,6 +20,7 @@ help:
 	@echo "vet       - go vet"
 	@echo "linux     - go build linux/amd64"
 	@echo "release   - build/release.sh"
+	@echo "gorelease - goreleaser"
 	@echo "homebrew  - build/homebrew.sh"
 	@echo "buildpkg  - build/build.sh"
 	@echo "pkg       - build, test and create pkg/fabio.tar.gz"
@@ -34,6 +40,16 @@ checkdeps:
 vendorfmt:
 	[ -x "$(VENDORFMT)" ] || $(GO) get -u github.com/magiconair/vendorfmt/cmd/vendorfmt
 	vendorfmt
+
+tag:
+	build/tag.sh
+
+gorelease:
+	[ -x "$(GORELEASER)" ] || ( echo "goreleaser not installed"; exit 1)
+	[ "$(CUR_TAG)" == "$(LAST_TAG)" ] || ( echo "master not tagged. Last tag is $(LAST_TAG)" ; exit 1 )
+	grep -q "$(LAST_TAG)" CHANGELOG.md main.go || ( echo "CHANGELOG.md or main.go not updated. $(LAST_TAG) not found"; exit 1 )
+	GOVERSION=$(GOVERSION) goreleaser --rm-dist
+	build/homebrew.sh $(LAST_TAG)
 
 gofmt:
 	gofmt -s -w `find . -type f -name '*.go' | grep -v vendor`

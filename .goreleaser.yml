@@ -1,0 +1,34 @@
+builds:
+  -
+    binary: release-test
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - freebsd
+      - netbsd
+      - openbsd
+    goarch:
+      - 386
+      - amd64
+      - arm
+
+archive:
+  name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Env.GOVERSION }}-{{ .Os }}_{{ .Arch }}'
+  format: binary
+
+checksum:
+  name_template: '{{.ProjectName}}-{{ .Env.GOVERSION }}-{{.Version}}.sha256'
+
+sign:
+  artifacts: checksum
+
+dockers:
+  - image: fabiolb/fabio
+    latest: true
+    tag_template: '{{ .Version }}-{{ .Env.GOVERSION }}'
+  - image: magiconair/fabio
+    latest: true
+    tag_template: '{{ .Version }}-{{ .Env.GOVERSION }}'
+
