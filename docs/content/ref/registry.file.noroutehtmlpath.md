@@ -2,8 +2,7 @@
 title: "registry.file.noroutehtmlpath"
 ---
 
-`registry.file.noroutehtmlpath` configures the KV path for the HTML of the
-noroutes page.
+`registry.file.noroutehtmlpath` configures the path the HTML page when no route was found.
 
 The default is
 

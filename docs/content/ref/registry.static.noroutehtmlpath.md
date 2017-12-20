@@ -1,9 +1,8 @@
 ---
-title: "registry.static.noroutehtmlpath"
+title: "registry.static.noroutehtml"
 ---
 
-`registry.static.noroutehtmlpath` configures the KV path for the HTML of the
-noroutes page.
+`registry.static.noroutehtml` configures the the HTML for the page when no route was found.
 
 The default is
 
