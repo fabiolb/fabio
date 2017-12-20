@@ -14,6 +14,7 @@ if [[ -z "$v" ]] ; then
 	echo "Usage: $0 <version> (e.g. 1.0.4)"
 	exit 1
 fi
+v=${v/v/}
 
 srcurl=https://github.com/fabiolb/fabio/archive/v${v}.tar.gz
 shasum=$(wget -O- -q "$srcurl" | shasum -a 256 | awk '{ print $1; }')
@@ -30,7 +31,7 @@ brew update
 	git push --set-upstream magiconair fabio-$v
 )
 
-echo "Goto https://github.com/Homebrew/homebrew-core to create pull request"
-open https://github.com/Homebrew/homebrew-core
+echo "Goto https://github.com/magiconair/homebrew-core to create pull request"
+open https://github.com/magiconair/homebrew-core
 
 exit 0
