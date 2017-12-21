@@ -1,7 +1,8 @@
 ---
 title: Request Tracing
-since: "1.0"
 ---
+
+#### How do I see which routes fabio is matching for a request?
 
 To trace how a request is routed you can add a `Trace` header with an non-
 empty value which is truncated at 16 characters to keep the log output short.

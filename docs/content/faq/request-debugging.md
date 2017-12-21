@@ -1,10 +1,8 @@
 ---
-title: "Request Debugging"
-since: "1.0"
+title: "Test fabio with curl"
 ---
 
-To send a request from the command line via the fabio using `curl`
-you should send it as follows:
+##### How do I send a request to fabio via `curl`?
 
 ```
 curl -v -H 'Host: foo.com' 'http://localhost:9999/path'
