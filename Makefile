@@ -41,16 +41,6 @@ vendorfmt:
 	[ -x "$(VENDORFMT)" ] || $(GO) get -u github.com/magiconair/vendorfmt/cmd/vendorfmt
 	vendorfmt
 
-tag:
-	build/tag.sh
-
-gorelease:
-	[ -x "$(GORELEASER)" ] || ( echo "goreleaser not installed"; exit 1)
-	[ "$(CUR_TAG)" == "$(LAST_TAG)" ] || ( echo "master not tagged. Last tag is $(LAST_TAG)" ; exit 1 )
-	grep -q "$(LAST_TAG)" CHANGELOG.md main.go || ( echo "CHANGELOG.md or main.go not updated. $(LAST_TAG) not found"; exit 1 )
-	GOVERSION=$(GOVERSION) goreleaser --rm-dist
-	build/homebrew.sh $(LAST_TAG)
-
 gofmt:
 	gofmt -s -w `find . -type f -name '*.go' | grep -v vendor`
 
@@ -71,8 +61,22 @@ pkg: build test
 release: test
 	build/release.sh
 
+ship: tag gorelease homebrew docker
+
+tag:
+	build/tag.sh
+
+gorelease:
+	[ -x "$(GORELEASER)" ] || ( echo "goreleaser not installed"; exit 1)
+	[ "$(CUR_TAG)" == "$(LAST_TAG)" ] || ( echo "master not tagged. Last tag is $(LAST_TAG)" ; exit 1 )
+	grep -q "$(LAST_TAG)" CHANGELOG.md main.go || ( echo "CHANGELOG.md or main.go not updated. $(LAST_TAG) not found"; exit 1 )
+	GOVERSION=$(GOVERSION) goreleaser --rm-dist
+
 homebrew:
-	build/homebrew.sh
+	build/homebrew.sh $(LAST_TAG)
+
+docker:
+	build/docker.sh $(LAST_TAG)-$(GOVERSION)
 
 codeship:
 	go version
