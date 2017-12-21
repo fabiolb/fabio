@@ -26,11 +26,14 @@ func passingServices(checks []*api.HealthCheck, status []string) []*api.HealthCh
 		// then check whether the agent is still alive and both the
 		// node and the service are not in maintenance mode.
 		for _, c := range checks {
-			if c.CheckID == "serfHealth" && c.Node == svc.Node && c.Status == "critical" {
+			if c.Node != svc.Node {
+				continue
+			}
+			if c.CheckID == "serfHealth" && c.Status == "critical" {
 				log.Printf("[DEBUG] consul: Skipping service %q since agent on node %q is down: %s", svc.ServiceID, svc.Node, c.Output)
 				goto skip
 			}
-			if c.CheckID == "_node_maintenance" && c.Node == svc.Node {
+			if c.CheckID == "_node_maintenance" {
 				log.Printf("[DEBUG] consul: Skipping service %q since node %q is in maintenance mode: %s", svc.ServiceID, svc.Node, c.Output)
 				goto skip
 			}
