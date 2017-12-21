@@ -89,13 +89,6 @@ codeship:
 	consul --version
 	cd ~/src/github.com/fabiolb/fabio && make test
 
-fabio-builder: make-fabio-builder push-fabio-builder
-
-make-fabio-builder:
-	docker build -t fabiolb/fabio-builder --squash build/fabio-builder
-
-push-fabio-builder:
-	docker push fabiolb/fabio-builder
 
 buildpkg: test
 	build/build.sh
