@@ -1,6 +1,25 @@
 ## Changelog
 
+### Unreleased
+
+#### Breaking Changes
+
+#### Features
+
+#### Improvements
+
+ * [PR #415](https://github.com/fabiolb/fabio/pull/415): Honor the `-version` flag
+ 
+   `fabio -version` does now what you would expect it to do.
+
+#### Bug Fixes
+
+
 ### [v1.5.5](https://github.com/fabiolb/fabio/releases/tag/v1.5.5) - 21 Dec 2017
+
+#### Breaking Changes
+
+ * None
 
 #### Features
 
