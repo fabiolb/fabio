@@ -25,7 +25,7 @@ fi
 for v in "$@" ; do
 	echo "Building docker image fabiolb/fabio:$v"
 	(
-		cp build/builds/fabio-${v/-*/}/fabio-${v}-linux_amd64 fabio
+		cp dist/linuxamd64/fabio fabio
 		docker build -q -t fabiolb/fabio:${v} .
 	)
 	docker tag fabiolb/fabio:$v magiconair/fabio:$v
