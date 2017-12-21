@@ -13,7 +13,7 @@
 	Since version 1.0 fabio required all service ids in Consul to be globally
 	unique although service ids only have to be unique per Consul agent. This patch fixes this.
 
-	Thanks @dropje86 and @alvaroaleman for the patch!
+	Thanks to [@dropje86](https://github.com/dropje86) and [@alvaroaleman](https://github.com/alvaroaleman) for the patch!
 
  * [PR #415](https://github.com/fabiolb/fabio/pull/415): Honor the `-version` flag
  
