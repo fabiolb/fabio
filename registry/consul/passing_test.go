@@ -9,16 +9,16 @@ import (
 
 func TestPassingServices(t *testing.T) {
 	var (
-		serfPass     = &api.HealthCheck{Node: "node", CheckID: "serfHealth", Status: "passing"}
-		serfFail     = &api.HealthCheck{Node: "node", CheckID: "serfHealth", Status: "critical"}
-		svc1Pass     = &api.HealthCheck{Node: "node", CheckID: "service:abc", Status: "passing", ServiceName: "abc", ServiceID: "abc-1"}
-		svc1N2Pass   = &api.HealthCheck{Node: "node2", CheckID: "service:abc", Status: "passing", ServiceName: "abc", ServiceID: "abc-1"}
-		svc1Warn     = &api.HealthCheck{Node: "node", CheckID: "service:abc", Status: "warning", ServiceName: "abc", ServiceID: "abc-2"}
-		svc1Crit     = &api.HealthCheck{Node: "node", CheckID: "service:abc", Status: "critical", ServiceName: "abc", ServiceID: "abc-3"}
-		svc2Pass     = &api.HealthCheck{Node: "node", CheckID: "my-check-id", Status: "passing", ServiceName: "def", ServiceID: "def-1"}
-		svc1Maint    = &api.HealthCheck{Node: "node", CheckID: "_service_maintenance:abc-1", Status: "critical", ServiceName: "abc", ServiceID: "abc-1"}
-		svc1ID2Maint = &api.HealthCheck{Node: "node", CheckID: "_service_maintenance:abc-2", Status: "critical", ServiceName: "abc", ServiceID: "abc-2"}
-		nodeMaint    = &api.HealthCheck{Node: "node", CheckID: "_node_maintenance", Status: "critical"}
+		serfPass      = &api.HealthCheck{Node: "node", CheckID: "serfHealth", Status: "passing"}
+		serfFail      = &api.HealthCheck{Node: "node", CheckID: "serfHealth", Status: "critical"}
+		svc1Pass      = &api.HealthCheck{Node: "node", CheckID: "service:abc", Status: "passing", ServiceName: "abc", ServiceID: "abc-1"}
+		svc1Node2Pass = &api.HealthCheck{Node: "node2", CheckID: "service:abc", Status: "passing", ServiceName: "abc", ServiceID: "abc-1"}
+		svc1Warn      = &api.HealthCheck{Node: "node", CheckID: "service:abc", Status: "warning", ServiceName: "abc", ServiceID: "abc-2"}
+		svc1Crit      = &api.HealthCheck{Node: "node", CheckID: "service:abc", Status: "critical", ServiceName: "abc", ServiceID: "abc-3"}
+		svc2Pass      = &api.HealthCheck{Node: "node", CheckID: "my-check-id", Status: "passing", ServiceName: "def", ServiceID: "def-1"}
+		svc1Maint     = &api.HealthCheck{Node: "node", CheckID: "_service_maintenance:abc-1", Status: "critical", ServiceName: "abc", ServiceID: "abc-1"}
+		svc1ID2Maint  = &api.HealthCheck{Node: "node", CheckID: "_service_maintenance:abc-2", Status: "critical", ServiceName: "abc", ServiceID: "abc-2"}
+		nodeMaint     = &api.HealthCheck{Node: "node", CheckID: "_node_maintenance", Status: "critical"}
 	)
 
 	tests := []struct {
@@ -37,7 +37,7 @@ func TestPassingServices(t *testing.T) {
 		{[]string{"passing"}, []*api.HealthCheck{serfFail, nodeMaint, svc1Maint, svc1Pass}, nil},
 		{[]string{"passing"}, []*api.HealthCheck{svc1ID2Maint, svc1Pass}, []*api.HealthCheck{svc1Pass}},
 		{[]string{"passing"}, []*api.HealthCheck{svc1Maint, svc1Pass, svc2Pass}, []*api.HealthCheck{svc2Pass}},
-		{[]string{"passing"}, []*api.HealthCheck{svc1Maint, svc1N2Pass}, []*api.HealthCheck{svc1N2Pass}},
+		{[]string{"passing"}, []*api.HealthCheck{svc1Maint, svc1Node2Pass}, []*api.HealthCheck{svc1Node2Pass}},
 		{[]string{"passing", "warning"}, []*api.HealthCheck{serfPass, svc1Pass, svc1Crit}, []*api.HealthCheck{svc1Pass}},
 		{[]string{"passing", "warning"}, []*api.HealthCheck{serfPass, svc1Warn, svc1Crit}, []*api.HealthCheck{svc1Warn}},
 		{[]string{"passing", "warning"}, []*api.HealthCheck{serfPass, svc1Pass, svc1Warn}, []*api.HealthCheck{svc1Pass, svc1Warn}},
