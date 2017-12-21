@@ -42,7 +42,7 @@ func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix str
 		// Make the node part of the id, because according to the Consul docs
 		// the ServiceID is unique per agent but not cluster wide
 		// https://www.consul.io/api/agent/service.html#id
-		name, id := check.ServiceName, check.ServiceID+check.Node
+		name, id := check.ServiceName, fmt.Sprintf("%s.%s", check.Node, check.ServiceID)
 
 		if _, ok := m[name]; !ok {
 			m[name] = map[string]bool{}
@@ -88,7 +88,7 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 	for _, svc := range svcs {
 		// check if the instance is in the list of instances
 		// which passed the health check
-		if _, ok := passing[svc.ServiceID+svc.Node]; !ok {
+		if _, ok := passing[fmt.Sprintf("%s.%s", svc.Node, svc.ServiceID)]; !ok {
 			continue
 		}
 
