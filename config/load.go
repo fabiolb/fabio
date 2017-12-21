@@ -59,7 +59,7 @@ func parse(args []string) (cmdline []string, path string, version bool, err erro
 
 		switch {
 		// version flag
-		case arg == "-v" || arg == "--version":
+		case arg == "-v" || arg == "-version" || arg == "--version":
 			return nil, "", true, nil
 
 		// config file without '='
