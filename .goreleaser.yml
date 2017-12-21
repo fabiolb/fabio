@@ -28,7 +28,6 @@ dockers:
   - image: fabiolb/fabio
     latest: true
     tag_template: '{{ .Version }}-{{ .Env.GOVERSION }}'
-  - image: magiconair/fabio
-    latest: true
-    tag_template: '{{ .Version }}-{{ .Env.GOVERSION }}'
-
+    extra_files:
+      - build/ca-certificates.crt
+      - fabio.properties
