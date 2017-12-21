@@ -37,6 +37,7 @@ func TestPassingServices(t *testing.T) {
 		{[]string{"passing"}, []*api.HealthCheck{serfFail, nodeMaint, svc1Maint, svc1Pass}, nil},
 		{[]string{"passing"}, []*api.HealthCheck{svc1ID2Maint, svc1Pass}, []*api.HealthCheck{svc1Pass}},
 		{[]string{"passing"}, []*api.HealthCheck{svc1Maint, svc1Pass, svc2Pass}, []*api.HealthCheck{svc2Pass}},
+		{[]string{"passing"}, []*api.HealthCheck{svc1Crit, svc1Node2Pass}, []*api.HealthCheck{svc1Node2Pass}},
 		{[]string{"passing"}, []*api.HealthCheck{svc1Maint, svc1Node2Pass}, []*api.HealthCheck{svc1Node2Pass}},
 		{[]string{"passing", "warning"}, []*api.HealthCheck{serfPass, svc1Pass, svc1Crit}, []*api.HealthCheck{svc1Pass}},
 		{[]string{"passing", "warning"}, []*api.HealthCheck{serfPass, svc1Warn, svc1Crit}, []*api.HealthCheck{svc1Warn}},
