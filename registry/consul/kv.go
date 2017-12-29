@@ -15,7 +15,7 @@ func watchKV(client *api.Client, path string, config chan string) {
 	var lastValue string
 
 	for {
-		value, index, err := getKV(client, path, lastIndex)
+		value, index, err := listKV(client, path, lastIndex)
 		if err != nil {
 			log.Printf("[WARN] consul: Error fetching config from %s. %v", path, err)
 			time.Sleep(time.Second)
@@ -28,6 +28,23 @@ func watchKV(client *api.Client, path string, config chan string) {
 			lastValue, lastIndex = value, index
 		}
 	}
+}
+
+func listKV(client *api.Client, path string, waitIndex uint64) (string, uint64, error) {
+	q := &api.QueryOptions{RequireConsistent: true, WaitIndex: waitIndex}
+	kvpairs, meta, err := client.KV().List(path, q)
+	if err != nil {
+		return "", 0, err
+	}
+	if len(kvpairs) == 0 {
+		return "", meta.LastIndex, nil
+	}
+	var s []string
+	for _, kvpair := range kvpairs {
+		val := "# --- " + kvpair.Key + "\n" + strings.TrimSpace(string(kvpair.Value))
+		s = append(s, val)
+	}
+	return strings.Join(s, "\n\n"), meta.LastIndex, nil
 }
 
 func getKV(client *api.Client, key string, waitIndex uint64) (string, uint64, error) {
