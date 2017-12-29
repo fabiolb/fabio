@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/fabiolb/fabio/admin"
+	"github.com/fabiolb/fabio/cb"
 	"github.com/fabiolb/fabio/cert"
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/exit"
@@ -97,12 +98,16 @@ func main() {
 		log.Printf("[INFO] Profile path %q", cfg.ProfilePath)
 	}
 
+	cbmon := cb.NewMonitor()
+	go cbmon.Start()
+
 	exit.Listen(func(s os.Signal) {
 		atomic.StoreInt32(&shuttingDown, 1)
 		proxy.Shutdown(cfg.Proxy.ShutdownWait)
 		if prof != nil {
 			prof.Stop()
 		}
+		cbmon.Stop()
 		if registry.Default == nil {
 			return
 		}
@@ -119,12 +124,12 @@ func main() {
 	go watchNoRouteHTML(cfg)
 
 	first := make(chan bool)
-	go watchBackend(cfg, first)
+	go watchBackend(cfg, first, cbmon)
 	log.Print("[INFO] Waiting for first routing table")
 	<-first
 
 	// create proxies after metrics since they use the metrics registry.
-	startServers(cfg)
+	startServers(cfg, cbmon)
 	exit.Wait()
 	log.Print("[INFO] Down")
 }
@@ -241,7 +246,7 @@ func startAdmin(cfg *config.Config) {
 	}()
 }
 
-func startServers(cfg *config.Config) {
+func startServers(cfg *config.Config, cbmon *cb.Monitor) {
 	for _, l := range cfg.Listen {
 		l := l // capture loop var for go routines below
 		tlscfg, err := makeTLSConfig(l)
@@ -371,11 +376,12 @@ func initBackend(cfg *config.Config) {
 	}
 }
 
-func watchBackend(cfg *config.Config, first chan bool) {
+func watchBackend(cfg *config.Config, first chan bool, cbmon *cb.Monitor) {
 	var (
 		last   string
 		svccfg string
 		mancfg string
+		cbcfg  string
 
 		once sync.Once
 	)
@@ -387,11 +393,12 @@ func watchBackend(cfg *config.Config, first chan bool) {
 		select {
 		case svccfg = <-svc:
 		case mancfg = <-man:
+		case cbcfg = <-cbmon.Routes():
 		}
 
 		// manual config overrides service config
 		// order matters
-		next := svccfg + "\n" + mancfg
+		next := svccfg + "\n" + mancfg + "\n" + cbcfg
 		if next == last {
 			continue
 		}
