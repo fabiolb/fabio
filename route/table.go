@@ -207,6 +207,15 @@ func (t Table) delRoute(d *RouteDef) error {
 			}
 		}
 
+	case d.Service == "*" && d.Src == "*":
+		for _, routes := range t {
+			for _, r := range routes {
+				r.filter(func(tg *Target) bool {
+					return tg.URL.String() == d.Dst
+				})
+			}
+		}
+
 	case d.Src == "" && d.Dst == "":
 		for _, routes := range t {
 			for _, r := range routes {
