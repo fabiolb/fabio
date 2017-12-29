@@ -153,7 +153,26 @@ https://github.com/rogpeppe/fastuuid.git
 License: BSD 3-clause (https://github.com/google/uuid/LICENSE)
 Copyright © 2014, Roger Peppe All rights reserved.
 
+
 golang.org/x/sync/singleflight
 https://golang.org/x/sync/singleflight
 License: BSD 3-clause (https://golang.org/x/sync/LICENSE)
 Copyright (c) 2009 The Go Authors. All rights reserved.
+
+
+github.com/rubyist/circuitbreaker
+https://github.com/rubyist/circuitbreaker
+License: MIT (https://github.com/rubyist/circuitbreaker/blob/master/LICENSE)
+Copyright (c) 2014 Scott Barron
+
+
+github.com/facebookgo/clock
+https://github.com/facebookgo/clock
+License: MIT (https://github.com/facebookgo/clock/blob/master/LICENSE)
+Copyright (c) 2014 Ben Johnson
+
+
+github.com/cenk/backoff
+https://github.com/cenkalti/backoff
+License: MIT (https://github.com/cenkalti/backoff/blob/master/LICENSE)
+Copyright (c) 2014 Cenk Altı
