@@ -50,6 +50,8 @@ weight: 100
 
 	This assumes that a consul agent is running on `localhost:8500`.
 
+	If you want to run fabio within Docker look [here](/feature/docker/) for more infos.
+
 	Watch the log output how fabio picks up the route to your service.
 
 6. Try starting/stopping your service to see how the routing table changes instantly.
