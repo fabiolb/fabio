@@ -84,7 +84,7 @@ automatic refreshing set `refresh` to zero.
 
 #### Consul
 
-The `consul` certificate source loads certificates from consul.
+The `consul` certificate source loads certificates from Consul.
 
 The `cert` option provides a KV store URL where the the TLS certificates are
 stored.

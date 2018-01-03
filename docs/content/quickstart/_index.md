@@ -20,7 +20,7 @@ weight: 100
 
 	Make sure that each instance registers with a unique `ServiceID` and a service name **without spaces**.
 
-3. Register a health check in consul as described [here](https://www.consul.io/docs/agent/checks.html).
+3. Register a health check in Consul as described [here](https://www.consul.io/docs/agent/checks.html).
 
 	Make sure the health check is <button type="button" class="btn btn-xs
 	btn-success">PASSING</button> since fabio will only watch services which
@@ -48,7 +48,7 @@ weight: 100
 	$ fabio
 	```
 
-	This assumes that a consul agent is running on `localhost:8500`.
+	This assumes that a Consul agent is running on `localhost:8500`.
 
 	If you want to run fabio within Docker look [here](/feature/docker/) for more infos.
 

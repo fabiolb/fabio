@@ -15,7 +15,7 @@ Fabio works differently since it updates its routing table directly from the
 data stored in [Consul](https://consul.io/) as soon as there is a change and
 without restart or reloading.
 
-When you register a service in consul all you need to add is a tag that
+When you register a service in Consul all you need to add is a tag that
 announces the paths the upstream service accepts, e.g. `urlprefix-/user` or
 `urlprefix-/order` and fabio will do the rest.
 

@@ -2,7 +2,7 @@
 title: "registry.consul.addr"
 ---
 
-`registry.consul.addr` configures the address of the consul agent to connect to.
+`registry.consul.addr` configures the address of the Consul agent to connect to.
 
 The default is
 
