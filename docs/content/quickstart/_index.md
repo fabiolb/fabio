@@ -26,7 +26,13 @@ weight: 100
 	btn-success">PASSING</button> since fabio will only watch services which
 	have a passing health check.
 
-4. Register one `urlprefix-` tag per `host/path` prefix it serves, e.g.:
+4. Routes are stored in Consul [Service Tags](https://www.consul.io/docs/agent/services.html)
+and you need to add a separate `urlprefix-` tag for every `host/path` prefix the service serves.
+	
+	For example, if your service handles `/user` and `/product` then add two tags `urlprefix-/user` and `urlprefix-/product`. 
+	You can register as many prefixes as you want.
+
+	fabio can forward HTTP, HTTPS and TCP traffic. Below are some configuration examples:
 
 	```
 	# HTTP/S examples
@@ -50,13 +56,13 @@ weight: 100
 
 	This assumes that a Consul agent is running on `localhost:8500`.
 
-	If you want to run fabio within Docker look [here](/feature/docker/) for more infos.
-
 	Watch the log output how fabio picks up the route to your service.
+
+	**Note:** For running fabio in Docker [look here](/feature/docker/).
 
 6. Try starting/stopping your service to see how the routing table changes instantly.
 
-7. Test that you can access the upstream service via fabio:
+7. Test that you can access the upstream service via fabio
 	
 	```
 	# for urlprefix-/foo
