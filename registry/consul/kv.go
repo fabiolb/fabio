@@ -23,7 +23,7 @@ func watchKV(client *api.Client, path string, config chan string) {
 		}
 
 		if value != lastValue || index != lastIndex {
-			log.Printf("[INFO] consul: Manual config changed to #%d", index)
+			log.Printf("[DEBUG] consul: Manual config changed to #%d", index)
 			config <- value
 			lastValue, lastIndex = value, index
 		}

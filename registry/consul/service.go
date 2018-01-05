@@ -27,7 +27,7 @@ func watchServices(client *api.Client, tagPrefix string, status []string, config
 			continue
 		}
 
-		log.Printf("[INFO] consul: Health changed to #%d", meta.LastIndex)
+		log.Printf("[DEBUG] consul: Health changed to #%d", meta.LastIndex)
 		config <- servicesConfig(client, passingServices(checks, status), tagPrefix)
 		lastIndex = meta.LastIndex
 	}

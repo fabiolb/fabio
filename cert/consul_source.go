@@ -120,7 +120,7 @@ func watchKV(client *api.Client, key string, pemBlocks chan map[string][]byte) {
 		}
 
 		if !reflect.DeepEqual(value, lastValue) || index != lastIndex {
-			log.Printf("[INFO] cert: Certificate index changed to #%d", index)
+			log.Printf("[DEBUG] cert: Certificate index changed to #%d", index)
 			pemBlocks <- value
 			lastValue, lastIndex = value, index
 		}
