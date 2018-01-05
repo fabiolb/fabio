@@ -9,14 +9,18 @@
 #### Improvements
 
  * [Issue #216](https://github.com/fabiolb/fabio/issues/216)/[Issue #383](https://github.com/fabiolb/fabio/issues/383)/[PR #414](https://github.com/fabiolb/fabio/pull/414): Do not require globally unique service IDs
- 
+
 	Since version 1.0 fabio required all service ids in Consul to be globally
 	unique although service ids only have to be unique per Consul agent. This patch fixes this.
 
 	Thanks to [@dropje86](https://github.com/dropje86) and [@alvaroaleman](https://github.com/alvaroaleman) for the patch!
 
+ * [Issue #408](https://github.com/fabiolb/fabio/issues/408): Log Consul state changes as DEBUG
+
+   `Health changed to xxx` and similar log messages will be logged as `DEBUG`.
+
  * [PR #415](https://github.com/fabiolb/fabio/pull/415): Honor the `-version` flag
- 
+
    `fabio -version` does now what you would expect it to do.
 
 #### Bug Fixes
@@ -75,7 +79,7 @@ urlprefix-/foo redirect=301,https://www.foo.com$path
 
  * [Issue #385](https://github.com/fabiolb/fabio/issues/385): opts with host= with multiple routes does not work as expected
 
-   When multiple routes for the same path had different `host` options then only the one set on the 
+   When multiple routes for the same path had different `host` options then only the one set on the
    first route worked. This has been fixed so that the `Host` header is now set according to the
    selected target.
 
