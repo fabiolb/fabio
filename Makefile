@@ -95,7 +95,7 @@ release: preflight test
 	build/release.sh
 
 # ship executes the steps for a release with goreleaser
-ship: preflight test tag gorelease homebrew docker-aliases
+ship: preflight test gorelease homebrew docker-aliases
 
 # preflight runs some checks before a release
 preflight:
