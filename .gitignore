@@ -8,7 +8,6 @@
 *.swp
 *.test
 *.un~
-*.vim
 .DS_Store
 .idea
 .vagrant
