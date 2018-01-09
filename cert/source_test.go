@@ -594,25 +594,20 @@ func roundtrip(serverName string, srvConfig *tls.Config, client *http.Client) (c
 	// configure SNI
 	client.Transport.(*http.Transport).TLSClientConfig.ServerName = serverName
 
-	deadline := time.Now().Add(500 * time.Millisecond)
-	for time.Now().Before(deadline) {
-		time.Sleep(25 * time.Millisecond)
+	// give the tls server some time to start up
+	time.Sleep(10 * time.Millisecond)
 
-		var resp *http.Response
-		resp, err = client.Get(srv.URL)
-		if err != nil {
-			continue
-		}
-
-		var data []byte
-		data, err = ioutil.ReadAll(resp.Body)
-		if err != nil {
-			continue
-		}
-		resp.Body.Close()
-		return resp.StatusCode, string(data), nil
+	resp, err := client.Get(srv.URL)
+	if err != nil {
+		return 0, "", err
 	}
-	return
+	defer resp.Body.Close()
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return 0, "", err
+	}
+	return resp.StatusCode, string(data), nil
 }
 
 // http11Client returns an HTTP client which can only
