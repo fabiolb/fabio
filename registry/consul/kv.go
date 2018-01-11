@@ -30,6 +30,22 @@ func watchKV(client *api.Client, path string, config chan string) {
 	}
 }
 
+func listKeys(client *api.Client, path string, waitIndex uint64) ([]string, uint64, error) {
+	q := &api.QueryOptions{RequireConsistent: true, WaitIndex: waitIndex}
+	kvpairs, meta, err := client.KV().List(path, q)
+	if err != nil {
+		return nil, 0, err
+	}
+	if len(kvpairs) == 0 {
+		return nil, meta.LastIndex, nil
+	}
+	var keys []string
+	for _, kvpair := range kvpairs {
+		keys = append(keys, kvpair.Key)
+	}
+	return keys, meta.LastIndex, nil
+}
+
 func listKV(client *api.Client, path string, waitIndex uint64) (string, uint64, error) {
 	q := &api.QueryOptions{RequireConsistent: true, WaitIndex: waitIndex}
 	kvpairs, meta, err := client.KV().List(path, q)

@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/fabiolb/fabio/admin/api"
 	"github.com/fabiolb/fabio/admin/ui"
@@ -31,11 +32,32 @@ func (s *Server) handler() http.Handler {
 
 	switch s.Access {
 	case "ro":
+		mux.HandleFunc("/api/paths", forbidden)
 		mux.HandleFunc("/api/manual", forbidden)
+		mux.HandleFunc("/api/manual/", forbidden)
 		mux.HandleFunc("/manual", forbidden)
+		mux.HandleFunc("/manual/", forbidden)
 	case "rw":
-		mux.Handle("/api/manual", &api.ManualHandler{})
-		mux.Handle("/manual", &ui.ManualHandler{Color: s.Color, Title: s.Title, Version: s.Version, Commands: s.Commands})
+		// for historical reasons the configured config path starts with a '/'
+		// but Consul treats all KV paths without a leading slash.
+		pathsPrefix := strings.TrimPrefix(s.Cfg.Registry.Consul.KVPath, "/")
+		mux.Handle("/api/paths", &api.ManualPathsHandler{Prefix: pathsPrefix})
+		mux.Handle("/api/manual", &api.ManualHandler{BasePath: "/api/manual"})
+		mux.Handle("/api/manual/", &api.ManualHandler{BasePath: "/api/manual"})
+		mux.Handle("/manual", &ui.ManualHandler{
+			BasePath: "/manual",
+			Color:    s.Color,
+			Title:    s.Title,
+			Version:  s.Version,
+			Commands: s.Commands,
+		})
+		mux.Handle("/manual/", &ui.ManualHandler{
+			BasePath: "/manual",
+			Color:    s.Color,
+			Title:    s.Title,
+			Version:  s.Version,
+			Commands: s.Commands,
+		})
 	}
 
 	mux.Handle("/api/config", &api.ConfigHandler{Config: s.Cfg})
