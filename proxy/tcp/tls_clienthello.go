@@ -1,73 +1,20 @@
 package tcp
 
-// record types
-const (
-	handshakeRecord = 0x16
-	clientHelloType = 0x01
-)
-
 // readServerName returns the server name from a TLS ClientHello message which
 // has the server_name extension (SNI). ok is set to true if the ClientHello
 // message was parsed successfully. If the server_name extension was not set
-// and empty string is returned as serverName.
-func readServerName(data []byte) (serverName string, ok bool) {
-	if m, ok := readClientHello(data); ok {
-		return m.serverName, true
-	}
-	return "", false
-}
-
-// readClientHello
-func readClientHello(data []byte) (m *clientHelloMsg, ok bool) {
-	if len(data) < 9 {
-		// println("buf too short")
-		return nil, false
+// an empty string is returned as serverName.
+// clientHelloHandshakeMsg must contain the full client hello handshake
+// message including the 4 byte header.
+// See: https://www.ietf.org/rfc/rfc5246.txt
+func readServerName(clientHelloHandshakeMsg []byte) (serverName string, ok bool) {
+	m := new(clientHelloMsg)
+	if !m.unmarshal(clientHelloHandshakeMsg) {
+		//println("client_hello unmarshal failed")
+		return "", false
 	}
 
-	// TLS record header
-	// -----------------
-	// byte   0: rec type (should be 0x16 == Handshake)
-	// byte 1-2: version (should be 0x3000 < v < 0x3003)
-	// byte 3-4: rec len
-	recType := data[0]
-	if recType != handshakeRecord {
-		// println("no handshake ")
-		return nil, false
-	}
-
-	recLen := int(data[3])<<8 | int(data[4])
-	if recLen == 0 || recLen > len(data)-5 {
-		// println("rec too short")
-		return nil, false
-	}
-
-	// Handshake record header
-	// -----------------------
-	// byte   5: hs msg type (should be 0x01 == client_hello)
-	// byte 6-8: hs msg len
-	hsType := data[5]
-	if hsType != clientHelloType {
-		// println("no client_hello")
-		return nil, false
-	}
-
-	hsLen := int(data[6])<<16 | int(data[7])<<8 | int(data[8])
-	if hsLen == 0 || hsLen > len(data)-9 {
-		// println("handshake rec too short")
-		return nil, false
-	}
-
-	// byte 9- : client hello msg
-	//
-	// m.unmarshal parses the entire handshake message and
-	// not just the client hello. Therefore, we need to pass
-	// data from byte 5 instead of byte 9. (see comment below)
-	m = new(clientHelloMsg)
-	if !m.unmarshal(data[5:]) {
-		// println("client_hello unmarshal failed")
-		return nil, false
-	}
-	return m, true
+	return m.serverName, true
 }
 
 // The code below is a verbatim copy from go1.7/src/crypto/tls/handshake_messages.go
