@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/fabiolb/fabio/config"
@@ -381,6 +382,70 @@ func TestAddHeaders(t *testing.T) {
 			}
 
 			got, want := tt.r.Header, tt.hdrs
+			verify.Values(t, "", got, want)
+		})
+	}
+}
+
+func TestAddResponseHeaders(t *testing.T) {
+	tests := []struct {
+		desc string
+		r    *http.Request
+		cfg  config.Proxy
+		hdrs http.Header
+		err  string
+	}{
+		{"set Strict-Transport-Security for TLS, if MaxAge greater than 0",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
+			config.Proxy{STSHeader: config.STSHeader{MaxAge: 31536000}},
+			http.Header{
+				"Strict-Transport-Security": []string{"max-age=31536000"},
+			},
+			"",
+		},
+
+		{"set Strict-Transport-Security with options for TLS, if MaxAge greater than 0 with options",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
+			config.Proxy{STSHeader: config.STSHeader{MaxAge: 31536000, Preload: true, Subdomains: true}},
+			http.Header{
+				"Strict-Transport-Security": []string{"max-age=31536000; includeSubdomains; preload"},
+			},
+			"",
+		},
+
+		{"skip Strict-Transport-Security for non-TLS, if MaxAge greater than 0",
+			&http.Request{RemoteAddr: "1.2.3.4:5555"},
+			config.Proxy{STSHeader: config.STSHeader{MaxAge: 31536000}},
+			http.Header{},
+			"",
+		},
+	}
+
+	for i, tt := range tests {
+		tt := tt // capture loop var
+
+		t.Run(tt.desc, func(t *testing.T) {
+			if tt.r.Header == nil {
+				tt.r.Header = http.Header{}
+			}
+
+			w := httptest.NewRecorder()
+			err := addResponseHeaders(w, tt.r, tt.cfg)
+
+			if err != nil {
+				if got, want := err.Error(), tt.err; got != want {
+					t.Fatalf("%d: %s\ngot  %q\nwant %q", i, tt.desc, got, want)
+				}
+				return
+			}
+
+			if tt.err != "" {
+				t.Fatalf("%d: got nil want %q", i, tt.err)
+				return
+			}
+
+			resp := w.Result()
+			got, want := resp.Header, tt.hdrs
 			verify.Values(t, "", got, want)
 		})
 	}
