@@ -357,6 +357,47 @@ func TestAddHeaders(t *testing.T) {
 			},
 			"",
 		},
+
+		{"skip Strict-Transport-Security for non-TLS, if MaxAge greater than 0",
+			&http.Request{RemoteAddr: "1.2.3.4:5555"},
+			config.Proxy{STSHeader: config.STSHeader{MaxAge: 31536000}},
+			"",
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
+			"",
+		},
+
+		{"set Strict-Transport-Security for TLS, if MaxAge greater than 0",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
+			config.Proxy{STSHeader: config.STSHeader{MaxAge: 31536000}},
+			"",
+			http.Header{
+				"Forwarded":                 []string{"for=1.2.3.4; proto=https"},
+				"Strict-Transport-Security": []string{"max-age=31536000"},
+				"X-Forwarded-Proto":         []string{"https"},
+				"X-Forwarded-Port":          []string{"443"},
+				"X-Real-Ip":                 []string{"1.2.3.4"},
+			},
+			"",
+		},
+
+		{"set Strict-Transport-Security with options for TLS, if MaxAge greater than 0 with options",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
+			config.Proxy{STSHeader: config.STSHeader{MaxAge: 31536000, Preload: true, Subdomains: true}},
+			"",
+			http.Header{
+				"Forwarded":                 []string{"for=1.2.3.4; proto=https"},
+				"Strict-Transport-Security": []string{"max-age=31536000; includeSubdomains; preload"},
+				"X-Forwarded-Proto":         []string{"https"},
+				"X-Forwarded-Port":          []string{"443"},
+				"X-Real-Ip":                 []string{"1.2.3.4"},
+			},
+			"",
+		},
 	}
 
 	for i, tt := range tests {

@@ -64,6 +64,13 @@ type Proxy struct {
 	TLSHeaderValue        string
 	GZIPContentTypes      *regexp.Regexp
 	RequestID             string
+	STSHeader             STSHeader
+}
+
+type STSHeader struct {
+	MaxAge     int
+	Subdomains bool
+	Preload    bool
 }
 
 type Runtime struct {
