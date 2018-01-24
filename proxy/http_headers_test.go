@@ -404,7 +404,7 @@ func TestAddResponseHeaders(t *testing.T) {
 			"",
 		},
 
-		{"set Strict-Transport-Security with options for TLS, if MaxAge greater than 0 with options",
+		{"set Strict-Transport-Security for TLS, if MaxAge greater than 0 with options",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
 			config.Proxy{STSHeader: config.STSHeader{MaxAge: 31536000, Preload: true, Subdomains: true}},
 			http.Header{
