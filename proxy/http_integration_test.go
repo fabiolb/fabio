@@ -80,6 +80,41 @@ func TestProxyRequestIDHeader(t *testing.T) {
 	}
 }
 
+func TestProxySTSHeader(t *testing.T) {
+	server := httptest.NewServer(okHandler)
+	defer server.Close()
+
+	proxy := httptest.NewTLSServer(&HTTPProxy{
+		Config: config.Proxy{
+			STSHeader: config.STSHeader{
+				MaxAge:     31536000,
+				Subdomains: true,
+				Preload:    true,
+			},
+		},
+		Transport: &http.Transport{TLSClientConfig: tlsInsecureConfig()},
+		Lookup: func(r *http.Request) *route.Target {
+			return &route.Target{URL: mustParse(server.URL)}
+		},
+	})
+	defer proxy.Close()
+
+	client := http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: tlsInsecureConfig(),
+		},
+	}
+	resp, err := client.Get(proxy.URL)
+	if err != nil {
+		panic(err)
+	}
+
+	if got, want := resp.Header.Get("Strict-Transport-Security"),
+		"max-age=31536000; includeSubdomains; preload"; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
 func TestProxyNoRouteHTML(t *testing.T) {
 	want := "<html>503</html>"
 	noroute.SetHTML(want)
