@@ -1,5 +1,19 @@
 ## Changelog
 
+### Unreleased
+
+#### Breaking Changes
+
+ * None
+
+#### Features
+
+ * [PR #425](https://github.com/fabiolb/fabio/pull/425): Add support for HSTS headers
+
+   fabio has now support for adding HSTS headers to the response.
+
+   Thanks to (@leprecheau)[https://github.com/leprechau] for the patch.
+
 ### [v1.5.6](https://github.com/fabiolb/fabio/releases/tag/v1.5.6) - 5 Jan 2018
 
 #### Breaking Changes
