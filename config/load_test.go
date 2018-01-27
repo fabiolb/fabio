@@ -391,6 +391,27 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-proxy.header.sts.maxage", "31536000"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.STSHeader.MaxAge = 31536000
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.header.sts.subdomains", "true"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.STSHeader.Subdomains = true
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.header.sts.preload", "true"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.STSHeader.Preload = true
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.gzip.contenttype", `^text/.*$`},
 			cfg: func(cfg *Config) *Config {
 				cfg.Proxy.GZIPContentTypes = regexp.MustCompile(`^text/.*$`)

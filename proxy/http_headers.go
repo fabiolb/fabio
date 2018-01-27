@@ -10,6 +10,22 @@ import (
 	"github.com/fabiolb/fabio/config"
 )
 
+// addResponseHeaders adds/updates headers in the response
+func addResponseHeaders(w http.ResponseWriter, r *http.Request, cfg config.Proxy) error {
+	if r.TLS != nil && cfg.STSHeader.MaxAge > 0 {
+		sts := "max-age=" + i32toa(int32(cfg.STSHeader.MaxAge))
+		if cfg.STSHeader.Subdomains {
+			sts += "; includeSubdomains"
+		}
+		if cfg.STSHeader.Preload {
+			sts += "; preload"
+		}
+		w.Header().Set("Strict-Transport-Security", sts)
+	}
+
+	return nil
+}
+
 // addHeaders adds/updates headers in request
 //
 // * add/update `Forwarded` header
@@ -128,6 +144,29 @@ func uint16base16(n uint16) string {
 	b[3] = digit16[n&0x0f00>>8]
 	b[2] = digit16[n&0xf000>>12]
 	return string(b)
+}
+
+// i32toa is a faster implentation of strconv.Itoa() without importing another library
+// https://stackoverflow.com/a/39444005
+func i32toa(n int32) string {
+	buf := [11]byte{}
+	pos := len(buf)
+	i := int64(n)
+	signed := i < 0
+	if signed {
+		i = -i
+	}
+	for {
+		pos--
+		buf[pos], i = '0'+byte(i%10), i/10
+		if i == 0 {
+			if signed {
+				pos--
+				buf[pos] = '-'
+			}
+			return string(buf[pos:])
+		}
+	}
 }
 
 // scheme derives the request scheme used on the initial

@@ -130,6 +130,11 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := addResponseHeaders(w, r, p.Config); err != nil {
+		http.Error(w, "cannot add response headers", http.StatusInternalServerError)
+		return
+	}
+
 	upgrade, accept := r.Header.Get("Upgrade"), r.Header.Get("Accept")
 
 	tr := p.Transport
