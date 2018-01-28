@@ -142,4 +142,5 @@ type Consul struct {
 	CheckScheme                         string
 	CheckTLSSkipVerify                  bool
 	CheckDeregisterCriticalServiceAfter string
+	ChecksRequired                      string
 }

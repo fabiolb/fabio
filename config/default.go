@@ -60,6 +60,7 @@ var defaultConfig = &Config{
 			CheckTimeout:                        3 * time.Second,
 			CheckScheme:                         "http",
 			CheckDeregisterCriticalServiceAfter: "90m",
+			ChecksRequired:                      "one",
 		},
 		Timeout: 10 * time.Second,
 		Retry:   500 * time.Millisecond,
