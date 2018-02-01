@@ -19,6 +19,7 @@
   </p>
 </p>
 
+[![Backers on Open Collective](https://opencollective.com/fabio/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/fabio/sponsors/badge.svg)](#sponsors) 
 ---
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) and TCP router
@@ -119,6 +120,36 @@ urlprefix-:3306 proto=tcp                          # route external port 3306
 ## Maintainers
 
 * Frank Schroeder [@magiconair](https://twitter.com/magiconair)
+
+### Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="graphs/contributors"><img src="https://opencollective.com/fabio/contributors.svg?width=890" /></a>
+
+
+### Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/fabio#backer)]
+
+<a href="https://opencollective.com/fabio#backers" target="_blank"><img src="https://opencollective.com/fabio/backers.svg?width=890"></a>
+
+
+### Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/fabio#sponsor)]
+
+<a href="https://opencollective.com/fabio/sponsor/0/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/1/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/2/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/3/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/4/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/5/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/6/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/7/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/8/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/9/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/9/avatar.svg"></a>
+
+
 
 ## License
 
