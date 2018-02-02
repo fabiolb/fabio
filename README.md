@@ -16,10 +16,11 @@
     <a href="https://github.com/fabiolb/fabio/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/fabiolb/fabio/total.svg?style=flat-square"></a>
     <a href="https://hub.docker.com/r/magiconair/fabio/"><img alt="Docker Pulls magiconair" src="https://img.shields.io/docker/pulls/magiconair/fabio.svg?style=flat-square&label=docker+pulls+magiconair"></a>
     <a href="https://hub.docker.com/r/fabiolb/fabio/"><img alt="Docker Pulls fabiolb" src="https://img.shields.io/docker/pulls/fabiolb/fabio.svg?style=flat-square&label=docker+pulls+fabiolb"></a>
+    <a href="#backers"><img alt="Backers on Open Collective" src="https://opencollective.com/fabio/backers/badge.svg"></a>
+    <a href="#sponsors"><img alt="Sponsors on Open Collective" src="https://opencollective.com/fabio/sponsors/badge.svg"></a>
   </p>
 </p>
 
-[![Backers on Open Collective](https://opencollective.com/fabio/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/fabio/sponsors/badge.svg)](#sponsors) 
 ---
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) and TCP router
