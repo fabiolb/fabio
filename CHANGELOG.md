@@ -6,6 +6,13 @@
 
  * None
 
+#### Improvements
+
+ * [Issue #369](https://github.com/fabiolb/fabio/issues/369): Warn if fabio is run as root
+
+   fabio 1.5.7 emits a recurring warning when run as root. This can be disabled when using
+   the new `-insecure` flag which also provides a link to alternatives.
+
 #### Features
 
  * [PR #425](https://github.com/fabiolb/fabio/pull/425): Add support for HSTS headers
