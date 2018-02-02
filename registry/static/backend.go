@@ -23,11 +23,15 @@ func (b *be) Deregister() error {
 	return nil
 }
 
-func (b *be) ReadManual() (value string, version uint64, err error) {
+func (b *be) ManualPaths() ([]string, error) {
+	return nil, nil
+}
+
+func (b *be) ReadManual(string) (value string, version uint64, err error) {
 	return "", 0, nil
 }
 
-func (b *be) WriteManual(value string, version uint64) (ok bool, err error) {
+func (b *be) WriteManual(path string, value string, version uint64) (ok bool, err error) {
 	return false, nil
 }
 

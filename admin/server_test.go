@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/fabiolb/fabio/config"
 )
 
 func TestAdminServerAccess(t *testing.T) {
@@ -13,7 +15,16 @@ func TestAdminServerAccess(t *testing.T) {
 	}
 
 	testAccess := func(access string, tests []test) {
-		srv := &Server{Access: access}
+		srv := &Server{
+			Access: access,
+			Cfg: &config.Config{
+				Registry: config.Registry{
+					Consul: config.Consul{
+						KVPath: "/fabio/config",
+					},
+				},
+			},
+		}
 		ts := httptest.NewServer(srv.handler())
 		defer ts.Close()
 
@@ -37,6 +48,7 @@ func TestAdminServerAccess(t *testing.T) {
 
 	roTests := []test{
 		{"/api/manual", 403},
+		{"/api/paths", 403},
 		{"/api/config", 200},
 		{"/api/routes", 200},
 		{"/api/version", 200},
@@ -49,6 +61,7 @@ func TestAdminServerAccess(t *testing.T) {
 
 	rwTests := []test{
 		{"/api/manual", 200},
+		{"/api/paths", 200},
 		{"/api/config", 200},
 		{"/api/routes", 200},
 		{"/api/version", 200},

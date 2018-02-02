@@ -59,20 +59,25 @@ func (b *be) Deregister() error {
 	return nil
 }
 
-func (b *be) ReadManual() (value string, version uint64, err error) {
-	// we cannot rely on the value provided by WatchManual() since
-	// someone has to call that method first to kick off the go routine.
-	return getKV(b.c, b.cfg.KVPath, 0)
+func (b *be) ManualPaths() ([]string, error) {
+	keys, _, err := listKeys(b.c, b.cfg.KVPath, 0)
+	return keys, err
 }
 
-func (b *be) WriteManual(value string, version uint64) (ok bool, err error) {
+func (b *be) ReadManual(path string) (value string, version uint64, err error) {
+	// we cannot rely on the value provided by WatchManual() since
+	// someone has to call that method first to kick off the go routine.
+	return getKV(b.c, b.cfg.KVPath+path, 0)
+}
+
+func (b *be) WriteManual(path string, value string, version uint64) (ok bool, err error) {
 	// try to create the key first by using version 0
-	if ok, err = putKV(b.c, b.cfg.KVPath, value, 0); ok {
+	if ok, err = putKV(b.c, b.cfg.KVPath+path, value, 0); ok {
 		return
 	}
 
 	// then try the CAS update
-	return putKV(b.c, b.cfg.KVPath, value, version)
+	return putKV(b.c, b.cfg.KVPath+path, value, version)
 }
 
 func (b *be) WatchServices() chan string {
