@@ -13,6 +13,12 @@
    fabio 1.5.7 emits a recurring warning when run as root. This can be disabled when using
    the new `-insecure` flag which also provides a link to alternatives.
 
+ * [Issue #433](https://github.com/fabiolb/fabio/issues/433): `proxy.noroutestatus` must be three digit code
+
+   go1.10 will enforce that HTTP status codes must be three digit values `[100,1000)` and
+   and otherwise the handler will panic. This change enforces that the `proxy.noroutestatus`
+   has a valid status code value.
+
 #### Features
 
  * [PR #425](https://github.com/fabiolb/fabio/pull/425): Add support for HSTS headers
