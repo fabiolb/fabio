@@ -21,6 +21,13 @@
 
 #### Features
 
+ * [Issue #396](https://github.com/fabiolb/fabio/issue/396): treat `registry.consul.kvpath` as prefix
+
+   This patch allows fabio to have multiple manual routing tables stored in consul, e.g. 
+   under `fabio/config/foo` and `fabio/config/bar`. The routing table fragments are
+   concatenated in lexicographical order of the keys and the log output contains comments
+   to indicate to which key the segment belongs.
+
  * [PR #425](https://github.com/fabiolb/fabio/pull/425): Add support for HSTS headers
 
    fabio has now support for adding HSTS headers to the response.
