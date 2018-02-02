@@ -71,6 +71,10 @@ func main() {
 	log.Printf("[INFO] Version %s starting", version)
 	log.Printf("[INFO] Go runtime is %s", runtime.Version())
 
+	// warn once so that it is at the beginning of the log
+	// this will also start the reminder go routine if necessary.
+	WarnIfRunAsRoot(cfg.Insecure)
+
 	// setup profiling if enabled
 	var prof interface {
 		Stop()
@@ -125,6 +129,10 @@ func main() {
 
 	// create proxies after metrics since they use the metrics registry.
 	startServers(cfg)
+
+	// warn again so that it is visible in the terminal
+	WarnIfRunAsRoot(cfg.Insecure)
+
 	exit.Wait()
 	log.Print("[INFO] Down")
 }

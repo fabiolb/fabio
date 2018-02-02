@@ -16,6 +16,7 @@ type Config struct {
 	Runtime     Runtime
 	ProfileMode string
 	ProfilePath string
+	Insecure    bool
 }
 
 type CertSource struct {
