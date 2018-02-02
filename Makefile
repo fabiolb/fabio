@@ -12,7 +12,7 @@ VERSION = $(shell git describe --abbrev=0 | cut -c 2-)
 
 # GO runs the go binary with garbage collection disabled for faster builds.
 # Do not specify a full path for go since travis will fail.
-GO = GOGC=off go
+GO = go
 
 # GOFLAGS is the flags for the go compiler. Currently, only the version number is
 # passed to the linker via the -ldflags.
@@ -31,7 +31,7 @@ GOVENDOR = $(shell which govendor)
 VENDORFMT = $(shell which vendorfmt)
 
 # all is the default target
-all: build test
+all: test
 
 # help prints a help screen
 help:
@@ -39,7 +39,6 @@ help:
 	@echo "install   - go install"
 	@echo "test      - go test"
 	@echo "gofmt     - go fmt"
-	@echo "vet       - go vet"
 	@echo "linux     - go build linux/amd64"
 	@echo "release   - tag, build and publish release with goreleaser"
 	@echo "pkg       - build, test and create pkg/fabio.tar.gz"
@@ -47,11 +46,10 @@ help:
 
 # build compiles fabio and the test dependencies
 build: checkdeps vendorfmt gofmt
-	$(GO) build -i $(GOFLAGS)
-	$(GO) test -i ./...
+	$(GO) build
 
 # test runs the tests
-test: checkdeps vendorfmt vet gofmt
+test: build
 	$(GO) test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 
 # checkdeps ensures that all required dependencies are vendored in
@@ -70,15 +68,11 @@ gofmt:
 
 # linux builds a linux binary
 linux:
-	GOOS=linux GOARCH=amd64 $(GO) build -i -tags netgo $(GOFLAGS)
+	GOOS=linux GOARCH=amd64 $(GO) build -tags netgo $(GOFLAGS)
 
 # install runs go install
 install:
 	$(GO) install $(GOFLAGS)
-
-# vet runs go vet
-vet:
-	$(GO) vet ./...
 
 # pkg builds a fabio.tar.gz package with only fabio in it
 pkg: build test
@@ -139,4 +133,4 @@ clean:
 	rm -rf pkg dist fabio
 	find . -name '*.test' -delete
 
-.PHONY: build clean docker gofmt homebrew install linux pkg release test vendorfmt vet
+.PHONY: all build checkdeps clean codeship gofmt gorelease help homebrew install linux pkg preflight release tag test vendorfmt
