@@ -120,7 +120,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.IntVar(&cfg.Proxy.MaxConn, "proxy.maxconn", defaultConfig.Proxy.MaxConn, "maximum number of cached connections")
 	f.StringVar(&cfg.Proxy.Strategy, "proxy.strategy", defaultConfig.Proxy.Strategy, "load balancing strategy")
 	f.StringVar(&cfg.Proxy.Matcher, "proxy.matcher", defaultConfig.Proxy.Matcher, "path matching algorithm")
-	f.IntVar(&cfg.Proxy.NoRouteStatus, "proxy.noroutestatus", defaultConfig.Proxy.NoRouteStatus, "status code for invalid route")
+	f.IntVar(&cfg.Proxy.NoRouteStatus, "proxy.noroutestatus", defaultConfig.Proxy.NoRouteStatus, "status code for invalid route. Must be three digits")
 	f.DurationVar(&cfg.Proxy.ShutdownWait, "proxy.shutdownwait", defaultConfig.Proxy.ShutdownWait, "time for graceful shutdown")
 	f.DurationVar(&cfg.Proxy.DialTimeout, "proxy.dialtimeout", defaultConfig.Proxy.DialTimeout, "connection timeout for backend connections")
 	f.DurationVar(&cfg.Proxy.ResponseHeaderTimeout, "proxy.responseheadertimeout", defaultConfig.Proxy.ResponseHeaderTimeout, "response header timeout")
@@ -250,6 +250,11 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 
 	if cfg.UI.Access != "ro" && cfg.UI.Access != "rw" {
 		return nil, fmt.Errorf("invalid ui.access: %s", cfg.UI.Access)
+	}
+
+	// go1.10 will not accept a non-three digit status code
+	if cfg.Proxy.NoRouteStatus < 100 || cfg.Proxy.NoRouteStatus > 999 {
+		return nil, fmt.Errorf("proxy.noroutestatus must be between 100 and 999")
 	}
 
 	// handle deprecations

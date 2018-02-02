@@ -918,6 +918,18 @@ func TestLoad(t *testing.T) {
 			err:  errors.New("cert source requires proto 'https' or 'tcp'"),
 		},
 		{
+			desc: "-proxy.noroutestatus too small",
+			args: []string{"-proxy.noroutestatus", "10"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("proxy.noroutestatus must be between 100 and 999"),
+		},
+		{
+			desc: "-proxy.noroutestatus too big",
+			args: []string{"-proxy.noroutestatus", "1000"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("proxy.noroutestatus must be between 100 and 999"),
+		},
+		{
 			args: []string{"-cfg"},
 			cfg:  func(cfg *Config) *Config { return nil },
 			err:  errInvalidConfig,

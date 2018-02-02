@@ -72,7 +72,11 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	t := p.Lookup(r)
 	if t == nil {
-		w.WriteHeader(p.Config.NoRouteStatus)
+		status := p.Config.NoRouteStatus
+		if status < 100 || status > 999 {
+			status = http.StatusNotFound
+		}
+		w.WriteHeader(status)
 		html := noroute.GetHTML()
 		if html != "" {
 			io.WriteString(w, html)
