@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fabiolb/fabio/cb"
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/logger"
 	"github.com/fabiolb/fabio/metrics"
@@ -55,6 +56,10 @@ type HTTPProxy struct {
 	// UUID returns a unique id in uuid format.
 	// If UUID is nil, uuid.NewUUID() is used.
 	UUID func() string
+
+	// CBMon is a circuit breaker monitor which manages failure
+	// and success events and generates routing table updates from them.
+	CBMon *cb.Monitor
 }
 
 func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -172,10 +177,23 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		timeNow = time.Now
 	}
 
+	// wrap ResponseWriter to capture the status code
+	w = &statusRW{w, http.StatusOK}
+
 	start := timeNow()
 	h.ServeHTTP(w, r)
 	end := timeNow()
 	dur := end.Sub(start)
+
+	if p.CBMon != nil {
+		addr := targetURL.Host
+		switch w.(*statusRW).code {
+		case 502: // BadGateway is returned on i/o timeout
+			p.CBMon.FailHost(addr)
+		default:
+			p.CBMon.SuccessHost(addr)
+		}
+	}
 
 	if p.Requests != nil {
 		p.Requests.Update(dur)
@@ -217,4 +235,24 @@ func key(code int) string {
 	b := []byte("http.status.")
 	b = strconv.AppendInt(b, int64(code), 10)
 	return string(b)
+}
+
+// statusRW wraps a http.ResponseWriter
+// to capture the status code set by WriteHeader
+type statusRW struct {
+	w    http.ResponseWriter
+	code int
+}
+
+func (w *statusRW) Header() http.Header {
+	return w.w.Header()
+}
+
+func (w *statusRW) Write(p []byte) (int, error) {
+	return w.w.Write(p)
+}
+
+func (w *statusRW) WriteHeader(code int) {
+	w.code = code
+	w.w.WriteHeader(code)
 }

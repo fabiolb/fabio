@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -15,9 +16,11 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
+	"github.com/fabiolb/fabio/cb"
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/logger"
 	"github.com/fabiolb/fabio/noroute"
@@ -153,6 +156,7 @@ func TestProxyStripsPath(t *testing.T) {
 			w.WriteHeader(404)
 		}
 	}))
+	defer server.Close()
 
 	proxy := httptest.NewServer(&HTTPProxy{
 		Transport: http.DefaultTransport,
@@ -169,6 +173,78 @@ func TestProxyStripsPath(t *testing.T) {
 	}
 	if got, want := string(body), "OK"; got != want {
 		t.Fatalf("got body %q want %q", got, want)
+	}
+}
+
+func TestProxyTripsBreaker(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "OK")
+	}))
+	defer server.Close()
+
+	// create a transport with a short dial timeout to speedup tests
+	// otherwise, we have to wait 30 sec for every request to time out
+	tr := &http.Transport{
+		Dial: (&net.Dialer{Timeout: 100 * time.Millisecond}).Dial,
+	}
+
+	// create a routing table with one good and one bad target
+	routes := "route add mock / http://127.0.0.99:12345\n"
+	routes += "route add mock / " + server.URL
+
+	// create a circuit breaker monitor which will generate routing
+	// table updates
+	cbmon := cb.NewMonitor()
+	cbmon.UpdateInterval = time.Second // check every second for recovered CBs
+	go cbmon.Start()
+	defer cbmon.Stop()
+
+	// create sync value to contain the routing table
+	var syncTbl atomic.Value
+	tbl, err := route.NewTable(routes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	syncTbl.Store(tbl)
+
+	go func() {
+		for cbroutes := range cbmon.Routes() {
+			src := routes + "\n" + cbroutes
+			tbl, err := route.NewTable(src)
+			if err != nil {
+				t.Fatal(err)
+			}
+			syncTbl.Store(tbl)
+			log.Println("new routing table:\n" + tbl.String())
+		}
+	}()
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Transport: tr,
+		Lookup: func(r *http.Request) *route.Target {
+			tbl := syncTbl.Load().(route.Table)
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+		},
+		CBMon: cbmon,
+	})
+	defer proxy.Close()
+
+	call := func(wantStatus int, wantBody string) {
+		t.Helper()
+		resp, body := mustGet(proxy.URL + "/")
+		t.Logf("GET %s: status: %d body: %q", proxy.URL, resp.StatusCode, string(body))
+		//		if got, want := resp.StatusCode, wantStatus; got != want {
+		//			t.Fatalf("got status %d want %d", got, want)
+		//		}
+		// if got, want := string(body), wantBody; got != want {
+		// 	t.Fatalf("got body %q want %q", got, want)
+		// }
+	}
+
+	for i := 0; i < 100; i++ {
+		call(502, "")
+		time.Sleep(100 * time.Millisecond)
+		// call(200, "OK")
 	}
 }
 
