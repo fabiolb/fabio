@@ -33,6 +33,8 @@ const warn17behavior = `
 var once sync.Once
 
 func WarnIfRunAsRoot(allowRoot bool) {
+	// todo(fs): should we emit the same warning when running inside a container?
+	// todo(fs): check for existence of `/.dockerenv` to determine Docker environment.
 	isRoot := os.Getuid() == 0
 	if !isRoot {
 		return
