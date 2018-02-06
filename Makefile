@@ -41,10 +41,7 @@ help:
 	@echo "gofmt     - go fmt"
 	@echo "vet       - go vet"
 	@echo "linux     - go build linux/amd64"
-	@echo "release   - build/release.sh"
-	@echo "gorelease - goreleaser"
-	@echo "homebrew  - build/homebrew.sh"
-	@echo "buildpkg  - build/build.sh"
+	@echo "release   - tag, build and publish release with goreleaser"
 	@echo "pkg       - build, test and create pkg/fabio.tar.gz"
 	@echo "clean     - remove temp files"
 
@@ -89,13 +86,13 @@ pkg: build test
 	mkdir pkg
 	tar czf pkg/fabio.tar.gz fabio
 
-# release executes a release
-# this is deprecated since I'm switching to goreleaser
-release: preflight test
-	build/release.sh
-
-# ship executes the steps for a release with goreleaser
-ship: preflight test gorelease homebrew docker-aliases
+# release tags, builds and publishes a build with goreleaser
+#
+# Run this in sub-shells instead of dependencies so that
+# later targets can pick up the new tag value.
+release:
+	$(MAKE) tag
+	$(MAKE) preflight test gorelease homebrew docker-aliases
 
 # preflight runs some checks before a release
 preflight:
@@ -115,11 +112,6 @@ gorelease:
 # handle taps right now.
 homebrew:
 	build/homebrew.sh $(LAST_TAG)
-
-# docker builds the docker containers and publishes them
-# this is deprecated since goreleaser should handle that
-docker:
-	build/docker.sh $(VERSION)-$(GOVERSION)
 
 # docker-aliases creates aliases for the docker containers
 # since goreleaser doesn't handle that properly yet
@@ -147,4 +139,4 @@ clean:
 	rm -rf pkg dist fabio
 	find . -name '*.test' -delete
 
-.PHONY: build buildpkg clean docker gofmt homebrew install linux pkg release test vendorfmt vet
+.PHONY: build clean docker gofmt homebrew install linux pkg release test vendorfmt vet
