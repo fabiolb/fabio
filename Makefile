@@ -49,12 +49,12 @@ help:
 	@echo "clean     - remove temp files"
 
 # build compiles fabio and the test dependencies
-build: checkdeps vendorfmt vet gofmt
+build: checkdeps vendorfmt gofmt
 	$(GO) build -i $(GOFLAGS)
 	$(GO) test -i ./...
 
 # test runs the tests
-test: checkdeps vendorfmt gofmt
+test: checkdeps vendorfmt vet gofmt
 	$(GO) test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 
 # checkdeps ensures that all required dependencies are vendored in
