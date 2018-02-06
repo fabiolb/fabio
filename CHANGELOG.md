@@ -6,6 +6,12 @@
 
  * None
 
+#### Bug Fixes
+
+ * [Issue #434](https://github.com/fabiolb/fabio/issue/434): VaultPKI tests fail with go1.10rc1
+
+   All unit tests pass now on go1.10rc1.
+
 #### Improvements
 
  * [Issue #369](https://github.com/fabiolb/fabio/issues/369): Warn if fabio is run as root
