@@ -1,5 +1,27 @@
 ## Changelog
 
+### Unreleased
+
+#### Breaking Changes
+
+ * None
+
+#### Bug Fixes
+
+
+#### Improvements
+
+
+#### Features
+
+ * [PR #426](https://github.com/fabiolb/fabio/pull/426): Add option to allow Fabio to register frontend services in Consul on behalf of user services
+
+   With this patch fabio can register itself multiple times under different names in Consul.
+   By adding the `register=name` option to a route fabio will register itself under that 
+   name as well.
+
+   Thanks to (@rileyje)[https://github.com/rileyje] for the patch.
+
 ### [v1.5.7](https://github.com/fabiolb/fabio/releases/tag/v1.5.7) - 6 Feb 2018
 
 #### Breaking Changes
