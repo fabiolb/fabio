@@ -31,6 +31,7 @@ Option               | Description
 `proto=https`        | Upstream service is HTTPS
 `tlsskipverify=true` | Disable TLS cert validation for HTTPS upstream
 `host=name`          | Set the `Host` header to `name`. If `name == 'dst'` then the `Host` header will be set to the registered upstream host name
+`register=name`      | Register fabio as new service `name`. Useful for registering hostnames for host specific routes.
 
 ##### Example
 

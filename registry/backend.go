@@ -2,10 +2,13 @@ package registry
 
 type Backend interface {
 	// Register registers fabio as a service in the registry.
-	Register() error
+	Register(services []string) error
 
-	// Deregister removes the service registration for fabio.
-	Deregister() error
+	// Deregister removes all service registrations for fabio.
+	DeregisterAll() error
+
+	// Deregister removes the given service registration for fabio.
+	Deregister(service string) error
 
 	// ManualPaths returns the list of paths for which there
 	// are overrides.

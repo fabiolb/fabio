@@ -27,6 +27,8 @@ route add <svc> <src> <dst>[ weight <w>][ tags "<t1>,<t2>,..."][ opts "k1=v1 k2=
 	  proto=tcp          : upstream service is TCP, dst is ':port'
 	  proto=https        : upstream service is HTTPS
 	  tlsskipverify=true : disable TLS cert validation for HTTPS upstream
+	  host=name          : set the Host header to 'name'. If 'name == "dst"' then the 'Host' header will be set to the registered upstream host name
+	  register=name      : register fabio as new service 'name'. Useful for registering hostnames for host specific routes.
 
 route del <svc>[ <src>[ <dst>]]
   - Remove route matching svc, src and/or dst
@@ -85,6 +87,43 @@ func Parse(in string) (defs []*RouteDef, err error) {
 		defs = append(defs, def)
 	}
 	return defs, nil
+}
+
+// ParseAliases scans a set of route commands for the "register" option and
+// returns a list of services which should be registered by the backend.
+func ParseAliases(in string) (names []string, err error) {
+	var defs []*RouteDef
+	var def *RouteDef
+	for i, s := range strings.Split(in, "\n") {
+		def, err = nil, nil
+		s = strings.TrimSpace(s)
+		switch {
+		case reComment.MatchString(s) || reBlankLine.MatchString(s):
+			continue
+		case reRouteAdd.MatchString(s):
+			def, err = parseRouteAdd(s)
+		case reRouteDel.MatchString(s):
+			def, err = parseRouteDel(s)
+		case reRouteWeight.MatchString(s):
+			def, err = parseRouteWeight(s)
+		default:
+			err = errors.New("syntax error: 'route' expected")
+		}
+		if err != nil {
+			return nil, fmt.Errorf("line %d: %s", i+1, err)
+		}
+		defs = append(defs, def)
+	}
+
+	var aliases []string
+
+	for _, d := range defs {
+		registerName, ok := d.Opts["register"]
+		if ok {
+			aliases = append(aliases, registerName)
+		}
+	}
+	return aliases, nil
 }
 
 // route add <svc> <src> <dst>[ weight <w>][ tags "<t1>,<t2>,..."][ opts "k=v k=v ..."]

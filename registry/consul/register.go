@@ -38,10 +38,11 @@ func register(c *api.Client, service *api.AgentServiceRegistration) chan bool {
 
 	register := func() string {
 		if err := c.Agent().ServiceRegister(service); err != nil {
-			log.Printf("[ERROR] consul: Cannot register fabio in consul. %s", err)
+			log.Printf("[ERROR] consul: Cannot register fabio [name:%q] in Consul. %s", service.Name, err)
 			return ""
 		}
 
+		log.Printf("[INFO] consul: Registered fabio as %q", service.Name)
 		log.Printf("[INFO] consul: Registered fabio with id %q", service.ID)
 		log.Printf("[INFO] consul: Registered fabio with address %q", service.Address)
 		log.Printf("[INFO] consul: Registered fabio with tags %q", strings.Join(service.Tags, ","))
@@ -51,7 +52,7 @@ func register(c *api.Client, service *api.AgentServiceRegistration) chan bool {
 	}
 
 	deregister := func(serviceID string) {
-		log.Printf("[INFO] consul: Deregistering fabio")
+		log.Printf("[INFO] consul: Deregistering %s", service.Name)
 		c.Agent().ServiceDeregister(serviceID)
 	}
 
@@ -76,7 +77,7 @@ func register(c *api.Client, service *api.AgentServiceRegistration) chan bool {
 	return dereg
 }
 
-func serviceRegistration(cfg *config.Consul) (*api.AgentServiceRegistration, error) {
+func serviceRegistration(cfg *config.Consul, serviceName string) (*api.AgentServiceRegistration, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return nil, err
@@ -101,7 +102,7 @@ func serviceRegistration(cfg *config.Consul) (*api.AgentServiceRegistration, err
 		}
 	}
 
-	serviceID := fmt.Sprintf("%s-%s-%d", cfg.ServiceName, hostname, port)
+	serviceID := fmt.Sprintf("%s-%s-%d", serviceName, hostname, port)
 
 	checkURL := fmt.Sprintf("%s://%s:%d/health", cfg.CheckScheme, ip, port)
 	if ip.To16() != nil {
@@ -110,15 +111,16 @@ func serviceRegistration(cfg *config.Consul) (*api.AgentServiceRegistration, err
 
 	service := &api.AgentServiceRegistration{
 		ID:      serviceID,
-		Name:    cfg.ServiceName,
+		Name:    serviceName,
 		Address: ip.String(),
 		Port:    port,
 		Tags:    cfg.ServiceTags,
 		Check: &api.AgentServiceCheck{
-			HTTP:          checkURL,
-			Interval:      cfg.CheckInterval.String(),
-			Timeout:       cfg.CheckTimeout.String(),
-			TLSSkipVerify: cfg.CheckTLSSkipVerify,
+			HTTP:                           checkURL,
+			Interval:                       cfg.CheckInterval.String(),
+			Timeout:                        cfg.CheckTimeout.String(),
+			TLSSkipVerify:                  cfg.CheckTLSSkipVerify,
+			DeregisterCriticalServiceAfter: cfg.CheckDeregisterCriticalServiceAfter,
 		},
 	}
 
