@@ -30,7 +30,7 @@
 
 #### Bug Fixes
 
- * [Issue #434](https://github.com/fabiolb/fabio/issue/434): VaultPKI tests fail with go1.10rc1
+ * [Issue #434](https://github.com/fabiolb/fabio/issues/434): VaultPKI tests fail with go1.10rc1
 
    All unit tests pass now on go1.10rc1.
 
@@ -49,7 +49,7 @@
 
 #### Features
 
- * [Issue #396](https://github.com/fabiolb/fabio/issue/396): treat `registry.consul.kvpath` as prefix
+ * [Issue #396](https://github.com/fabiolb/fabio/issues/396): treat `registry.consul.kvpath` as prefix
 
    This patch allows fabio to have multiple manual routing tables stored in consul, e.g. 
    under `fabio/config/foo` and `fabio/config/bar`. The routing table fragments are
