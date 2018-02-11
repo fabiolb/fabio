@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fabiolb/fabio/metrics"
+	"github.com/fabiolb/fabio/metrics4/names"
 	"github.com/gobwas/glob"
 )
 
@@ -54,22 +54,21 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		}
 	}
 
-	name, err := metrics.TargetName(service, r.Host, r.Path, targetURL)
-	if err != nil {
-		log.Printf("[ERROR] Invalid metrics name: %s", err)
-		name = "unknown"
-	}
-
 	t := &Target{
 		Service:     service,
 		Tags:        tags,
 		Opts:        opts,
 		URL:         targetURL,
 		FixedWeight: fixedWeight,
-		Timer:       ServiceRegistry.GetTimer(name),
-		TimerName:   name,
+		TimerName: names.Service{
+			Service:   service,
+			Host:      r.Host,
+			Path:      r.Path,
+			TargetURL: targetURL,
+		},
 	}
 
+	var err error
 	if opts != nil {
 		t.StripPath = opts["strip"]
 		t.TLSSkipVerify = opts["tlsskipverify"] == "true"

@@ -6,21 +6,20 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/fabiolb/fabio/metrics"
+	"github.com/fabiolb/fabio/metrics4"
 )
-
-// conn measures the number of open web socket connections
-var conn = metrics.DefaultRegistry.GetCounter("ws.conn")
 
 type dialFunc func(network, address string) (net.Conn, error)
 
 // newRawProxy returns an HTTP handler which forwards data between
 // an incoming and outgoing TCP connection including the original request.
 // This handler establishes a new outgoing connection per request.
-func newRawProxy(host string, dial dialFunc) http.Handler {
+func newRawProxy(host string, dial dialFunc, conn metrics4.Counter) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn.Inc(1)
-		defer func() { conn.Inc(-1) }()
+		if conn != nil {
+			conn.Count(1)
+			defer func() { conn.Count(-1) }()
+		}
 
 		hj, ok := w.(http.Hijacker)
 		if !ok {

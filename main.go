@@ -22,7 +22,9 @@ import (
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/exit"
 	"github.com/fabiolb/fabio/logger"
-	"github.com/fabiolb/fabio/metrics"
+	"github.com/fabiolb/fabio/metrics4"
+	"github.com/fabiolb/fabio/metrics4/flat"
+	"github.com/fabiolb/fabio/metrics4/label"
 	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy"
 	"github.com/fabiolb/fabio/proxy/tcp"
@@ -113,9 +115,7 @@ func main() {
 		registry.Default.DeregisterAll()
 	})
 
-	// init metrics early since that create the global metric registries
-	// that are used by other parts of the code.
-	initMetrics(cfg)
+	metrics := initMetrics(cfg)
 	initRuntime(cfg)
 	initBackend(cfg)
 	startAdmin(cfg)
@@ -123,12 +123,12 @@ func main() {
 	go watchNoRouteHTML(cfg)
 
 	first := make(chan bool)
-	go watchBackend(cfg, first)
+	go watchBackend(cfg, metrics, first)
 	log.Print("[INFO] Waiting for first routing table")
 	<-first
 
 	// create proxies after metrics since they use the metrics registry.
-	startServers(cfg)
+	startServers(cfg, metrics)
 
 	// warn again so that it is visible in the terminal
 	WarnIfRunAsRoot(cfg.Insecure)
@@ -137,7 +137,7 @@ func main() {
 	log.Print("[INFO] Down")
 }
 
-func newHTTPProxy(cfg *config.Config) http.Handler {
+func newHTTPProxy(cfg *config.Config, stats metrics4.Provider) http.Handler {
 	var w io.Writer
 	switch cfg.Log.AccessTarget {
 	case "":
@@ -164,7 +164,7 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 
 	pick := route.Picker[cfg.Proxy.Strategy]
 	match := route.Matcher[cfg.Proxy.Matcher]
-	notFound := metrics.DefaultRegistry.GetCounter("notfound")
+	notFound := stats.NewCounter("notfound")
 	log.Printf("[INFO] Using routing strategy %q", cfg.Proxy.Strategy)
 	log.Printf("[INFO] Using route matching %q", cfg.Proxy.Matcher)
 
@@ -187,24 +187,24 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 		Lookup: func(r *http.Request) *route.Target {
 			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match)
 			if t == nil {
-				notFound.Inc(1)
+				notFound.Count(1)
 				log.Print("[WARN] No route for ", r.Host, r.URL)
 			}
 			return t
 		},
-		Requests: metrics.DefaultRegistry.GetTimer("requests"),
-		Noroute:  metrics.DefaultRegistry.GetCounter("notfound"),
+		Requests: stats.NewTimer("requests"),
+		Noroute:  stats.NewCounter("notfound"),
+		Metrics:  stats,
 		Logger:   l,
 	}
 }
 
-func lookupHostFn(cfg *config.Config) func(string) *route.Target {
+func lookupHostFn(cfg *config.Config, notFound metrics4.Counter) func(string) *route.Target {
 	pick := route.Picker[cfg.Proxy.Strategy]
-	notFound := metrics.DefaultRegistry.GetCounter("notfound")
 	return func(host string) *route.Target {
 		t := route.GetTable().LookupHost(host, pick)
 		if t == nil {
-			notFound.Inc(1)
+			notFound.Count(1)
 			log.Print("[WARN] No route for ", host)
 		}
 		return t
@@ -249,7 +249,7 @@ func startAdmin(cfg *config.Config) {
 	}()
 }
 
-func startServers(cfg *config.Config) {
+func startServers(cfg *config.Config, stats metrics4.Provider) {
 	for _, l := range cfg.Listen {
 		l := l // capture loop var for go routines below
 		tlscfg, err := makeTLSConfig(l)
@@ -262,10 +262,11 @@ func startServers(cfg *config.Config) {
 			log.Printf("[INFO] Client certificate authentication enabled on %s", l.Addr)
 		}
 
+		notFound := stats.NewCounter("notfound")
 		switch l.Proto {
 		case "http", "https":
 			go func() {
-				h := newHTTPProxy(cfg)
+				h := newHTTPProxy(cfg, stats)
 				if err := proxy.ListenAndServeHTTP(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
 				}
@@ -274,10 +275,11 @@ func startServers(cfg *config.Config) {
 			go func() {
 				h := &tcp.Proxy{
 					DialTimeout: cfg.Proxy.DialTimeout,
-					Lookup:      lookupHostFn(cfg),
-					Conn:        metrics.DefaultRegistry.GetCounter("tcp.conn"),
-					ConnFail:    metrics.DefaultRegistry.GetCounter("tcp.connfail"),
-					Noroute:     metrics.DefaultRegistry.GetCounter("tcp.noroute"),
+					Lookup:      lookupHostFn(cfg, notFound),
+					Conn:        stats.NewCounter("tcp.conn"),
+					ConnFail:    stats.NewCounter("tcp.connfail"),
+					Noroute:     stats.NewCounter("tcp.noroute"),
+					Metrics:     stats,
 				}
 				if err := proxy.ListenAndServeTCP(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
@@ -287,10 +289,11 @@ func startServers(cfg *config.Config) {
 			go func() {
 				h := &tcp.SNIProxy{
 					DialTimeout: cfg.Proxy.DialTimeout,
-					Lookup:      lookupHostFn(cfg),
-					Conn:        metrics.DefaultRegistry.GetCounter("tcp_sni.conn"),
-					ConnFail:    metrics.DefaultRegistry.GetCounter("tcp_sni.connfail"),
-					Noroute:     metrics.DefaultRegistry.GetCounter("tcp_sni.noroute"),
+					Lookup:      lookupHostFn(cfg, notFound),
+					Conn:        stats.NewCounter("tcp_sni.conn"),
+					ConnFail:    stats.NewCounter("tcp_sni.connfail"),
+					Noroute:     stats.NewCounter("tcp_sni.noroute"),
+					Metrics:     stats,
 				}
 				if err := proxy.ListenAndServeTCP(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
@@ -302,31 +305,27 @@ func startServers(cfg *config.Config) {
 	}
 }
 
-func initMetrics(cfg *config.Config) {
+func initMetrics(cfg *config.Config) metrics4.Provider {
+	mp := &metrics4.MultiProvider{}
 	if cfg.Metrics.Target == "" {
 		log.Printf("[INFO] Metrics disabled")
-		return
 	}
-
-	var deadline = time.Now().Add(cfg.Metrics.Timeout)
-	var err error
-	for {
-		metrics.DefaultRegistry, err = metrics.NewRegistry(cfg.Metrics)
-		if err == nil {
-			route.ServiceRegistry, err = metrics.NewRegistry(cfg.Metrics)
+	for _, x := range strings.Split(cfg.Metrics.Target, ",") {
+		x = strings.TrimSpace(x)
+		var p metrics4.Provider
+		switch x {
+		case "flat":
+			p = &flat.Provider{}
+		case "label":
+			p = &label.Provider{}
+		default:
+			log.Printf("[WARN] Skipping unknown metrics provider %q", x)
+			continue
 		}
-		if err == nil {
-			return
-		}
-		if time.Now().After(deadline) {
-			exit.Fatal("[FATAL] ", err)
-		}
-		log.Print("[WARN] Error initializing metrics. ", err)
-		time.Sleep(cfg.Metrics.Retry)
-		if atomic.LoadInt32(&shuttingDown) > 0 {
-			exit.Exit(1)
-		}
+		log.Printf("[INFO] Registering metrics provider %q", x)
+		mp.Register(p)
 	}
+	return mp
 }
 
 func initRuntime(cfg *config.Config) {
@@ -379,7 +378,7 @@ func initBackend(cfg *config.Config) {
 	}
 }
 
-func watchBackend(cfg *config.Config, first chan bool) {
+func watchBackend(cfg *config.Config, p metrics4.Provider, first chan bool) {
 	var (
 		last   string
 		svccfg string
@@ -410,16 +409,43 @@ func watchBackend(cfg *config.Config, first chan bool) {
 		}
 		registry.Default.Register(aliases)
 
-		t, err := route.NewTable(next)
+		newTable, err := route.NewTable(next)
 		if err != nil {
 			log.Printf("[WARN] %s", err)
 			continue
 		}
-		route.SetTable(t)
-		logRoutes(t, last, next, cfg.Log.RoutesFormat)
+
+		oldTable := route.GetTable()
+		route.SetTable(newTable)
+		unregisterMetrics(p, oldTable, newTable)
+		logRoutes(newTable, last, next, cfg.Log.RoutesFormat)
+
 		last = next
 
 		once.Do(func() { close(first) })
+	}
+}
+
+func unregisterMetrics(p metrics4.Provider, oldTable, newTable route.Table) {
+	names := func(t route.Table) map[string]bool {
+		m := map[string]bool{}
+		for _, routes := range t {
+			for _, r := range routes {
+				for _, t := range r.Targets {
+					m[t.TimerName.String()] = true
+				}
+			}
+		}
+		return m
+	}
+
+	oldNames := names(oldTable)
+	newNames := names(newTable)
+	for n := range oldNames {
+		if !newNames[n] {
+			log.Printf("[INFO] Unregistering metric %s", n)
+			p.Unregister(n)
+		}
 	}
 }
 

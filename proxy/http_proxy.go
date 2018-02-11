@@ -14,7 +14,7 @@ import (
 
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/logger"
-	"github.com/fabiolb/fabio/metrics"
+	"github.com/fabiolb/fabio/metrics4"
 	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy/gzip"
 	"github.com/fabiolb/fabio/route"
@@ -44,11 +44,17 @@ type HTTPProxy struct {
 	Lookup func(*http.Request) *route.Target
 
 	// Requests is a timer metric which is updated for every request.
-	Requests metrics.Timer
+	Requests metrics4.Timer
 
 	// Noroute is a counter metric which is updated for every request
 	// where Lookup() returns nil.
-	Noroute metrics.Counter
+	Noroute metrics4.Counter
+
+	// WSConn counts the number of open web socket connections.
+	WSConn metrics4.Counter
+
+	// Metrics is the configured metrics backend provider.
+	Metrics metrics4.Provider
 
 	// Logger is the access logger for the requests.
 	Logger logger.Logger
@@ -61,6 +67,11 @@ type HTTPProxy struct {
 func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if p.Lookup == nil {
 		panic("no lookup function")
+	}
+
+	metrics := p.Metrics
+	if metrics == nil {
+		metrics = &metrics4.MultiProvider{}
 	}
 
 	if p.Config.RequestID != "" {
@@ -104,7 +115,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if t.Timer != nil {
 			t.Timer.Update(0)
 		}
-		metrics.DefaultRegistry.GetTimer(key(t.RedirectCode)).Update(0)
+		metrics.NewCounter("http.status", "code", strconv.Itoa(t.RedirectCode)).Count(1)
 		return
 	}
 
@@ -155,13 +166,13 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case upgrade == "websocket" || upgrade == "Websocket":
 		r.URL = targetURL
+		dial := net.Dial
 		if targetURL.Scheme == "https" || targetURL.Scheme == "wss" {
-			h = newRawProxy(targetURL.Host, func(network, address string) (net.Conn, error) {
+			dial = func(network, address string) (net.Conn, error) {
 				return tls.Dial(network, address, tr.(*http.Transport).TLSClientConfig)
-			})
-		} else {
-			h = newRawProxy(targetURL.Host, net.Dial)
+			}
 		}
+		h = newRawProxy(targetURL.Host, dial, p.WSConn)
 
 	case accept == "text/event-stream":
 		// use the flush interval for SSE (server-sent events)
@@ -197,7 +208,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	metrics.DefaultRegistry.GetTimer(key(rw.code)).Update(dur)
+	metrics.NewTimer("http.status", "code", strconv.Itoa(rw.code)).Update(dur)
 
 	// write access log
 	if p.Logger != nil {
