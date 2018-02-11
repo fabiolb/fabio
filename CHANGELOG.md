@@ -8,6 +8,10 @@
 
 #### Bug Fixes
 
+* Fix windows build.
+
+  fabio 1.5.7 broke the Windows build but this wasn't detected since the new build process did
+  not build the Windows binaries. This has been fixed.
 
 #### Improvements
 
