@@ -7,13 +7,14 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync/atomic"
 	"time"
 
-	"github.com/fabiolb/fabio/metrics"
+	"github.com/fabiolb/fabio/metrics4"
 )
 
-// conn measures the number of open web socket connections
-var conn = metrics.DefaultRegistry.GetCounter("ws.conn")
+// conns keeps track of the number of open ws connections
+var conns int64
 
 type dialFunc func(network, address string) (net.Conn, error)
 
@@ -21,10 +22,14 @@ type dialFunc func(network, address string) (net.Conn, error)
 // an incoming and outgoing websocket connection. It checks whether
 // the handshake was completed successfully before forwarding data
 // between the client and server.
-func newWSHandler(host string, dial dialFunc) http.Handler {
+func newWSHandler(host string, dial dialFunc, conn metrics4.Gauge) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn.Inc(1)
-		defer func() { conn.Inc(-1) }()
+		if conn != nil {
+			conn.Update(int(atomic.AddInt64(&conns, 1)))
+			defer func() {
+				conn.Update(int(atomic.AddInt64(&conns, -1)))
+			}()
+		}
 
 		hj, ok := w.(http.Hijacker)
 		if !ok {
