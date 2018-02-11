@@ -134,7 +134,7 @@ func (b *be) WatchManual() chan string {
 	log.Printf("[INFO] consul: Watching KV path %q", b.cfg.KVPath)
 
 	kv := make(chan string)
-	go watchKV(b.c, b.cfg.KVPath, kv)
+	go watchKV(b.c, b.cfg.KVPath, kv, true)
 	return kv
 }
 
@@ -142,7 +142,7 @@ func (b *be) WatchNoRouteHTML() chan string {
 	log.Printf("[INFO] consul: Watching KV path %q", b.cfg.NoRouteHTMLPath)
 
 	html := make(chan string)
-	go watchKV(b.c, b.cfg.NoRouteHTMLPath, html)
+	go watchKV(b.c, b.cfg.NoRouteHTMLPath, html, false)
 	return html
 }
 
