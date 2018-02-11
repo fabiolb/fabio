@@ -4,7 +4,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/fabiolb/fabio/metrics"
+	"github.com/fabiolb/fabio/metrics4"
+	"github.com/fabiolb/fabio/metrics4/names"
 )
 
 type Target struct {
@@ -50,10 +51,10 @@ type Target struct {
 	Weight float64
 
 	// Timer measures throughput and latency of this target
-	Timer metrics.Timer
+	Timer metrics4.Timer
 
 	// TimerName is the name of the timer in the metrics registry
-	TimerName string
+	TimerName names.Service
 
 	// accessRules is map of access information for the target.
 	accessRules map[string][]interface{}
