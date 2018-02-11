@@ -2,6 +2,6 @@
 
 package main
 
-func CheckInsecure(allowRoot bool) {
+func WarnIfRunAsRoot(allowRoot bool) {
 	// windows not supported
 }
