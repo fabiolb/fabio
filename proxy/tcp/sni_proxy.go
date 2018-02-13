@@ -2,7 +2,6 @@ package tcp
 
 import (
 	"bufio"
-	"errors"
 	"io"
 	"log"
 	"net"
@@ -36,48 +35,6 @@ type SNIProxy struct {
 	Noroute metrics.Counter
 }
 
-// Create a buffer large enough to hold the client hello message including
-// the tls record header and the handshake message header.
-// The function requires at least the first 9 bytes of the tls conversation
-// in "data".
-// nil, error is returned if the data does not follow the
-// specification (https://tools.ietf.org/html/rfc5246) or if the client hello
-// is fragmented over multiple records.
-func createClientHelloBuffer(data []byte) ([]byte, error) {
-	// TLS record header
-	// -----------------
-	// byte   0: rec type (should be 0x16 == Handshake)
-	// byte 1-2: version (should be 0x3000 < v < 0x3003)
-	// byte 3-4: rec len
-	if len(data) < 9 {
-		return nil, errors.New("At least 9 bytes required to determine client hello length")
-	}
-
-	if data[0] != 0x16 {
-		return nil, errors.New("Not a TLS handshake")
-	}
-
-	recordLength := int(data[3])<<8 | int(data[4])
-	if recordLength <= 0 || recordLength > 16384 {
-		return nil, errors.New("Invalid TLS record length")
-	}
-
-	// Handshake record header
-	// -----------------------
-	// byte   5: hs msg type (should be 0x01 == client_hello)
-	// byte 6-8: hs msg len
-	if data[5] != 0x01 {
-		return nil, errors.New("Not a client hello")
-	}
-
-	handshakeLength := int(data[6])<<16 | int(data[7])<<8 | int(data[8])
-	if handshakeLength <= 0 || handshakeLength > recordLength-4 {
-		return nil, errors.New("Invalid client hello length (fragmentation not implemented)")
-	}
-
-	return make([]byte, handshakeLength+9), nil //9 for the header bytes
-}
-
 func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	defer in.Close()
 
@@ -86,7 +43,7 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	}
 
 	tlsReader := bufio.NewReader(in)
-	data, err := tlsReader.Peek(9)
+	tlsHeaders, err := tlsReader.Peek(9)
 	if err != nil {
 		log.Print("[DEBUG] tcp+sni: TLS handshake failed (failed to peek data)")
 		if p.ConnFail != nil {
@@ -95,7 +52,7 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 		return err
 	}
 
-	tlsData, err := createClientHelloBuffer(data)
+	bufferSize, err := clientHelloBufferSize(tlsHeaders)
 	if err != nil {
 		log.Printf("[DEBUG] tcp+sni: TLS handshake failed (%s)", err)
 		if p.ConnFail != nil {
@@ -104,7 +61,8 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 		return err
 	}
 
-	_, err = io.ReadFull(tlsReader, tlsData)
+	data := make([]byte, bufferSize)
+	_, err = io.ReadFull(tlsReader, data)
 	if err != nil {
 		log.Printf("[DEBUG] tcp+sni: TLS handshake failed (%s)", err)
 		if p.ConnFail != nil {
@@ -113,7 +71,9 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 		return err
 	}
 
-	host, ok := readServerName(tlsData[5:])
+	// readServerName wants only the handshake message so ignore the first
+	// 5 bytes which is the TLS record header
+	host, ok := readServerName(data[5:])
 	if !ok {
 		log.Print("[DEBUG] tcp+sni: TLS handshake failed (unable to parse client hello)")
 		if p.ConnFail != nil {
@@ -150,7 +110,7 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	defer out.Close()
 
 	// write the data already read from the connection
-	n, err := out.Write(tlsData)
+	n, err := out.Write(data)
 	if err != nil {
 		log.Print("[WARN] tcp+sni: copy client hello failed. ", err)
 		if p.ConnFail != nil {
