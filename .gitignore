@@ -13,6 +13,7 @@
 .vagrant
 build/builds/
 fabio
+fabio.exe
 fabio.sublime-*
 demo/cert/
 pkg/
