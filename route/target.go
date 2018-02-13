@@ -50,6 +50,9 @@ type Target struct {
 
 	// TimerName is the name of the timer in the metrics registry
 	TimerName string
+
+	// accessRules is map of access information for the target.
+	accessRules map[string][]interface{}
 }
 
 func (t *Target) GetRedirectURL(requestURL *url.URL) *url.URL {

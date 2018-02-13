@@ -24,14 +24,16 @@ Add a route for a service `svc` for the `src` (e.g. `/path` or `:port`) to a `ds
 
 `route add <svc> <src> <dst>[ weight <w>][ tags "<t1>,<t2>,..."][ opts "k1=v1 k2=v2 ..."]`
 
-Option               | Description
--------------------- | -----------
-`strip=/path`        | Forward `/path/to/file` as `/to/file`
-`proto=tcp`          | Upstream service is TCP, `dst` must be `:port`
-`proto=https`        | Upstream service is HTTPS
-`tlsskipverify=true` | Disable TLS cert validation for HTTPS upstream
-`host=name`          | Set the `Host` header to `name`. If `name == 'dst'` then the `Host` header will be set to the registered upstream host name
-`register=name`      | Register fabio as new service `name`. Useful for registering hostnames for host specific routes.
+Option                                     | Description
+------------------------------------------ | -----------
+`allow=ip:10.0.0.0/8,ip:192.168.0.0/24`    | Restrict access to source addresses within the `10.0.0.0/8` or `192.168.0.0/24` CIDR mask.  All other requests will be denied.
+`deny=ip:10.0.0.0/8,ip:1.2.3.4/32`         | Deny requests that source from the `10.0.0.0/8` CIDR mask or `1.2.3.4`.  All other requests will be allowed.
+`strip=/path`                              | Forward `/path/to/file` as `/to/file`
+`proto=tcp`                                | Upstream service is TCP, `dst` must be `:port`
+`proto=https`                              | Upstream service is HTTPS
+`tlsskipverify=true`                       | Disable TLS cert validation for HTTPS upstream
+`host=name`                                | Set the `Host` header to `name`. If `name == 'dst'` then the `Host` header will be set to the registered upstream host name
+`register=name`                            | Register fabio as new service `name`. Useful for registering hostnames for host specific routes.
 
 ##### Example
 
