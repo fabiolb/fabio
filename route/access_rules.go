@@ -16,21 +16,41 @@ const (
 
 // AccessDeniedHTTP checks rules on the target for HTTP proxy routes.
 func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
+	var ip net.IP
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 
 	if err != nil {
-		log.Printf("[ERROR] Failed to get host from RemoteAddr %s: %s",
+		log.Printf("[ERROR] failed to get host from remote header %s: %s",
 			r.RemoteAddr, err.Error())
 		return false
 	}
 
-	// prefer xff header if set
-	if xff := r.Header.Get("X-Forwarded-For"); xff != "" && xff != host {
-		host = xff
+	if ip = net.ParseIP(host); ip == nil {
+		log.Printf("[WARN] failed to parse remote address %s", host)
 	}
 
-	// currently only one function - more may be added in the future
-	return t.denyByIP(net.ParseIP(host))
+	// check remote source and return if denied
+	if ip != nil && t.denyByIP(ip) {
+		return true
+	}
+
+	// check xff source if present
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		// only use left-most element (client)
+		xff = strings.TrimSpace(strings.SplitN(xff, ",", 2)[0])
+		// only continue if xff differs from host
+		if xff != host {
+			if ip = net.ParseIP(xff); ip == nil {
+				log.Printf("[WARN] failed to parse xff address %s", xff)
+			}
+			if ip != nil && t.denyByIP(ip) {
+				return true
+			}
+		}
+	}
+
+	// default allow
+	return false
 }
 
 // AccessDeniedTCP checks rules on the target for TCP proxy routes.
