@@ -84,6 +84,11 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if t.AccessDeniedHTTP(r) {
+		http.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
 	// build the request url since r.URL will get modified
 	// by the reverse proxy and contains only the RequestURI anyway
 	requestURL := &url.URL{

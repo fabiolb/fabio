@@ -6,6 +6,7 @@ weight: 200
 The following list provides a list of features supported by fabio. 
 
  * [Access Logging](/feature/access-logging/) - customizable access logs
+ * [Access Control](/feature/access-control/) - route specific access control
  * [Certificate Stores](/feature/certificate-stores/) - dynamic certificate stores like file system, HTTP server, [Consul](https://consul.io/) and [Vault](https://vaultproject.io/)
  * [Compression](/feature/compression/) - GZIP compression for HTTP responses
  * [Docker Support](/feature/docker/) - Official Docker image, Registrator and Docker Compose example

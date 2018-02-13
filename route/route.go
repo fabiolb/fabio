@@ -65,6 +65,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		Timer:       ServiceRegistry.GetTimer(name),
 		TimerName:   name,
 	}
+
 	if opts != nil {
 		t.StripPath = opts["strip"]
 		t.TLSSkipVerify = opts["tlsskipverify"] == "true"
@@ -78,6 +79,11 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 				t.RedirectCode = 0
 				log.Printf("[ERROR] redirect status code should be in 3xx range. Got: %s", opts["redirect"])
 			}
+		}
+
+		if err = t.processAccessRules(); err != nil {
+			log.Printf("[ERROR] failed to process access rules: %s",
+				err.Error())
 		}
 	}
 
