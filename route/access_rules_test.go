@@ -13,8 +13,12 @@ func TestAccessRules_parseAccessRule(t *testing.T) {
 		fail      bool
 	}{
 		{
-			desc:      "valid rule",
+			desc:      "valid ipv4 rule",
 			allowDeny: "ip:10.0.0.0/8,ip:192.168.0.0/24,ip:1.2.3.4/32",
+		},
+		{
+			desc:      "valid ipv6 rule",
+			allowDeny: "ip:1234:567:beef:cafe::/64,ip:1234:5678:dead:beef::/32",
 		},
 		{
 			desc:      "invalid rule type",
@@ -67,7 +71,7 @@ func TestAccessRules_denyByIP(t *testing.T) {
 		denied bool
 	}{
 		{
-			desc: "allow rule with included ip",
+			desc: "allow rule with included ipv4",
 			target: &Target{
 				Opts: map[string]string{"allow": "ip:10.0.0.0/8,ip:192.168.0.0/24"},
 			},
@@ -75,7 +79,7 @@ func TestAccessRules_denyByIP(t *testing.T) {
 			denied: false,
 		},
 		{
-			desc: "allow rule with exluded ip",
+			desc: "allow rule with exluded ipv4",
 			target: &Target{
 				Opts: map[string]string{"allow": "ip:10.0.0.0/8,ip:192.168.0.0/24"},
 			},
@@ -83,7 +87,7 @@ func TestAccessRules_denyByIP(t *testing.T) {
 			denied: true,
 		},
 		{
-			desc: "deny rule with included ip",
+			desc: "deny rule with included ipv4",
 			target: &Target{
 				Opts: map[string]string{"deny": "ip:10.0.0.0/8,ip:192.168.0.0/24"},
 			},
@@ -91,11 +95,43 @@ func TestAccessRules_denyByIP(t *testing.T) {
 			denied: true,
 		},
 		{
-			desc: "deny rule with excluded ip",
+			desc: "deny rule with excluded ipv4",
 			target: &Target{
 				Opts: map[string]string{"deny": "ip:10.0.0.0/8,ip:192.168.0.0/24"},
 			},
 			remote: net.ParseIP("1.2.3.4"),
+			denied: false,
+		},
+		{
+			desc: "allow rule with included ipv6",
+			target: &Target{
+				Opts: map[string]string{"allow": "ip:1234:dead:beef:cafe::/64"},
+			},
+			remote: net.ParseIP("1234:dead:beef:cafe::5678"),
+			denied: false,
+		},
+		{
+			desc: "allow rule with exluded ipv6",
+			target: &Target{
+				Opts: map[string]string{"allow": "ip:1234:dead:beef:cafe::/64"},
+			},
+			remote: net.ParseIP("1234:5678::1"),
+			denied: true,
+		},
+		{
+			desc: "deny rule with included ipv6",
+			target: &Target{
+				Opts: map[string]string{"deny": "ip:1234:dead:beef:cafe::/64"},
+			},
+			remote: net.ParseIP("1234:dead:beef:cafe::5678"),
+			denied: true,
+		},
+		{
+			desc: "deny rule with excluded ipv6",
+			target: &Target{
+				Opts: map[string]string{"deny": "ip:1234:dead:beef:cafe::/64"},
+			},
+			remote: net.ParseIP("1234:5678::1"),
 			denied: false,
 		},
 	}
