@@ -32,8 +32,13 @@ func TestAccessRules_parseAccessRule(t *testing.T) {
 			fail:      true,
 		},
 		{
-			desc:      "single ip with no mask",
+			desc:      "single ipv4 with no mask",
 			allowDeny: "ip:1.2.3.4",
+			fail:      false,
+		},
+		{
+			desc:      "single ipv6 with no mask",
+			allowDeny: "ip:fe80::1",
 			fail:      false,
 		},
 	}
