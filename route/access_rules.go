@@ -102,6 +102,7 @@ func (t *Target) denyByIP(ip net.IP) bool {
 
 func (t *Target) parseAccessRule(allowDeny string) error {
 	var accessTag string
+	var value string
 	var temps []string
 
 	// init rules if needed
@@ -114,10 +115,17 @@ func (t *Target) parseAccessRule(allowDeny string) error {
 		if temps = strings.SplitN(c, ":", 2); len(temps) != 2 {
 			return fmt.Errorf("invalid access item, expected <type>:<data>, got %s", temps)
 		}
-		accessTag = allowDeny + ":" + strings.ToLower(temps[0])
+
+		// form access type tag
+		accessTag = allowDeny + ":" + strings.ToLower(strings.TrimSpace(temps[0]))
+
+		// switch on formed access tag - currently only ip types are implemented
 		switch accessTag {
 		case ipAllowTag, ipDenyTag:
-			_, net, err := net.ParseCIDR(strings.TrimSpace(temps[1]))
+			if value = strings.TrimSpace(temps[1]); !strings.Contains(value, "/") {
+				value = value + "/32"
+			}
+			_, net, err := net.ParseCIDR(value)
 			if err != nil {
 				return fmt.Errorf("failed to parse CIDR %s with error: %s",
 					c, err.Error())
@@ -128,6 +136,7 @@ func (t *Target) parseAccessRule(allowDeny string) error {
 			return fmt.Errorf("unknown access item type: %s", temps[0])
 		}
 	}
+
 	return nil
 }
 

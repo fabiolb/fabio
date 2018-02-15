@@ -31,6 +31,11 @@ func TestAccessRules_parseAccessRule(t *testing.T) {
 			allowDeny: "ip:10.0.0.0/255",
 			fail:      true,
 		},
+		{
+			desc:      "single ip with no mask",
+			allowDeny: "ip:1.2.3.4",
+			fail:      false,
+		},
 	}
 
 	for i, tt := range tests {
