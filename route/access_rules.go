@@ -102,8 +102,9 @@ func (t *Target) denyByIP(ip net.IP) bool {
 
 func (t *Target) parseAccessRule(allowDeny string) error {
 	var accessTag string
-	var value string
 	var temps []string
+	var value string
+	var ip net.IP
 
 	// init rules if needed
 	if t.accessRules == nil {
@@ -123,7 +124,14 @@ func (t *Target) parseAccessRule(allowDeny string) error {
 		switch accessTag {
 		case ipAllowTag, ipDenyTag:
 			if value = strings.TrimSpace(temps[1]); !strings.Contains(value, "/") {
-				value = value + "/32"
+				if ip = net.ParseIP(value); ip == nil {
+					return fmt.Errorf("failed to parse IP %s with error", value)
+				}
+				if ip.To4() != nil {
+					value = ip.String() + "/32"
+				} else {
+					value = ip.String() + "/128"
+				}
 			}
 			_, net, err := net.ParseCIDR(value)
 			if err != nil {
