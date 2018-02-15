@@ -125,7 +125,7 @@ func (t *Target) parseAccessRule(allowDeny string) error {
 		case ipAllowTag, ipDenyTag:
 			if value = strings.TrimSpace(temps[1]); !strings.Contains(value, "/") {
 				if ip = net.ParseIP(value); ip == nil {
-					return fmt.Errorf("failed to parse IP %s with error", value)
+					return fmt.Errorf("failed to parse IP %s", value)
 				}
 				if ip.To4() != nil {
 					value = ip.String() + "/32"
