@@ -7,7 +7,7 @@ import "errors"
 // handshake message header.
 // The function requires at least the first 9 bytes of the tls conversation
 // in "data".
-// 0, error is returned if the data does not follow the
+// An error is returned if the data does not follow the
 // specification (https://tools.ietf.org/html/rfc5246) or if the client hello
 // is fragmented over multiple records.
 func clientHelloBufferSize(data []byte) (int, error) {

@@ -10,6 +10,7 @@ func TestClientHelloBufferSize(t *testing.T) {
 		name string
 		data []byte
 		size int
+		fail bool
 	}{
 		{
 			name: "valid data",
@@ -17,16 +18,19 @@ func TestClientHelloBufferSize(t *testing.T) {
 			//                            |- 16384 -|      |----- 16380 ----|
 			data: []byte{0x16, 0x03, 0x01, 0x40, 0x00, 0x01, 0x00, 0x3f, 0xfc},
 			size: 16384 + 5, // max record length + record header
+			fail: false,
 		},
 		{
 			name: "not enough data",
 			data: []byte{0x16, 0x03, 0x01, 0x40, 0x00, 0x01, 0x00, 0x3f},
 			size: 0,
+			fail: true,
 		},
 		{
 			name: "not a TLS record",
 			data: []byte{0x15, 0x03, 0x01, 0x01, 0xF4, 0x01, 0x00, 0x01, 0xeb},
 			size: 0,
+			fail: true,
 		},
 
 		{
@@ -34,6 +38,7 @@ func TestClientHelloBufferSize(t *testing.T) {
 			//                             | max + 1 |
 			data: []byte{0x16, 0x03, 0x01, 0x40, 0x01, 0x01, 0x00, 0x3f, 0xfc},
 			size: 0,
+			fail: true,
 		},
 
 		{
@@ -41,6 +46,7 @@ func TestClientHelloBufferSize(t *testing.T) {
 			//                            |----------|
 			data: []byte{0x16, 0x03, 0x01, 0x00, 0x00, 0x01, 0x00, 0x3f, 0xfc},
 			size: 0,
+			fail: true,
 		},
 
 		{
@@ -48,6 +54,7 @@ func TestClientHelloBufferSize(t *testing.T) {
 			//                                        |----|
 			data: []byte{0x16, 0x03, 0x01, 0x40, 0x00, 0x02, 0x00, 0x3f, 0xfc},
 			size: 0,
+			fail: true,
 		},
 
 		{
@@ -55,6 +62,7 @@ func TestClientHelloBufferSize(t *testing.T) {
 			//                                              |----- 0 --------|
 			data: []byte{0x16, 0x03, 0x01, 0x40, 0x00, 0x01, 0x00, 0x00, 0x00},
 			size: 0,
+			fail: true,
 		},
 
 		{
@@ -62,22 +70,23 @@ func TestClientHelloBufferSize(t *testing.T) {
 			//                            |-  500 ---|      |----- 497 ------|
 			data: []byte{0x16, 0x03, 0x01, 0x01, 0xF4, 0x01, 0x00, 0x01, 0xf1},
 			size: 0,
+			fail: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := clientHelloBufferSize(tt.data)
-			want := tt.size
-			if got != want {
+
+			if tt.fail && err == nil {
+				t.Fatal("expected error, got nil")
+			} else if !tt.fail && err != nil {
+				t.Fatalf("expected error to be nil, got %s", err)
+			}
+
+			if want := tt.size; got != want {
 				t.Fatalf("want size %d, got %d", want, got)
 			}
-
-			// Function doc says returned length of 0 should be accompanied by an error
-			if got == 0 && err == nil {
-				t.Fatalf("expected error, got nil")
-			}
-
 		})
 	}
 }
