@@ -115,6 +115,36 @@ func TestProxySTSHeader(t *testing.T) {
 	}
 }
 
+func TestProxyChecksHeaderForAccessRules(t *testing.T) {
+	var hdr http.Header = make(http.Header)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hdr = r.Header
+	}))
+	defer server.Close()
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Config:    config.Proxy{},
+		Transport: http.DefaultTransport,
+		Lookup: func(r *http.Request) *route.Target {
+			tgt := &route.Target{
+				URL:  mustParse(server.URL),
+				Opts: map[string]string{"allow": "ip:127.0.0.0/8,ip:fe80::/10,ip:::1"},
+			}
+			tgt.ProcessAccessRules()
+			return tgt
+		},
+	})
+	defer proxy.Close()
+
+	req, _ := http.NewRequest("GET", proxy.URL, nil)
+	req.Header.Set("X-Forwarded-For", "1.2.3.4")
+	resp, _ := mustDo(req)
+
+	if got, want := resp.StatusCode, http.StatusForbidden; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
 func TestProxyNoRouteHTML(t *testing.T) {
 	want := "<html>503</html>"
 	noroute.SetHTML(want)
