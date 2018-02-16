@@ -30,7 +30,7 @@ func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
 	}
 
 	// check remote source and return if denied
-	if ip != nil && t.denyByIP(ip) {
+	if t.denyByIP(ip) {
 		return true
 	}
 
@@ -43,7 +43,8 @@ func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
 			if ip = net.ParseIP(xff); ip == nil {
 				log.Printf("[WARN] failed to parse xff address %s", xff)
 			}
-			if ip != nil && t.denyByIP(ip) {
+			// check xff source and return if denied
+			if t.denyByIP(ip) {
 				return true
 			}
 		}
@@ -55,8 +56,12 @@ func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
 
 // AccessDeniedTCP checks rules on the target for TCP proxy routes.
 func (t *Target) AccessDeniedTCP(c net.Conn) bool {
-	// currently only one function - more may be added in the future
-	return t.denyByIP(net.ParseIP(c.RemoteAddr().String()))
+	ip := net.ParseIP(c.RemoteAddr().String())
+	if t.denyByIP(ip) {
+		return true
+	}
+	// default allow
+	return false
 }
 
 func (t *Target) denyByIP(ip net.IP) bool {
@@ -78,6 +83,8 @@ func (t *Target) denyByIP(ip net.IP) bool {
 			}
 		}
 		// we checked all the blocks - deny this request
+		log.Printf("[INFO] route rules denied access from %s to %s",
+			ip.String(), t.URL.String())
 		return true
 	}
 
@@ -91,6 +98,8 @@ func (t *Target) denyByIP(ip net.IP) bool {
 			}
 			if block.Contains(ip) {
 				// specific deny matched - deny this request
+				log.Printf("[INFO] route rules denied access from %s to %s",
+					ip.String(), t.URL.String())
 				return true
 			}
 		}
@@ -98,6 +107,22 @@ func (t *Target) denyByIP(ip net.IP) bool {
 
 	// default - do not deny
 	return false
+}
+
+// ProcessAccessRules processes access rules from options specified on the target route
+func (t *Target) ProcessAccessRules() error {
+	if t.Opts["allow"] != "" && t.Opts["deny"] != "" {
+		return errors.New("specifying allow and deny on the same route is not supported")
+	}
+
+	for _, allowDeny := range []string{"allow", "deny"} {
+		if t.Opts[allowDeny] != "" {
+			if err := t.parseAccessRule(allowDeny); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func (t *Target) parseAccessRule(allowDeny string) error {
@@ -145,20 +170,5 @@ func (t *Target) parseAccessRule(allowDeny string) error {
 		}
 	}
 
-	return nil
-}
-
-func (t *Target) processAccessRules() error {
-	if t.Opts["allow"] != "" && t.Opts["deny"] != "" {
-		return errors.New("specifying allow and deny on the same route is not supported")
-	}
-
-	for _, allowDeny := range []string{"allow", "deny"} {
-		if t.Opts[allowDeny] != "" {
-			if err := t.parseAccessRule(allowDeny); err != nil {
-				return err
-			}
-		}
-	}
 	return nil
 }

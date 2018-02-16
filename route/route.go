@@ -81,7 +81,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 			}
 		}
 
-		if err = t.processAccessRules(); err != nil {
+		if err = t.ProcessAccessRules(); err != nil {
 			log.Printf("[ERROR] failed to process access rules: %s",
 				err.Error())
 		}

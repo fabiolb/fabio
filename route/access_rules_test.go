@@ -3,6 +3,7 @@ package route
 import (
 	"net"
 	"net/http"
+	"net/url"
 	"testing"
 )
 
@@ -140,10 +141,11 @@ func TestAccessRules_denyByIP(t *testing.T) {
 		tt := tt // capture loop var
 
 		t.Run(tt.desc, func(t *testing.T) {
-			if err := tt.target.processAccessRules(); err != nil {
+			if err := tt.target.ProcessAccessRules(); err != nil {
 				t.Errorf("%d: %s - failed to process access rules: %s",
 					i, tt.desc, err.Error())
 			}
+			tt.target.URL, _ = url.Parse("http://testing.test/")
 			if deny := tt.target.denyByIP(tt.remote); deny != tt.denied {
 				t.Errorf("%d: %s\ngot denied: %t\nwant denied: %t\n",
 					i, tt.desc, deny, tt.denied)
@@ -207,10 +209,11 @@ func TestAccessRules_AccessDeniedHTTP(t *testing.T) {
 		req.RemoteAddr = tt.remote
 
 		t.Run(tt.desc, func(t *testing.T) {
-			if err := tt.target.processAccessRules(); err != nil {
+			if err := tt.target.ProcessAccessRules(); err != nil {
 				t.Errorf("%d: %s - failed to process access rules: %s",
 					i, tt.desc, err.Error())
 			}
+			tt.target.URL, _ = url.Parse("http://testing.test/")
 			if deny := tt.target.AccessDeniedHTTP(req); deny != tt.denied {
 				t.Errorf("%d: %s\ngot denied: %t\nwant denied: %t\n",
 					i, tt.desc, deny, tt.denied)
