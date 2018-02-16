@@ -15,6 +15,7 @@ import (
 	"github.com/fabiolb/fabio/logger"
 	"github.com/fabiolb/fabio/metrics"
 	"github.com/fabiolb/fabio/noroute"
+	"github.com/fabiolb/fabio/proxy/fastcgi"
 	"github.com/fabiolb/fabio/proxy/gzip"
 	"github.com/fabiolb/fabio/route"
 	"github.com/fabiolb/fabio/uuid"
@@ -23,7 +24,7 @@ import (
 // HTTPProxy is a dynamic reverse proxy for HTTP and HTTPS protocols.
 type HTTPProxy struct {
 	// Config is the proxy configuration as provided during startup.
-	Config config.Proxy
+	Config *config.Config
 
 	// Time returns the current time as the number of seconds since the epoch.
 	// If Time is nil, time.Now is used.
@@ -62,17 +63,17 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		panic("no lookup function")
 	}
 
-	if p.Config.RequestID != "" {
+	if p.Config.Proxy.RequestID != "" {
 		id := p.UUID
 		if id == nil {
 			id = uuid.NewUUID
 		}
-		r.Header.Set(p.Config.RequestID, id())
+		r.Header.Set(p.Config.Proxy.RequestID, id())
 	}
 
 	t := p.Lookup(r)
 	if t == nil {
-		status := p.Config.NoRouteStatus
+		status := p.Config.Proxy.NoRouteStatus
 		if status < 100 || status > 999 {
 			status = http.StatusNotFound
 		}
@@ -129,12 +130,12 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		targetURL.Path = targetURL.Path[len(t.StripPath):]
 	}
 
-	if err := addHeaders(r, p.Config, t.StripPath); err != nil {
+	if err := addHeaders(r, p.Config.Proxy, t.StripPath); err != nil {
 		http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
 		return
 	}
 
-	if err := addResponseHeaders(w, r, p.Config); err != nil {
+	if err := addResponseHeaders(w, r, p.Config.Proxy); err != nil {
 		http.Error(w, "cannot add response headers", http.StatusInternalServerError)
 		return
 	}
@@ -146,8 +147,27 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		tr = p.InsecureTransport
 	}
 
+	isFCGI := false
+	if v, ok := t.Opts["proto"]; ok && v == "fcgi" {
+		isFCGI = true
+	}
+
 	var h http.Handler
 	switch {
+	case isFCGI:
+		fcgiProxy := fastcgi.NewProxy(p.Config, targetURL.Host)
+		if fcgiRoot, ok := t.Opts["root"]; ok {
+			fcgiProxy.SetRoot(fcgiRoot)
+		}
+		if stripPrefix, ok := t.Opts["strip"]; ok {
+			fcgiProxy.SetStripPathPrefix(stripPrefix)
+		}
+		if indexFile, ok := t.Opts["index"]; ok {
+			fcgiProxy.SetIndex(indexFile)
+		}
+
+		h = fcgiProxy
+
 	case upgrade == "websocket" || upgrade == "Websocket":
 		r.URL = targetURL
 		if targetURL.Scheme == "https" || targetURL.Scheme == "wss" {
@@ -161,14 +181,14 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case accept == "text/event-stream":
 		// use the flush interval for SSE (server-sent events)
 		// must be > 0s to be effective
-		h = newHTTPProxy(targetURL, tr, p.Config.FlushInterval)
+		h = newHTTPProxy(targetURL, tr, p.Config.Proxy.FlushInterval)
 
 	default:
 		h = newHTTPProxy(targetURL, tr, time.Duration(0))
 	}
 
-	if p.Config.GZIPContentTypes != nil {
-		h = gzip.NewGzipHandler(h, p.Config.GZIPContentTypes)
+	if p.Config.Proxy.GZIPContentTypes != nil {
+		h = gzip.NewGzipHandler(h, p.Config.Proxy.GZIPContentTypes)
 	}
 
 	timeNow := p.Time

@@ -75,4 +75,11 @@ var defaultConfig = &Config{
 		Color:  "light-green",
 		Access: "rw",
 	},
+	FastCGI: FastCGI{
+		Root:         "",
+		Index:        "index.php",
+		SplitPath:    ".php",
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	},
 }
