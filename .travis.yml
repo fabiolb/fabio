@@ -5,7 +5,7 @@ language: go
 go:
     - 1.8.x
     - 1.9.x
-    - 1.10rc2
+    - "1.10.x"
 
 before_script:
   - echo $HOSTNAME
