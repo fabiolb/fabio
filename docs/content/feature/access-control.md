@@ -35,3 +35,15 @@ Single host addresses (addresses without a prefix) will have a
 That means `1.2.3.4` is equivalent to `1.2.3.4/32` and `fe80::1234`
 is equivalent to `fe80::1234/128` when specifying
 address blocks for `allow` or `deny` rules.
+
+The source ip used for validation against the defined ruleset is
+taken from information available in the request.
+
+For `HTTP` requests the client `RemoteAddr` is always validated
+followed by the first element of the `X-Forwarded-For` header, if
+present.  When either of these elements match an `allow` the request
+will be allowed; similarly when either element matches a `deny` the
+request will be denied.
+
+For `TCP` requests the originating address of the network socket
+is used as the sole paramater for validation.
