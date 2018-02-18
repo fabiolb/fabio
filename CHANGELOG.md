@@ -8,10 +8,17 @@
 
 #### Bug Fixes
 
-* Fix windows build.
+ * Fix windows build.
 
-  fabio 1.5.7 broke the Windows build but this wasn't detected since the new build process did
-  not build the Windows binaries. This has been fixed.
+   fabio 1.5.7 broke the Windows build but this wasn't detected since the new build process did
+   not build the Windows binaries. This has been fixed.
+
+ * [Issue #438](https://github.com/fabiolb/fabio/pull/438): Do not add separator to `noroute.html` page
+
+   fabio 1.5.7 added support for multiple routing tables in Consul and added a comment
+   which described the origin to the output. The same comment was added to the `noroute.html`
+   page since the same code is used to fetch it. This returned an invalid HTML page which
+   has been fixed.
 
 #### Improvements
 
@@ -21,7 +28,7 @@
  * [PR #426](https://github.com/fabiolb/fabio/pull/426): Add option to allow Fabio to register frontend services in Consul on behalf of user services
 
    With this patch fabio can register itself multiple times under different names in Consul.
-   By adding the `register=name` option to a route fabio will register itself under that 
+   By adding the `register=name` option to a route fabio will register itself under that
    name as well.
 
    Thanks to (@rileyje)[https://github.com/rileyje] for the patch.
@@ -64,7 +71,7 @@
 
  * [Issue #396](https://github.com/fabiolb/fabio/issues/396): treat `registry.consul.kvpath` as prefix
 
-   This patch allows fabio to have multiple manual routing tables stored in consul, e.g. 
+   This patch allows fabio to have multiple manual routing tables stored in consul, e.g.
    under `fabio/config/foo` and `fabio/config/bar`. The routing table fragments are
    concatenated in lexicographical order of the keys and the log output contains comments
    to indicate to which key the segment belongs.
