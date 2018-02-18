@@ -26,6 +26,15 @@
 
    Thanks to (@rileyje)[https://github.com/rileyje] for the patch.
 
+ * [PR #442](https://github.com/fabiolb/fabio/pull/442): Add basic ip centric access control on routes
+
+   With this patch fabio adds an `allow` and `deny` option to the routes which allows
+   for basic ip white and black listing of IPv4 and IPv6 addresses. See http://fabiolb.net/feature/access-control/
+   for more details.
+
+   Thanks to (@leprechau)[https://github.com/leprechau] for the patch and (@microadam)[https://github.com/microadam]
+   for the testing.
+
 ### [v1.5.7](https://github.com/fabiolb/fabio/releases/tag/v1.5.7) - 6 Feb 2018
 
 #### Breaking Changes
