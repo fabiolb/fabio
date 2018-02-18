@@ -22,6 +22,12 @@
 
 #### Improvements
 
+ * [PR #423](https://github.com/fabiolb/fabio/pull/423): TCP+SNI support arbitrary large Client Hello
+
+   With this patch fabio correctly parses `ClientHello` messages on TLS connections up to their
+   maximum size.
+
+   Thanks to (@DanSipola)[https://github.com/DanSipola] for the patch.
 
 #### Features
 
