@@ -45,5 +45,10 @@ present.  When either of these elements match an `allow` the request
 will be allowed; similarly when either element matches a `deny` the
 request will be denied.
 
-For `TCP` requests the originating address of the network socket
+For `TCP` requests the source address of the network socket
 is used as the sole paramater for validation.
+
+If the inbound connection uses the [PROXY protocol](https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt)
+to transmit the true source address of the client then it will
+be used for both `HTTP` and `TCP` connections for validating access.
+
