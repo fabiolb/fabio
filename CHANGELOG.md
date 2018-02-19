@@ -1,5 +1,37 @@
 ## Changelog
 
+### Unreleased
+
+#### Breaking Changes
+
+ * None
+
+#### Bug Fixes
+
+ * None
+
+#### Improvements
+
+ * [Issue #427](https://github.com/fabiolb/fabio/issues/427): Fabio does not remove service when one of the registered health-checks fail
+
+   If a service has more than one health check then the behavior in whether the
+   service is available differs between Consul and Fabio. Consul requires that
+   all health checks for a service need to pass in order to return a positive
+   DNS result. Fabio requires only one of the health checks to pass.
+
+   A new config option `registry.consul.checksRequired` has been added which
+   defaults to the current fabio behavior of `one` passing health check for the
+   service to be added to the routing table. To make fabio behave like Consul
+   you can set the option to `all`.
+
+   Fabio will make `all` the default as of version 1.6.
+
+   Thanks to (@systemfreund)[https://github.com/systemfreund] for the patch.
+
+#### Features
+
+ * None
+
 ### [v1.5.8](https://github.com/fabiolb/fabio/releases/tag/v1.5.8) - 18 Feb 2018
 
 #### Breaking Changes
@@ -10,22 +42,22 @@
 
  * Fix windows build.
 
-   fabio 1.5.7 broke the Windows build but this wasn't detected since the new build process did
-   not build the Windows binaries. This has been fixed.
+   fabio 1.5.7 broke the Windows build but this wasn't detected since the new
+   build process did not build the Windows binaries. This has been fixed.
 
  * [Issue #438](https://github.com/fabiolb/fabio/pull/438): Do not add separator to `noroute.html` page
 
-   fabio 1.5.7 added support for multiple routing tables in Consul and added a comment
-   which described the origin to the output. The same comment was added to the `noroute.html`
-   page since the same code is used to fetch it. This returned an invalid HTML page which
-   has been fixed.
+   fabio 1.5.7 added support for multiple routing tables in Consul and added a
+   comment which described the origin to the output. The same comment was added
+   to the `noroute.html` page since the same code is used to fetch it. This
+   returned an invalid HTML page which has been fixed.
 
 #### Improvements
 
  * [PR #423](https://github.com/fabiolb/fabio/pull/423): TCP+SNI support arbitrary large Client Hello
 
-   With this patch fabio correctly parses `ClientHello` messages on TLS connections up to their
-   maximum size.
+   With this patch fabio correctly parses `ClientHello` messages on TLS
+   connections up to their maximum size.
 
    Thanks to (@DanSipola)[https://github.com/DanSipola] for the patch.
 
@@ -33,20 +65,20 @@
 
  * [PR #426](https://github.com/fabiolb/fabio/pull/426): Add option to allow Fabio to register frontend services in Consul on behalf of user services
 
-   With this patch fabio can register itself multiple times under different names in Consul.
-   By adding the `register=name` option to a route fabio will register itself under that
-   name as well.
+   With this patch fabio can register itself multiple times under different
+   names in Consul. By adding the `register=name` option to a route fabio will
+   register itself under that name as well.
 
    Thanks to (@rileyje)[https://github.com/rileyje] for the patch.
 
  * [PR #442](https://github.com/fabiolb/fabio/pull/442): Add basic ip centric access control on routes
 
-   With this patch fabio adds an `allow` and `deny` option to the routes which allows
-   for basic ip white and black listing of IPv4 and IPv6 addresses. See http://fabiolb.net/feature/access-control/
-   for more details.
+   With this patch fabio adds an `allow` and `deny` option to the routes which
+   allows for basic ip white and black listing of IPv4 and IPv6 addresses. See
+   http://fabiolb.net/feature/access-control/ for more details.
 
-   Thanks to (@leprechau)[https://github.com/leprechau] for the patch and (@microadam)[https://github.com/microadam]
-   for the testing.
+   Thanks to (@leprechau)[https://github.com/leprechau] for the patch and
+   (@microadam)[https://github.com/microadam] for the testing.
 
 ### [v1.5.7](https://github.com/fabiolb/fabio/releases/tag/v1.5.7) - 6 Feb 2018
 
