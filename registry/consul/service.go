@@ -10,13 +10,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fabiolb/fabio/config"
 	"github.com/hashicorp/consul/api"
 )
 
 // watchServices monitors the consul health checks and creates a new configuration
 // on every change.
-func watchServices(client *api.Client, tagPrefix string, status []string, config chan string) {
+func watchServices(client *api.Client, config *config.Consul, svcConfig chan string) {
 	var lastIndex uint64
+	var strict bool = strings.EqualFold("all", config.ChecksRequired)
 
 	for {
 		q := &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
@@ -28,7 +30,7 @@ func watchServices(client *api.Client, tagPrefix string, status []string, config
 		}
 
 		log.Printf("[DEBUG] consul: Health changed to #%d", meta.LastIndex)
-		config <- servicesConfig(client, passingServices(checks, status), tagPrefix)
+		svcConfig <- servicesConfig(client, passingServices(checks, config.ServiceStatus, strict), config.TagPrefix)
 		lastIndex = meta.LastIndex
 	}
 }
