@@ -26,7 +26,7 @@
 
    Fabio will make `all` the default as of version 1.6.
 
-   Thanks to (@systemfreund)[https://github.com/systemfreund] for the patch.
+   Thanks to [@systemfreund](https://github.com/systemfreund) for the patch.
 
 #### Features
 
@@ -59,7 +59,7 @@
    With this patch fabio correctly parses `ClientHello` messages on TLS
    connections up to their maximum size.
 
-   Thanks to (@DanSipola)[https://github.com/DanSipola] for the patch.
+   Thanks to [@DanSipola](https://github.com/DanSipola) for the patch.
 
 #### Features
 
@@ -69,7 +69,7 @@
    names in Consul. By adding the `register=name` option to a route fabio will
    register itself under that name as well.
 
-   Thanks to (@rileyje)[https://github.com/rileyje] for the patch.
+   Thanks to [@rileyje](https://github.com/rileyje) for the patch.
 
  * [PR #442](https://github.com/fabiolb/fabio/pull/442): Add basic ip centric access control on routes
 
@@ -77,8 +77,8 @@
    allows for basic ip white and black listing of IPv4 and IPv6 addresses. See
    http://fabiolb.net/feature/access-control/ for more details.
 
-   Thanks to (@leprechau)[https://github.com/leprechau] for the patch and
-   (@microadam)[https://github.com/microadam] for the testing.
+   Thanks to [@leprechau](https://github.com/leprechau) for the patch and
+   [@microadam](https://github.com/microadam) for the testing.
 
 ### [v1.5.7](https://github.com/fabiolb/fabio/releases/tag/v1.5.7) - 6 Feb 2018
 
@@ -118,7 +118,7 @@
 
    fabio has now support for adding HSTS headers to the response.
 
-   Thanks to (@leprechau)[https://github.com/leprechau] for the patch.
+   Thanks to [@leprechau](https://github.com/leprechau) for the patch.
 
 ### [v1.5.6](https://github.com/fabiolb/fabio/releases/tag/v1.5.6) - 5 Jan 2018
 
