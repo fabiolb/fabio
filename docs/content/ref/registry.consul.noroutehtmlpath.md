@@ -8,4 +8,4 @@ The consul KV path is watched for changes.
 
 The default is
 
-	registry.consul.noroutehtmlpath = /fabio/noroutes.html
+	registry.consul.noroutehtmlpath = /fabio/noroute.html
