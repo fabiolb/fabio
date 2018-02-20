@@ -51,7 +51,7 @@ It supports ([Full feature list](https://fabiolb.net/feature/))
 * [Raw TCP proxy](https://fabiolb.net/feature/tcp-proxy/)
 * [TCP+SNI proxy for full end-to-end TLS](https://fabiolb.net/feature/tcp-sni-proxy/) without decryption
 * [HTTPS upstream support](https://fabiolb.net/feature/https-upstream/)
-* [Websockets](https://fabiolb.net/feature/websocket-support/) and
+* [Websockets](https://fabiolb.net/feature/websockets/) and
   [SSE](https://fabiolb.net/feature/sse/)
 * [Dynamic reloading without restart](https://fabiolb.net/feature/dynamic-reloading/)
 * [Traffic shaping](https://fabiolb.net/feature/traffic-shaping/) for "blue/green" deployments,
