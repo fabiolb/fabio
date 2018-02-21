@@ -2,7 +2,9 @@ package proxy
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -57,6 +59,23 @@ type HTTPProxy struct {
 	UUID func() string
 }
 
+type Trace struct {
+	Method      string `json:"method"`
+	Host        string `json:"host"`
+	Request     string `json:"request"`
+	Action      string `json:"action"`
+	Service     string `json:"service,omitempty"`
+	Target      string `json:"target,omitempty"`
+	RedirectURL string `json:"redirectURL,omitempty"`
+	TargetURL   string `json:"targetURL,omitempty"`
+	Code        int    `json:"code,omitempty"`
+}
+
+func logTrace(t Trace) {
+	b, _ := json.Marshal(t)
+	log.Print("[TRACE] http: ", string(b))
+}
+
 func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if p.Lookup == nil {
 		panic("no lookup function")
@@ -81,10 +100,25 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if html != "" {
 			io.WriteString(w, html)
 		}
+		logTrace(Trace{
+			Action:  "no route",
+			Method:  r.Method,
+			Host:    r.Host,
+			Request: r.URL.String(),
+			Code:    status,
+		})
 		return
 	}
 
 	if t.AccessDeniedHTTP(r) {
+		logTrace(Trace{
+			Action:  "access denied",
+			Method:  r.Method,
+			Host:    r.Host,
+			Request: r.URL.String(),
+			Service: t.Service,
+			Target:  t.URL.String(),
+		})
 		http.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
@@ -105,6 +139,15 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			t.Timer.Update(0)
 		}
 		metrics.DefaultRegistry.GetTimer(key(t.RedirectCode)).Update(0)
+		logTrace(Trace{
+			Action:      "redirect",
+			Method:      r.Method,
+			Host:        r.Host,
+			Request:     r.URL.String(),
+			Service:     t.Service,
+			Target:      t.URL.String(),
+			RedirectURL: redirectURL.String(),
+		})
 		return
 	}
 
@@ -154,6 +197,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var h http.Handler
 	switch {
 	case upgrade == "websocket" || upgrade == "Websocket":
+		origReqURL := r.URL
 		r.URL = targetURL
 		if targetURL.Scheme == "https" || targetURL.Scheme == "wss" {
 			h = newRawProxy(targetURL.Host, func(network, address string) (net.Conn, error) {
@@ -162,14 +206,41 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else {
 			h = newRawProxy(targetURL.Host, net.Dial)
 		}
+		logTrace(Trace{
+			Action:    "websocket proxy",
+			Method:    r.Method,
+			Host:      r.Host,
+			Request:   origReqURL.String(),
+			Service:   t.Service,
+			Target:    t.URL.String(),
+			TargetURL: targetURL.String(),
+		})
 
 	case accept == "text/event-stream":
 		// use the flush interval for SSE (server-sent events)
 		// must be > 0s to be effective
 		h = newHTTPProxy(targetURL, tr, p.Config.FlushInterval)
+		logTrace(Trace{
+			Action:    "event-stream proxy",
+			Method:    r.Method,
+			Host:      r.Host,
+			Request:   r.URL.String(),
+			Service:   t.Service,
+			Target:    t.URL.String(),
+			TargetURL: targetURL.String(),
+		})
 
 	default:
 		h = newHTTPProxy(targetURL, tr, time.Duration(0))
+		logTrace(Trace{
+			Action:    "http proxy",
+			Method:    r.Method,
+			Host:      r.Host,
+			Request:   r.URL.String(),
+			Service:   t.Service,
+			Target:    t.URL.String(),
+			TargetURL: targetURL.String(),
+		})
 	}
 
 	if p.Config.GZIPContentTypes != nil {
