@@ -11,10 +11,12 @@ func TestTarget_GetRedirectURL(t *testing.T) {
 		want string
 	}
 	tests := []struct {
+		desc  string
 		route string
 		tests []routeTest
 	}{
-		{ // simple absolute redirect
+		{
+			desc:  "simple absolute redirect",
 			route: "route add svc / http://bar.com/",
 			tests: []routeTest{
 				{req: "/", want: "http://bar.com/"},
@@ -23,7 +25,8 @@ func TestTarget_GetRedirectURL(t *testing.T) {
 				{req: "/?aaa=1", want: "http://bar.com/"},
 			},
 		},
-		{ // absolute redirect to deep path with query
+		{
+			desc:  "absolute redirect to deep path with query",
 			route: "route add svc / http://bar.com/a/b/c?foo=bar",
 			tests: []routeTest{
 				{req: "/", want: "http://bar.com/a/b/c?foo=bar"},
@@ -32,7 +35,8 @@ func TestTarget_GetRedirectURL(t *testing.T) {
 				{req: "/?aaa=1", want: "http://bar.com/a/b/c?foo=bar"},
 			},
 		},
-		{ // simple redirect to corresponding path
+		{
+			desc:  "simple redirect to corresponding path",
 			route: "route add svc / http://bar.com/$path",
 			tests: []routeTest{
 				{req: "/", want: "http://bar.com/"},
@@ -42,7 +46,8 @@ func TestTarget_GetRedirectURL(t *testing.T) {
 				{req: "/abc/?aaa=1", want: "http://bar.com/abc/?aaa=1"},
 			},
 		},
-		{ // same as above but without / before $path
+		{
+			desc:  "same as above but without / before $path",
 			route: "route add svc / http://bar.com$path",
 			tests: []routeTest{
 				{req: "/", want: "http://bar.com/"},
@@ -52,7 +57,8 @@ func TestTarget_GetRedirectURL(t *testing.T) {
 				{req: "/abc/?aaa=1", want: "http://bar.com/abc/?aaa=1"},
 			},
 		},
-		{ // arbitrary subdir on target with $path at end
+		{
+			desc:  "arbitrary subdir on target with $path at end",
 			route: "route add svc / http://bar.com/bbb/$path",
 			tests: []routeTest{
 				{req: "/", want: "http://bar.com/bbb/"},
@@ -62,7 +68,8 @@ func TestTarget_GetRedirectURL(t *testing.T) {
 				{req: "/abc/?aaa=1", want: "http://bar.com/bbb/abc/?aaa=1"},
 			},
 		},
-		{ // same as above but without / before $path
+		{
+			desc:  "same as above but without / before $path",
 			route: "route add svc / http://bar.com/bbb$path",
 			tests: []routeTest{
 				{req: "/", want: "http://bar.com/bbb/"},
@@ -72,7 +79,8 @@ func TestTarget_GetRedirectURL(t *testing.T) {
 				{req: "/abc/?aaa=1", want: "http://bar.com/bbb/abc/?aaa=1"},
 			},
 		},
-		{ // strip prefix
+		{
+			desc:  "strip prefix",
 			route: "route add svc /stripme http://bar.com/$path opts \"strip=/stripme\"",
 			tests: []routeTest{
 				{req: "/stripme/", want: "http://bar.com/"},
@@ -90,15 +98,19 @@ func TestTarget_GetRedirectURL(t *testing.T) {
 		return nil
 	}
 	for _, tt := range tests {
-		tbl, _ := NewTable(tt.route)
-		route := firstRoute(tbl)
-		target := route.Targets[0]
-		for _, rt := range tt.tests {
-			reqURL, _ := url.Parse("http://foo.com" + rt.req)
-			got := target.GetRedirectURL(reqURL)
-			if got.String() != rt.want {
-				t.Errorf("Got %s, wanted %s", got, rt.want)
+		t.Run(tt.desc, func(t *testing.T) {
+			tbl, _ := NewTable(tt.route)
+			route := firstRoute(tbl)
+			target := route.Targets[0]
+			for _, rt := range tt.tests {
+				t.Run("", func(t *testing.T) {
+					reqURL, _ := url.Parse("http://foo.com" + rt.req)
+					got := target.GetRedirectURL(reqURL)
+					if got.String() != rt.want {
+						t.Errorf("Got %s, wanted %s", got, rt.want)
+					}
+				})
 			}
-		}
+		})
 	}
 }
