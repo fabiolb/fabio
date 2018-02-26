@@ -29,11 +29,6 @@ func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
 		log.Printf("[WARN] failed to parse remote address %s", host)
 	}
 
-	// check remote source and return if denied
-	if t.denyByIP(ip) {
-		return true
-	}
-
 	// check xff source if present
 	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
 		// only use left-most element (client)
@@ -48,6 +43,11 @@ func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
 				return true
 			}
 		}
+	}
+
+	// check remote source and return if denied
+	if t.denyByIP(ip) {
+		return true
 	}
 
 	// default allow
