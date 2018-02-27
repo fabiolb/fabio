@@ -132,6 +132,7 @@ type Consul struct {
 	KVPath                              string
 	NoRouteHTMLPath                     string
 	TagPrefix                           string
+	RawTagPrefix                        string
 	Register                            bool
 	ServiceAddr                         string
 	ServiceName                         string
