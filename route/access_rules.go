@@ -47,14 +47,15 @@ func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
 			// ensure we only get the ip string
 			xip = strings.TrimSpace(xip)
 			// only continue if xip differs from host
-			if xip != host {
-				if ip = net.ParseIP(xip); ip == nil {
-					log.Printf("[WARN] failed to parse xff address %s", xip)
-				}
-				// check xff source and return if denied
-				if t.denyByIP(ip) {
-					return true
-				}
+			if xip == host {
+				continue
+			}
+			if ip = net.ParseIP(xip); ip == nil {
+				log.Printf("[WARN] failed to parse xff address %s", xip)
+			}
+			// check xff source and return if denied
+			if t.denyByIP(ip) {
+				return true
 			}
 		}
 	}
