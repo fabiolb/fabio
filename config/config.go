@@ -66,6 +66,7 @@ type Proxy struct {
 	GZIPContentTypes      *regexp.Regexp
 	RequestID             string
 	STSHeader             STSHeader
+	TrustXFF              bool
 }
 
 type STSHeader struct {

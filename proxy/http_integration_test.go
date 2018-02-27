@@ -26,7 +26,36 @@ import (
 	"github.com/pascaldekloe/goe/verify"
 )
 
-func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
+func TestProxyProducesCorrectXForwardedSomethingHeaderWithTrustXFF(t *testing.T) {
+	var hdr http.Header = make(http.Header)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hdr = r.Header
+	}))
+	defer server.Close()
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Config:    config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For", TrustXFF: true},
+		Transport: http.DefaultTransport,
+		Lookup: func(r *http.Request) *route.Target {
+			return &route.Target{URL: mustParse(server.URL)}
+		},
+	})
+	defer proxy.Close()
+
+	req, _ := http.NewRequest("GET", proxy.URL, nil)
+	req.Host = "foo.com"
+	req.Header.Set("X-Forwarded-For", "3.3.3.3")
+	mustDo(req)
+
+	if got, want := hdr.Get("X-Forwarded-For"), "3.3.3.3, 127.0.0.1"; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+	if got, want := hdr.Get("X-Forwarded-Host"), "foo.com"; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func TestProxyProducesCorrectXForwardedSomethingHeaderWithoutTrustXFF(t *testing.T) {
 	var hdr http.Header = make(http.Header)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		hdr = r.Header
@@ -47,7 +76,7 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 	req.Header.Set("X-Forwarded-For", "3.3.3.3")
 	mustDo(req)
 
-	if got, want := hdr.Get("X-Forwarded-For"), "3.3.3.3, 127.0.0.1"; got != want {
+	if got, want := hdr.Get("X-Forwarded-For"), "127.0.0.1"; got != want {
 		t.Errorf("got %v want %v", got, want)
 	}
 	if got, want := hdr.Get("X-Forwarded-Host"), "foo.com"; got != want {
@@ -123,7 +152,7 @@ func TestProxyChecksHeaderForAccessRules(t *testing.T) {
 	defer server.Close()
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    config.Proxy{},
+		Config:    config.Proxy{TrustXFF: true}, // test assumes fabio is behind another lb
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			tgt := &route.Target{
