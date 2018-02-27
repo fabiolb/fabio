@@ -94,16 +94,24 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 			continue
 		}
 
-		// get all tags which do not have the tag prefix
+		// get all tags which do not have the tag prefix or the raw tag prefix
+		const rawPrefix = "fabio "
 		var svctags []string
 		for _, tag := range svc.ServiceTags {
-			if !strings.HasPrefix(tag, tagPrefix) {
+			if !strings.HasPrefix(tag, tagPrefix) && !strings.HasPrefix(tag, rawPrefix) {
 				svctags = append(svctags, tag)
 			}
 		}
 
 		// generate route commands
 		for _, tag := range svc.ServiceTags {
+			// add raw tags as is
+			if strings.HasPrefix(tag, rawPrefix) {
+				tag = strings.TrimSpace(tag[len(rawPrefix):])
+				config = append(config, tag)
+				continue
+			}
+
 			if route, opts, ok := parseURLPrefixTag(tag, tagPrefix, env); ok {
 				name, addr, port := svc.ServiceName, svc.ServiceAddress, svc.ServicePort
 
