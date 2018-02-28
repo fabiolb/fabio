@@ -4,6 +4,8 @@ import (
 	"log"
 	"path"
 	"strings"
+
+	"github.com/gobwas/glob"
 )
 
 // matcher determines whether a host/path matches a route
@@ -12,8 +14,9 @@ type matcher func(uri string, r *Route) bool
 // Matcher contains the available matcher functions.
 // Update config/load.go#load after updating.
 var Matcher = map[string]matcher{
-	"prefix": prefixMatcher,
-	"glob":   globMatcher,
+	"prefix":      prefixMatcher,
+	"glob":        globMatcher,
+	"gobwas/glob": gobwasGlobMatcher,
 }
 
 // prefixMatcher matches path to the routes' path.
@@ -29,4 +32,11 @@ func globMatcher(uri string, r *Route) bool {
 		return false
 	}
 	return hasMatch
+}
+
+
+// gobwasGlobMatcher matches path to the routes' path using gobwas/glob.
+func gobwasGlobMatcher(uri string, r *Route) bool {
+	var g = glob.MustCompile(r.Path)
+	return g.Match(uri)
 }
