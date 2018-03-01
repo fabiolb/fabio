@@ -12,7 +12,7 @@ Consul. In addition, fabio needs to be configured to listen on that port:
 fabio -proxy.addr ':1234;proto=tcp'
 ```
 
-TCP proxy support can be combined with [Certificate Stores](./certificate-stores) to provide TLS termination on fabio.
+TCP proxy support can be combined with [Certificate Stores](/feature/certificate-stores/) to provide TLS termination on fabio.
 
 ```
 fabio -proxy.cs 'cs=ssl;type=path;path=/etc/ssl' -proxy.addr ':1234;proto=tcp;cs=ssl'
