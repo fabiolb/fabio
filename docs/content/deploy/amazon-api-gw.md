@@ -35,4 +35,4 @@ generated certificate you need to configure the `aws.apigw.cert.cn` as follows:
 `api-gw-cert.pem` is the certificate generated in the AWS Management Console. `your/cert.pem` and `your/key.pem`
 is the certificate/key pair for the HTTPS certificate. Since the Amazon API Gateway certificates don't have the `CA` flag set fabio needs to trust them for the client certificate authentication to work. Otherwise, you will get an `TLS handshake error: failed to verify client's certificate`. See [Issue 108](/eBay/fabio/issues/108) for details.
 
-**Note:** The `aws.apigw.cert.cn` parameter will not be supported in version 1.2 and later which support dynamic certificate stores. You will have to add the `caupgcn=ApiGateway` parameter to the certificate source configuration instead. See [Certificate Stores](/#certificate-stores) for more detail.
+**Note:** The `aws.apigw.cert.cn` parameter will not be supported in version 1.2 and later which support dynamic certificate stores. You will have to add the `caupgcn=ApiGateway` parameter to the certificate source configuration instead. See [Certificate Stores](/feature/certificate-stores/) for more detail.
