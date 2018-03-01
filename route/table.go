@@ -14,6 +14,7 @@ import (
 
 	"github.com/fabiolb/fabio/metrics"
 	"github.com/ryanuber/go-glob"
+	glob2 "github.com/gobwas/glob"
 )
 
 var errInvalidPrefix = errors.New("route: prefix must not be empty")
@@ -153,7 +154,7 @@ func (t Table) addRoute(d *RouteDef) error {
 	switch {
 	// add new host
 	case t[host] == nil:
-		r := &Route{Host: host, Path: path}
+		r := &Route{Host: host, Path: path, Matcher: glob2.MustCompile(path)}
 		r.addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
 		t[host] = Routes{r}
 
