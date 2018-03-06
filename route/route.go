@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gobwas/glob"
 	"github.com/fabiolb/fabio/metrics"
+	"github.com/gobwas/glob"
 )
 
 // Route maps a path prefix to one or more target URLs.
@@ -39,7 +39,7 @@ type Route struct {
 	total uint64
 
 	// Matcher represents compiled pattern.
-	Matcher glob.Glob
+	Glob glob.Glob
 }
 
 func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float64, tags []string, opts map[string]string) {

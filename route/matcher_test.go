@@ -61,5 +61,5 @@ func TestGlobMatcher(t *testing.T) {
 }
 
 func getRoute(path string) *Route {
-	return &Route{Path: path, Matcher: glob.MustCompile(path)}
+	return &Route{Path: path, Glob: glob.MustCompile(path)}
 }

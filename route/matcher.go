@@ -21,5 +21,5 @@ func prefixMatcher(uri string, r *Route) bool {
 
 // globMatcher matches path to the routes' path using gobwas/glob.
 func globMatcher(uri string, r *Route) bool {
-	return r.Matcher.Match(uri)
+	return r.Glob.Match(uri)
 }
