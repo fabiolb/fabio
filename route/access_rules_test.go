@@ -222,7 +222,7 @@ func TestAccessRules_AccessDeniedHTTP(t *testing.T) {
 				t.Errorf("%d: %s - failed to process access rules: %s",
 					i, tt.desc, err.Error())
 			}
-			tt.target.URL, _ = url.Parse("http://testing.test/")
+			tt.target.URL = mustParse("http://testing.test/")
 			if deny := tt.target.AccessDeniedHTTP(req); deny != tt.denied {
 				t.Errorf("%d: %s\ngot denied: %t\nwant denied: %t\n",
 					i, tt.desc, deny, tt.denied)
