@@ -164,7 +164,11 @@ func (t Table) addRoute(d *RouteDef) error {
 
 	// add new route to existing host
 	case t[host].find(path) == nil:
-		r := &Route{Host: host, Path: path}
+		g, err := glob2.Compile(path)
+		if err != nil {
+			return err
+		}
+		r := &Route{Host: host, Path: path, Glob: g}
 		r.addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
 		t[host] = append(t[host], r)
 		sort.Sort(t[host])
