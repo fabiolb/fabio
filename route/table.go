@@ -154,7 +154,11 @@ func (t Table) addRoute(d *RouteDef) error {
 	switch {
 	// add new host
 	case t[host] == nil:
-		r := &Route{Host: host, Path: path, Glob: glob2.MustCompile(path)}
+		g, err := glob2.Compile(path)
+		if err != nil {
+			return err
+		}
+		r := &Route{Host: host, Path: path, Glob: g}
 		r.addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
 		t[host] = Routes{r}
 
