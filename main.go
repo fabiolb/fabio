@@ -198,11 +198,16 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 	}
 }
 
-func lookupHostFn(cfg *config.Config) func(string) *route.Target {
+func lookupHostFn(cfg *config.Config, glob bool) func(string) *route.Target {
 	pick := route.Picker[cfg.Proxy.Strategy]
 	notFound := metrics.DefaultRegistry.GetCounter("notfound")
 	return func(host string) *route.Target {
-		t := route.GetTable().LookupHost(host, pick)
+		var t *route.Target
+		if glob {
+			t = route.GetTable().LookupHostGlob(host, pick)
+		} else {
+			t = route.GetTable().LookupHost(host, pick)
+		}
 		if t == nil {
 			notFound.Inc(1)
 			log.Print("[WARN] No route for ", host)
@@ -274,7 +279,7 @@ func startServers(cfg *config.Config) {
 			go func() {
 				h := &tcp.Proxy{
 					DialTimeout: cfg.Proxy.DialTimeout,
-					Lookup:      lookupHostFn(cfg),
+					Lookup:      lookupHostFn(cfg, false),
 					Conn:        metrics.DefaultRegistry.GetCounter("tcp.conn"),
 					ConnFail:    metrics.DefaultRegistry.GetCounter("tcp.connfail"),
 					Noroute:     metrics.DefaultRegistry.GetCounter("tcp.noroute"),
@@ -287,7 +292,7 @@ func startServers(cfg *config.Config) {
 			go func() {
 				h := &tcp.SNIProxy{
 					DialTimeout: cfg.Proxy.DialTimeout,
-					Lookup:      lookupHostFn(cfg),
+					Lookup:      lookupHostFn(cfg, true),
 					Conn:        metrics.DefaultRegistry.GetCounter("tcp_sni.conn"),
 					ConnFail:    metrics.DefaultRegistry.GetCounter("tcp_sni.connfail"),
 					Noroute:     metrics.DefaultRegistry.GetCounter("tcp_sni.noroute"),

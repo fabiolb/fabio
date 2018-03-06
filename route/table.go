@@ -292,12 +292,12 @@ func normalizeHost(host string, tls bool) string {
 	return host
 }
 
-// matchingHosts returns all keys (host name patterns) from the
-// routing table which match the normalized request hostname.
-func (t Table) matchingHosts(req *http.Request) (hosts []string) {
-	host := normalizeHost(req.Host, req.TLS != nil)
+// matchingHostsStr returns all keys (host name patterns) from the
+// routing table which match the normalized host and takes if it is TLS into account.
+func (t Table) matchingHostsStr(host string, isTLS bool) (hosts []string) {
+	host = normalizeHost(host, isTLS)
 	for pattern := range t {
-		normpat := normalizeHost(pattern, req.TLS != nil)
+		normpat := normalizeHost(pattern, isTLS)
 		g := glob.MustCompile(normpat)
 		if g.Match(host) {
 			hosts = append(hosts, pattern)
@@ -305,6 +305,12 @@ func (t Table) matchingHosts(req *http.Request) (hosts []string) {
 	}
 	sort.Sort(sort.Reverse(sort.StringSlice(hosts)))
 	return hosts
+}
+
+// matchingHosts returns all keys (host name patterns) from the
+// routing table which match the normalized request hostname.
+func (t Table) matchingHosts(req *http.Request) (hosts []string) {
+	return t.matchingHostsStr(req.Host, req.TLS != nil)
 }
 
 // Lookup finds a target url based on the current matcher and picker
@@ -334,6 +340,16 @@ func (t Table) Lookup(req *http.Request, trace string, pick picker, match matche
 		log.Printf("[TRACE] %s Routing to service %s on %s", trace, target.Service, target.URL)
 	}
 
+	return target
+}
+
+func (t Table) LookupHostGlob(host string, pick picker) (target *Target) {
+	hosts := t.matchingHostsStr(host, true)
+	for _, h := range hosts {
+		if target = t.lookup(h, "/", "", pick, prefixMatcher); target != nil {
+			break
+		}
+	}
 	return target
 }
 
