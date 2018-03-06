@@ -13,8 +13,7 @@ import (
 	"sync/atomic"
 
 	"github.com/fabiolb/fabio/metrics"
-	glob2 "github.com/gobwas/glob"
-	"github.com/ryanuber/go-glob"
+	"github.com/gobwas/glob"
 )
 
 var errInvalidPrefix = errors.New("route: prefix must not be empty")
@@ -154,7 +153,7 @@ func (t Table) addRoute(d *RouteDef) error {
 	switch {
 	// add new host
 	case t[host] == nil:
-		g, err := glob2.Compile(path)
+		g, err := glob.Compile(path)
 		if err != nil {
 			return err
 		}
@@ -164,7 +163,7 @@ func (t Table) addRoute(d *RouteDef) error {
 
 	// add new route to existing host
 	case t[host].find(path) == nil:
-		g, err := glob2.Compile(path)
+		g, err := glob.Compile(path)
 		if err != nil {
 			return err
 		}
@@ -299,7 +298,8 @@ func (t Table) matchingHosts(req *http.Request) (hosts []string) {
 	host := normalizeHost(req.Host, req.TLS != nil)
 	for pattern := range t {
 		normpat := normalizeHost(pattern, req.TLS != nil)
-		if glob.Glob(normpat, host) {
+		g := glob.MustCompile(normpat)
+		if g.Match(host) {
 			hosts = append(hosts, pattern)
 		}
 	}
