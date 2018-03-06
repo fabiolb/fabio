@@ -28,6 +28,16 @@
 
    Thanks to [@systemfreund](https://github.com/systemfreund) for the patch.
 
+ * [PR #453](https://github.com/fabiolb/fabio/pull/453): Handle proxy chains of any length
+
+   Fabio will now validate that all elements of the `X-Forwarded-For` header
+   are allowed by the given ACL of the route. See discussion in
+   [PR #449](https://github.com/fabiolb/fabio/pull/449) for details.
+
+   Thanks to [@leprechau](https://github.com/leprechau) for the patch and to
+   [@atillamas](https://github.com/atillamas) for the original PR and the
+   discussion.
+
 #### Features
 
  * None
