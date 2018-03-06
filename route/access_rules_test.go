@@ -165,11 +165,11 @@ func TestAccessRules_AccessDeniedHTTP(t *testing.T) {
 		denied bool
 	}{
 		{
-			desc: "denied xff and allowed remote addr",
+			desc: "single denied xff and allowed remote addr",
 			target: &Target{
 				Opts: map[string]string{"allow": "ip:10.0.0.0/8,ip:192.168.0.0/24"},
 			},
-			xff:    "1.1.1.2, 10.11.12.13, 10.11.12.14",
+			xff:    "10.11.12.13, 1.1.1.2, 10.11.12.14",
 			remote: "10.11.12.1:65500",
 			denied: true,
 		},
@@ -183,13 +183,13 @@ func TestAccessRules_AccessDeniedHTTP(t *testing.T) {
 			denied: true,
 		},
 		{
-			desc: "allowed xff and allowed remote addr",
+			desc: "single allowed xff and allowed remote addr",
 			target: &Target{
 				Opts: map[string]string{"allow": "ip:10.0.0.0/8,ip:192.168.0.0/24"},
 			},
 			xff:    "10.11.12.13, 1.2.3.4",
 			remote: "192.168.0.12:65500",
-			denied: false,
+			denied: true,
 		},
 		{
 			desc: "denied xff and denied remote addr",
@@ -199,6 +199,15 @@ func TestAccessRules_AccessDeniedHTTP(t *testing.T) {
 			xff:    "1.2.3.4, 10.11.12.13, 10.11.12.14",
 			remote: "200.17.18.20:65500",
 			denied: true,
+		},
+		{
+			desc: "all allowed xff and allowed remote addr",
+			target: &Target{
+				Opts: map[string]string{"allow": "ip:10.0.0.0/8,ip:192.168.0.0/24"},
+			},
+			xff:    "10.11.12.13, 10.110.120.130",
+			remote: "192.168.0.12:65500",
+			denied: false,
 		},
 	}
 

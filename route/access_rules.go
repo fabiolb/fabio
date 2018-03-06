@@ -36,14 +36,22 @@ func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
 
 	// check xff source if present
 	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-		// only use left-most element (client)
-		xff = strings.TrimSpace(strings.SplitN(xff, ",", 2)[0])
-		// only continue if xff differs from host
-		if xff != host {
-			if ip = net.ParseIP(xff); ip == nil {
-				log.Printf("[WARN] failed to parse xff address %s", xff)
+		// Trusting XFF headers sent from clients is dangerous and generally
+		// bad practice.  Therefore, we cannot assume which if any of the elements
+		// is the actual client address.  To try and avoid the chance of spoofed
+		// headers and/or loose upstream proxies we validate all elements in the header.
+		// Specifically AWS does not strip XFF from anonymous internet sources:
+		// https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/x-forwarded-headers.html#x-forwarded-for
+		// See lengthy github discussion for more background: https://github.com/fabiolb/fabio/pull/449
+		for _, xip := range strings.Split(xff, ",") {
+			xip = strings.TrimSpace(xip)
+			if xip == host {
+				continue
 			}
-			// check xff source and return if denied
+			if ip = net.ParseIP(xip); ip == nil {
+				log.Printf("[WARN] failed to parse xff address %s", xip)
+				continue
+			}
 			if t.denyByIP(ip) {
 				return true
 			}
