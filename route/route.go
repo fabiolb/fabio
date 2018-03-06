@@ -38,7 +38,7 @@ type Route struct {
 	// Used by the RRPicker
 	total uint64
 
-	// Matcher represents compiled pattern.
+	// Glob represents compiled pattern.
 	Glob glob.Glob
 }
 
