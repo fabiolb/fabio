@@ -551,3 +551,33 @@ func TestTableLookup(t *testing.T) {
 		}
 	}
 }
+
+func TestTableLookupHostGlob(t *testing.T) {
+	s := `
+	route add svc abc.com/ http://foo.com:1000
+	route add svc z.abc.com/ http://foo.com:3100
+	route add svc *.abc.com/ http://foo.com:4000
+	`
+
+	tbl, err := NewTable(s)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var tests = []struct {
+		hostname string
+		dst      string
+	}{
+		{hostname: "abc.com", dst: "http://foo.com:1000"},
+		{hostname: "z.abc.com", dst: "http://foo.com:3100"},
+		{hostname: "a.abc.com", dst: "http://foo.com:4000"},
+		{hostname: "b.abc.com", dst: "http://foo.com:4000"},
+		{hostname: "z.b.abc.com", dst: "http://foo.com:4000"},
+	}
+
+	for i, tt := range tests {
+		if got, want := tbl.LookupHostGlob(tt.hostname, rndPicker).URL.String(), tt.dst; got != want {
+			t.Errorf("%d: got %v want %v", i, got, want)
+		}
+	}
+}
