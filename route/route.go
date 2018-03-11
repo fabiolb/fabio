@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/fabiolb/fabio/metrics"
+	"github.com/gobwas/glob"
 )
 
 // Route maps a path prefix to one or more target URLs.
@@ -36,6 +37,9 @@ type Route struct {
 	// total contains the total number of requests for this route.
 	// Used by the RRPicker
 	total uint64
+
+	// Glob represents compiled pattern.
+	Glob glob.Glob
 }
 
 func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float64, tags []string, opts map[string]string) {
