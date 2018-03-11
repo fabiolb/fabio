@@ -38,6 +38,13 @@
    [@atillamas](https://github.com/atillamas) for the original PR and the
    discussion.
 
+ * [Issue #452](https://github.com/fabiolb/fabio/issues/452): Add improved glob matcher
+
+   Fabio now uses the `github.com/gobaws/glob` package for glob matching which
+   allows more complex patterns.
+
+   Thanks to [@sharbov](https://github.com/sharbov) for the patch.
+
 #### Features
 
  * None
