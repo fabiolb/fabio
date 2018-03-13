@@ -483,6 +483,50 @@ func TestNormalizeHost(t *testing.T) {
 	}
 }
 
+// see https://github.com/fabiolb/fabio/issues/448
+// for more information on the issue and purpose of this test
+func TestTableLookupIssue448(t *testing.T) {
+	s := `
+	route add http-redirect foo.com:80/ https://foo.com/ opts "redirect=301"
+	route add mock-service / http://local.svc/
+	`
+
+	tbl, err := NewTable(s)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var tests = []struct {
+		req *http.Request
+		dst string
+	}{
+		// upstream http request should get https redirect
+		{
+			&http.Request{
+				Host:   "foo.com",
+				URL:    mustParse("/"),
+				Header: http.Header{"X-Forwarded-Proto": {"http"}},
+			},
+			"https://foo.com/",
+		},
+		// upstream https request should skip https redirect
+		{
+			&http.Request{
+				Host:   "foo.com",
+				URL:    mustParse("/"),
+				Header: http.Header{"X-Forwarded-Proto": {"https"}},
+			},
+			"http://local.svc/",
+		},
+	}
+
+	for i, tt := range tests {
+		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher).URL.String(), tt.dst; got != want {
+			t.Errorf("%d: got %v want %v", i, got, want)
+		}
+	}
+}
+
 func TestTableLookup(t *testing.T) {
 	s := `
 	route add svc / http://foo.com:800

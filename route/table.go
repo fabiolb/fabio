@@ -326,6 +326,10 @@ func (t Table) Lookup(req *http.Request, trace string, pick picker, match matche
 	hosts = append(hosts, "")
 	for _, h := range hosts {
 		if target = t.lookup(h, path, trace, pick, match); target != nil {
+			if target.RedirectCode != 0 && target.URL.Scheme == "https" && req.Header.Get("X-Forwarded-Proto") == "https" {
+				log.Print("[TRACE] Skipping https redirect from https upstream")
+				continue
+			}
 			break
 		}
 	}
