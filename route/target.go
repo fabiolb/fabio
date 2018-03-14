@@ -78,5 +78,8 @@ func (t *Target) GetRedirectURL(requestURL *url.URL) *url.URL {
 			redirectURL.RawQuery = requestURL.RawQuery
 		}
 	}
+	if strings.Contains(redirectURL.Host, "$host") {
+		redirectURL.Host = strings.Replace(redirectURL.Host, "$host", requestURL.Host, 1)
+	}
 	return redirectURL
 }
