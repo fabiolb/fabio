@@ -325,10 +325,14 @@ func (t Table) Lookup(req *http.Request, trace string, pick picker, match matche
 	hosts = append(hosts, "")
 	for _, h := range hosts {
 		if target = t.lookup(h, req.URL.Path, trace, pick, match); target != nil {
-			if target.RedirectCode != 0 && target.URL.Scheme == req.Header.Get("X-Forwarded-Proto") &&
-				target.URL.Hostname() == req.URL.Hostname() && target.URL.Path == req.URL.Path {
-				log.Print("[TRACE] Skipping redirect with same upstream scheme, host and path as target")
-				continue
+			if target.RedirectCode != 0 {
+				target.BuildRedirectURL(req.URL) // build redirect url and cache in target
+				if target.RedirectURL.Scheme == req.Header.Get("X-Forwarded-Proto") &&
+					target.RedirectURL.Host == req.Host &&
+					target.RedirectURL.Path == req.URL.Path {
+					log.Print("[INFO] Skipping redirect with same scheme, host and path")
+					continue
+				}
 			}
 			break
 		}
