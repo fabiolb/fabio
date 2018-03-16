@@ -82,4 +82,7 @@ func (t *Target) BuildRedirectURL(requestURL *url.URL) {
 			t.RedirectURL.RawQuery = requestURL.RawQuery
 		}
 	}
+	if t.RedirectURL.Path == "" {
+		t.RedirectURL.Path = "/"
+	}
 }

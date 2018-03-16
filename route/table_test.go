@@ -487,10 +487,10 @@ func TestNormalizeHost(t *testing.T) {
 // for more information on the issue and purpose of this test
 func TestTableLookupIssue448(t *testing.T) {
 	s := `
-	route add mock-0 foo.com:80/ https://foo.com/ opts "redirect=301"
-	route add mock-2 aaa.com:80/ http://bbb.com/ opts "redirect=301"
-	route add mock-3 ccc.com:443/bar https://ccc.com/baz opts "redirect=301"
-	route add mock-4 / http://foo.com/
+	route add mock foo.com:80/ https://foo.com/ opts "redirect=301"
+	route add mock aaa.com:80/ http://bbb.com/ opts "redirect=301"
+	route add mock ccc.com:443/bar https://ccc.com/baz opts "redirect=301"
+	route add mock / http://foo.com/
 	`
 
 	tbl, err := NewTable(s)
@@ -517,7 +517,17 @@ func TestTableLookupIssue448(t *testing.T) {
 				Header: http.Header{"X-Forwarded-Proto": {"http"}},
 			},
 			dst: "https://foo.com/",
-			// upstream http request to same https host and path should follow redirect
+			// upstream http request to same host and path should follow redirect
+		},
+		{
+			req: &http.Request{
+				Host:   "foo.com",
+				URL:    mustParse("/"),
+				Header: http.Header{"X-Forwarded-Proto": {"https"}},
+				TLS:    &tls.ConnectionState{},
+			},
+			dst: "http://foo.com/",
+			// upstream https request to same host and path should NOT follow redirect"
 		},
 		{
 			req: &http.Request{
