@@ -426,6 +426,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-proxy.gzip.contenttype", "^(text/.*|application/(javascript|json|font-woff|xml)|.*\\+(json|xml))(;.*)?$"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.GZIPContentTypes = regexp.MustCompile(`^(text/.*|application/(javascript|json|font-woff|xml)|.*\+(json|xml))(;.*)?$`)
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.log.routes", "foobar"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Log.RoutesFormat = "foobar"
