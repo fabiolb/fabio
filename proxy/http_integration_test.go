@@ -14,6 +14,7 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -306,6 +307,24 @@ func TestRedirect(t *testing.T) {
 }
 
 func TestProxyLogOutput(t *testing.T) {
+	t.Run("uncompressed response", func(t *testing.T) {
+		testProxyLogOutput(t, 73, config.Proxy{})
+	})
+	t.Run("compression enabled but no match", func(t *testing.T) {
+		testProxyLogOutput(t, 73, config.Proxy{
+			GZIPContentTypes: regexp.MustCompile(`^$`),
+		})
+	})
+	t.Run("compression enabled and active", func(t *testing.T) {
+		testProxyLogOutput(t, 28, config.Proxy{
+			GZIPContentTypes: regexp.MustCompile(`.*`),
+		})
+	})
+}
+
+func testProxyLogOutput(t *testing.T, bodySize int, cfg config.Proxy) {
+	t.Helper()
+
 	// build a format string from all log fields and one header field
 	fields := []string{"header.X-Foo:$header.X-Foo"}
 	for _, k := range logger.Fields {
@@ -322,13 +341,14 @@ func TestProxyLogOutput(t *testing.T) {
 
 	// create an upstream server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "foo")
+		fmt.Fprint(w, "foooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo")
 	}))
 	defer server.Close()
 
 	// create a proxy handler with mocked time
 	tm := time.Date(2016, 1, 1, 0, 0, 0, 12345678, time.UTC)
 	proxyHandler := &HTTPProxy{
+		Config: cfg,
 		Time: func() time.Time {
 			defer func() { tm = tm.Add(1111111111 * time.Nanosecond) }()
 			return tm
@@ -379,7 +399,7 @@ func TestProxyLogOutput(t *testing.T) {
 		"request_scheme:http",
 		"request_uri:/foo?x=y",
 		"request_url:http://example.com/foo?x=y",
-		"response_body_size:3",
+		"response_body_size:" + strconv.Itoa(bodySize),
 		"response_status:200",
 		"response_time_ms:1.111",
 		"response_time_ns:1.111111111",

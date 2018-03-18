@@ -1,11 +1,12 @@
 package proxy
 
 import (
+	"bufio"
 	"crypto/tls"
+	"errors"
 	"io"
 	"net"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"strconv"
 	"strings"
@@ -182,7 +183,8 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	start := timeNow()
-	h.ServeHTTP(w, r)
+	rw := &responseWriter{w: w}
+	h.ServeHTTP(rw, r)
 	end := timeNow()
 	dur := end.Sub(start)
 
@@ -192,28 +194,22 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if t.Timer != nil {
 		t.Timer.Update(dur)
 	}
+	if rw.code <= 0 {
+		return
+	}
 
-	// get response and update metrics
-	rp, ok := h.(*httputil.ReverseProxy)
-	if !ok {
-		return
-	}
-	rpt, ok := rp.Transport.(*transport)
-	if !ok {
-		return
-	}
-	if rpt.resp == nil {
-		return
-	}
-	metrics.DefaultRegistry.GetTimer(key(rpt.resp.StatusCode)).Update(dur)
+	metrics.DefaultRegistry.GetTimer(key(rw.code)).Update(dur)
 
 	// write access log
 	if p.Logger != nil {
 		p.Logger.Log(&logger.Event{
-			Start:           start,
-			End:             end,
-			Request:         r,
-			Response:        rpt.resp,
+			Start:   start,
+			End:     end,
+			Request: r,
+			Response: &http.Response{
+				StatusCode:    rw.code,
+				ContentLength: int64(rw.size),
+			},
 			RequestURL:      requestURL,
 			UpstreamAddr:    targetURL.Host,
 			UpstreamService: t.Service,
@@ -226,4 +222,37 @@ func key(code int) string {
 	b := []byte("http.status.")
 	b = strconv.AppendInt(b, int64(code), 10)
 	return string(b)
+}
+
+// responseWriter wraps an http.ResponseWriter to capture the status code and
+// the size of the response. It also implements http.Hijacker to forward
+// hijacking the connection to the wrapped writer if supported.
+type responseWriter struct {
+	w    http.ResponseWriter
+	code int
+	size int
+}
+
+func (rw *responseWriter) Header() http.Header {
+	return rw.w.Header()
+}
+
+func (rw *responseWriter) Write(b []byte) (int, error) {
+	n, err := rw.w.Write(b)
+	rw.size += n
+	return n, err
+}
+
+func (rw *responseWriter) WriteHeader(statusCode int) {
+	rw.w.WriteHeader(statusCode)
+	rw.code = statusCode
+}
+
+var errNoHijacker = errors.New("not a hijacker")
+
+func (rw *responseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	if hj, ok := rw.w.(http.Hijacker); ok {
+		return hj.Hijack()
+	}
+	return nil, nil, errNoHijacker
 }
