@@ -172,17 +172,20 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h = newHTTPProxy(targetURL, tr, time.Duration(0))
 	}
 
-	if p.Config.GZIPContentTypes != nil {
-		h = gzip.NewGzipHandler(h, p.Config.GZIPContentTypes)
-	}
-
 	timeNow := p.Time
 	if timeNow == nil {
 		timeNow = time.Now
 	}
 
 	start := timeNow()
-	h.ServeHTTP(w, r)
+	// we can't transparently wrap the proxy, as we need the raw proxy object
+	// below for the metrics and logger
+	if p.Config.GZIPContentTypes != nil {
+		gzipHandler := gzip.NewGzipHandler(h, p.Config.GZIPContentTypes)
+		gzipHandler.ServeHTTP(w, r)
+	} else {
+		h.ServeHTTP(w, r)
+	}
 	end := timeNow()
 	dur := end.Sub(start)
 
