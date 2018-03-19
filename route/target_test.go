@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestTarget_GetRedirectURL(t *testing.T) {
+func TestTarget_BuildRedirectURL(t *testing.T) {
 	type routeTest struct {
 		req  string
 		want string
@@ -95,8 +95,8 @@ func TestTarget_GetRedirectURL(t *testing.T) {
 		target := route.Targets[0]
 		for _, rt := range tt.tests {
 			reqURL, _ := url.Parse("http://foo.com" + rt.req)
-			got := target.GetRedirectURL(reqURL)
-			if got.String() != rt.want {
+			target.BuildRedirectURL(reqURL)
+			if got := target.RedirectURL.String(); got != rt.want {
 				t.Errorf("Got %s, wanted %s", got, rt.want)
 			}
 		}

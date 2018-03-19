@@ -312,12 +312,11 @@ func (t Table) matchingHosts(req *http.Request) (hosts []string) {
 // and if none matches then it falls back to generic routes without
 // a host. This is useful for a catch-all '/' rule.
 func (t Table) Lookup(req *http.Request, trace string, pick picker, match matcher) (target *Target) {
-	path := req.URL.Path
 	if trace != "" {
 		if len(trace) > 16 {
 			trace = trace[:15]
 		}
-		log.Printf("[TRACE] %s Tracing %s%s", trace, req.Host, path)
+		log.Printf("[TRACE] %s Tracing %s%s", trace, req.Host, req.URL.Path)
 	}
 
 	// find matching hosts for the request
@@ -325,7 +324,16 @@ func (t Table) Lookup(req *http.Request, trace string, pick picker, match matche
 	hosts := t.matchingHosts(req)
 	hosts = append(hosts, "")
 	for _, h := range hosts {
-		if target = t.lookup(h, path, trace, pick, match); target != nil {
+		if target = t.lookup(h, req.URL.Path, trace, pick, match); target != nil {
+			if target.RedirectCode != 0 {
+				target.BuildRedirectURL(req.URL) // build redirect url and cache in target
+				if target.RedirectURL.Scheme == req.Header.Get("X-Forwarded-Proto") &&
+					target.RedirectURL.Host == req.Host &&
+					target.RedirectURL.Path == req.URL.Path {
+					log.Print("[INFO] Skipping redirect with same scheme, host and path")
+					continue
+				}
+			}
 			break
 		}
 	}

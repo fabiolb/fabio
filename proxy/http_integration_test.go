@@ -284,7 +284,7 @@ func TestRedirect(t *testing.T) {
 		{req: "/", wantCode: 301, wantLoc: "http://a.com/"},
 		{req: "/aaa/bbb", wantCode: 301, wantLoc: "http://a.com/aaa/bbb"},
 		{req: "/foo", wantCode: 301, wantLoc: "http://a.com/abc"},
-		{req: "/bar", wantCode: 302, wantLoc: "http://b.com"},
+		{req: "/bar", wantCode: 302, wantLoc: "http://b.com/"},
 		{req: "/bar/aaa", wantCode: 302, wantLoc: "http://b.com/aaa"},
 	}
 

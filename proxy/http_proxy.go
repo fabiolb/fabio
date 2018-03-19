@@ -99,8 +99,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if t.RedirectCode != 0 {
-		redirectURL := t.GetRedirectURL(requestURL)
-		http.Redirect(w, r, redirectURL.String(), t.RedirectCode)
+		http.Redirect(w, r, t.RedirectURL.String(), t.RedirectCode)
 		if t.Timer != nil {
 			t.Timer.Update(0)
 		}

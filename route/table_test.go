@@ -483,6 +483,80 @@ func TestNormalizeHost(t *testing.T) {
 	}
 }
 
+// see https://github.com/fabiolb/fabio/issues/448
+// for more information on the issue and purpose of this test
+func TestTableLookupIssue448(t *testing.T) {
+	s := `
+	route add mock foo.com:80/ https://foo.com/ opts "redirect=301"
+	route add mock aaa.com:80/ http://bbb.com/ opts "redirect=301"
+	route add mock ccc.com:443/bar https://ccc.com/baz opts "redirect=301"
+	route add mock / http://foo.com/
+	`
+
+	tbl, err := NewTable(s)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var tests = []struct {
+		req *http.Request
+		dst string
+	}{
+		{
+			req: &http.Request{
+				Host: "foo.com",
+				URL:  mustParse("/"),
+			},
+			dst: "https://foo.com/",
+			// empty upstream header should follow redirect - standard behavior
+		},
+		{
+			req: &http.Request{
+				Host:   "foo.com",
+				URL:    mustParse("/"),
+				Header: http.Header{"X-Forwarded-Proto": {"http"}},
+			},
+			dst: "https://foo.com/",
+			// upstream http request to same host and path should follow redirect
+		},
+		{
+			req: &http.Request{
+				Host:   "foo.com",
+				URL:    mustParse("/"),
+				Header: http.Header{"X-Forwarded-Proto": {"https"}},
+				TLS:    &tls.ConnectionState{},
+			},
+			dst: "http://foo.com/",
+			// upstream https request to same host and path should NOT follow redirect"
+		},
+		{
+			req: &http.Request{
+				Host:   "aaa.com",
+				URL:    mustParse("/"),
+				Header: http.Header{"X-Forwarded-Proto": {"http"}},
+			},
+			dst: "http://bbb.com/",
+			// upstream http request to different http host should follow redirect
+		},
+		{
+			req: &http.Request{
+				Host:   "ccc.com",
+				URL:    mustParse("/bar"),
+				Header: http.Header{"X-Forwarded-Proto": {"https"}},
+				TLS:    &tls.ConnectionState{},
+			},
+			dst: "https://ccc.com/baz",
+			// upstream https request to same https host with different path should follow redirect"
+		},
+	}
+
+	for i, tt := range tests {
+		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher).URL.String(), tt.dst; got != want {
+			t.Errorf("%d: got %v want %v", i, got, want)
+		}
+	}
+}
+
 func TestTableLookup(t *testing.T) {
 	s := `
 	route add svc / http://foo.com:800
