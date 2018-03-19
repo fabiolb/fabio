@@ -8,7 +8,18 @@
 
 #### Bug Fixes
 
- * None
+ * [Issue #460](https://github.com/fabiolb/fabio/issues/460): Fix access logging when gzip is enabled
+
+   Fabio was not writing access logs when the gzip compression was enabled.
+
+   Thanks to [@tino](https://github.com/tino) for finding this and providing
+   and initial patch.
+
+ * [PR #468](https://github.com/fabiolb/fabio/pull/468): Fix the regex of the example proxy.gzip.contenttype
+
+   The example regexp for `proxy.gzip.contenttype` in `fabio.properties` was not properly escaped.
+
+   Thanks to [@tino](https://github.com/tino) for the patch.
 
 #### Improvements
 
@@ -27,6 +38,15 @@
    Fabio will make `all` the default as of version 1.6.
 
    Thanks to [@systemfreund](https://github.com/systemfreund) for the patch.
+
+ * [Issue #448](https://github.com/fabiolb/fabio/issues/448): Redirect http to https on the same destination
+
+   Fabio will now handle redirecting from http to https on the same destination
+   without a redirect loop.
+
+   Thanks to [@leprechau](https://github.com/leprechau) for the patch and to
+   [@atillamas](https://github.com/atillamas) for the original PR and the
+   discussion.
 
  * [PR #453](https://github.com/fabiolb/fabio/pull/453): Handle proxy chains of any length
 
