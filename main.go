@@ -196,10 +196,10 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 			}
 			return t
 		},
-		Requests: metrics.DefaultRegistry.GetTimer("requests"),
-		Noroute:  metrics.DefaultRegistry.GetCounter("notfound"),
-		Logger:   l,
-		TracerCfg:   cfg.Tracing,
+		Requests:  metrics.DefaultRegistry.GetTimer("requests"),
+		Noroute:   metrics.DefaultRegistry.GetCounter("notfound"),
+		Logger:    l,
+		TracerCfg: cfg.Tracing,
 	}
 }
 

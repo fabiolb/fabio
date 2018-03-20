@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	opentracing "github.com/opentracing/opentracing-go"
-	zipkin "github.com/openzipkin/zipkin-go-opentracing"
 	"github.com/opentracing/opentracing-go/ext"
+	zipkin "github.com/openzipkin/zipkin-go-opentracing"
 )
 
 func InjectHeaders(span opentracing.Span, req *http.Request) {

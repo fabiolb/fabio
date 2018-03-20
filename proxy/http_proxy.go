@@ -18,9 +18,8 @@ import (
 	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy/gzip"
 	"github.com/fabiolb/fabio/route"
-	"github.com/fabiolb/fabio/uuid"
 	"github.com/fabiolb/fabio/trace"
-
+	"github.com/fabiolb/fabio/uuid"
 )
 
 // HTTPProxy is a dynamic reverse proxy for HTTP and HTTPS protocols.

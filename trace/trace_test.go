@@ -2,8 +2,8 @@ package trace
 
 import (
 	opentracing "github.com/opentracing/opentracing-go"
-	mocktracer "github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/opentracing/opentracing-go/ext"
+	mocktracer "github.com/opentracing/opentracing-go/mocktracer"
 	"net/http"
 	"testing"
 )
