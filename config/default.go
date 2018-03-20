@@ -77,4 +77,14 @@ var defaultConfig = &Config{
 		Color:  "light-green",
 		Access: "rw",
 	},
+
+	Tracing: Tracing{
+		TracingEnabled: false,
+		CollectorType:  "http",
+		ConnectString:  "http://localhost:9411/api/v1/spans",
+		ServiceName:    "Fabiolb",
+		Topic:          "Fabiolb-Kafka-Topic",
+		SamplerRate:    -1,
+		SpanHost:       "localhost:9998",
+	},
 }

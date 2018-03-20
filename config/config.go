@@ -14,6 +14,7 @@ type Config struct {
 	Metrics     Metrics
 	UI          UI
 	Runtime     Runtime
+	Tracing     Tracing
 	ProfileMode string
 	ProfilePath string
 	Insecure    bool
@@ -143,4 +144,14 @@ type Consul struct {
 	CheckTLSSkipVerify                  bool
 	CheckDeregisterCriticalServiceAfter string
 	ChecksRequired                      string
+}
+
+type Tracing struct {
+	TracingEnabled bool
+	CollectorType  string
+	ConnectString  string
+	ServiceName    string
+	Topic          string
+	SamplerRate    float64
+	SpanHost       string
 }
