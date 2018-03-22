@@ -2,7 +2,6 @@ package proxy
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"log"
 	"net"
@@ -78,7 +77,6 @@ func newRawProxy(host string, dial dialFunc) http.Handler {
 		}
 
 		if !bytes.HasPrefix(b, []byte("HTTP/1.1 101")) {
-			fmt.Println("boom")
 			log.Printf("[INFO] WS Upgrade failed for %s", r.URL)
 			http.Error(w, "error handling ws upgrade", http.StatusInternalServerError)
 			return
