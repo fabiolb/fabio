@@ -156,11 +156,11 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case upgrade == "websocket" || upgrade == "Websocket":
 		r.URL = targetURL
 		if targetURL.Scheme == "https" || targetURL.Scheme == "wss" {
-			h = newRawProxy(targetURL.Host, func(network, address string) (net.Conn, error) {
+			h = newWSHandler(targetURL.Host, func(network, address string) (net.Conn, error) {
 				return tls.Dial(network, address, tr.(*http.Transport).TLSClientConfig)
 			})
 		} else {
-			h = newRawProxy(targetURL.Host, net.Dial)
+			h = newWSHandler(targetURL.Host, net.Dial)
 		}
 
 	case accept == "text/event-stream":

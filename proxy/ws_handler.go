@@ -16,10 +16,11 @@ var conn = metrics.DefaultRegistry.GetCounter("ws.conn")
 
 type dialFunc func(network, address string) (net.Conn, error)
 
-// newRawProxy returns an HTTP handler which forwards data between
-// an incoming and outgoing TCP connection including the original request.
-// This handler establishes a new outgoing connection per request.
-func newRawProxy(host string, dial dialFunc) http.Handler {
+// newWSHandler returns an HTTP handler which forwards data between
+// an incoming and outgoing Websocket connection. It checks whether
+// the handshake was completed successfully before forwarding data
+// between the client and server.
+func newWSHandler(host string, dial dialFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn.Inc(1)
 		defer func() { conn.Inc(-1) }()
