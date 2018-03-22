@@ -162,7 +162,6 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else {
 			h = newRawProxy(targetURL.Host, net.Dial)
 		}
-		r.Header.Set("Connection", "close")
 
 	case accept == "text/event-stream":
 		// use the flush interval for SSE (server-sent events)

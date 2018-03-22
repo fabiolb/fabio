@@ -1,10 +1,13 @@
 package proxy
 
 import (
+	"bytes"
+	"fmt"
 	"io"
 	"log"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/fabiolb/fabio/metrics"
 )
@@ -48,6 +51,36 @@ func newRawProxy(host string, dial dialFunc) http.Handler {
 		if err != nil {
 			log.Printf("[ERROR] Error copying request for %s. %s", r.URL, err)
 			http.Error(w, "error copying request", http.StatusInternalServerError)
+			return
+		}
+
+		// read the initial response to check whether we get an HTTP/1.1 101 ... response
+		// to determine whether the handshake worked.
+		b := make([]byte, 1024)
+		if err := out.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
+			log.Printf("[ERROR] Error setting read timeout for %s: %s", r.URL, err)
+			http.Error(w, "error setting read timeout", http.StatusInternalServerError)
+			return
+		}
+
+		n, err := out.Read(b)
+		if err != nil {
+			log.Printf("[ERROR] Error reading response for %s: %s", r.URL, err)
+			http.Error(w, "error reading response", http.StatusInternalServerError)
+			return
+		}
+
+		b = b[:n]
+		if m, err := in.Write(b); err != nil || n != m {
+			log.Printf("[ERROR] Error sending header for %s: %s", r.URL, err)
+			http.Error(w, "error sending response", http.StatusInternalServerError)
+			return
+		}
+
+		if !bytes.HasPrefix(b, []byte("HTTP/1.1 101")) {
+			fmt.Println("boom")
+			log.Printf("[INFO] WS Upgrade failed for %s", r.URL)
+			http.Error(w, "error handling ws upgrade", http.StatusInternalServerError)
 			return
 		}
 
