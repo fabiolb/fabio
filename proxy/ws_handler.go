@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/fabiolb/fabio/metrics"
@@ -17,7 +18,7 @@ var conn = metrics.DefaultRegistry.GetCounter("ws.conn")
 type dialFunc func(network, address string) (net.Conn, error)
 
 // newWSHandler returns an HTTP handler which forwards data between
-// an incoming and outgoing Websocket connection. It checks whether
+// an incoming and outgoing websocket connection. It checks whether
 // the handshake was completed successfully before forwarding data
 // between the client and server.
 func newWSHandler(host string, dial dialFunc) http.Handler {
@@ -65,21 +66,24 @@ func newWSHandler(host string, dial dialFunc) http.Handler {
 
 		n, err := out.Read(b)
 		if err != nil {
-			log.Printf("[ERROR] Error reading response for %s: %s", r.URL, err)
-			http.Error(w, "error reading response", http.StatusInternalServerError)
+			log.Printf("[ERROR] Error reading handshake for %s: %s", r.URL, err)
+			http.Error(w, "error reading handshake", http.StatusInternalServerError)
 			return
 		}
 
 		b = b[:n]
 		if m, err := in.Write(b); err != nil || n != m {
-			log.Printf("[ERROR] Error sending header for %s: %s", r.URL, err)
-			http.Error(w, "error sending response", http.StatusInternalServerError)
+			log.Printf("[ERROR] Error sending handshake for %s: %s", r.URL, err)
+			http.Error(w, "error sending handshake", http.StatusInternalServerError)
 			return
 		}
 
+		// https://tools.ietf.org/html/rfc6455#section-1.3
+		// The websocket server must respond with HTTP/1.1 101 on successful handshake
 		if !bytes.HasPrefix(b, []byte("HTTP/1.1 101")) {
-			log.Printf("[INFO] WS Upgrade failed for %s", r.URL)
-			http.Error(w, "error handling ws upgrade", http.StatusInternalServerError)
+			firstLine := strings.SplitN(string(b), "\n", 1)
+			log.Printf("[INFO] Websocket upgrade failed for %s: %s", r.URL, firstLine)
+			http.Error(w, "websocket upgrade failed", http.StatusInternalServerError)
 			return
 		}
 
