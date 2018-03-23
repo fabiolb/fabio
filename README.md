@@ -125,7 +125,7 @@ urlprefix-:3306 proto=tcp                          # route external port 3306
 ### Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-<a href="graphs/contributors"><img src="https://opencollective.com/fabio/contributors.svg?width=890" /></a>
+<a href="https://github.com/fabiolb/fabio/graphs/contributors"><img src="https://opencollective.com/fabio/contributors.svg?width=890" /></a>
 
 
 ### Backers
