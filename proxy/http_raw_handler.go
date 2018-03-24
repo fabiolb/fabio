@@ -5,20 +5,26 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"sync/atomic"
 
 	"github.com/fabiolb/fabio/metrics4"
 )
+
+// conns keeps track of the number of open ws connections
+var conns int64
 
 type dialFunc func(network, address string) (net.Conn, error)
 
 // newRawProxy returns an HTTP handler which forwards data between
 // an incoming and outgoing TCP connection including the original request.
 // This handler establishes a new outgoing connection per request.
-func newRawProxy(host string, dial dialFunc, conn metrics4.Counter) http.Handler {
+func newRawProxy(host string, dial dialFunc, conn metrics4.Gauge) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if conn != nil {
-			conn.Count(1)
-			defer func() { conn.Count(-1) }()
+			conn.Update(int(atomic.AddInt64(&conns, 1)))
+			defer func() {
+				conn.Update(int(atomic.AddInt64(&conns, -1)))
+			}()
 		}
 
 		hj, ok := w.(http.Hijacker)

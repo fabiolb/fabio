@@ -137,7 +137,7 @@ func main() {
 	log.Print("[INFO] Down")
 }
 
-func newHTTPProxy(cfg *config.Config, stats metrics4.Provider) http.Handler {
+func newHTTPProxy(cfg *config.Config, stats metrics4.Provider) *proxy.HTTPProxy {
 	var w io.Writer
 	switch cfg.Log.AccessTarget {
 	case "":
@@ -194,6 +194,7 @@ func newHTTPProxy(cfg *config.Config, stats metrics4.Provider) http.Handler {
 		},
 		Requests: stats.NewTimer("requests"),
 		Noroute:  stats.NewCounter("notfound"),
+		WSConn:   stats.NewGauge("ws.conn"),
 		Metrics:  stats,
 		Logger:   l,
 	}
@@ -267,6 +268,8 @@ func startServers(cfg *config.Config, stats metrics4.Provider) {
 		case "http", "https":
 			go func() {
 				h := newHTTPProxy(cfg, stats)
+				// reset the ws.conn gauge
+				h.WSConn.Update(0)
 				if err := proxy.ListenAndServeHTTP(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
 				}

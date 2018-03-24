@@ -9,6 +9,9 @@ type Provider interface {
 	// NewCounter creates a new counter object.
 	NewCounter(name string, labels ...string) Counter
 
+	// NewGauge creates a new gauge object.
+	NewGauge(name string, labels ...string) Gauge
+
 	// NewTimer creates a new timer object.
 	NewTimer(name string, labels ...string) Timer
 
@@ -36,6 +39,16 @@ func (mp *MultiProvider) NewCounter(name string, labels ...string) Counter {
 		c = append(c, p.NewCounter(name, labels...))
 	}
 	return &MultiCounter{c}
+}
+
+// NewGauge creates a MultiGauge with gauge objects for all registered
+// providers.
+func (mp *MultiProvider) NewGauge(name string, labels ...string) Gauge {
+	var v []Gauge
+	for _, p := range mp.p {
+		v = append(v, p.NewGauge(name, labels...))
+	}
+	return &MultiGauge{v}
 }
 
 // NewTimer creates a MultiTimer with timer objects for all registered
@@ -68,6 +81,22 @@ type MultiCounter struct {
 func (mc *MultiCounter) Count(n int) {
 	for _, c := range mc.c {
 		c.Count(n)
+	}
+}
+
+// Gauge measures a value.
+type Gauge interface {
+	Update(int)
+}
+
+// MultiGauge wraps zero or more gauges.
+type MultiGauge struct {
+	v []Gauge
+}
+
+func (m *MultiGauge) Update(n int) {
+	for _, v := range m.v {
+		v.Update(n)
 	}
 }
 

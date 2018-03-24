@@ -51,7 +51,7 @@ type HTTPProxy struct {
 	Noroute metrics4.Counter
 
 	// WSConn counts the number of open web socket connections.
-	WSConn metrics4.Counter
+	WSConn metrics4.Gauge
 
 	// Metrics is the configured metrics backend provider.
 	Metrics metrics4.Provider
