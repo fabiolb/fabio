@@ -306,26 +306,24 @@ func startServers(cfg *config.Config, stats metrics4.Provider) {
 }
 
 func initMetrics(cfg *config.Config) metrics4.Provider {
-	mp := &metrics4.MultiProvider{}
-	if cfg.Metrics.Target == "" {
-		log.Printf("[INFO] Metrics disabled")
-	}
+	var p []metrics4.Provider
 	for _, x := range strings.Split(cfg.Metrics.Target, ",") {
 		x = strings.TrimSpace(x)
-		var p metrics4.Provider
 		switch x {
 		case "flat":
-			p = &flat.Provider{}
+			p = append(p, &flat.Provider{})
 		case "label":
-			p = &label.Provider{}
+			p = append(p, &label.Provider{})
 		default:
 			log.Printf("[WARN] Skipping unknown metrics provider %q", x)
 			continue
 		}
 		log.Printf("[INFO] Registering metrics provider %q", x)
-		mp.Register(p)
 	}
-	return mp
+	if len(p) == 0 {
+		log.Printf("[INFO] Metrics disabled")
+	}
+	return metrics4.NewMultiProvider(p)
 }
 
 func initRuntime(cfg *config.Config) {
