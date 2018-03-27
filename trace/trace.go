@@ -1,11 +1,13 @@
 package trace
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 
+	"github.com/fabiolb/fabio/config"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	zipkin "github.com/openzipkin/zipkin-go-opentracing"
@@ -20,24 +22,26 @@ func InjectHeaders(span opentracing.Span, req *http.Request) {
 	)
 }
 
-func CreateCollector(collectorType string, connectString string, topic string) zipkin.Collector {
+func CreateCollector(collectorType, connectString, topic string) zipkin.Collector {
 	var collector zipkin.Collector
 	var err error
 
-	if collectorType == "http" {
+	switch collectorType {
+	case "http":
 		collector, err = zipkin.NewHTTPCollector(connectString)
-	} else if collectorType == "kafka" {
+	case "kafka":
 		// TODO set logger?
 		kafkaHosts := strings.Split(connectString, ",")
 		collector, err = zipkin.NewKafkaCollector(
 			kafkaHosts,
 			zipkin.KafkaTopic(topic),
 		)
+	default:
+		err = fmt.Errorf("Unknown collector type.")
 	}
 
 	if err != nil {
-		log.Printf("Unable to create Zipkin %s collector: %+v", collectorType, err)
-		os.Exit(-1)
+		log.Fatalf("Unable to create Zipkin %s collector: %v", collectorType, err)
 	}
 
 	return collector
@@ -76,18 +80,21 @@ func CreateSpan(r *http.Request, serviceName string) opentracing.Span {
 	return span // caller must defer span.finish()
 }
 
-func InitializeTracer(collectorType string, connectString string, serviceName string, topic string, samplerRate float64, addressPort string) {
-	log.Printf("Tracing initializing - type: %s, connection string: %s, service name: %s, topic: %s, samplerRate: %v", collectorType, connectString, serviceName, topic, samplerRate)
+// InitializeTracer initializes OpenTracing support if Tracing.TracingEnabled
+// is set in the config.
+func InitializeTracer(traceConfig *config.Tracing) {
+	if !traceConfig.TracingEnabled {
+		return
+	}
+
+	log.Printf("Tracing initializing - type: %s, connection string: %s, service name: %s, topic: %s, samplerRate: %v",
+		traceConfig.CollectorType, traceConfig.ConnectString, traceConfig.ServiceName, traceConfig.Topic, traceConfig.SamplerRate)
 
 	// Create a new Zipkin Collector, Recorder, and Tracer
-	collector := CreateCollector(collectorType, connectString, topic)
-	recorder := zipkin.NewRecorder(collector, false, addressPort, serviceName)
-	tracer := CreateTracer(recorder, samplerRate)
+	collector := CreateCollector(traceConfig.CollectorType, traceConfig.ConnectString, traceConfig.Topic)
+	recorder := zipkin.NewRecorder(collector, false, traceConfig.SpanHost, traceConfig.ServiceName)
+	tracer := CreateTracer(recorder, traceConfig.SamplerRate)
 
 	// Set the Zipkin Tracer created above to the GlobalTracer
 	opentracing.SetGlobalTracer(tracer)
-
-	log.Printf("\n\nTRACER: %v\n\n", tracer)
-	log.Printf("\n\nCOLLECTOR: %v\n\n", collector)
-	log.Printf("\n\nRECORDER: %v\n\n", recorder)
 }

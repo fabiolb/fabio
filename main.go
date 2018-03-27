@@ -120,7 +120,7 @@ func main() {
 	initRuntime(cfg)
 	initBackend(cfg)
 	//Init OpenTracing if Enabled in the Properties File Tracing.TracingEnabled
-	initOpenTracing(cfg)
+	trace.InitializeTracer(&cfg.Tracing)
 
 	startAdmin(cfg)
 
@@ -382,16 +382,6 @@ func initBackend(cfg *config.Config) {
 			exit.Exit(1)
 		}
 	}
-}
-
-// OpenTracing Init
-func initOpenTracing(cfg *config.Config) {
-	// If fabio.properties file has tracing.TracingEnabled set to true the init tracing
-	if cfg.Tracing.TracingEnabled {
-		trace.InitializeTracer(cfg.Tracing.CollectorType, cfg.Tracing.ConnectString, cfg.Tracing.ServiceName, cfg.Tracing.Topic, cfg.Tracing.SamplerRate, cfg.Tracing.SpanHost)
-
-	}
-
 }
 
 func watchBackend(cfg *config.Config, first chan bool) {
