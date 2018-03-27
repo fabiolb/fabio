@@ -51,6 +51,15 @@ func TestCreateSpanWithParent(t *testing.T) {
 	}
 }
 
+func TestInitializeTracer(t *testing.T) {
+	opentracing.SetGlobalTracer(nil)
+	InitializeTracer("", "", "", "", 0.0, "")
+	if opentracing.GlobalTracer() == nil {
+		t.Error("InitializeTracer set a nil tracer.")
+		t.FailNow()
+	}
+}
+
 func TestInjectHeaders(t *testing.T) {
 	mt := mocktracer.New()
 	opentracing.SetGlobalTracer(mt)
