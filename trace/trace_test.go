@@ -12,6 +12,13 @@ import (
 
 const testServiceName = "TEST-SERVICE"
 
+func TestCreateCollectorHTTP(t *testing.T) {
+	if CreateCollector("http", "", "") == nil {
+		t.Error("CreateCollector returned nil value.")
+		t.FailNow()
+	}
+}
+
 func TestCreateSpanNoGlobalTracer(t *testing.T) {
 	opentracing.SetGlobalTracer(nil)
 	req, _ := http.NewRequest("GET", "http://example.com", nil)
