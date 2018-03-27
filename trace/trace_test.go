@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/fabiolb/fabio/config"
 	opentracing "github.com/opentracing/opentracing-go"
 	mocktracer "github.com/opentracing/opentracing-go/mocktracer"
 	zipkin "github.com/openzipkin/zipkin-go-opentracing"
@@ -60,9 +61,18 @@ func TestCreateSpanWithParent(t *testing.T) {
 
 func TestInitializeTracer(t *testing.T) {
 	opentracing.SetGlobalTracer(nil)
-	InitializeTracer("", "", "", "", 0.0, "")
+	InitializeTracer(&config.Tracing{TracingEnabled: true})
 	if opentracing.GlobalTracer() == nil {
 		t.Error("InitializeTracer set a nil tracer.")
+		t.FailNow()
+	}
+}
+
+func TestInitializeTracerWhileDisabled(t *testing.T) {
+	opentracing.SetGlobalTracer(nil)
+	InitializeTracer(&config.Tracing{TracingEnabled: false})
+	if opentracing.GlobalTracer() != nil {
+		t.Error("InitializeTracer set a tracer while tracing was disabled.")
 		t.FailNow()
 	}
 }
