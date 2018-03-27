@@ -12,6 +12,45 @@ import (
 
 const testServiceName = "TEST-SERVICE"
 
+func TestCreateSpanNoGlobalTracer(t *testing.T) {
+	opentracing.SetGlobalTracer(nil)
+	req, _ := http.NewRequest("GET", "http://example.com", nil)
+
+	if CreateSpan(req, testServiceName) != nil {
+		t.Error("CreateSpan returned a non-nil result using a nil global tracer.")
+		t.Fail()
+	}
+}
+
+func TestCreateSpanWithNoParent(t *testing.T) {
+	tracer, _ := zipkin.NewTracer(nil)
+	opentracing.SetGlobalTracer(tracer)
+
+	req, _ := http.NewRequest("GET", "http://example.com", nil)
+	if CreateSpan(req, testServiceName) == nil {
+		t.Error("Received nil span while a global tracer was set.")
+		t.FailNow()
+	}
+}
+
+func TestCreateSpanWithParent(t *testing.T) {
+	mt := mocktracer.New()
+	opentracing.SetGlobalTracer(mt)
+	globalTracer := opentracing.GlobalTracer()
+	parentSpan := globalTracer.StartSpan(testServiceName)
+
+	requestIn, _ := http.NewRequest("GET", "http://example.com", nil)
+	mt.Inject(parentSpan.Context(),
+		opentracing.HTTPHeaders,
+		opentracing.HTTPHeadersCarrier(requestIn.Header),
+	)
+
+	if CreateSpan(requestIn, testServiceName+"-child") == nil {
+		t.Error("Received a nil span while a global tracer was set.")
+		t.FailNow()
+	}
+}
+
 func TestInjectHeaders(t *testing.T) {
 	mt := mocktracer.New()
 	opentracing.SetGlobalTracer(mt)
