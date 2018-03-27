@@ -1,6 +1,7 @@
 package trace
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -35,10 +36,12 @@ func CreateCollector(collectorType, connectString, topic string) zipkin.Collecto
 			kafkaHosts,
 			zipkin.KafkaTopic(topic),
 		)
+	default:
+		err = fmt.Errorf("Unknown collector type.")
 	}
 
 	if err != nil {
-		log.Fatalf("Unable to create Zipkin %s collector: %+v", collectorType, err)
+		log.Fatalf("Unable to create Zipkin %s collector: %v", collectorType, err)
 	}
 
 	return collector
