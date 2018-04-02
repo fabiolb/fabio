@@ -61,7 +61,7 @@ func TestCreateSpanWithParent(t *testing.T) {
 
 func TestInitializeTracer(t *testing.T) {
 	opentracing.SetGlobalTracer(nil)
-	InitializeTracer(&config.Tracing{TracingEnabled: true})
+	InitializeTracer(&config.Tracing{TracingEnabled: true, CollectorType: "http"})
 	if opentracing.GlobalTracer() == nil {
 		t.Error("InitializeTracer set a nil tracer.")
 		t.FailNow()
@@ -70,7 +70,7 @@ func TestInitializeTracer(t *testing.T) {
 
 func TestInitializeTracerWhileDisabled(t *testing.T) {
 	opentracing.SetGlobalTracer(nil)
-	InitializeTracer(&config.Tracing{TracingEnabled: false})
+	InitializeTracer(&config.Tracing{TracingEnabled: false, CollectorType: "http"})
 	if opentracing.GlobalTracer() != nil {
 		t.Error("InitializeTracer set a tracer while tracing was disabled.")
 		t.FailNow()
