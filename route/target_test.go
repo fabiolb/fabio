@@ -123,6 +123,16 @@ func TestTarget_BuildRedirectURL(t *testing.T) {
 				{req: "/abc/?aaa=1", want: "https://foo.com/bbb/abc/?aaa=1"},
 			},
 		},
+		{ // simple redirect to corresponding path with encoded char in path
+			route: "route add svc / http://bar.com/$path",
+			tests: []routeTest{
+				{req: "/%20", want: "http://bar.com/%20"},
+				{req: "/a%2fbc", want: "http://bar.com/a%2fbc"},
+				{req: "/a/b%22/c", want: "http://bar.com/a/b%22/c"},
+				{req: "/%2f/?aaa=1", want: "http://bar.com/%2f/?aaa=1"},
+				{req: "/%20/a%2f/", want: "http://bar.com/%20/a%2f/"},
+			},
+		},
 		{ // strip prefix
 			route: "route add svc /stripme http://bar.com/$path opts \"strip=/stripme\"",
 			tests: []routeTest{
