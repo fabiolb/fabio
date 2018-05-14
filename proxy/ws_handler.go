@@ -87,6 +87,8 @@ func newWSHandler(host string, dial dialFunc) http.Handler {
 			return
 		}
 
+		out.SetReadDeadline(time.Time{});
+
 		errc := make(chan error, 2)
 		cp := func(dst io.Writer, src io.Reader) {
 			_, err := io.Copy(dst, src)
