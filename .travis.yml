@@ -9,9 +9,9 @@ before_script:
   - echo $HOSTNAME
   - mkdir -p $GOPATH/bin
   - wget --version
-  - wget https://releases.hashicorp.com/consul/1.0.7/consul_1.0.7_linux_amd64.zip
+  - wget https://releases.hashicorp.com/consul/1.0.6/consul_1.0.6_linux_amd64.zip
   - wget https://releases.hashicorp.com/vault/0.9.6/vault_0.9.6_linux_amd64.zip
-  - unzip -d $GOPATH/bin consul_1.0.7_linux_amd64.zip
+  - unzip -d $GOPATH/bin consul_1.0.6_linux_amd64.zip
   - unzip -d $GOPATH/bin vault_0.9.6_linux_amd64.zip
   - vault --version
   - consul --version

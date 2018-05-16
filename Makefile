@@ -30,6 +30,10 @@ GOVENDOR = $(shell which govendor)
 # VENDORFMT is the path to the vendorfmt binary.
 VENDORFMT = $(shell which vendorfmt)
 
+CONSUL_VERSION=1.0.6
+VAULT_VERSION=0.9.6
+GO_VERSION=1.10.2
+
 # all is the default target
 all: test
 
@@ -115,12 +119,19 @@ docker-aliases:
 	docker push magiconair/fabio:$(VERSION)-$(GOVERSION)
 	docker push magiconair/fabio:latest
 
+docker-test:
+	test -r consul_$(CONSUL_VERSION)_linux_amd64.zip || wget https://releases.hashicorp.com/consul/$(CONSUL_VERSION)/consul_$(CONSUL_VERSION)_linux_amd64.zip
+	test -r vault_$(VAULT_VERSION)_linux_amd64.zip || wget https://releases.hashicorp.com/vault/$(VAULT_VERSION)/vault_$(VAULT_VERSION)_linux_amd64.zip unzip -o -d ~/bin ~/consul.zip
+	test -r go$(GO_VERSION).linux-amd64.tar.gz || wget https://dl.google.com/go/go1.10.2.linux-amd64.tar.gz
+	docker build -t test-fabio -f Dockerfile-test .
+	docker run -it test-fabio
+
 # codeship runs the CI on codeship
 codeship:
 	go version
 	go env
-	wget -O ~/consul.zip https://releases.hashicorp.com/consul/1.0.7/consul_1.0.7_linux_amd64.zip
-	wget -O ~/vault.zip https://releases.hashicorp.com/vault/0.9.6/vault_0.9.6_linux_amd64.zip
+	wget -O ~/consul.zip https://releases.hashicorp.com/consul/$(CONSUL_VERSION)/consul_$(CONSUL_VERSION)_linux_amd64.zip
+	wget -O ~/vault.zip https://releases.hashicorp.com/vault/$(VAULT_VERSION)/vault_$(VAULT_VERSION)_linux_amd64.zip
 	unzip -o -d ~/bin ~/consul.zip
 	unzip -o -d ~/bin ~/vault.zip
 	vault --version
