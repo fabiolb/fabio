@@ -117,9 +117,8 @@ func TestProxySTSHeader(t *testing.T) {
 }
 
 func TestProxyChecksHeaderForAccessRules(t *testing.T) {
-	var hdr http.Header = make(http.Header)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		hdr = r.Header
+		fmt.Fprintln(w, "OK")
 	}))
 	defer server.Close()
 
