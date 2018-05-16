@@ -1,10 +1,12 @@
 ## Changelog
 
-### Unreleased
+### [v1.5.9](https://github.com/fabiolb/fabio/releases/tag/v1.5.9) - 16 May 2018
 
 #### Notes
 
- * Tests fail with Vault > 0.9.6 and Consul > 1.0.6.
+ * [Issue #494](https://github.com/fabiolb/fabio/issues/494): Tests fail with Vault > 0.9.6 and Consul > 1.0.6
+
+   Needs more investigation.
 
 #### Breaking Changes
 
