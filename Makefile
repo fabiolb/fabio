@@ -87,7 +87,7 @@ pkg: build test
 # later targets can pick up the new tag value.
 release:
 	$(MAKE) tag
-	$(MAKE) preflight test gorelease homebrew docker-aliases
+	$(MAKE) preflight docker-test gorelease homebrew docker-aliases
 
 # preflight runs some checks before a release
 preflight:
