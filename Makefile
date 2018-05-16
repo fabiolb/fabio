@@ -10,10 +10,6 @@ LAST_TAG = $(shell git describe --abbrev=0)
 # e.g. 1.5.5
 VERSION = $(shell git describe --abbrev=0 | cut -c 2-)
 
-# GO runs the go binary with garbage collection disabled for faster builds.
-# Do not specify a full path for go since travis will fail.
-GO = go
-
 # GOFLAGS is the flags for the go compiler. Currently, only the version number is
 # passed to the linker via the -ldflags.
 GOFLAGS = -ldflags "-X main.version=$(CUR_TAG)"
@@ -50,20 +46,20 @@ help:
 
 # build compiles fabio and the test dependencies
 build: checkdeps vendorfmt gofmt
-	$(GO) build
+	go build
 
 # test runs the tests
 test: build
-	$(GO) test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
+	go test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 
 # checkdeps ensures that all required dependencies are vendored in
 checkdeps:
-	[ -x "$(GOVENDOR)" ] || $(GO) get -u github.com/kardianos/govendor
+	[ -x "$(GOVENDOR)" ] || go get -u github.com/kardianos/govendor
 	govendor list +e | grep '^ e ' && { echo "Found missing packages. Please run 'govendor add +e'"; exit 1; } || : echo
 
 # vendorfmt ensures that the vendor/vendor.json file is formatted correctly
 vendorfmt:
-	[ -x "$(VENDORFMT)" ] || $(GO) get -u github.com/magiconair/vendorfmt/cmd/vendorfmt
+	[ -x "$(VENDORFMT)" ] || go get -u github.com/magiconair/vendorfmt/cmd/vendorfmt
 	vendorfmt
 
 # gofmt runs gofmt on the code
@@ -72,11 +68,11 @@ gofmt:
 
 # linux builds a linux binary
 linux:
-	GOOS=linux GOARCH=amd64 $(GO) build -tags netgo $(GOFLAGS)
+	GOOS=linux GOARCH=amd64 go build -tags netgo $(GOFLAGS)
 
 # install runs go install
 install:
-	$(GO) install $(GOFLAGS)
+	go install $(GOFLAGS)
 
 # pkg builds a fabio.tar.gz package with only fabio in it
 pkg: build test
@@ -140,7 +136,7 @@ codeship:
 
 # clean removes intermediate files
 clean:
-	$(GO) clean
+	go clean
 	rm -rf pkg dist fabio
 	find . -name '*.test' -delete
 
