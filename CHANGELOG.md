@@ -21,6 +21,17 @@
 
    Thanks to [@tino](https://github.com/tino) for the patch.
 
+ * [Issue #421](https://github.com/fabiolb/fabio/issues/421): Fabio routing to wrong backend
+
+   Fabio does not close websocket connections if the connection upgrade fails. This can lead to
+   connections being routed to the wrong backend if there is another HTTP router like nginx in
+   front of fabio. The failed websocket connection creates a direct TCP tunnel to the original
+   backend server and that connection is not closed properly.
+
+   The patches detect an unsuccessful handshake and close the connection properly.
+
+   Thanks to [@craigday](https://github.com/craigday) for the original reporting and debugging.
+
 #### Improvements
 
  * [Issue #427](https://github.com/fabiolb/fabio/issues/427): Fabio does not remove service when one of the registered health-checks fail
