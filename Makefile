@@ -26,9 +26,10 @@ GOVENDOR = $(shell which govendor)
 # VENDORFMT is the path to the vendorfmt binary.
 VENDORFMT = $(shell which vendorfmt)
 
-CONSUL_VERSION=1.0.6
-VAULT_VERSION=0.9.6
-GO_VERSION=1.10.2
+# pin versions for CI builds
+CI_CONSUL_VERSION=1.0.6
+CI_VAULT_VERSION=0.9.6
+CI_GO_VERSION=1.10.2
 
 # all is the default target
 all: test
@@ -115,19 +116,34 @@ docker-aliases:
 	docker push magiconair/fabio:$(VERSION)-$(GOVERSION)
 	docker push magiconair/fabio:latest
 
+# docker-test runs make test in a Docker container with
+# pinned versions of the external dependencies
+#
+# We download the binaries outside the Docker build to
+# cache the binaries and prevent repeated downloads since
+# ADD <url> downloads the file every time.
 docker-test:
-	test -r consul_$(CONSUL_VERSION)_linux_amd64.zip || wget https://releases.hashicorp.com/consul/$(CONSUL_VERSION)/consul_$(CONSUL_VERSION)_linux_amd64.zip
-	test -r vault_$(VAULT_VERSION)_linux_amd64.zip || wget https://releases.hashicorp.com/vault/$(VAULT_VERSION)/vault_$(VAULT_VERSION)_linux_amd64.zip unzip -o -d ~/bin ~/consul.zip
-	test -r go$(GO_VERSION).linux-amd64.tar.gz || wget https://dl.google.com/go/go1.10.2.linux-amd64.tar.gz
-	docker build -t test-fabio -f Dockerfile-test .
-	docker run -it test-fabio
+	test -r consul_$(CI_CONSUL_VERSION)_linux_amd64.zip || \
+		wget https://releases.hashicorp.com/consul/$(CI_CONSUL_VERSION)/consul_$(CI_CONSUL_VERSION)_linux_amd64.zip
+	test -r vault_$(CI_VAULT_VERSION)_linux_amd64.zip || \
+		wget https://releases.hashicorp.com/vault/$(CI_VAULT_VERSION)/vault_$(CI_VAULT_VERSION)_linux_amd64.zip
+	test -r go$(CI_GO_VERSION).linux-amd64.tar.gz || \
+		wget https://dl.google.com/go/go$(CI_GO_VERSION).linux-amd64.tar.gz
+	docker build \
+		--build-arg consul_version=$(CI_CONSUL_VERSION) \
+		--build-arg vault_version=$(CI_VAULT_VERSION) \
+		--build-arg go_version=$(CI_GO_VERSION) \
+		-t test-fabio \
+		-f Dockerfile-test \
+		.
+	docker run -it test-fabio make test
 
 # codeship runs the CI on codeship
 codeship:
 	go version
 	go env
-	wget -O ~/consul.zip https://releases.hashicorp.com/consul/$(CONSUL_VERSION)/consul_$(CONSUL_VERSION)_linux_amd64.zip
-	wget -O ~/vault.zip https://releases.hashicorp.com/vault/$(VAULT_VERSION)/vault_$(VAULT_VERSION)_linux_amd64.zip
+	wget -O ~/consul.zip https://releases.hashicorp.com/consul/$(CI_CONSUL_VERSION)/consul_$(CI_CONSUL_VERSION)_linux_amd64.zip
+	wget -O ~/vault.zip https://releases.hashicorp.com/vault/$(CI_VAULT_VERSION)/vault_$(CI_VAULT_VERSION)_linux_amd64.zip
 	unzip -o -d ~/bin ~/consul.zip
 	unzip -o -d ~/bin ~/vault.zip
 	vault --version
