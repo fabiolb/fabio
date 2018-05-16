@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+#### Notes
+
+ * Tests fail with Vault > 0.9.6 and Consul > 1.0.6.
+
 #### Breaking Changes
 
  * None
