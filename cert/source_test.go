@@ -339,6 +339,15 @@ func vaultServer(t *testing.T, addr, rootToken string) (*exec.Cmd, *vaultapi.Cli
 	  capabilities = ["read"]
 	}
 
+	# Vault >= 0.10. (KV Version 2)
+	path "secret/metadata/fabio/cert/" {
+	  capabilities = ["list"]
+	}
+
+	path "secret/data/fabio/cert/*" {
+	  capabilities = ["read"]
+	}
+
 	path "test-pki/issue/fabio" {
 	  capabilities = ["update"]
 	}
@@ -425,7 +434,26 @@ func TestVaultSource(t *testing.T) {
 	// create a cert and store it in vault
 	certPEM, keyPEM := makePEM("localhost", time.Minute)
 	data := map[string]interface{}{"cert": string(certPEM), "key": string(keyPEM)}
-	if _, err := client.Logical().Write(certPath+"/localhost", data); err != nil {
+
+	var nilSource *VaultSource // for calling helper methods
+
+	mountPath, v2, err := nilSource.isKVv2(certPath, client)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p := certPath + "/localhost"
+	if v2 {
+		t.Log("Vault: KV backend: V2")
+		data = map[string]interface{}{
+			"data":    data,
+			"options": map[string]interface{}{},
+		}
+		p = nilSource.addPrefixToVKVPath(p, mountPath, "data")
+	} else {
+		t.Log("Vault: KV backend: V1")
+	}
+	if _, err := client.Logical().Write(p, data); err != nil {
 		t.Fatalf("logical.Write failed: %s", err)
 	}
 
