@@ -9,6 +9,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"math/big"
@@ -250,8 +251,18 @@ func TestConsulSource(t *testing.T) {
 			resp, err := http.Get("http://127.0.0.1:8500/v1/status/leader")
 			// /v1/status/leader returns '\n""' while consul is in leader election mode
 			// and '"127.0.0.1:8300"' when not. So we punt by checking the
-			// Content-Length header instead of the actual body content :)
-			return err == nil && resp.StatusCode == 200 && resp.ContentLength > 10
+			// body length instead of the actual body content :)
+			if err != nil {
+				return false
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode != 200 {
+				return false
+			}
+
+			n, err := io.Copy(ioutil.Discard, resp.Body)
+			return err == nil && n > 10
 		}
 
 		// We need give consul ~8-10 seconds to become ready until I've
