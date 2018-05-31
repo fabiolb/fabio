@@ -1,6 +1,7 @@
 package tcp
 
 import (
+	"bufio"
 	"io"
 	"log"
 	"net"
@@ -41,20 +42,40 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 		p.Conn.Inc(1)
 	}
 
-	// capture client hello
-	data := make([]byte, 1024)
-	n, err := in.Read(data)
+	tlsReader := bufio.NewReader(in)
+	tlsHeaders, err := tlsReader.Peek(9)
 	if err != nil {
+		log.Print("[DEBUG] tcp+sni: TLS handshake failed (failed to peek data)")
 		if p.ConnFail != nil {
 			p.ConnFail.Inc(1)
 		}
 		return err
 	}
-	data = data[:n]
 
-	host, ok := readServerName(data)
+	bufferSize, err := clientHelloBufferSize(tlsHeaders)
+	if err != nil {
+		log.Printf("[DEBUG] tcp+sni: TLS handshake failed (%s)", err)
+		if p.ConnFail != nil {
+			p.ConnFail.Inc(1)
+		}
+		return err
+	}
+
+	data := make([]byte, bufferSize)
+	_, err = io.ReadFull(tlsReader, data)
+	if err != nil {
+		log.Printf("[DEBUG] tcp+sni: TLS handshake failed (%s)", err)
+		if p.ConnFail != nil {
+			p.ConnFail.Inc(1)
+		}
+		return err
+	}
+
+	// readServerName wants only the handshake message so ignore the first
+	// 5 bytes which is the TLS record header
+	host, ok := readServerName(data[5:])
 	if !ok {
-		log.Print("[DEBUG] tcp+sni: TLS handshake failed")
+		log.Print("[DEBUG] tcp+sni: TLS handshake failed (unable to parse client hello)")
 		if p.ConnFail != nil {
 			p.ConnFail.Inc(1)
 		}
@@ -78,6 +99,10 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	}
 	addr := t.URL.Host
 
+	if t.AccessDeniedTCP(in) {
+		return nil
+	}
+
 	out, err := net.DialTimeout("tcp", addr, p.DialTimeout)
 	if err != nil {
 		log.Print("[WARN] tcp+sni: cannot connect to upstream ", addr)
@@ -88,8 +113,8 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	}
 	defer out.Close()
 
-	// copy client hello
-	n, err = out.Write(data)
+	// write the data already read from the connection
+	n, err := out.Write(data)
 	if err != nil {
 		log.Print("[WARN] tcp+sni: copy client hello failed. ", err)
 		if p.ConnFail != nil {

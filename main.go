@@ -43,7 +43,7 @@ import (
 // It is also set by the linker when fabio
 // is built via the Makefile or the build/docker.sh
 // script to ensure the correct version nubmer
-var version = "1.5.6"
+var version = "1.5.9"
 
 var shuttingDown int32
 
@@ -110,7 +110,7 @@ func main() {
 		if registry.Default == nil {
 			return
 		}
-		registry.Default.Deregister()
+		registry.Default.DeregisterAll()
 	})
 
 	// init metrics early since that create the global metric registries
@@ -362,7 +362,7 @@ func initBackend(cfg *config.Config) {
 		}
 
 		if err == nil {
-			if err = registry.Default.Register(); err == nil {
+			if err = registry.Default.Register(nil); err == nil {
 				return
 			}
 		}
@@ -403,6 +403,12 @@ func watchBackend(cfg *config.Config, first chan bool) {
 		if next == last {
 			continue
 		}
+
+		aliases, err := route.ParseAliases(next)
+		if err != nil {
+			log.Printf("[WARN]: %s", err)
+		}
+		registry.Default.Register(aliases)
 
 		t, err := route.NewTable(next)
 		if err != nil {

@@ -1,8 +1,6 @@
 package route
 
 import (
-	"log"
-	"path"
 	"strings"
 )
 
@@ -21,12 +19,7 @@ func prefixMatcher(uri string, r *Route) bool {
 	return strings.HasPrefix(uri, r.Path)
 }
 
-// globMatcher matches path to the routes' path using globbing.
+// globMatcher matches path to the routes' path using gobwas/glob.
 func globMatcher(uri string, r *Route) bool {
-	var hasMatch, err = path.Match(r.Path, uri)
-	if err != nil {
-		log.Printf("[ERROR] Glob matching error %s for path %s route %s", err, uri, r.Path)
-		return false
-	}
-	return hasMatch
+	return r.Glob.Match(uri)
 }

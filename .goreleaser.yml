@@ -9,6 +9,7 @@ builds:
       - freebsd
       - netbsd
       - openbsd
+      - windows
     goarch:
       - 386
       - amd64
@@ -19,7 +20,7 @@ archive:
   format: binary
 
 checksum:
-  name_template: '{{.ProjectName}}-{{ .Env.GOVERSION }}-{{.Version}}.sha256'
+  name_template: '{{.ProjectName}}-{{.Version}}-{{ .Env.GOVERSION }}.sha256'
 
 sign:
   artifacts: checksum

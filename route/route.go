@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/fabiolb/fabio/metrics"
+	"github.com/gobwas/glob"
 )
 
 // Route maps a path prefix to one or more target URLs.
@@ -36,6 +37,9 @@ type Route struct {
 	// total contains the total number of requests for this route.
 	// Used by the RRPicker
 	total uint64
+
+	// Glob represents compiled pattern.
+	Glob glob.Glob
 }
 
 func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float64, tags []string, opts map[string]string) {
@@ -65,6 +69,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		Timer:       ServiceRegistry.GetTimer(name),
 		TimerName:   name,
 	}
+
 	if opts != nil {
 		t.StripPath = opts["strip"]
 		t.TLSSkipVerify = opts["tlsskipverify"] == "true"
@@ -78,6 +83,11 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 				t.RedirectCode = 0
 				log.Printf("[ERROR] redirect status code should be in 3xx range. Got: %s", opts["redirect"])
 			}
+		}
+
+		if err = t.ProcessAccessRules(); err != nil {
+			log.Printf("[ERROR] failed to process access rules: %s",
+				err.Error())
 		}
 	}
 

@@ -127,21 +127,23 @@ type File struct {
 }
 
 type Consul struct {
-	Addr               string
-	Scheme             string
-	Token              string
-	KVPath             string
-	NoRouteHTMLPath    string
-	TagPrefix          string
-	Register           bool
-	ServiceAddr        string
-	ServiceName        string
-	ServiceTags        []string
-	ServiceStatus      []string
-	CheckInterval      time.Duration
-	CheckTimeout       time.Duration
-	CheckScheme        string
-	CheckTLSSkipVerify bool
+	Addr                                string
+	Scheme                              string
+	Token                               string
+	KVPath                              string
+	NoRouteHTMLPath                     string
+	TagPrefix                           string
+	Register                            bool
+	ServiceAddr                         string
+	ServiceName                         string
+	ServiceTags                         []string
+	ServiceStatus                       []string
+	CheckInterval                       time.Duration
+	CheckTimeout                        time.Duration
+	CheckScheme                         string
+	CheckTLSSkipVerify                  bool
+	CheckDeregisterCriticalServiceAfter string
+	ChecksRequired                      string
 }
 
 type FastCGI struct {

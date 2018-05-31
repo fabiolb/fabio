@@ -10,12 +10,12 @@ import (
 
 // watchKV monitors a key in the KV store for changes.
 // The intended use case is to add additional route commands to the routing table.
-func watchKV(client *api.Client, path string, config chan string) {
+func watchKV(client *api.Client, path string, config chan string, separator bool) {
 	var lastIndex uint64
 	var lastValue string
 
 	for {
-		value, index, err := listKV(client, path, lastIndex)
+		value, index, err := listKV(client, path, lastIndex, separator)
 		if err != nil {
 			log.Printf("[WARN] consul: Error fetching config from %s. %v", path, err)
 			time.Sleep(time.Second)
@@ -46,7 +46,7 @@ func listKeys(client *api.Client, path string, waitIndex uint64) ([]string, uint
 	return keys, meta.LastIndex, nil
 }
 
-func listKV(client *api.Client, path string, waitIndex uint64) (string, uint64, error) {
+func listKV(client *api.Client, path string, waitIndex uint64, separator bool) (string, uint64, error) {
 	q := &api.QueryOptions{RequireConsistent: true, WaitIndex: waitIndex}
 	kvpairs, meta, err := client.KV().List(path, q)
 	if err != nil {
@@ -57,7 +57,10 @@ func listKV(client *api.Client, path string, waitIndex uint64) (string, uint64, 
 	}
 	var s []string
 	for _, kvpair := range kvpairs {
-		val := "# --- " + kvpair.Key + "\n" + strings.TrimSpace(string(kvpair.Value))
+		val := strings.TrimSpace(string(kvpair.Value))
+		if separator {
+			val = "# --- " + kvpair.Key + "\n" + val
+		}
 		s = append(s, val)
 	}
 	return strings.Join(s, "\n\n"), meta.LastIndex, nil

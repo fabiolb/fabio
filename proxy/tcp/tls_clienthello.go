@@ -1,73 +1,65 @@
 package tcp
 
-// record types
-const (
-	handshakeRecord = 0x16
-	clientHelloType = 0x01
-)
+import "errors"
 
-// readServerName returns the server name from a TLS ClientHello message which
-// has the server_name extension (SNI). ok is set to true if the ClientHello
-// message was parsed successfully. If the server_name extension was not set
-// and empty string is returned as serverName.
-func readServerName(data []byte) (serverName string, ok bool) {
-	if m, ok := readClientHello(data); ok {
-		return m.serverName, true
-	}
-	return "", false
-}
-
-// readClientHello
-func readClientHello(data []byte) (m *clientHelloMsg, ok bool) {
-	if len(data) < 9 {
-		// println("buf too short")
-		return nil, false
-	}
-
+// Determines the required size of a buffer large enough to hold
+// a client hello message including the tls record header and the
+// handshake message header.
+// The function requires at least the first 9 bytes of the tls conversation
+// in "data".
+// An error is returned if the data does not follow the
+// specification (https://tools.ietf.org/html/rfc5246) or if the client hello
+// is fragmented over multiple records.
+func clientHelloBufferSize(data []byte) (int, error) {
 	// TLS record header
 	// -----------------
 	// byte   0: rec type (should be 0x16 == Handshake)
 	// byte 1-2: version (should be 0x3000 < v < 0x3003)
 	// byte 3-4: rec len
-	recType := data[0]
-	if recType != handshakeRecord {
-		// println("no handshake ")
-		return nil, false
+	if len(data) < 9 {
+		return 0, errors.New("At least 9 bytes required to determine client hello length")
 	}
 
-	recLen := int(data[3])<<8 | int(data[4])
-	if recLen == 0 || recLen > len(data)-5 {
-		// println("rec too short")
-		return nil, false
+	if data[0] != 0x16 {
+		return 0, errors.New("Not a TLS handshake")
+	}
+
+	recordLength := int(data[3])<<8 | int(data[4])
+	if recordLength <= 0 || recordLength > 16384 {
+		return 0, errors.New("Invalid TLS record length")
 	}
 
 	// Handshake record header
 	// -----------------------
 	// byte   5: hs msg type (should be 0x01 == client_hello)
 	// byte 6-8: hs msg len
-	hsType := data[5]
-	if hsType != clientHelloType {
-		// println("no client_hello")
-		return nil, false
+	if data[5] != 0x01 {
+		return 0, errors.New("Not a client hello")
 	}
 
-	hsLen := int(data[6])<<16 | int(data[7])<<8 | int(data[8])
-	if hsLen == 0 || hsLen > len(data)-9 {
-		// println("handshake rec too short")
-		return nil, false
+	handshakeLength := int(data[6])<<16 | int(data[7])<<8 | int(data[8])
+	if handshakeLength <= 0 || handshakeLength > recordLength-4 {
+		return 0, errors.New("Invalid client hello length (fragmentation not implemented)")
 	}
 
-	// byte 9- : client hello msg
-	//
-	// m.unmarshal parses the entire handshake message and
-	// not just the client hello. Therefore, we need to pass
-	// data from byte 5 instead of byte 9. (see comment below)
-	m = new(clientHelloMsg)
-	if !m.unmarshal(data[5:]) {
-		// println("client_hello unmarshal failed")
-		return nil, false
+	return handshakeLength + 9, nil //9 for the header bytes
+}
+
+// readServerName returns the server name from a TLS ClientHello message which
+// has the server_name extension (SNI). ok is set to true if the ClientHello
+// message was parsed successfully. If the server_name extension was not set
+// an empty string is returned as serverName.
+// clientHelloHandshakeMsg must contain the full client hello handshake
+// message including the 4 byte header.
+// See: https://www.ietf.org/rfc/rfc5246.txt
+func readServerName(clientHelloHandshakeMsg []byte) (serverName string, ok bool) {
+	m := new(clientHelloMsg)
+	if !m.unmarshal(clientHelloHandshakeMsg) {
+		//println("client_hello unmarshal failed")
+		return "", false
 	}
-	return m, true
+
+	return m.serverName, true
 }
 
 // The code below is a verbatim copy from go1.7/src/crypto/tls/handshake_messages.go

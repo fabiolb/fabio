@@ -38,6 +38,10 @@ type Target struct {
 	// When set to a value > 0 the client is redirected to the target url.
 	RedirectCode int
 
+	// RedirectURL is the redirect target based on the request.
+	// This is cached here to prevent multiple generations per request.
+	RedirectURL *url.URL
+
 	// FixedWeight is the weight assigned to this target.
 	// If the value is 0 the targets weight is dynamic.
 	FixedWeight float64
@@ -50,30 +54,35 @@ type Target struct {
 
 	// TimerName is the name of the timer in the metrics registry
 	TimerName string
+
+	// accessRules is map of access information for the target.
+	accessRules map[string][]interface{}
 }
 
-func (t *Target) GetRedirectURL(requestURL *url.URL) *url.URL {
-	redirectURL := &url.URL{
+func (t *Target) BuildRedirectURL(requestURL *url.URL) {
+	t.RedirectURL = &url.URL{
 		Scheme:   t.URL.Scheme,
 		Host:     t.URL.Host,
 		Path:     t.URL.Path,
 		RawQuery: t.URL.RawQuery,
 	}
-	if strings.HasSuffix(redirectURL.Host, "$path") {
-		redirectURL.Host = redirectURL.Host[:len(redirectURL.Host)-len("$path")]
-		redirectURL.Path = "$path"
+	if strings.HasSuffix(t.RedirectURL.Host, "$path") {
+		t.RedirectURL.Host = t.RedirectURL.Host[:len(t.RedirectURL.Host)-len("$path")]
+		t.RedirectURL.Path = "$path"
 	}
-	if strings.Contains(redirectURL.Path, "/$path") {
-		redirectURL.Path = strings.Replace(redirectURL.Path, "/$path", "$path", 1)
+	if strings.Contains(t.RedirectURL.Path, "/$path") {
+		t.RedirectURL.Path = strings.Replace(t.RedirectURL.Path, "/$path", "$path", 1)
 	}
-	if strings.Contains(redirectURL.Path, "$path") {
-		redirectURL.Path = strings.Replace(redirectURL.Path, "$path", requestURL.Path, 1)
-		if t.StripPath != "" && strings.HasPrefix(redirectURL.Path, t.StripPath) {
-			redirectURL.Path = redirectURL.Path[len(t.StripPath):]
+	if strings.Contains(t.RedirectURL.Path, "$path") {
+		t.RedirectURL.Path = strings.Replace(t.RedirectURL.Path, "$path", requestURL.Path, 1)
+		if t.StripPath != "" && strings.HasPrefix(t.RedirectURL.Path, t.StripPath) {
+			t.RedirectURL.Path = t.RedirectURL.Path[len(t.StripPath):]
 		}
-		if redirectURL.RawQuery == "" && requestURL.RawQuery != "" {
-			redirectURL.RawQuery = requestURL.RawQuery
+		if t.RedirectURL.RawQuery == "" && requestURL.RawQuery != "" {
+			t.RedirectURL.RawQuery = requestURL.RawQuery
 		}
 	}
-	return redirectURL
+	if t.RedirectURL.Path == "" {
+		t.RedirectURL.Path = "/"
+	}
 }

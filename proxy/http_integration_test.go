@@ -14,6 +14,7 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -115,6 +116,35 @@ func TestProxySTSHeader(t *testing.T) {
 
 	if got, want := resp.Header.Get("Strict-Transport-Security"),
 		"max-age=31536000; includeSubdomains; preload"; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func TestProxyChecksHeaderForAccessRules(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "OK")
+	}))
+	defer server.Close()
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Config:    config.Proxy{},
+		Transport: http.DefaultTransport,
+		Lookup: func(r *http.Request) *route.Target {
+			tgt := &route.Target{
+				URL:  mustParse(server.URL),
+				Opts: map[string]string{"allow": "ip:127.0.0.0/8,ip:fe80::/10,ip:::1"},
+			}
+			tgt.ProcessAccessRules()
+			return tgt
+		},
+	})
+	defer proxy.Close()
+
+	req, _ := http.NewRequest("GET", proxy.URL, nil)
+	req.Header.Set("X-Forwarded-For", "1.2.3.4")
+	resp, _ := mustDo(req)
+
+	if got, want := resp.StatusCode, http.StatusForbidden; got != want {
 		t.Errorf("got %v want %v", got, want)
 	}
 }
@@ -264,7 +294,7 @@ func TestRedirect(t *testing.T) {
 		{req: "/", wantCode: 301, wantLoc: "http://a.com/"},
 		{req: "/aaa/bbb", wantCode: 301, wantLoc: "http://a.com/aaa/bbb"},
 		{req: "/foo", wantCode: 301, wantLoc: "http://a.com/abc"},
-		{req: "/bar", wantCode: 302, wantLoc: "http://b.com"},
+		{req: "/bar", wantCode: 302, wantLoc: "http://b.com/"},
 		{req: "/bar/aaa", wantCode: 302, wantLoc: "http://b.com/aaa"},
 	}
 
@@ -286,6 +316,24 @@ func TestRedirect(t *testing.T) {
 }
 
 func TestProxyLogOutput(t *testing.T) {
+	t.Run("uncompressed response", func(t *testing.T) {
+		testProxyLogOutput(t, 73, config.Proxy{})
+	})
+	t.Run("compression enabled but no match", func(t *testing.T) {
+		testProxyLogOutput(t, 73, config.Proxy{
+			GZIPContentTypes: regexp.MustCompile(`^$`),
+		})
+	})
+	t.Run("compression enabled and active", func(t *testing.T) {
+		testProxyLogOutput(t, 28, config.Proxy{
+			GZIPContentTypes: regexp.MustCompile(`.*`),
+		})
+	})
+}
+
+func testProxyLogOutput(t *testing.T, bodySize int, cfg config.Proxy) {
+	t.Helper()
+
 	// build a format string from all log fields and one header field
 	fields := []string{"header.X-Foo:$header.X-Foo"}
 	for _, k := range logger.Fields {
@@ -302,7 +350,7 @@ func TestProxyLogOutput(t *testing.T) {
 
 	// create an upstream server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "foo")
+		fmt.Fprint(w, "foooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo")
 	}))
 	defer server.Close()
 
@@ -360,7 +408,7 @@ func TestProxyLogOutput(t *testing.T) {
 		"request_scheme:http",
 		"request_uri:/foo?x=y",
 		"request_url:http://example.com/foo?x=y",
-		"response_body_size:3",
+		"response_body_size:" + strconv.Itoa(bodySize),
 		"response_status:200",
 		"response_time_ms:1.111",
 		"response_time_ns:1.111111111",

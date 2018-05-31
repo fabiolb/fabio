@@ -12,7 +12,6 @@
     <a href="https://github.com/fabiolb/fabio/releases/latest"><img alt="Release" src="https://img.shields.io/github/release/fabiolb/fabio.svg?style=flat-square"></a>
     <a href="https://raw.githubusercontent.com/fabiolb/fabio/master/LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
     <a href="https://app.codeship.com/projects/222209"><img alt="Codeship CI Status" src="https://img.shields.io/codeship/3e8307d0-2426-0135-1183-6e6f38f65fc4/master.svg?label=codeship&style=flat-square"></a>
-    <a href="https://travis-ci.org/fabiolb/fabio"><img alt="Travis CI Status" src="https://img.shields.io/travis/fabiolb/fabio.svg?label=travis-ci&style=flat-square"></a>
     <a href="https://github.com/fabiolb/fabio/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/fabiolb/fabio/total.svg?style=flat-square"></a>
     <a href="https://hub.docker.com/r/magiconair/fabio/"><img alt="Docker Pulls magiconair" src="https://img.shields.io/docker/pulls/magiconair/fabio.svg?style=flat-square&label=docker+pulls+magiconair"></a>
     <a href="https://hub.docker.com/r/fabiolb/fabio/"><img alt="Docker Pulls fabiolb" src="https://img.shields.io/docker/pulls/fabiolb/fabio.svg?style=flat-square&label=docker+pulls+fabiolb"></a>
@@ -51,7 +50,7 @@ It supports ([Full feature list](https://fabiolb.net/feature/))
 * [Raw TCP proxy](https://fabiolb.net/feature/tcp-proxy/)
 * [TCP+SNI proxy for full end-to-end TLS](https://fabiolb.net/feature/tcp-sni-proxy/) without decryption
 * [HTTPS upstream support](https://fabiolb.net/feature/https-upstream/)
-* [Websockets](https://fabiolb.net/feature/websocket-support/) and
+* [Websockets](https://fabiolb.net/feature/websockets/) and
   [SSE](https://fabiolb.net/feature/sse/)
 * [Dynamic reloading without restart](https://fabiolb.net/feature/dynamic-reloading/)
 * [Traffic shaping](https://fabiolb.net/feature/traffic-shaping/) for "blue/green" deployments,
@@ -70,8 +69,8 @@ The full documentation is on [fabiolb.net](https://fabiolb.net/)
 1. Install from source, [binary](https://github.com/fabiolb/fabio/releases),
    [Docker](https://hub.docker.com/r/fabiolb/fabio/) or [Homebrew](http://brew.sh).
     ```shell
-	# go 1.8 or higher is required
-    go get github.com/fabiolb/fabio                     (>= go1.8)
+	# go 1.9 or higher is required
+    go get github.com/fabiolb/fabio                     (>= go1.9)
 
     brew install fabio                                  (OSX/macOS stable)
     brew install --devel fabio                          (OSX/macOS devel)
@@ -125,7 +124,7 @@ urlprefix-:3306 proto=tcp                          # route external port 3306
 ### Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-<a href="graphs/contributors"><img src="https://opencollective.com/fabio/contributors.svg?width=890" /></a>
+<a href="https://github.com/fabiolb/fabio/graphs/contributors"><img src="https://opencollective.com/fabio/contributors.svg?width=890" /></a>
 
 
 ### Backers
