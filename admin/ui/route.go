@@ -20,9 +20,10 @@ var tmplRoutes = template.Must(template.New("routes").Parse(`
 <head>
 	<meta charset="utf-8">
 	<title>fabio{{if .Title}} - {{.Title}}{{end}}</title>
-	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 	<style type="text/css">
@@ -37,13 +38,15 @@ var tmplRoutes = template.Must(template.New("routes").Parse(`
 </head>
 <body>
 
+<ul id="overrides" class="dropdown-content"></ul>
+
 <nav class="top-nav {{.Color}}">
 
 	<div class="container">
 		<div class="nav-wrapper">
 			<a href="/" class="brand-logo">fabio{{if .Title}} - {{.Title}}{{end}}</a>
 			<ul id="nav-mobile" class="right hide-on-med-and-down">
-				<li><a href="/manual">Overrides</a></li>
+                <li><a class="dropdown-button" href="#!" data-activates="overrides">Overrides<i class="material-icons right">arrow_drop_down</i></a></li>
 				<li><a href="https://github.com/fabiolb/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
 				<li><a href="https://github.com/fabiolb/fabio">Github</a></li>
 			</ul>
@@ -123,6 +126,17 @@ $(function(){
 		var v = decodeURIComponent(params.filter);
 		$filter.val(v);
 		doFilter(v);
+	});
+
+	$.get('/api/paths', function(data) {
+		var d = $("#overrides");
+		$.each(data, function(idx, val) {
+			var path = val;
+			if (val == "") {
+				val = "default"
+			}
+            d.append('<li><a href="/manual'+path+'">'+val+'</a></li>');
+		});
 	});
 
 })

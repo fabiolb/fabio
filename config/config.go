@@ -16,6 +16,7 @@ type Config struct {
 	Runtime     Runtime
 	ProfileMode string
 	ProfilePath string
+	Insecure    bool
 }
 
 type CertSource struct {
@@ -64,6 +65,13 @@ type Proxy struct {
 	TLSHeaderValue        string
 	GZIPContentTypes      *regexp.Regexp
 	RequestID             string
+	STSHeader             STSHeader
+}
+
+type STSHeader struct {
+	MaxAge     int
+	Subdomains bool
+	Preload    bool
 }
 
 type Runtime struct {
@@ -108,31 +116,36 @@ type Registry struct {
 }
 
 type Static struct {
-	Routes string
+	NoRouteHTML string
+	Routes      string
 }
 
 type File struct {
-	Path string
+	NoRouteHTMLPath string
+	RoutesPath      string
 }
 
 type Consul struct {
-	Addr               string
-	Scheme             string
-	Token              string
-	KVPath             string
-	TagPrefix          string
-	Register           bool
-	ServiceAddr        string
-	ServiceName        string
-	ServiceTags        []string
-	ServiceStatus      []string
-	CheckInterval      time.Duration
-	CheckTimeout       time.Duration
-	CheckScheme        string
-	CheckTLSSkipVerify bool
-	EnableSSL          bool
-	VerifySSL          bool
-	CAFile             string
-	CertFile           string
-	KeyFile            string
+	Addr                                string
+	Scheme                              string
+	Token                               string
+	KVPath                              string
+	NoRouteHTMLPath                     string
+	TagPrefix                           string
+	Register                            bool
+	ServiceAddr                         string
+	ServiceName                         string
+	ServiceTags                         []string
+	ServiceStatus                       []string
+	CheckInterval                       time.Duration
+	CheckTimeout                        time.Duration
+	CheckScheme                         string
+	CheckTLSSkipVerify                  bool
+	CheckDeregisterCriticalServiceAfter string
+	ChecksRequired                      string
+	EnableSSL                           bool
+	VerifySSL                           bool
+	CAFile                              string
+	CertFile                            string
+	KeyFile                             string
 }

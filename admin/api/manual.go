@@ -9,7 +9,9 @@ import (
 )
 
 // ManualHandler provides a fetch and update handler for the manual overrides api.
-type ManualHandler struct{}
+type ManualHandler struct {
+	BasePath string
+}
 
 type manual struct {
 	Value   string `json:"value"`
@@ -23,9 +25,11 @@ func (h *ManualHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	path := r.RequestURI[len(h.BasePath):]
+
 	switch r.Method {
 	case "GET":
-		value, version, err := registry.Default.ReadManual()
+		value, version, err := registry.Default.ReadManual(path)
 		if err != nil {
 			log.Print("[ERROR] ", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -43,7 +47,7 @@ func (h *ManualHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 
-		ok, err := registry.Default.WriteManual(m.Value, m.Version)
+		ok, err := registry.Default.WriteManual(path, m.Value, m.Version)
 		if err != nil {
 			log.Print("[ERROR] ", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)

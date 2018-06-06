@@ -2,55 +2,61 @@ package route
 
 import (
 	"testing"
+
+	"github.com/gobwas/glob"
 )
 
 func TestPrefixMatcher(t *testing.T) {
-	routeFoo := &Route{Host: "www.example.com", Path: "/foo"}
-
 	tests := []struct {
-		uri   string
-		want  bool
-		route *Route
+		uri     string
+		matches bool
+		route   *Route
 	}{
-		{"/fo", false, routeFoo},
-		{"/foo", true, routeFoo},
-		{"/fools", true, routeFoo},
-		{"/bar", false, routeFoo},
+		{uri: "/foo", matches: true, route: &Route{Path: "/foo"}},
+		{uri: "/fools", matches: true, route: &Route{Path: "/foo"}},
+		{uri: "/fo", matches: false, route: &Route{Path: "/foo"}},
+		{uri: "/bar", matches: false, route: &Route{Path: "/foo"}},
 	}
 
 	for _, tt := range tests {
-		if got := prefixMatcher(tt.uri, tt.route); got != tt.want {
-			t.Errorf("%s: got %v want %v", tt.uri, got, tt.want)
-		}
+		t.Run(tt.uri, func(t *testing.T) {
+			if got, want := prefixMatcher(tt.uri, tt.route), tt.matches; got != want {
+				t.Fatalf("got %v want %v", got, want)
+			}
+		})
 	}
 }
 
 func TestGlobMatcher(t *testing.T) {
-	routeFoo := &Route{Host: "www.example.com", Path: "/foo"}
-	routeFooWild := &Route{Host: "www.example.com", Path: "/foo.*"}
-
 	tests := []struct {
-		uri   string
-		want  bool
-		route *Route
+		uri     string
+		matches bool
+		route   *Route
 	}{
-		{"/fo", false, routeFoo},
-		{"/foo", true, routeFoo},
-		{"/fools", false, routeFoo},
-		{"/bar", false, routeFoo},
+		// happy flows
+		{uri: "/foo", matches: true, route: &Route{Path: "/foo"}},
+		{uri: "/fool", matches: true, route: &Route{Path: "/foo?"}},
+		{uri: "/fool", matches: true, route: &Route{Path: "/foo*"}},
+		{uri: "/fools", matches: true, route: &Route{Path: "/foo*"}},
+		{uri: "/fools", matches: true, route: &Route{Path: "/foo*"}},
+		{uri: "/foo/x/bar", matches: true, route: &Route{Path: "/foo/*/bar"}},
+		{uri: "/foo/x/y/z/w/bar", matches: true, route: &Route{Path: "/foo/**"}},
+		{uri: "/foo/x/y/z/w/bar", matches: true, route: &Route{Path: "/foo/**/bar"}},
 
-		{"/fo", false, routeFooWild},
-		{"/foo", false, routeFooWild},
-		{"/fools", false, routeFooWild},
-		{"/foo.", true, routeFooWild},
-		{"/foo.a", true, routeFooWild},
-		{"/foo.bar", true, routeFooWild},
-		{"/foo.bar.baz", true, routeFooWild},
+		// error flows
+		{uri: "/fo", matches: false, route: &Route{Path: "/foo"}},
+		{uri: "/fools", matches: false, route: &Route{Path: "/foo"}},
+		{uri: "/fo", matches: false, route: &Route{Path: "/foo*"}},
+		{uri: "/fools", matches: false, route: &Route{Path: "/foo.*"}},
+		{uri: "/foo/x/y/z/w/baz", matches: false, route: &Route{Path: "/foo/**/bar"}},
 	}
 
 	for _, tt := range tests {
-		if got := globMatcher(tt.uri, tt.route); got != tt.want {
-			t.Errorf("%s: got %v want %v", tt.uri, got, tt.want)
-		}
+		t.Run(tt.uri, func(t *testing.T) {
+			tt.route.Glob = glob.MustCompile(tt.route.Path)
+			if got, want := globMatcher(tt.uri, tt.route), tt.matches; got != want {
+				t.Fatalf("got %v want %v", got, want)
+			}
+		})
 	}
 }

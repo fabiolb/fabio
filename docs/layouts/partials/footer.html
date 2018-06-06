@@ -1,0 +1,46 @@
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="container">
+        <a id="scroll-up" href="#"><i class="fa fa-angle-up"></i></a>
+
+        <div class="row">
+          <div class="col-md-6 col-sm-6">
+            <p style="line-height: 26px;">
+            Copyright &copy; {{ now.Format "2006"}} Frank Schröder. All right reserved.
+            </br>
+            Last updated on {{ now.Format "2 Jan 2006 15:04"}}
+            </p>
+          </div>
+          <div class="col-md-6 col-sm-6">
+            <ul class="footer-menu">
+              <li><a href="https://github.com/fabiolb/website/commits/master">Changelog</a></li>
+              <li><a href="/contact/">Contact</a></li>
+              <li>
+                <a href="https://gohugo.io"><img src="/img/made-with-hugo.png" height="51px"></a>
+              </li>
+              <li>
+                <a href="https://www.netlify.com"><img src="https://www.netlify.com/img/global/badges/netlify-dark.svg"></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!-- END Footer -->
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{$.Site.Params.googleAnalytics}}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+    gtag('config', '{{$.Site.Params.googleAnalytics}}');
+    </script>
+
+    <!-- Scripts -->
+    <script src="/js/theDocs.all.min.js"></script>
+    <script src="/js/custom.js"></script>
+
+  </body>
+</html>

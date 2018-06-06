@@ -1,0 +1,34 @@
+builds:
+  -
+    binary: fabio
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - freebsd
+      - netbsd
+      - openbsd
+      - windows
+    goarch:
+      - 386
+      - amd64
+      - arm
+
+archive:
+  name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Env.GOVERSION }}-{{ .Os }}_{{ .Arch }}'
+  format: binary
+
+checksum:
+  name_template: '{{.ProjectName}}-{{.Version}}-{{ .Env.GOVERSION }}.sha256'
+
+sign:
+  artifacts: checksum
+
+dockers:
+  - image: fabiolb/fabio
+    latest: true
+    tag_template: '{{ .Version }}-{{ .Env.GOVERSION }}'
+    extra_files:
+      - build/ca-certificates.crt
+      - fabio.properties

@@ -14,21 +14,23 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/logger"
+	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy/internal"
 	"github.com/fabiolb/fabio/route"
 	"github.com/pascaldekloe/goe/verify"
 )
 
-func TestProxyProducesCorrectXffHeader(t *testing.T) {
-	got := "not called"
+func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
+	var hdr http.Header = make(http.Header)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		got = r.Header.Get("X-Forwarded-For")
+		hdr = r.Header
 	}))
 	defer server.Close()
 
@@ -42,11 +44,15 @@ func TestProxyProducesCorrectXffHeader(t *testing.T) {
 	defer proxy.Close()
 
 	req, _ := http.NewRequest("GET", proxy.URL, nil)
+	req.Host = "foo.com"
 	req.Header.Set("X-Forwarded-For", "3.3.3.3")
 	mustDo(req)
 
-	if want := "3.3.3.3, 127.0.0.1"; got != want {
-		t.Errorf("got %v, but want %v", got, want)
+	if got, want := hdr.Get("X-Forwarded-For"), "3.3.3.3, 127.0.0.1"; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+	if got, want := hdr.Get("X-Forwarded-Host"), "foo.com"; got != want {
+		t.Errorf("got %v want %v", got, want)
 	}
 }
 
@@ -75,7 +81,86 @@ func TestProxyRequestIDHeader(t *testing.T) {
 	}
 }
 
-func TestProxyNoRouteStaus(t *testing.T) {
+func TestProxySTSHeader(t *testing.T) {
+	server := httptest.NewServer(okHandler)
+	defer server.Close()
+
+	proxy := httptest.NewTLSServer(&HTTPProxy{
+		Config: config.Proxy{
+			STSHeader: config.STSHeader{
+				MaxAge:     31536000,
+				Subdomains: true,
+				Preload:    true,
+			},
+		},
+		Transport: &http.Transport{TLSClientConfig: tlsInsecureConfig()},
+		Lookup: func(r *http.Request) *route.Target {
+			return &route.Target{URL: mustParse(server.URL)}
+		},
+	})
+	defer proxy.Close()
+
+	client := http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: tlsInsecureConfig(),
+		},
+	}
+	resp, err := client.Get(proxy.URL)
+	if err != nil {
+		panic(err)
+	}
+
+	if got, want := resp.Header.Get("Strict-Transport-Security"),
+		"max-age=31536000; includeSubdomains; preload"; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func TestProxyChecksHeaderForAccessRules(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "OK")
+	}))
+	defer server.Close()
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Config:    config.Proxy{},
+		Transport: http.DefaultTransport,
+		Lookup: func(r *http.Request) *route.Target {
+			tgt := &route.Target{
+				URL:  mustParse(server.URL),
+				Opts: map[string]string{"allow": "ip:127.0.0.0/8,ip:fe80::/10,ip:::1"},
+			}
+			tgt.ProcessAccessRules()
+			return tgt
+		},
+	})
+	defer proxy.Close()
+
+	req, _ := http.NewRequest("GET", proxy.URL, nil)
+	req.Header.Set("X-Forwarded-For", "1.2.3.4")
+	resp, _ := mustDo(req)
+
+	if got, want := resp.StatusCode, http.StatusForbidden; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func TestProxyNoRouteHTML(t *testing.T) {
+	want := "<html>503</html>"
+	noroute.SetHTML(want)
+	proxy := httptest.NewServer(&HTTPProxy{
+		Transport: http.DefaultTransport,
+		Lookup:    func(*http.Request) *route.Target { return nil },
+	})
+	defer proxy.Close()
+
+	_, got := mustGet(proxy.URL)
+	if !bytes.Equal(got, []byte(want)) {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestProxyNoRouteStatus(t *testing.T) {
 	proxy := httptest.NewServer(&HTTPProxy{
 		Config:    config.Proxy{NoRouteStatus: 999},
 		Transport: http.DefaultTransport,
@@ -117,11 +202,19 @@ func TestProxyStripsPath(t *testing.T) {
 	}
 }
 
-//	TestProxyHost
 func TestProxyHost(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, r.Host)
 	}))
+
+	// create a static route table so that we can see the effect
+	// of round robin distribution. The other tests generate the
+	// route table on the fly since order does not matter to them.
+	routes := "route add mock /hostdst http://a.com/ opts \"host=dst\"\n"
+	routes += "route add mock /hostcustom http://a.com/ opts \"host=foo.com\"\n"
+	routes += "route add mock /hostcustom http://b.com/ opts \"host=bar.com\"\n"
+	routes += "route add mock / http://a.com/"
+	tbl, _ := route.NewTable(routes)
 
 	proxy := httptest.NewServer(&HTTPProxy{
 		Transport: &http.Transport{
@@ -131,10 +224,6 @@ func TestProxyHost(t *testing.T) {
 			},
 		},
 		Lookup: func(r *http.Request) *route.Target {
-			routes := "route add mock /hostdst http://a.com/ opts \"host=dst\"\n"
-			routes += "route add mock /hostcustom http://a.com/ opts \"host=foo.com\"\n"
-			routes += "route add mock / http://a.com/"
-			tbl, _ := route.NewTable(routes)
 			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
 		},
 	})
@@ -151,12 +240,90 @@ func TestProxyHost(t *testing.T) {
 	}
 
 	proxyHost := proxy.URL[len("http://"):]
+
+	// test that for 'host=dst' the Host header is set to the hostname of the
+	// target, in this case 'a.com'
 	t.Run("host eq dst", func(t *testing.T) { check(t, "/hostdst", "a.com") })
-	t.Run("host is custom", func(t *testing.T) { check(t, "/hostcustom", "foo.com") })
+
+	// test that without a 'host' option no Host header is set
 	t.Run("no host", func(t *testing.T) { check(t, "/", proxyHost) })
+
+	// 1. Test that a host header is set when the 'host' option is used.
+	//
+	// 2. Test that the host header is set per target, i.e. that different
+	//    targets can have different 'host' options.
+	//
+	//    The proxy is configured to use "rr" (round-robin) distribution
+	//    for the requests. Therefore, requests to '/hostcustom' will be
+	//    sent to the two different targets in alternating order.
+	t.Run("host is custom", func(t *testing.T) {
+		check(t, "/hostcustom", "foo.com")
+		check(t, "/hostcustom", "bar.com")
+	})
+}
+
+func TestRedirect(t *testing.T) {
+	routes := "route add mock / http://a.com/$path opts \"redirect=301\"\n"
+	routes += "route add mock /foo http://a.com/abc opts \"redirect=301\"\n"
+	routes += "route add mock /bar http://b.com/$path opts \"redirect=302 strip=/bar\"\n"
+	tbl, _ := route.NewTable(routes)
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Transport: http.DefaultTransport,
+		Lookup: func(r *http.Request) *route.Target {
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+		},
+	})
+	defer proxy.Close()
+
+	tests := []struct {
+		req      string
+		wantCode int
+		wantLoc  string
+	}{
+		{req: "/", wantCode: 301, wantLoc: "http://a.com/"},
+		{req: "/aaa/bbb", wantCode: 301, wantLoc: "http://a.com/aaa/bbb"},
+		{req: "/foo", wantCode: 301, wantLoc: "http://a.com/abc"},
+		{req: "/bar", wantCode: 302, wantLoc: "http://b.com/"},
+		{req: "/bar/aaa", wantCode: 302, wantLoc: "http://b.com/aaa"},
+	}
+
+	http.DefaultClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		// do not follow redirects
+		return http.ErrUseLastResponse
+	}
+
+	for _, tt := range tests {
+		resp, _ := mustGet(proxy.URL + tt.req)
+		if resp.StatusCode != tt.wantCode {
+			t.Errorf("got status code %d, want %d", resp.StatusCode, tt.wantCode)
+		}
+		gotLoc, _ := resp.Location()
+		if gotLoc.String() != tt.wantLoc {
+			t.Errorf("got location %s, want %s", gotLoc, tt.wantLoc)
+		}
+	}
 }
 
 func TestProxyLogOutput(t *testing.T) {
+	t.Run("uncompressed response", func(t *testing.T) {
+		testProxyLogOutput(t, 73, config.Proxy{})
+	})
+	t.Run("compression enabled but no match", func(t *testing.T) {
+		testProxyLogOutput(t, 73, config.Proxy{
+			GZIPContentTypes: regexp.MustCompile(`^$`),
+		})
+	})
+	t.Run("compression enabled and active", func(t *testing.T) {
+		testProxyLogOutput(t, 28, config.Proxy{
+			GZIPContentTypes: regexp.MustCompile(`.*`),
+		})
+	})
+}
+
+func testProxyLogOutput(t *testing.T, bodySize int, cfg config.Proxy) {
+	t.Helper()
+
 	// build a format string from all log fields and one header field
 	fields := []string{"header.X-Foo:$header.X-Foo"}
 	for _, k := range logger.Fields {
@@ -173,13 +340,14 @@ func TestProxyLogOutput(t *testing.T) {
 
 	// create an upstream server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "foo")
+		fmt.Fprint(w, "foooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo")
 	}))
 	defer server.Close()
 
 	// create a proxy handler with mocked time
 	tm := time.Date(2016, 1, 1, 0, 0, 0, 12345678, time.UTC)
 	proxyHandler := &HTTPProxy{
+		Config: cfg,
 		Time: func() time.Time {
 			defer func() { tm = tm.Add(1111111111 * time.Nanosecond) }()
 			return tm
@@ -230,7 +398,7 @@ func TestProxyLogOutput(t *testing.T) {
 		"request_scheme:http",
 		"request_uri:/foo?x=y",
 		"request_url:http://example.com/foo?x=y",
-		"response_body_size:3",
+		"response_body_size:" + strconv.Itoa(bodySize),
 		"response_status:200",
 		"response_time_ms:1.111",
 		"response_time_ns:1.111111111",

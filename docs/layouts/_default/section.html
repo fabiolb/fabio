@@ -1,0 +1,22 @@
+{{partial "header" .}}
+
+<main class="container">
+  <div class="row">
+    {{partial "sidebar" .}}
+
+    <!-- Main content -->
+    <article class="col-sm-9 main-content" role="main">
+
+      <section>
+        <h2>{{.Title}}</h2>
+        {{if .Params.since}}<p class="since">{{.Params.since}}</p>{{end}}
+        {{.Content}}
+      </section>
+
+    </article>
+    <!-- END Main content -->
+
+  </div>
+</main>
+
+{{partial "footer" .}}

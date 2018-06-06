@@ -13,7 +13,7 @@ import (
 	"sync/atomic"
 
 	"github.com/fabiolb/fabio/metrics"
-	"github.com/ryanuber/go-glob"
+	"github.com/gobwas/glob"
 )
 
 var errInvalidPrefix = errors.New("route: prefix must not be empty")
@@ -153,20 +153,28 @@ func (t Table) addRoute(d *RouteDef) error {
 	switch {
 	// add new host
 	case t[host] == nil:
-		r := &Route{Host: host, Path: path, Opts: d.Opts}
-		r.addTarget(d.Service, targetURL, d.Weight, d.Tags)
+		g, err := glob.Compile(path)
+		if err != nil {
+			return err
+		}
+		r := &Route{Host: host, Path: path, Glob: g}
+		r.addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
 		t[host] = Routes{r}
 
 	// add new route to existing host
 	case t[host].find(path) == nil:
-		r := &Route{Host: host, Path: path, Opts: d.Opts}
-		r.addTarget(d.Service, targetURL, d.Weight, d.Tags)
+		g, err := glob.Compile(path)
+		if err != nil {
+			return err
+		}
+		r := &Route{Host: host, Path: path, Glob: g}
+		r.addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
 		t[host] = append(t[host], r)
 		sort.Sort(t[host])
 
 	// add new target to existing route
 	default:
-		t[host].find(path).addTarget(d.Service, targetURL, d.Weight, d.Tags)
+		t[host].find(path).addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
 	}
 
 	return nil
@@ -273,12 +281,12 @@ func (t Table) route(host, path string) *Route {
 
 // normalizeHost returns the hostname from the request
 // and removes the default port if present.
-func normalizeHost(req *http.Request) string {
-	host := strings.ToLower(req.Host)
-	if req.TLS == nil && strings.HasSuffix(host, ":80") {
+func normalizeHost(host string, tls bool) string {
+	host = strings.ToLower(host)
+	if !tls && strings.HasSuffix(host, ":80") {
 		return host[:len(host)-len(":80")]
 	}
-	if req.TLS != nil && strings.HasSuffix(host, ":443") {
+	if tls && strings.HasSuffix(host, ":443") {
 		return host[:len(host)-len(":443")]
 	}
 	return host
@@ -287,9 +295,11 @@ func normalizeHost(req *http.Request) string {
 // matchingHosts returns all keys (host name patterns) from the
 // routing table which match the normalized request hostname.
 func (t Table) matchingHosts(req *http.Request) (hosts []string) {
-	host := normalizeHost(req)
+	host := normalizeHost(req.Host, req.TLS != nil)
 	for pattern := range t {
-		if glob.Glob(pattern, host) {
+		normpat := normalizeHost(pattern, req.TLS != nil)
+		g := glob.MustCompile(normpat)
+		if g.Match(host) {
 			hosts = append(hosts, pattern)
 		}
 	}
@@ -302,12 +312,11 @@ func (t Table) matchingHosts(req *http.Request) (hosts []string) {
 // and if none matches then it falls back to generic routes without
 // a host. This is useful for a catch-all '/' rule.
 func (t Table) Lookup(req *http.Request, trace string, pick picker, match matcher) (target *Target) {
-	path := req.URL.Path
 	if trace != "" {
 		if len(trace) > 16 {
 			trace = trace[:15]
 		}
-		log.Printf("[TRACE] %s Tracing %s%s", trace, req.Host, path)
+		log.Printf("[TRACE] %s Tracing %s%s", trace, req.Host, req.URL.Path)
 	}
 
 	// find matching hosts for the request
@@ -315,7 +324,16 @@ func (t Table) Lookup(req *http.Request, trace string, pick picker, match matche
 	hosts := t.matchingHosts(req)
 	hosts = append(hosts, "")
 	for _, h := range hosts {
-		if target = t.lookup(h, path, trace, pick, match); target != nil {
+		if target = t.lookup(h, req.URL.Path, trace, pick, match); target != nil {
+			if target.RedirectCode != 0 {
+				target.BuildRedirectURL(req.URL) // build redirect url and cache in target
+				if target.RedirectURL.Scheme == req.Header.Get("X-Forwarded-Proto") &&
+					target.RedirectURL.Host == req.Host &&
+					target.RedirectURL.Path == req.URL.Path {
+					log.Print("[INFO] Skipping redirect with same scheme, host and path")
+					continue
+				}
+			}
 			break
 		}
 	}

@@ -10,12 +10,12 @@ import (
 
 // watchKV monitors a key in the KV store for changes.
 // The intended use case is to add additional route commands to the routing table.
-func watchKV(client *api.Client, path string, config chan string) {
+func watchKV(client *api.Client, path string, config chan string, separator bool) {
 	var lastIndex uint64
 	var lastValue string
 
 	for {
-		value, index, err := getKV(client, path, lastIndex)
+		value, index, err := listKV(client, path, lastIndex, separator)
 		if err != nil {
 			log.Printf("[WARN] consul: Error fetching config from %s. %v", path, err)
 			time.Sleep(time.Second)
@@ -23,11 +23,47 @@ func watchKV(client *api.Client, path string, config chan string) {
 		}
 
 		if value != lastValue || index != lastIndex {
-			log.Printf("[INFO] consul: Manual config changed to #%d", index)
+			log.Printf("[DEBUG] consul: Manual config changed to #%d", index)
 			config <- value
 			lastValue, lastIndex = value, index
 		}
 	}
+}
+
+func listKeys(client *api.Client, path string, waitIndex uint64) ([]string, uint64, error) {
+	q := &api.QueryOptions{RequireConsistent: true, WaitIndex: waitIndex}
+	kvpairs, meta, err := client.KV().List(path, q)
+	if err != nil {
+		return nil, 0, err
+	}
+	if len(kvpairs) == 0 {
+		return nil, meta.LastIndex, nil
+	}
+	var keys []string
+	for _, kvpair := range kvpairs {
+		keys = append(keys, kvpair.Key)
+	}
+	return keys, meta.LastIndex, nil
+}
+
+func listKV(client *api.Client, path string, waitIndex uint64, separator bool) (string, uint64, error) {
+	q := &api.QueryOptions{RequireConsistent: true, WaitIndex: waitIndex}
+	kvpairs, meta, err := client.KV().List(path, q)
+	if err != nil {
+		return "", 0, err
+	}
+	if len(kvpairs) == 0 {
+		return "", meta.LastIndex, nil
+	}
+	var s []string
+	for _, kvpair := range kvpairs {
+		val := strings.TrimSpace(string(kvpair.Value))
+		if separator {
+			val = "# --- " + kvpair.Key + "\n" + val
+		}
+		s = append(s, val)
+	}
+	return strings.Join(s, "\n\n"), meta.LastIndex, nil
 }
 
 func getKV(client *api.Client, key string, waitIndex uint64) (string, uint64, error) {

@@ -6,9 +6,11 @@ import (
 	"net/url"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/fabiolb/fabio/metrics"
+	"github.com/gobwas/glob"
 )
 
 // Route maps a path prefix to one or more target URLs.
@@ -26,9 +28,6 @@ type Route struct {
 	// Path is the path prefix from a request uri
 	Path string
 
-	// Opts is the raw route options
-	Opts map[string]string
-
 	// Targets contains the list of URLs
 	Targets []*Target
 
@@ -38,9 +37,12 @@ type Route struct {
 	// total contains the total number of requests for this route.
 	// Used by the RRPicker
 	total uint64
+
+	// Glob represents compiled pattern.
+	Glob glob.Glob
 }
 
-func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float64, tags []string) {
+func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float64, tags []string, opts map[string]string) {
 	if fixedWeight < 0 {
 		fixedWeight = 0
 	}
@@ -61,15 +63,32 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 	t := &Target{
 		Service:     service,
 		Tags:        tags,
+		Opts:        opts,
 		URL:         targetURL,
 		FixedWeight: fixedWeight,
 		Timer:       ServiceRegistry.GetTimer(name),
 		TimerName:   name,
 	}
-	if r.Opts != nil {
-		t.StripPath = r.Opts["strip"]
-		t.TLSSkipVerify = r.Opts["tlsskipverify"] == "true"
-		t.Host = r.Opts["host"]
+
+	if opts != nil {
+		t.StripPath = opts["strip"]
+		t.TLSSkipVerify = opts["tlsskipverify"] == "true"
+		t.Host = opts["host"]
+
+		if opts["redirect"] != "" {
+			t.RedirectCode, err = strconv.Atoi(opts["redirect"])
+			if err != nil {
+				log.Printf("[ERROR] redirect status code should be numeric in 3xx range. Got: %s", opts["redirect"])
+			} else if t.RedirectCode < 300 || t.RedirectCode > 399 {
+				t.RedirectCode = 0
+				log.Printf("[ERROR] redirect status code should be in 3xx range. Got: %s", opts["redirect"])
+			}
+		}
+
+		if err = t.ProcessAccessRules(); err != nil {
+			log.Printf("[ERROR] failed to process access rules: %s",
+				err.Error())
+		}
 	}
 
 	r.Targets = append(r.Targets, t)
@@ -145,16 +164,16 @@ func (r *Route) TargetConfig(t *Target, addWeight bool) string {
 	if len(t.Tags) > 0 {
 		s += fmt.Sprintf(" tags %q", strings.Join(t.Tags, ","))
 	}
-	if len(r.Opts) > 0 {
+	if len(t.Opts) > 0 {
 		var keys []string
-		for k := range r.Opts {
+		for k := range t.Opts {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
 
 		var vals []string
 		for _, k := range keys {
-			vals = append(vals, k+"="+r.Opts[k])
+			vals = append(vals, k+"="+t.Opts[k])
 		}
 		s += fmt.Sprintf(" opts \"%s\"", strings.Join(vals, " "))
 	}

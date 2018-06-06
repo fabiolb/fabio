@@ -1,0 +1,6 @@
+baseURL      = "https://fabiolb.net/"
+languageCode = "en-us"
+title        = "fabio - The Consul Load-Balancer"
+
+[params]
+  googleAnalytics = "UA-2812942-5"

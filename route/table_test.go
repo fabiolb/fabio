@@ -46,6 +46,28 @@ func TestTableParse(t *testing.T) {
 			},
 		},
 
+		{"1 service, 1 prefix with option",
+			[]string{
+				`route add svc-a / http://aaa.com/ opts "strip=/foo"`,
+				`route add svc-b / http://bbb.com/ opts "strip=/bar"`,
+			},
+			[]string{
+				`route add svc-a / http://aaa.com/ weight 0.5000 opts "strip=/foo"`,
+				`route add svc-b / http://bbb.com/ weight 0.5000 opts "strip=/bar"`,
+			},
+		},
+
+		{"1 service, 1 prefix, 2 instances with different options",
+			[]string{
+				`route add svc-a / http://aaa.com/ opts "strip=/foo"`,
+				`route add svc-b / http://bbb.com/ opts "strip=/bar"`,
+			},
+			[]string{
+				`route add svc-a / http://aaa.com/ weight 0.5000 opts "strip=/foo"`,
+				`route add svc-b / http://bbb.com/ weight 0.5000 opts "strip=/bar"`,
+			},
+		},
+
 		{"2 service, 1 prefix",
 			[]string{
 				`route add svc-a / http://aaa.com/`,
@@ -455,7 +477,81 @@ func TestNormalizeHost(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		if got, want := normalizeHost(tt.req), tt.host; got != want {
+		if got, want := normalizeHost(tt.req.Host, tt.req.TLS != nil), tt.host; got != want {
+			t.Errorf("%d: got %v want %v", i, got, want)
+		}
+	}
+}
+
+// see https://github.com/fabiolb/fabio/issues/448
+// for more information on the issue and purpose of this test
+func TestTableLookupIssue448(t *testing.T) {
+	s := `
+	route add mock foo.com:80/ https://foo.com/ opts "redirect=301"
+	route add mock aaa.com:80/ http://bbb.com/ opts "redirect=301"
+	route add mock ccc.com:443/bar https://ccc.com/baz opts "redirect=301"
+	route add mock / http://foo.com/
+	`
+
+	tbl, err := NewTable(s)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var tests = []struct {
+		req *http.Request
+		dst string
+	}{
+		{
+			req: &http.Request{
+				Host: "foo.com",
+				URL:  mustParse("/"),
+			},
+			dst: "https://foo.com/",
+			// empty upstream header should follow redirect - standard behavior
+		},
+		{
+			req: &http.Request{
+				Host:   "foo.com",
+				URL:    mustParse("/"),
+				Header: http.Header{"X-Forwarded-Proto": {"http"}},
+			},
+			dst: "https://foo.com/",
+			// upstream http request to same host and path should follow redirect
+		},
+		{
+			req: &http.Request{
+				Host:   "foo.com",
+				URL:    mustParse("/"),
+				Header: http.Header{"X-Forwarded-Proto": {"https"}},
+				TLS:    &tls.ConnectionState{},
+			},
+			dst: "http://foo.com/",
+			// upstream https request to same host and path should NOT follow redirect"
+		},
+		{
+			req: &http.Request{
+				Host:   "aaa.com",
+				URL:    mustParse("/"),
+				Header: http.Header{"X-Forwarded-Proto": {"http"}},
+			},
+			dst: "http://bbb.com/",
+			// upstream http request to different http host should follow redirect
+		},
+		{
+			req: &http.Request{
+				Host:   "ccc.com",
+				URL:    mustParse("/bar"),
+				Header: http.Header{"X-Forwarded-Proto": {"https"}},
+				TLS:    &tls.ConnectionState{},
+			},
+			dst: "https://ccc.com/baz",
+			// upstream https request to same https host with different path should follow redirect"
+		},
+	}
+
+	for i, tt := range tests {
+		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher).URL.String(), tt.dst; got != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}
@@ -473,6 +569,7 @@ func TestTableLookup(t *testing.T) {
 	route add svc z.abc.com/foo/ http://foo.com:3100
 	route add svc *.abc.com/ http://foo.com:4000
 	route add svc *.abc.com/foo/ http://foo.com:5000
+	route add svc xyz.com:80/ https://xyz.com
 	`
 
 	tbl, err := NewTable(s)
@@ -517,6 +614,9 @@ func TestTableLookup(t *testing.T) {
 
 		// exact match has precedence over glob match
 		{&http.Request{Host: "z.abc.com", URL: mustParse("/foo/")}, "http://foo.com:3100"},
+
+		// explicit port on route
+		{&http.Request{Host: "xyz.com", URL: mustParse("/")}, "https://xyz.com"},
 	}
 
 	for i, tt := range tests {

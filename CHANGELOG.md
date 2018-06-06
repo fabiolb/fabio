@@ -1,12 +1,258 @@
 ## Changelog
 
-### Unreleased
+### [v1.5.9](https://github.com/fabiolb/fabio/releases/tag/v1.5.9) - 16 May 2018
+
+#### Notes
+
+ * [Issue #494](https://github.com/fabiolb/fabio/issues/494): Tests fail with Vault > 0.9.6 and Consul > 1.0.6
+
+   Needs more investigation.
 
 #### Breaking Changes
 
-#### Features
+ * None
 
 #### Bug Fixes
+
+ * [Issue #460](https://github.com/fabiolb/fabio/issues/460): Fix access logging when gzip is enabled
+
+   Fabio was not writing access logs when the gzip compression was enabled.
+
+   Thanks to [@tino](https://github.com/tino) for finding this and providing
+   and initial patch.
+
+ * [PR #468](https://github.com/fabiolb/fabio/pull/468): Fix the regex of the example proxy.gzip.contenttype
+
+   The example regexp for `proxy.gzip.contenttype` in `fabio.properties` was not properly escaped.
+
+   Thanks to [@tino](https://github.com/tino) for the patch.
+
+ * [Issue #421](https://github.com/fabiolb/fabio/issues/421): Fabio routing to wrong backend
+
+   Fabio does not close websocket connections if the connection upgrade fails. This can lead to
+   connections being routed to the wrong backend if there is another HTTP router like nginx in
+   front of fabio. The failed websocket connection creates a direct TCP tunnel to the original
+   backend server and that connection is not closed properly.
+
+   The patches detect an unsuccessful handshake and close the connection properly.
+
+   Thanks to [@craigday](https://github.com/craigday) for the original reporting and debugging.
+
+#### Improvements
+
+ * [Issue #427](https://github.com/fabiolb/fabio/issues/427): Fabio does not remove service when one of the registered health-checks fail
+
+   If a service has more than one health check then the behavior in whether the
+   service is available differs between Consul and Fabio. Consul requires that
+   all health checks for a service need to pass in order to return a positive
+   DNS result. Fabio requires only one of the health checks to pass.
+
+   A new config option `registry.consul.checksRequired` has been added which
+   defaults to the current fabio behavior of `one` passing health check for the
+   service to be added to the routing table. To make fabio behave like Consul
+   you can set the option to `all`.
+
+   Fabio will make `all` the default as of version 1.6.
+
+   Thanks to [@systemfreund](https://github.com/systemfreund) for the patch.
+
+ * [Issue #448](https://github.com/fabiolb/fabio/issues/448): Redirect http to https on the same destination
+
+   Fabio will now handle redirecting from http to https on the same destination
+   without a redirect loop.
+
+   Thanks to [@leprechau](https://github.com/leprechau) for the patch and to
+   [@atillamas](https://github.com/atillamas) for the original PR and the
+   discussion.
+
+ * [PR #453](https://github.com/fabiolb/fabio/pull/453): Handle proxy chains of any length
+
+   Fabio will now validate that all elements of the `X-Forwarded-For` header
+   are allowed by the given ACL of the route. See discussion in
+   [PR #449](https://github.com/fabiolb/fabio/pull/449) for details.
+
+   Thanks to [@leprechau](https://github.com/leprechau) for the patch and to
+   [@atillamas](https://github.com/atillamas) for the original PR and the
+   discussion.
+
+ * [Issue #452](https://github.com/fabiolb/fabio/issues/452): Add improved glob matcher
+
+   Fabio now uses the `github.com/gobaws/glob` package for glob matching which
+   allows more complex patterns.
+
+   Thanks to [@sharbov](https://github.com/sharbov) for the patch.
+
+#### Features
+
+ * None
+
+### [v1.5.8](https://github.com/fabiolb/fabio/releases/tag/v1.5.8) - 18 Feb 2018
+
+#### Breaking Changes
+
+ * None
+
+#### Bug Fixes
+
+ * Fix windows build.
+
+   fabio 1.5.7 broke the Windows build but this wasn't detected since the new
+   build process did not build the Windows binaries. This has been fixed.
+
+ * [Issue #438](https://github.com/fabiolb/fabio/pull/438): Do not add separator to `noroute.html` page
+
+   fabio 1.5.7 added support for multiple routing tables in Consul and added a
+   comment which described the origin to the output. The same comment was added
+   to the `noroute.html` page since the same code is used to fetch it. This
+   returned an invalid HTML page which has been fixed.
+
+#### Improvements
+
+ * [PR #423](https://github.com/fabiolb/fabio/pull/423): TCP+SNI support arbitrary large Client Hello
+
+   With this patch fabio correctly parses `ClientHello` messages on TLS
+   connections up to their maximum size.
+
+   Thanks to [@DanSipola](https://github.com/DanSipola) for the patch.
+
+#### Features
+
+ * [PR #426](https://github.com/fabiolb/fabio/pull/426): Add option to allow Fabio to register frontend services in Consul on behalf of user services
+
+   With this patch fabio can register itself multiple times under different
+   names in Consul. By adding the `register=name` option to a route fabio will
+   register itself under that name as well.
+
+   Thanks to [@rileyje](https://github.com/rileyje) for the patch.
+
+ * [PR #442](https://github.com/fabiolb/fabio/pull/442): Add basic ip centric access control on routes
+
+   With this patch fabio adds an `allow` and `deny` option to the routes which
+   allows for basic ip white and black listing of IPv4 and IPv6 addresses. See
+   http://fabiolb.net/feature/access-control/ for more details.
+
+   Thanks to [@leprechau](https://github.com/leprechau) for the patch and
+   [@microadam](https://github.com/microadam) for the testing.
+
+### [v1.5.7](https://github.com/fabiolb/fabio/releases/tag/v1.5.7) - 6 Feb 2018
+
+#### Breaking Changes
+
+ * None
+
+#### Bug Fixes
+
+ * [Issue #434](https://github.com/fabiolb/fabio/issues/434): VaultPKI tests fail with go1.10rc1
+
+   All unit tests pass now on go1.10rc1.
+
+#### Improvements
+
+ * [Issue #369](https://github.com/fabiolb/fabio/issues/369): Warn if fabio is run as root
+
+   fabio 1.5.7 emits a recurring warning when run as root. This can be disabled when using
+   the new `-insecure` flag which also provides a link to alternatives.
+
+ * [Issue #433](https://github.com/fabiolb/fabio/issues/433): `proxy.noroutestatus` must be three digit code
+
+   go1.10 will enforce that HTTP status codes must be three digit values `[100,1000)` and
+   and otherwise the handler will panic. This change enforces that the `proxy.noroutestatus`
+   has a valid status code value.
+
+#### Features
+
+ * [Issue #396](https://github.com/fabiolb/fabio/issues/396): treat `registry.consul.kvpath` as prefix
+
+   This patch allows fabio to have multiple manual routing tables stored in consul, e.g.
+   under `fabio/config/foo` and `fabio/config/bar`. The routing table fragments are
+   concatenated in lexicographical order of the keys and the log output contains comments
+   to indicate to which key the segment belongs.
+
+ * [PR #425](https://github.com/fabiolb/fabio/pull/425): Add support for HSTS headers
+
+   fabio has now support for adding HSTS headers to the response.
+
+   Thanks to [@leprechau](https://github.com/leprechau) for the patch.
+
+### [v1.5.6](https://github.com/fabiolb/fabio/releases/tag/v1.5.6) - 5 Jan 2018
+
+#### Breaking Changes
+
+ * None
+
+#### Improvements
+
+ * [Issue #216](https://github.com/fabiolb/fabio/issues/216)/[Issue #383](https://github.com/fabiolb/fabio/issues/383)/[PR #414](https://github.com/fabiolb/fabio/pull/414): Do not require globally unique service IDs
+
+	Since version 1.0 fabio required all service ids in Consul to be globally
+	unique although service ids only have to be unique per Consul agent. This patch fixes this.
+
+	Thanks to [@dropje86](https://github.com/dropje86) and [@alvaroaleman](https://github.com/alvaroaleman) for the patch!
+
+ * [Issue #408](https://github.com/fabiolb/fabio/issues/408): Log Consul state changes as DEBUG
+
+   `Health changed to xxx` and similar log messages will be logged as `DEBUG`.
+
+ * [PR #415](https://github.com/fabiolb/fabio/pull/415): Honor the `-version` flag
+
+   `fabio -version` does now what you would expect it to do.
+
+### [v1.5.5](https://github.com/fabiolb/fabio/releases/tag/v1.5.5) - 21 Dec 2017
+
+#### Breaking Changes
+
+ * None
+
+#### Features
+
+ * [PR #398](https://github.com/fabiolb/fabio/pull/398): Add custom no route HTML page
+
+   This patch adds support for a custom HTML template stored in Consul or on the file system which will be returned when
+   there is no route.
+
+   Thanks to [@tino](https://github.com/tino) for the patch!
+
+### [v1.5.4](https://github.com/fabiolb/fabio/releases/tag/v1.5.4) - 10 Dec 2017
+
+#### Breaking Changes
+
+ * None
+
+#### Features
+
+ * [Issue #87](https://github.com/fabiolb/fabio/issues/87)/[PR #395](https://github.com/fabiolb/fabio/pull/395): Add redirect support
+
+   This patch adds support to redirect a request for a matching route to
+   another URL. If the `redirect=<code>` option is set on a route fabio will
+   send a redirect response to the dst address with the given code.
+
+   The syntax for the `urlprefix-` tag is slightly different since the
+   destination address is usually generated from the service registration
+   stored in Consul.
+
+   The `$path` pseudo-variable can be used to include the original request URI
+   in the destination target.
+
+   Thanks to [@ctlajoie](https://github.com/ctlajoie) for providing this patch!
+
+```
+# redirect /foo to https://www.foo.com/
+route add svc /foo https://www.foo.com/ opts "redirect=301"
+
+# redirect /foo to https://www.foo.com/
+urlprefix-/foo redirect=301,https://www.foo.com/
+
+# redirect /foo to https://www.foo.com/foo
+urlprefix-/foo redirect=301,https://www.foo.com$path
+```
+
+#### Bug Fixes
+
+ * [Issue #385](https://github.com/fabiolb/fabio/issues/385): opts with host= with multiple routes does not work as expected
+
+   When multiple routes for the same path had different `host` options then only the one set on the
+   first route worked. This has been fixed so that the `Host` header is now set according to the
+   selected target.
 
  * [Issue #389](https://github.com/fabiolb/fabio/issues/389): match exact host before glob matches
 
@@ -14,6 +260,14 @@
    is preferred.
 
 #### Improvements
+
+ * [PR #380](https://github.com/fabiolb/fabio/pull/380): Set X-Forwared-Host header if not present
+
+   Fabio now sets the `X-Forwarded-Host` header if it isn't present.
+
+ * [Issue #400](https://github.com/fabiolb/fabio/issues/400): Do not exit on SIGHUP
+
+   Fabio will now ignore the `SIGHUP` signal. Additionally, the caught signal is logged with the action (exit or ignore).
 
 ### [v1.5.3](https://github.com/fabiolb/fabio/releases/tag/v1.5.3) - 3 Nov 2017
 

@@ -59,7 +59,7 @@ func parse(args []string) (cmdline []string, path string, version bool, err erro
 
 		switch {
 		// version flag
-		case arg == "-v" || arg == "--version":
+		case arg == "-v" || arg == "-version" || arg == "--version":
 			return nil, "", true, nil
 
 		// config file without '='
@@ -116,10 +116,11 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	var readTimeout, writeTimeout time.Duration
 	var gzipContentTypesValue string
 
+	f.BoolVar(&cfg.Insecure, "insecure", defaultConfig.Insecure, "allow fabio to run as root when set to true")
 	f.IntVar(&cfg.Proxy.MaxConn, "proxy.maxconn", defaultConfig.Proxy.MaxConn, "maximum number of cached connections")
 	f.StringVar(&cfg.Proxy.Strategy, "proxy.strategy", defaultConfig.Proxy.Strategy, "load balancing strategy")
 	f.StringVar(&cfg.Proxy.Matcher, "proxy.matcher", defaultConfig.Proxy.Matcher, "path matching algorithm")
-	f.IntVar(&cfg.Proxy.NoRouteStatus, "proxy.noroutestatus", defaultConfig.Proxy.NoRouteStatus, "status code for invalid route")
+	f.IntVar(&cfg.Proxy.NoRouteStatus, "proxy.noroutestatus", defaultConfig.Proxy.NoRouteStatus, "status code for invalid route. Must be three digits")
 	f.DurationVar(&cfg.Proxy.ShutdownWait, "proxy.shutdownwait", defaultConfig.Proxy.ShutdownWait, "time for graceful shutdown")
 	f.DurationVar(&cfg.Proxy.DialTimeout, "proxy.dialtimeout", defaultConfig.Proxy.DialTimeout, "connection timeout for backend connections")
 	f.DurationVar(&cfg.Proxy.ResponseHeaderTimeout, "proxy.responseheadertimeout", defaultConfig.Proxy.ResponseHeaderTimeout, "response header timeout")
@@ -129,6 +130,9 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Proxy.TLSHeader, "proxy.header.tls", defaultConfig.Proxy.TLSHeader, "header for TLS connections")
 	f.StringVar(&cfg.Proxy.TLSHeaderValue, "proxy.header.tls.value", defaultConfig.Proxy.TLSHeaderValue, "value for TLS connection header")
 	f.StringVar(&cfg.Proxy.RequestID, "proxy.header.requestid", defaultConfig.Proxy.RequestID, "header for reqest id")
+	f.IntVar(&cfg.Proxy.STSHeader.MaxAge, "proxy.header.sts.maxage", defaultConfig.Proxy.STSHeader.MaxAge, "enable and set the max-age value for HSTS")
+	f.BoolVar(&cfg.Proxy.STSHeader.Subdomains, "proxy.header.sts.subdomains", defaultConfig.Proxy.STSHeader.Subdomains, "direct HSTS to include subdomains")
+	f.BoolVar(&cfg.Proxy.STSHeader.Preload, "proxy.header.sts.preload", defaultConfig.Proxy.STSHeader.Preload, "direct HSTS to pass the preload directive")
 	f.StringVar(&gzipContentTypesValue, "proxy.gzip.contenttype", defaultValues.GZIPContentTypesValue, "regexp of content types to compress")
 	f.StringVar(&listenerValue, "proxy.addr", defaultValues.ListenerValue, "listener config")
 	f.StringVar(&certSourcesValue, "proxy.cs", defaultValues.CertSourcesValue, "certificate sources")
@@ -155,11 +159,14 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Registry.Backend, "registry.backend", defaultConfig.Registry.Backend, "registry backend")
 	f.DurationVar(&cfg.Registry.Timeout, "registry.timeout", defaultConfig.Registry.Timeout, "timeout for registry to become available")
 	f.DurationVar(&cfg.Registry.Retry, "registry.retry", defaultConfig.Registry.Retry, "retry interval during startup")
-	f.StringVar(&cfg.Registry.File.Path, "registry.file.path", defaultConfig.Registry.File.Path, "path to file based routing table")
+	f.StringVar(&cfg.Registry.File.RoutesPath, "registry.file.path", defaultConfig.Registry.File.RoutesPath, "path to file based routing table")
+	f.StringVar(&cfg.Registry.File.NoRouteHTMLPath, "registry.file.noroutehtmlpath", defaultConfig.Registry.File.NoRouteHTMLPath, "path to file for HTML returned when no route is found")
 	f.StringVar(&cfg.Registry.Static.Routes, "registry.static.routes", defaultConfig.Registry.Static.Routes, "static routes")
+	f.StringVar(&cfg.Registry.Static.NoRouteHTML, "registry.static.noroutehtml", defaultConfig.Registry.Static.NoRouteHTML, "HTML which is returned when no route is found")
 	f.StringVar(&cfg.Registry.Consul.Addr, "registry.consul.addr", defaultConfig.Registry.Consul.Addr, "address of the consul agent")
 	f.StringVar(&cfg.Registry.Consul.Token, "registry.consul.token", defaultConfig.Registry.Consul.Token, "token for consul agent")
 	f.StringVar(&cfg.Registry.Consul.KVPath, "registry.consul.kvpath", defaultConfig.Registry.Consul.KVPath, "consul KV path for manual overrides")
+	f.StringVar(&cfg.Registry.Consul.NoRouteHTMLPath, "registry.consul.noroutehtmlpath", defaultConfig.Registry.Consul.NoRouteHTMLPath, "consul KV path for HTML returned when no route is found")
 	f.StringVar(&cfg.Registry.Consul.TagPrefix, "registry.consul.tagprefix", defaultConfig.Registry.Consul.TagPrefix, "prefix for consul tags")
 	f.BoolVar(&cfg.Registry.Consul.EnableSSL, "registry.consul.enableSSL", defaultConfig.Registry.Consul.EnableSSL, "enable HTTPS communication with Consul")
 	f.BoolVar(&cfg.Registry.Consul.VerifySSL, "registry.consul.verifySSL", defaultConfig.Registry.Consul.VerifySSL, "enable or disable SSL verification with Consul")
@@ -173,7 +180,9 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringSliceVar(&cfg.Registry.Consul.ServiceStatus, "registry.consul.service.status", defaultConfig.Registry.Consul.ServiceStatus, "valid service status values")
 	f.DurationVar(&cfg.Registry.Consul.CheckInterval, "registry.consul.register.checkInterval", defaultConfig.Registry.Consul.CheckInterval, "service check interval")
 	f.DurationVar(&cfg.Registry.Consul.CheckTimeout, "registry.consul.register.checkTimeout", defaultConfig.Registry.Consul.CheckTimeout, "service check timeout")
-	f.BoolVar(&cfg.Registry.Consul.CheckTLSSkipVerify, "registry.consul.register.checkTLSSkipVerify", defaultConfig.Registry.Consul.CheckTLSSkipVerify, "service check TLS verifcation")
+	f.BoolVar(&cfg.Registry.Consul.CheckTLSSkipVerify, "registry.consul.register.checkTLSSkipVerify", defaultConfig.Registry.Consul.CheckTLSSkipVerify, "service check TLS verification")
+	f.StringVar(&cfg.Registry.Consul.CheckDeregisterCriticalServiceAfter, "registry.consul.register.checkDeregisterCriticalServiceAfter", defaultConfig.Registry.Consul.CheckDeregisterCriticalServiceAfter, "critical service deregistration timeout")
+	f.StringVar(&cfg.Registry.Consul.ChecksRequired, "registry.consul.checksRequired", defaultConfig.Registry.Consul.ChecksRequired, "number of checks which must pass: one or all")
 	f.IntVar(&cfg.Runtime.GOGC, "runtime.gogc", defaultConfig.Runtime.GOGC, "sets runtime.GOGC")
 	f.IntVar(&cfg.Runtime.GOMAXPROCS, "runtime.gomaxprocs", defaultConfig.Runtime.GOMAXPROCS, "sets runtime.GOMAXPROCS")
 	f.StringVar(&cfg.UI.Access, "ui.access", defaultConfig.UI.Access, "access mode, one of [ro, rw]")
@@ -248,6 +257,11 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 
 	if cfg.UI.Access != "ro" && cfg.UI.Access != "rw" {
 		return nil, fmt.Errorf("invalid ui.access: %s", cfg.UI.Access)
+	}
+
+	// go1.10 will not accept a non-three digit status code
+	if cfg.Proxy.NoRouteStatus < 100 || cfg.Proxy.NoRouteStatus > 999 {
+		return nil, fmt.Errorf("proxy.noroutestatus must be between 100 and 999")
 	}
 
 	// handle deprecations

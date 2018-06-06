@@ -50,6 +50,13 @@ func TestLoad(t *testing.T) {
 			cfg:  func(cfg *Config) *Config { return cfg },
 		},
 		{
+			args: []string{"-insecure=true"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Insecure = true
+				return cfg
+			},
+		},
+		{
 			args: []string{"-profile.mode", "foo"},
 			cfg: func(cfg *Config) *Config {
 				cfg.ProfileMode = "foo"
@@ -131,7 +138,7 @@ func TestLoad(t *testing.T) {
 			desc: "-proxy.addr with file cert source",
 			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=file;cert=value"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "file", CertPath: "value"}
 				return cfg
 			},
@@ -140,7 +147,7 @@ func TestLoad(t *testing.T) {
 			desc: "-proxy.addr with path cert source",
 			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=path;cert=value"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "path", CertPath: "value", Refresh: 3 * time.Second}
 				return cfg
 			},
@@ -149,7 +156,7 @@ func TestLoad(t *testing.T) {
 			desc: "-proxy.addr with http cert source",
 			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=http;cert=value"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "http", CertPath: "value", Refresh: 3 * time.Second}
 				return cfg
 			},
@@ -158,7 +165,7 @@ func TestLoad(t *testing.T) {
 			desc: "-proxy.addr with consul cert source",
 			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=consul;cert=value"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "consul", CertPath: "value"}
 				return cfg
 			},
@@ -167,7 +174,7 @@ func TestLoad(t *testing.T) {
 			desc: "-proxy.addr with vault cert source",
 			args: []string{"-proxy.addr", ":5555;cs=name", "-proxy.cs", "cs=name;type=vault;cert=value"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "vault", CertPath: "value", Refresh: 3 * time.Second}
 				return cfg
 			},
@@ -179,7 +186,7 @@ func TestLoad(t *testing.T) {
 				"-proxy.cs", "cs=name;type=vault-pki;cert=pki/issue/value",
 			},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "vault-pki", CertPath: "pki/issue/value", Refresh: 3 * time.Second}
 				cfg.Listen[0].StrictMatch = true // implicit
 				return cfg
@@ -192,7 +199,7 @@ func TestLoad(t *testing.T) {
 				"-proxy.addr", ":5555;cs=name",
 			},
 			cfg: func(cfg *Config) *Config {
-				cfg.Listen = []Listen{Listen{Addr: ":5555", Proto: "https"}}
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "https"}}
 				cfg.Listen[0].CertSource = CertSource{Name: "name", Type: "vault-pki", CertPath: "pki/issue/value", Refresh: 3 * time.Second}
 				cfg.Listen[0].StrictMatch = true // implicit
 				return cfg
@@ -203,7 +210,7 @@ func TestLoad(t *testing.T) {
 			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;hdr=a: b;caupgcn=furb"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{
-					Listen{
+					{
 						Addr:        ":5555",
 						Proto:       "https",
 						StrictMatch: true,
@@ -226,7 +233,7 @@ func TestLoad(t *testing.T) {
 			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true;proto=https", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;hdr=a: b;caupgcn=furb"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{
-					Listen{
+					{
 						Addr:        ":5555",
 						Proto:       "https",
 						StrictMatch: true,
@@ -252,9 +259,9 @@ func TestLoad(t *testing.T) {
 			},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{
-					Listen{Addr: ":443", Proto: "https"},
-					Listen{Addr: ":80", Proto: "http"},
-					Listen{Addr: ":2375", Proto: "tcp+sni"},
+					{Addr: ":443", Proto: "https"},
+					{Addr: ":80", Proto: "http"},
+					{Addr: ":2375", Proto: "tcp+sni"},
 				}
 				cfg.Listen[0].CertSource = CertSource{
 					Name:     "consul-cs",
@@ -391,9 +398,37 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-proxy.header.sts.maxage", "31536000"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.STSHeader.MaxAge = 31536000
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.header.sts.subdomains", "true"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.STSHeader.Subdomains = true
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.header.sts.preload", "true"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.STSHeader.Preload = true
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.gzip.contenttype", `^text/.*$`},
 			cfg: func(cfg *Config) *Config {
 				cfg.Proxy.GZIPContentTypes = regexp.MustCompile(`^text/.*$`)
+				return cfg
+			},
+		},
+		{
+			args: []string{"-proxy.gzip.contenttype", "^(text/.*|application/(javascript|json|font-woff|xml)|.*\\+(json|xml))(;.*)?$"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.GZIPContentTypes = regexp.MustCompile(`^(text/.*|application/(javascript|json|font-woff|xml)|.*\+(json|xml))(;.*)?$`)
 				return cfg
 			},
 		},
@@ -428,7 +463,14 @@ func TestLoad(t *testing.T) {
 		{
 			args: []string{"-registry.file.path", "value"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Registry.File.Path = "value"
+				cfg.Registry.File.RoutesPath = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.file.noroutehtmlpath", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.File.NoRouteHTMLPath = "value"
 				return cfg
 			},
 		},
@@ -436,6 +478,13 @@ func TestLoad(t *testing.T) {
 			args: []string{"-registry.static.routes", "value"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Registry.Static.Routes = "value"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.static.noroutehtml", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Static.NoRouteHTML = "value"
 				return cfg
 			},
 		},
@@ -482,6 +531,13 @@ func TestLoad(t *testing.T) {
 			args: []string{"-registry.consul.kvpath", "/some/path"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Registry.Consul.KVPath = "/some/path"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.noroutehtmlpath", "/some/path"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.NoRouteHTMLPath = "/some/path"
 				return cfg
 			},
 		},
@@ -867,6 +923,18 @@ func TestLoad(t *testing.T) {
 			args: []string{"-proxy.addr", ":5555;cs=name;proto=tcp+sni", "-proxy.cs", "cs=name;type=path;cert=value"},
 			cfg:  func(cfg *Config) *Config { return nil },
 			err:  errors.New("cert source requires proto 'https' or 'tcp'"),
+		},
+		{
+			desc: "-proxy.noroutestatus too small",
+			args: []string{"-proxy.noroutestatus", "10"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("proxy.noroutestatus must be between 100 and 999"),
+		},
+		{
+			desc: "-proxy.noroutestatus too big",
+			args: []string{"-proxy.noroutestatus", "1000"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("proxy.noroutestatus must be between 100 and 999"),
 		},
 		{
 			args: []string{"-cfg"},

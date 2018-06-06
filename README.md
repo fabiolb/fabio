@@ -1,23 +1,26 @@
-<div>
-  <div style="width: 50%; height: 64px;">
+<p align="center">
+  <p align="center" style="width: 50%; height: 64px;">
     <img src="https://cdn.rawgit.com/fabiolb/fabio/015e999/fabio.svg" height="64"/>
-  </div>
-  <div style="width: 50%; height: 64px; margin-top: 16px;">
+  </p>
+  <p align="center" style="margin-top: 16px">
     <a href="http://ebay.github.io/"><img src="https://cdn.rawgit.com/fabiolb/fabio/7a02e1f/ebay.png" height="32" style="padding-right: 4px"/></a>
     <a href="http://www.ebayclassifiedsgroup.com"><img src="https://cdn.rawgit.com/fabiolb/fabio/7a02e1f/ecg.png" height="32"/></a>
     <a href="http://www.mytaxi.de"><img src="https://cdn.rawgit.com/fabiolb/fabio/7a02e1f/mytaxi.png" height="32"/></a>
     <a href="http://www.classmarkets.com"><img src="https://cdn.rawgit.com/fabiolb/fabio/7a02e1f/classmarkets.png" height="32"/></a>
-  </div>
-</div>
+  </p>
+  <p align="center" style="margin-top: 16px">
+    <a href="https://github.com/fabiolb/fabio/releases/latest"><img alt="Release" src="https://img.shields.io/github/release/fabiolb/fabio.svg?style=flat-square"></a>
+    <a href="https://raw.githubusercontent.com/fabiolb/fabio/master/LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
+    <a href="https://app.codeship.com/projects/222209"><img alt="Codeship CI Status" src="https://img.shields.io/codeship/3e8307d0-2426-0135-1183-6e6f38f65fc4/master.svg?label=codeship&style=flat-square"></a>
+    <a href="https://github.com/fabiolb/fabio/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/fabiolb/fabio/total.svg?style=flat-square"></a>
+    <a href="https://hub.docker.com/r/magiconair/fabio/"><img alt="Docker Pulls magiconair" src="https://img.shields.io/docker/pulls/magiconair/fabio.svg?style=flat-square&label=docker+pulls+magiconair"></a>
+    <a href="https://hub.docker.com/r/fabiolb/fabio/"><img alt="Docker Pulls fabiolb" src="https://img.shields.io/docker/pulls/fabiolb/fabio.svg?style=flat-square&label=docker+pulls+fabiolb"></a>
+    <a href="#backers"><img alt="Backers on Open Collective" src="https://opencollective.com/fabio/backers/badge.svg"></a>
+    <a href="#sponsors"><img alt="Sponsors on Open Collective" src="https://opencollective.com/fabio/sponsors/badge.svg"></a>
+  </p>
+</p>
 
-##### Current stable version: 1.5.3
-
-[![Codeship CI Status](https://codeship.com/projects/3e8307d0-2426-0135-1183-6e6f38f65fc4/status?branch=master)](https://app.codeship.com/projects/222209)
-[![Travis CI Status](https://travis-ci.org/fabiolb/fabio.svg?branch=master)](https://travis-ci.org/fabiolb/fabio)
-[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/fabiolb/fabio/master/LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/fabiolb/fabio/total.svg)](https://github.com/fabiolb/fabio/releases)
-[![Docker Pulls magiconair](https://img.shields.io/docker/pulls/magiconair/fabio.svg?label=docker+pulls+magiconair)](https://hub.docker.com/r/magiconair/fabio/)
-[![Docker Pulls fabiolb](https://img.shields.io/docker/pulls/fabiolb/fabio.svg?label=docker+pulls+fabiolb)](https://hub.docker.com/r/fabiolb/fabio/)
+---
 
 fabio is a fast, modern, zero-conf load balancing HTTP(S) and TCP router
 for deploying applications managed by [consul](https://consul.io/).
@@ -41,33 +44,33 @@ It integrates with
 [Amazon API Gateway](https://aws.amazon.com/api-gateway/)
 and more.
 
-It supports ([Full feature list](https://github.com/fabiolb/fabio/wiki/Features))
+It supports ([Full feature list](https://fabiolb.net/feature/))
 
-* [TLS termination with dynamic certificate stores](https://github.com/fabiolb/fabio/wiki/Features#certificate-stores)
-* [Raw TCP proxy](https://github.com/fabiolb/fabio/wiki/Features#tcp-proxy-support)
-* [TCP+SNI proxy for full end-to-end TLS](https://github.com/fabiolb/fabio/wiki/Features#tcpsni-proxy-support) without decryption
-* [HTTPS upstream support](https://github.com/fabiolb/fabio/wiki/Features#https-upstream-support)
-* [Websockets](https://github.com/fabiolb/fabio/wiki/Features#websocket-support) and
-  [SSE](https://github.com/fabiolb/fabio/wiki/Features#sse---server-sent-events)
-* [Dynamic reloading without restart](https://github.com/fabiolb/fabio/wiki/Features#dynamic-reloading)
-* [Traffic shaping](https://github.com/fabiolb/fabio/wiki/Features#traffic-shaping) for "blue/green" deployments,
-* [Circonus](https://github.com/fabiolb/fabio/wiki/Features#metrics-support),
-  [Graphite](https://github.com/fabiolb/fabio/wiki/Features#metrics-support) and
-  [StatsD/DataDog](https://github.com/fabiolb/fabio/wiki/Features#metrics-support) metrics
-* [WebUI](https://github.com/fabiolb/fabio/wiki/Features#web-ui)
+* [TLS termination with dynamic certificate stores](https://fabiolb.net/feature/certificate-stores/)
+* [Raw TCP proxy](https://fabiolb.net/feature/tcp-proxy/)
+* [TCP+SNI proxy for full end-to-end TLS](https://fabiolb.net/feature/tcp-sni-proxy/) without decryption
+* [HTTPS upstream support](https://fabiolb.net/feature/https-upstream/)
+* [Websockets](https://fabiolb.net/feature/websockets/) and
+  [SSE](https://fabiolb.net/feature/sse/)
+* [Dynamic reloading without restart](https://fabiolb.net/feature/dynamic-reloading/)
+* [Traffic shaping](https://fabiolb.net/feature/traffic-shaping/) for "blue/green" deployments,
+* [Circonus](https://fabiolb.net/feature/metrics/),
+  [Graphite](https://fabiolb.net/feature/metrics/) and
+  [StatsD/DataDog](https://fabiolb.net/feature/metrics/) metrics
+* [WebUI](https://fabiolb.net/feature/web-ui/)
 
 [Watch](https://www.youtube.com/watch?v=gf43TcWjBrE&list=PL81sUbsFNc5b-Gd59Lpz7BW0eHJBt0GvE&index=1)
 Kelsey Hightower demo Consul, Nomad, Vault and fabio at HashiConf EU 2016.
 
-The full documentation is on the [Wiki](https://github.com/fabiolb/fabio/wiki).
+The full documentation is on [fabiolb.net](https://fabiolb.net/)
 
 ## Getting started
 
 1. Install from source, [binary](https://github.com/fabiolb/fabio/releases),
    [Docker](https://hub.docker.com/r/fabiolb/fabio/) or [Homebrew](http://brew.sh).
     ```shell
-	# go 1.8 or higher is required
-    go get github.com/fabiolb/fabio                     (>= go1.8)
+	# go 1.9 or higher is required
+    go get github.com/fabiolb/fabio                     (>= go1.9)
 
     brew install fabio                                  (OSX/macOS stable)
     brew install --devel fabio                          (OSX/macOS devel)
@@ -110,13 +113,43 @@ urlprefix-:3306 proto=tcp                          # route external port 3306
    Try starting/stopping your service to see how the routing table changes instantly.
 
 6. Send all your HTTP traffic to fabio on port `9999`.
-   For TCP proxying see [TCP proxy](https://github.com/fabiolb/fabio/wiki/Features#tcp-proxy-support).
+   For TCP proxying see [TCP proxy](https://fabiolb.net/feature/tcp-proxy/).
 
 7. Done
 
 ## Maintainers
 
 * Frank Schroeder [@magiconair](https://twitter.com/magiconair)
+
+### Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/fabiolb/fabio/graphs/contributors"><img src="https://opencollective.com/fabio/contributors.svg?width=890" /></a>
+
+
+### Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/fabio#backer)]
+
+<a href="https://opencollective.com/fabio#backers" target="_blank"><img src="https://opencollective.com/fabio/backers.svg?width=890"></a>
+
+
+### Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/fabio#sponsor)]
+
+<a href="https://opencollective.com/fabio/sponsor/0/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/1/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/2/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/3/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/4/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/5/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/6/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/7/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/8/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/fabio/sponsor/9/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/9/avatar.svg"></a>
+
+
 
 ## License
 

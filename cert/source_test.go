@@ -476,7 +476,7 @@ func TestVaultPKISource(t *testing.T) {
 
 	// generate root CA cert
 	resp, err := client.Logical().Write("test-pki/root/generate/internal", map[string]interface{}{
-		"common_name": "Fabio Test CA",
+		"common_name": "fabio-ca.com",
 		"ttl":         "2h",
 	})
 	if err != nil {
@@ -653,7 +653,10 @@ func writeFile(filename string, data []byte) {
 func makeCertPool(x ...[]byte) *x509.CertPool {
 	p := x509.NewCertPool()
 	for _, b := range x {
-		p.AppendCertsFromPEM(b)
+		// https://github.com/fabiolb/fabio/issues/434
+		if ok := p.AppendCertsFromPEM(b); !ok {
+			panic("failed to add cert from PEM. Is the CN a DNS compatible name?")
+		}
 	}
 	return p
 }

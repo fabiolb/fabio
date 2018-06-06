@@ -23,6 +23,7 @@ import (
 	"github.com/fabiolb/fabio/exit"
 	"github.com/fabiolb/fabio/logger"
 	"github.com/fabiolb/fabio/metrics"
+	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy"
 	"github.com/fabiolb/fabio/proxy/tcp"
 	"github.com/fabiolb/fabio/registry"
@@ -42,7 +43,7 @@ import (
 // It is also set by the linker when fabio
 // is built via the Makefile or the build/docker.sh
 // script to ensure the correct version nubmer
-var version = "1.5.3"
+var version = "1.5.9"
 
 var shuttingDown int32
 
@@ -69,6 +70,10 @@ func main() {
 	log.Printf("[INFO] Runtime config\n" + toJSON(cfg))
 	log.Printf("[INFO] Version %s starting", version)
 	log.Printf("[INFO] Go runtime is %s", runtime.Version())
+
+	// warn once so that it is at the beginning of the log
+	// this will also start the reminder go routine if necessary.
+	WarnIfRunAsRoot(cfg.Insecure)
 
 	// setup profiling if enabled
 	var prof interface {
@@ -105,7 +110,7 @@ func main() {
 		if registry.Default == nil {
 			return
 		}
-		registry.Default.Deregister()
+		registry.Default.DeregisterAll()
 	})
 
 	// init metrics early since that create the global metric registries
@@ -115,6 +120,8 @@ func main() {
 	initBackend(cfg)
 	startAdmin(cfg)
 
+	go watchNoRouteHTML(cfg)
+
 	first := make(chan bool)
 	go watchBackend(cfg, first)
 	log.Print("[INFO] Waiting for first routing table")
@@ -122,6 +129,10 @@ func main() {
 
 	// create proxies after metrics since they use the metrics registry.
 	startServers(cfg)
+
+	// warn again so that it is visible in the terminal
+	WarnIfRunAsRoot(cfg.Insecure)
+
 	exit.Wait()
 	log.Print("[INFO] Down")
 }
@@ -341,9 +352,9 @@ func initBackend(cfg *config.Config) {
 	for {
 		switch cfg.Registry.Backend {
 		case "file":
-			registry.Default, err = file.NewBackend(cfg.Registry.File.Path)
+			registry.Default, err = file.NewBackend(&cfg.Registry.File)
 		case "static":
-			registry.Default, err = static.NewBackend(cfg.Registry.Static.Routes)
+			registry.Default, err = static.NewBackend(&cfg.Registry.Static)
 		case "consul":
 			registry.Default, err = consul.NewBackend(&cfg.Registry.Consul)
 		default:
@@ -351,7 +362,7 @@ func initBackend(cfg *config.Config) {
 		}
 
 		if err == nil {
-			if err = registry.Default.Register(); err == nil {
+			if err = registry.Default.Register(nil); err == nil {
 				return
 			}
 		}
@@ -393,6 +404,12 @@ func watchBackend(cfg *config.Config, first chan bool) {
 			continue
 		}
 
+		aliases, err := route.ParseAliases(next)
+		if err != nil {
+			log.Printf("[WARN]: %s", err)
+		}
+		registry.Default.Register(aliases)
+
 		t, err := route.NewTable(next)
 		if err != nil {
 			log.Printf("[WARN] %s", err)
@@ -403,6 +420,22 @@ func watchBackend(cfg *config.Config, first chan bool) {
 		last = next
 
 		once.Do(func() { close(first) })
+	}
+}
+
+func watchNoRouteHTML(cfg *config.Config) {
+	html := registry.Default.WatchNoRouteHTML()
+	for {
+		next := <-html
+		if next == noroute.GetHTML() {
+			continue
+		}
+		noroute.SetHTML(next)
+		if next == "" {
+			log.Print("[INFO] Unset noroute HTML")
+		} else {
+			log.Printf("[INFO] Set noroute HTML (%d bytes)", len(next))
+		}
 	}
 }
 

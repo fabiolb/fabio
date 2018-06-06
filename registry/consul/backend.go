@@ -15,7 +15,7 @@ type be struct {
 	c     *api.Client
 	dc    string
 	cfg   *config.Consul
-	dereg chan bool
+	dereg map[string](chan bool)
 }
 
 func NewBackend(cfg *config.Consul) (registry.Backend, error) {
@@ -51,43 +51,89 @@ func NewBackend(cfg *config.Consul) (registry.Backend, error) {
 	return &be{c: c, dc: dc, cfg: cfg}, nil
 }
 
-func (b *be) Register() error {
-	if !b.cfg.Register {
-		log.Printf("[INFO] consul: Not registering fabio in consul")
+func (b *be) Register(services []string) error {
+	if b.dereg == nil {
+		b.dereg = make(map[string](chan bool))
+	}
+
+	if b.cfg.Register {
+		services = append(services, b.cfg.ServiceName)
+	}
+
+	// deregister unneeded services
+	for service := range b.dereg {
+		if stringInSlice(service, services) {
+			continue
+		}
+		err := b.Deregister(service)
+		if err != nil {
+			return err
+		}
+	}
+
+	// register new services
+	for _, service := range services {
+		if b.dereg[service] != nil {
+			log.Printf("[DEBUG] %q already registered", service)
+			continue
+		}
+
+		serviceReg, err := serviceRegistration(b.cfg, service)
+		if err != nil {
+			return err
+		}
+
+		b.dereg[service] = register(b.c, serviceReg)
+	}
+
+	return nil
+}
+
+func (b *be) Deregister(service string) error {
+	dereg := b.dereg[service]
+	if dereg == nil {
+		log.Printf("[WARN]: Attempted to deregister unknown service %q", service)
 		return nil
 	}
+	dereg <- true // trigger deregistration
+	<-dereg       // wait for completion
+	delete(b.dereg, service)
 
-	service, err := serviceRegistration(b.cfg)
-	if err != nil {
-		return err
-	}
-
-	b.dereg = register(b.c, service)
 	return nil
 }
 
-func (b *be) Deregister() error {
-	if b.dereg != nil {
-		b.dereg <- true // trigger deregistration
-		<-b.dereg       // wait for completion
+func (b *be) DeregisterAll() error {
+	log.Printf("[DEBUG]: consul: Deregistering all registered aliases.")
+	for name, dereg := range b.dereg {
+		if dereg == nil {
+			continue
+		}
+		log.Printf("[INFO] consul: Deregistering %q", name)
+		dereg <- true // trigger deregistration
+		<-dereg       // wait for completion
 	}
 	return nil
 }
 
-func (b *be) ReadManual() (value string, version uint64, err error) {
+func (b *be) ManualPaths() ([]string, error) {
+	keys, _, err := listKeys(b.c, b.cfg.KVPath, 0)
+	return keys, err
+}
+
+func (b *be) ReadManual(path string) (value string, version uint64, err error) {
 	// we cannot rely on the value provided by WatchManual() since
 	// someone has to call that method first to kick off the go routine.
-	return getKV(b.c, b.cfg.KVPath, 0)
+	return getKV(b.c, b.cfg.KVPath+path, 0)
 }
 
-func (b *be) WriteManual(value string, version uint64) (ok bool, err error) {
+func (b *be) WriteManual(path string, value string, version uint64) (ok bool, err error) {
 	// try to create the key first by using version 0
-	if ok, err = putKV(b.c, b.cfg.KVPath, value, 0); ok {
+	if ok, err = putKV(b.c, b.cfg.KVPath+path, value, 0); ok {
 		return
 	}
 
 	// then try the CAS update
-	return putKV(b.c, b.cfg.KVPath, value, version)
+	return putKV(b.c, b.cfg.KVPath+path, value, version)
 }
 
 func (b *be) WatchServices() chan string {
@@ -95,7 +141,7 @@ func (b *be) WatchServices() chan string {
 	log.Printf("[INFO] consul: Using tag prefix %q", b.cfg.TagPrefix)
 
 	svc := make(chan string)
-	go watchServices(b.c, b.cfg.TagPrefix, b.cfg.ServiceStatus, svc)
+	go watchServices(b.c, b.cfg, svc)
 	return svc
 }
 
@@ -103,8 +149,16 @@ func (b *be) WatchManual() chan string {
 	log.Printf("[INFO] consul: Watching KV path %q", b.cfg.KVPath)
 
 	kv := make(chan string)
-	go watchKV(b.c, b.cfg.KVPath, kv)
+	go watchKV(b.c, b.cfg.KVPath, kv, true)
 	return kv
+}
+
+func (b *be) WatchNoRouteHTML() chan string {
+	log.Printf("[INFO] consul: Watching KV path %q", b.cfg.NoRouteHTMLPath)
+
+	html := make(chan string)
+	go watchKV(b.c, b.cfg.NoRouteHTMLPath, html, false)
+	return html
 }
 
 // datacenter returns the datacenter of the local agent
@@ -123,4 +177,13 @@ func datacenter(c *api.Client) (string, error) {
 		return "", errors.New("consul: self.Datacenter not found")
 	}
 	return dc, nil
+}
+
+func stringInSlice(str string, strSlice []string) bool {
+	for _, s := range strSlice {
+		if s == str {
+			return true
+		}
+	}
+	return false
 }
