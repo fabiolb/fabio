@@ -14,6 +14,7 @@ type Config struct {
 	Metrics     Metrics
 	UI          UI
 	Runtime     Runtime
+	FastCGI     FastCGI
 	ProfileMode string
 	ProfilePath string
 	Insecure    bool
@@ -143,4 +144,12 @@ type Consul struct {
 	CheckTLSSkipVerify                  bool
 	CheckDeregisterCriticalServiceAfter string
 	ChecksRequired                      string
+}
+
+type FastCGI struct {
+	Index        string
+	Root         string
+	SplitPath    string
+	ReadTimeout  time.Duration
+	WriteTimeout time.Duration
 }

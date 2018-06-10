@@ -39,7 +39,7 @@ func TestProxyWSUpstream(t *testing.T) {
 	routes += "route add ws /foo/strip  " + wsServer.URL + ` opts "strip=/foo"` + "\n"
 
 	httpProxy := httptest.NewServer(&HTTPProxy{
-		Config:            config.Proxy{NoRouteStatus: 404, GZIPContentTypes: regexp.MustCompile(".*")},
+		Config:            &config.Config{Proxy: config.Proxy{NoRouteStatus: 404, GZIPContentTypes: regexp.MustCompile(".*")}},
 		Transport:         &http.Transport{TLSClientConfig: tlsClientConfig()},
 		InsecureTransport: &http.Transport{TLSClientConfig: tlsInsecureConfig()},
 		Lookup: func(r *http.Request) *route.Target {
@@ -51,7 +51,7 @@ func TestProxyWSUpstream(t *testing.T) {
 	t.Log("Started HTTP proxy: ", httpProxy.URL)
 
 	httpsProxy := httptest.NewUnstartedServer(&HTTPProxy{
-		Config:            config.Proxy{NoRouteStatus: 404},
+		Config:            &config.Config{Proxy: config.Proxy{NoRouteStatus: 404}},
 		Transport:         &http.Transport{TLSClientConfig: tlsClientConfig()},
 		InsecureTransport: &http.Transport{TLSClientConfig: tlsInsecureConfig()},
 		Lookup: func(r *http.Request) *route.Target {

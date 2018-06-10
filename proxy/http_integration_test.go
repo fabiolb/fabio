@@ -35,7 +35,9 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 	defer server.Close()
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"},
+		Config: &config.Config{
+			Proxy: config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"},
+		},
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			return &route.Target{URL: mustParse(server.URL)}
@@ -64,7 +66,7 @@ func TestProxyRequestIDHeader(t *testing.T) {
 	defer server.Close()
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    config.Proxy{RequestID: "X-Request-Id"},
+		Config:    &config.Config{Proxy: config.Proxy{RequestID: "X-Request-Id"}},
 		Transport: http.DefaultTransport,
 		UUID:      func() string { return "f47ac10b-58cc-0372-8567-0e02b2c3d479" },
 		Lookup: func(r *http.Request) *route.Target {
@@ -86,11 +88,13 @@ func TestProxySTSHeader(t *testing.T) {
 	defer server.Close()
 
 	proxy := httptest.NewTLSServer(&HTTPProxy{
-		Config: config.Proxy{
-			STSHeader: config.STSHeader{
-				MaxAge:     31536000,
-				Subdomains: true,
-				Preload:    true,
+		Config: &config.Config{
+			Proxy: config.Proxy{
+				STSHeader: config.STSHeader{
+					MaxAge:     31536000,
+					Subdomains: true,
+					Preload:    true,
+				},
 			},
 		},
 		Transport: &http.Transport{TLSClientConfig: tlsInsecureConfig()},
@@ -149,6 +153,7 @@ func TestProxyNoRouteHTML(t *testing.T) {
 	want := "<html>503</html>"
 	noroute.SetHTML(want)
 	proxy := httptest.NewServer(&HTTPProxy{
+		Config:    &config.Config{},
 		Transport: http.DefaultTransport,
 		Lookup:    func(*http.Request) *route.Target { return nil },
 	})
@@ -162,7 +167,9 @@ func TestProxyNoRouteHTML(t *testing.T) {
 
 func TestProxyNoRouteStatus(t *testing.T) {
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    config.Proxy{NoRouteStatus: 999},
+		Config: &config.Config{
+			Proxy: config.Proxy{NoRouteStatus: 999},
+		},
 		Transport: http.DefaultTransport,
 		Lookup:    func(*http.Request) *route.Target { return nil },
 	})
@@ -185,6 +192,7 @@ func TestProxyStripsPath(t *testing.T) {
 	}))
 
 	proxy := httptest.NewServer(&HTTPProxy{
+		Config:    &config.Config{},
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable("route add mock /foo/bar " + server.URL + ` opts "strip=/foo"`)
@@ -217,6 +225,7 @@ func TestProxyHost(t *testing.T) {
 	tbl, _ := route.NewTable(routes)
 
 	proxy := httptest.NewServer(&HTTPProxy{
+		Config: &config.Config{},
 		Transport: &http.Transport{
 			Dial: func(network, addr string) (net.Conn, error) {
 				addr = server.URL[len("http://"):]
@@ -269,6 +278,7 @@ func TestRedirect(t *testing.T) {
 	tbl, _ := route.NewTable(routes)
 
 	proxy := httptest.NewServer(&HTTPProxy{
+		Config:    &config.Config{},
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
@@ -347,7 +357,7 @@ func testProxyLogOutput(t *testing.T, bodySize int, cfg config.Proxy) {
 	// create a proxy handler with mocked time
 	tm := time.Date(2016, 1, 1, 0, 0, 0, 12345678, time.UTC)
 	proxyHandler := &HTTPProxy{
-		Config: cfg,
+		Config: &config.Config{},
 		Time: func() time.Time {
 			defer func() { tm = tm.Add(1111111111 * time.Nanosecond) }()
 			return tm
@@ -435,7 +445,7 @@ func TestProxyHTTPSUpstream(t *testing.T) {
 	defer server.Close()
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    config.Proxy{},
+		Config:    &config.Config{},
 		Transport: &http.Transport{TLSClientConfig: tlsClientConfig()},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable("route add srv / " + server.URL + ` opts "proto=https"`)
@@ -460,7 +470,7 @@ func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
 	defer server.Close()
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    config.Proxy{},
+		Config:    &config.Config{},
 		Transport: http.DefaultTransport,
 		InsecureTransport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -540,8 +550,10 @@ func TestProxyGzipHandler(t *testing.T) {
 			defer server.Close()
 
 			proxy := httptest.NewServer(&HTTPProxy{
-				Config: config.Proxy{
-					GZIPContentTypes: regexp.MustCompile("^text/plain(;.*)?$"),
+				Config: &config.Config{
+					Proxy: config.Proxy{
+						GZIPContentTypes: regexp.MustCompile("^text/plain(;.*)?$"),
+					},
 				},
 				Transport: http.DefaultTransport,
 				Lookup: func(r *http.Request) *route.Target {
@@ -661,9 +673,11 @@ func BenchmarkProxyLogger(b *testing.B) {
 	}
 
 	proxy := &HTTPProxy{
-		Config: config.Proxy{
-			LocalIP:        "1.1.1.1",
-			ClientIPHeader: "X-Forwarded-For",
+		Config: &config.Config{
+			Proxy: config.Proxy{
+				LocalIP:        "1.1.1.1",
+				ClientIPHeader: "X-Forwarded-For",
+			},
 		},
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
