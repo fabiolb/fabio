@@ -1,5 +1,22 @@
 ## Changelog
 
+### Unreleased
+
+#### Breaking Changes
+
+#### Bug Fixes
+
+ * [Issue #506](https://github.com/fabiolb/fabio/issues/506): Wrong route for multiple matching host glob patterns
+
+   When multiple host glob patterns match an incoming request fabio can pick the wrong backend for the request.
+   This is because the sorting code that should sort the matching patterns from most specific to least specific
+   does not take into account that doamin names have their most specific part at the front. This has been fixed
+   by reversing the domain names before sorting.
+
+#### Improvements
+
+#### Features
+
 ### [v1.5.9](https://github.com/fabiolb/fabio/releases/tag/v1.5.9) - 16 May 2018
 
 #### Notes
