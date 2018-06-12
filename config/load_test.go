@@ -419,6 +419,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-proxy.header.trust.xff=false"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.TrustXFF = false
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.gzip.contenttype", `^text/.*$`},
 			cfg: func(cfg *Config) *Config {
 				cfg.Proxy.GZIPContentTypes = regexp.MustCompile(`^text/.*$`)

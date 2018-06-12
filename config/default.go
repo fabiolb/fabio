@@ -43,6 +43,7 @@ var defaultConfig = &Config{
 		DialTimeout:   30 * time.Second,
 		FlushInterval: time.Second,
 		LocalIP:       LocalIPString(),
+		TrustXFF:      true, // TODO: This should default to false in a future release
 	},
 	Registry: Registry{
 		Backend: "consul",

@@ -85,6 +85,15 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// If we are the internet facing load balancer
+	// we should not accept a client XFF header.
+	// We should only accept an XFF header here if we
+	// are running in a trusted environment behind another
+	// properly configured load balancer.
+	if !p.Config.TrustXFF {
+		r.Header.Del("X-Forwarded-For")
+	}
+
 	if t.AccessDeniedHTTP(r) {
 		http.Error(w, "access denied", http.StatusForbidden)
 		return
