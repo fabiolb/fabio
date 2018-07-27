@@ -10,7 +10,7 @@ import (
 	"time"
 
 	graphite "github.com/cyberdelia/go-metrics-graphite"
-	statsd "github.com/magiconair/go-metrics-statsd"
+	statsd "github.com/pubnub/go-metrics-statsd"
 	gm "github.com/rcrowley/go-metrics"
 )
 

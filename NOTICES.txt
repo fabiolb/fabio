@@ -94,9 +94,9 @@ License: MPL-2 (https://github.com/hashicorp/vault/LICENSE)
 Copyright 2017 HashiCorp, Inc.
 
 
-github.com/magiconair/go-metrics-statsd
-https://github.com/magiconair/go-metrics-statsd
-License: MIT (https://github.com/magiconair/go-metrics-statsd/LICENSE)
+github.com/pubnub/go-metrics-statsd
+https://github.com/pubnub/go-metrics-statsd
+License: MIT (https://github.com/pubnub/go-metrics-statsd/LICENSE)
 Copyright (c) 2016 PubNub
 
 
