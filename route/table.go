@@ -303,8 +303,38 @@ func (t Table) matchingHosts(req *http.Request) (hosts []string) {
 			hosts = append(hosts, pattern)
 		}
 	}
+
+	if len(hosts) < 2 {
+		return
+	}
+
+	// Issue 506: multiple glob patterns hosts in wrong order
+	//
+	// DNS names have their most specific part at the front. In order to sort
+	// them from most specific to least specific a lexicographic sort will
+	// return the wrong result since it sorts by host name. *.foo.com will come
+	// before *.a.foo.com even though the latter is more specific. To achieve
+	// the correct result we need to reverse the strings, sort them and then
+	// reverse them again.
+	for i, h := range hosts {
+		hosts[i] = Reverse(h)
+	}
 	sort.Sort(sort.Reverse(sort.StringSlice(hosts)))
-	return hosts
+	for i, h := range hosts {
+		hosts[i] = Reverse(h)
+	}
+	return
+}
+
+// Reverse returns its argument string reversed rune-wise left to right.
+//
+// taken from https://github.com/golang/example/blob/master/stringutil/reverse.go
+func Reverse(s string) string {
+	r := []rune(s)
+	for i, j := 0, len(r)-1; i < len(r)/2; i, j = i+1, j-1 {
+		r[i], r[j] = r[j], r[i]
+	}
+	return string(r)
 }
 
 // Lookup finds a target url based on the current matcher and picker
@@ -322,6 +352,9 @@ func (t Table) Lookup(req *http.Request, trace string, pick picker, match matche
 	// find matching hosts for the request
 	// and add "no host" as the fallback option
 	hosts := t.matchingHosts(req)
+	if trace != "" {
+		log.Printf("[TRACE] %s Matching hosts: %v", trace, hosts)
+	}
 	hosts = append(hosts, "")
 	for _, h := range hosts {
 		if target = t.lookup(h, req.URL.Path, trace, pick, match); target != nil {

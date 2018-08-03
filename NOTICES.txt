@@ -94,9 +94,9 @@ License: MPL-2 (https://github.com/hashicorp/vault/LICENSE)
 Copyright 2017 HashiCorp, Inc.
 
 
-github.com/magiconair/go-metrics-statsd
-https://github.com/magiconair/go-metrics-statsd
-License: MIT (https://github.com/magiconair/go-metrics-statsd/LICENSE)
+github.com/pubnub/go-metrics-statsd
+https://github.com/pubnub/go-metrics-statsd
+License: MIT (https://github.com/pubnub/go-metrics-statsd/LICENSE)
 Copyright (c) 2016 PubNub
 
 
@@ -157,3 +157,8 @@ golang.org/x/sync/singleflight
 https://golang.org/x/sync/singleflight
 License: BSD 3-clause (https://golang.org/x/sync/LICENSE)
 Copyright (c) 2009 The Go Authors. All rights reserved.
+
+github.com/mholt/caddy
+https://github.com/mholt/caddy
+License: Apache 2.0 (https://github.com/mholt/caddy/LICENSE.txt)
+Copyright (c) 2015, Light Code Labs, LLC

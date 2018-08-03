@@ -87,4 +87,12 @@ var defaultConfig = &Config{
 		SamplerRate:    -1,
 		SpanHost:       "localhost:9998",
 	},
+
+	FastCGI: FastCGI{
+		Root:         "",
+		Index:        "index.php",
+		SplitPath:    ".php",
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	},
 }

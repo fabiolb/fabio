@@ -29,6 +29,7 @@ func TestGracefulShutdown(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		h := &HTTPProxy{
+			Config:    &config.Config{},
 			Transport: http.DefaultTransport,
 			Lookup: func(r *http.Request) *route.Target {
 				tbl, _ := route.NewTable("route add svc / " + srv.URL)

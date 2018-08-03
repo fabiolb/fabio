@@ -193,6 +193,11 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Tracing.Topic, "tracing.Topic", defaultConfig.Tracing.Topic, "OpenTrace Collector Kafka Topic")
 	f.Float64Var(&cfg.Tracing.SamplerRate, "tracing.SamplerRate", defaultConfig.Tracing.SamplerRate, "OpenTrace sample rate percentage in decimal form")
 	f.StringVar(&cfg.Tracing.SpanHost, "tracing.SpanHost", defaultConfig.Tracing.SpanHost, "Host:Port info to add to spans")
+	f.StringVar(&cfg.FastCGI.Index, "fcgi.index", defaultConfig.FastCGI.Index, "FastCGI index file name")
+	f.StringVar(&cfg.FastCGI.Root, "fcgi.root", defaultConfig.FastCGI.Root, "Document root of FastCGI upstream")
+	f.StringVar(&cfg.FastCGI.SplitPath, "fcgi.path.split", defaultConfig.FastCGI.SplitPath, "String literal to split the document path")
+	f.DurationVar(&cfg.FastCGI.ReadTimeout, "fcgi.timeout.read", defaultConfig.FastCGI.ReadTimeout, "FastCGI request read timeout")
+	f.DurationVar(&cfg.FastCGI.WriteTimeout, "fcgi.timeout.write", defaultConfig.FastCGI.WriteTimeout, "FastCGI request write timeout")
 
 	// deprecated flags
 	var proxyLogRoutes string

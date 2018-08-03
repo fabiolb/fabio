@@ -15,6 +15,7 @@ type Config struct {
 	UI          UI
 	Runtime     Runtime
 	Tracing     Tracing
+	FastCGI     FastCGI
 	ProfileMode string
 	ProfilePath string
 	Insecure    bool
@@ -154,4 +155,12 @@ type Tracing struct {
 	Topic          string
 	SamplerRate    float64
 	SpanHost       string
+}
+
+type FastCGI struct {
+	Index        string
+	Root         string
+	SplitPath    string
+	ReadTimeout  time.Duration
+	WriteTimeout time.Duration
 }

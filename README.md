@@ -12,7 +12,6 @@
     <a href="https://github.com/fabiolb/fabio/releases/latest"><img alt="Release" src="https://img.shields.io/github/release/fabiolb/fabio.svg?style=flat-square"></a>
     <a href="https://raw.githubusercontent.com/fabiolb/fabio/master/LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
     <a href="https://app.codeship.com/projects/222209"><img alt="Codeship CI Status" src="https://img.shields.io/codeship/3e8307d0-2426-0135-1183-6e6f38f65fc4/master.svg?label=codeship&style=flat-square"></a>
-    <a href="https://travis-ci.org/fabiolb/fabio"><img alt="Travis CI Status" src="https://img.shields.io/travis/fabiolb/fabio.svg?label=travis-ci&style=flat-square"></a>
     <a href="https://github.com/fabiolb/fabio/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/fabiolb/fabio/total.svg?style=flat-square"></a>
     <a href="https://hub.docker.com/r/magiconair/fabio/"><img alt="Docker Pulls magiconair" src="https://img.shields.io/docker/pulls/magiconair/fabio.svg?style=flat-square&label=docker+pulls+magiconair"></a>
     <a href="https://hub.docker.com/r/fabiolb/fabio/"><img alt="Docker Pulls fabiolb" src="https://img.shields.io/docker/pulls/fabiolb/fabio.svg?style=flat-square&label=docker+pulls+fabiolb"></a>
@@ -70,8 +69,8 @@ The full documentation is on [fabiolb.net](https://fabiolb.net/)
 1. Install from source, [binary](https://github.com/fabiolb/fabio/releases),
    [Docker](https://hub.docker.com/r/fabiolb/fabio/) or [Homebrew](http://brew.sh).
     ```shell
-	# go 1.8 or higher is required
-    go get github.com/fabiolb/fabio                     (>= go1.8)
+	# go 1.9 or higher is required
+    go get github.com/fabiolb/fabio                     (>= go1.9)
 
     brew install fabio                                  (OSX/macOS stable)
     brew install --devel fabio                          (OSX/macOS devel)
@@ -87,8 +86,7 @@ The full documentation is on [fabiolb.net](https://fabiolb.net/)
 
 3. Register a **health check** in consul as described [here](https://consul.io/docs/agent/checks.html).
 
-   Make sure the health check is **passing** since fabio will only watch services
-   which have a passing health check.
+   By default fabio only watches services which have a **passing** health check, unless overriden with [registry.consul.service.status](https://fabiolb.net/ref/registry.consul.service.status/).
 
 4. Register one `urlprefix-` tag per `host/path` prefix it serves, e.g.:
 
@@ -125,7 +123,7 @@ urlprefix-:3306 proto=tcp                          # route external port 3306
 ### Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-<a href="graphs/contributors"><img src="https://opencollective.com/fabio/contributors.svg?width=890" /></a>
+<a href="https://github.com/fabiolb/fabio/graphs/contributors"><img src="https://opencollective.com/fabio/contributors.svg?width=890" /></a>
 
 
 ### Backers

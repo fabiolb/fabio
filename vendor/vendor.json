@@ -63,6 +63,7 @@
 		{"path":"github.com/pierrec/lz4","checksumSHA1":"xKzx54LbkghuMauevGWevn5ip3w=","revision":"ed8d4cc3b461464e69798080a0092bd028910298","revisionTime":"2018-01-13T15:17:03Z"},
 		{"path":"github.com/pierrec/xxHash/xxHash32","checksumSHA1":"zPWRjzsPeXCoqmidIcJtHbvrvRs=","revision":"a0006b13c722f7f12368c00a3d3c2ae8a999a0c6","revisionTime":"2017-07-14T08:24:55Z"},
 		{"path":"github.com/pkg/profile","checksumSHA1":"C3yiSMdTQxSY3xqKJzMV9T+KnIc=","revision":"5b67d428864e92711fcbd2f8629456121a56d91f","revisionTime":"2017-05-09T09:25:25Z"},
+		{"path":"github.com/pubnub/go-metrics-statsd","checksumSHA1":"xiXWXI7iNZ4Vkr/ayWU3KsGnRo0=","revision":"7da61f429d6bdaa79d5d5746998e0db9622c56fc","revisionTime":"2017-01-24T01:40:03Z"},
 		{"path":"github.com/rcrowley/go-metrics","checksumSHA1":"ODTWX4h8f+DW3oWZFT0yTmfHzdg=","revision":"3e5e593311103d49927c8d2b0fd93ccdfe4a525c","revisionTime":"2015-07-19T09:56:14-07:00"},
 		{"path":"github.com/rogpeppe/fastuuid","checksumSHA1":"ehRkDJisGCCSYdNgyvs1gSywSPE=","revision":"6724a57986aff9bff1a1770e9347036def7c89f6","revisionTime":"2015-01-06T09:31:45Z"},
 		{"path":"github.com/sergi/go-diff/diffmatchpatch","checksumSHA1":"iWCtyR1TkJ22Bi/ygzfKDvOQdQY=","revision":"24e2351369ec4949b2ed0dc5c477afdd4c4034e8","revisionTime":"2017-01-18T13:12:30Z"},

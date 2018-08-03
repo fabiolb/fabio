@@ -4,6 +4,29 @@
 
 #### Breaking Changes
 
+#### Bug Fixes
+
+ * [Issue #506](https://github.com/fabiolb/fabio/issues/506): Wrong route for multiple matching host glob patterns
+
+   When multiple host glob patterns match an incoming request fabio can pick the wrong backend for the request.
+   This is because the sorting code that should sort the matching patterns from most specific to least specific
+   does not take into account that doamin names have their most specific part at the front. This has been fixed
+   by reversing the domain names before sorting.
+
+#### Improvements
+
+#### Features
+
+### [v1.5.9](https://github.com/fabiolb/fabio/releases/tag/v1.5.9) - 16 May 2018
+
+#### Notes
+
+ * [Issue #494](https://github.com/fabiolb/fabio/issues/494): Tests fail with Vault > 0.9.6 and Consul > 1.0.6
+
+   Needs more investigation.
+
+#### Breaking Changes
+
  * None
 
 #### Bug Fixes
@@ -20,6 +43,17 @@
    The example regexp for `proxy.gzip.contenttype` in `fabio.properties` was not properly escaped.
 
    Thanks to [@tino](https://github.com/tino) for the patch.
+
+ * [Issue #421](https://github.com/fabiolb/fabio/issues/421): Fabio routing to wrong backend
+
+   Fabio does not close websocket connections if the connection upgrade fails. This can lead to
+   connections being routed to the wrong backend if there is another HTTP router like nginx in
+   front of fabio. The failed websocket connection creates a direct TCP tunnel to the original
+   backend server and that connection is not closed properly.
+
+   The patches detect an unsuccessful handshake and close the connection properly.
+
+   Thanks to [@craigday](https://github.com/craigday) for the original reporting and debugging.
 
 #### Improvements
 
