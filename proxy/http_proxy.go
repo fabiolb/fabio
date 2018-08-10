@@ -189,7 +189,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h = newHTTPProxy(targetURL, tr, p.Config.Proxy.FlushInterval)
 
 	default:
-		h = newHTTPProxy(targetURL, tr, time.Duration(0))
+		h = newHTTPProxy(targetURL, tr, p.Config.Proxy.GlobalFlushInterval)
 	}
 
 	if p.Config.Proxy.GZIPContentTypes != nil {
