@@ -9,8 +9,8 @@
  * [Issue #530](https://github.com/fabiolb/fabio/issues/530): Memory leak in go-metrics library
 
    When metrics collection was enabled within fabio instances with very dynamic route changes memory usage quickly
-   ramped above expected levels.  Research done by @galen0624 identified the issue and lead to the discovery of a
-   fix in an updated version of the go-metrics library used by fabio.
+   ramped above expected levels.  Research done by [@galen0624](https://github.com/galen0624) identified the issue
+   and lead to the discovery of a fix in an updated version of the go-metrics library used by fabio.
 
  * [Issue #506](https://github.com/fabiolb/fabio/issues/506): Wrong route for multiple matching host glob patterns
 
