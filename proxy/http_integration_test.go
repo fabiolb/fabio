@@ -123,7 +123,7 @@ func TestProxyChecksHeaderForAccessRules(t *testing.T) {
 	defer server.Close()
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    &config.Config{},
+		Config:    config.Proxy{},
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			tgt := &route.Target{
