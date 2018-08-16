@@ -179,7 +179,7 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 	}
 
 	return &proxy.HTTPProxy{
-		Config:            cfg,
+		Config:            cfg.Proxy,
 		Transport:         newTransport(nil),
 		InsecureTransport: newTransport(&tls.Config{InsecureSkipVerify: true}),
 		Lookup: func(r *http.Request) *route.Target {
