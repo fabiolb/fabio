@@ -18,5 +18,5 @@ fabio
 fabio.exe
 fabio.sublime-*
 demo/cert/
-pkg/
+/pkg/
 dist/
