@@ -29,7 +29,7 @@ VENDORFMT = $(shell which vendorfmt)
 # pin versions for CI builds
 CI_CONSUL_VERSION=1.0.6
 CI_VAULT_VERSION=0.9.6
-CI_GO_VERSION=1.10.2
+CI_GO_VERSION=1.10.3
 
 # all is the default target
 all: test
