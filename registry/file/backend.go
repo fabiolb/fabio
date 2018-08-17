@@ -6,8 +6,6 @@
 package file
 
 import (
-	"io/ioutil"
-	"log"
 	"os"
 	"time"
 
@@ -16,66 +14,18 @@ import (
 )
 
 type be struct {
-	cfg          *config.File
-	routeMtime   time.Time
-	norouteMtime time.Time
-	Routes       string
-	NoRouteHTML  string
-	Interval     time.Duration
+	cfg             *config.File
+	routesData      *filedata
+	noRouteHTMLData *filedata
 }
-
-var (
-	zero time.Time
-)
 
 func NewBackend(cfg *config.File) (registry.Backend, error) {
-	b := &be{cfg: cfg, Interval: 2 * time.Second}
-	if err := b.readRoute(); err != nil {
+	if _, err := os.Stat(cfg.RoutesPath); err != nil {
 		return nil, err
 	}
-	if err := b.readNoRouteHtml(); err != nil {
-		return nil, err
-	}
+
+	b := &be{cfg: cfg, routesData: &filedata{path: cfg.RoutesPath}, noRouteHTMLData: &filedata{path: cfg.NoRouteHTMLPath}}
 	return b, nil
-}
-
-func (b *be) readRoute() error {
-	finfo, err := os.Stat(b.cfg.RoutesPath)
-	if err != nil {
-		log.Println("[ERROR] Cannot read routes stat from ", b.cfg.RoutesPath)
-		return err
-	}
-
-	if b.routeMtime == zero || b.routeMtime != finfo.ModTime() {
-		b.routeMtime = finfo.ModTime()
-		routes, err := ioutil.ReadFile(b.cfg.RoutesPath)
-		if err != nil {
-			log.Println("[ERROR] Cannot read routes from ", b.cfg.RoutesPath)
-			return err
-		}
-		b.Routes = string(routes)
-	}
-	return nil
-}
-
-func (b *be) readNoRouteHtml() error {
-	if b.cfg.NoRouteHTMLPath != "" {
-		finfo, err := os.Stat(b.cfg.NoRouteHTMLPath)
-		if err != nil {
-			log.Println("[ERROR] Cannot read no route HTML stat from ", b.cfg.NoRouteHTMLPath)
-			return err
-		}
-		if b.norouteMtime == zero || b.norouteMtime != finfo.ModTime() {
-			b.norouteMtime = finfo.ModTime()
-			noroutehtml, err := ioutil.ReadFile(b.cfg.NoRouteHTMLPath)
-			if err != nil {
-				log.Println("[ERROR] Cannot read no route HTML from ", b.cfg.NoRouteHTMLPath)
-				return err
-			}
-			b.NoRouteHTML = string(noroutehtml)
-		}
-	}
-	return nil
 }
 
 func (b *be) Register(services []string) error {
@@ -103,13 +53,12 @@ func (b *be) WriteManual(path string, value string, version uint64) (ok bool, er
 }
 
 func (b *be) WatchServices() chan string {
-	ch := make(chan string, 1)
-	ch <- b.Routes
+	ch := make(chan string)
 	go func() {
 		for {
-			b.readRoute()
-			ch <- b.Routes
-			time.Sleep(b.Interval)
+			readFile(b.routesData)
+			ch <- b.routesData.content
+			time.Sleep(b.cfg.Interval)
 		}
 	}()
 	return ch
@@ -120,14 +69,15 @@ func (b *be) WatchManual() chan string {
 }
 
 func (b *be) WatchNoRouteHTML() chan string {
-	ch := make(chan string, 1)
-	ch <- b.NoRouteHTML
-	go func() {
-		for {
-			b.readNoRouteHtml()
-			ch <- b.NoRouteHTML
-			time.Sleep(b.Interval)
-		}
-	}()
+	ch := make(chan string)
+	if b.noRouteHTMLData.path != "" {
+		go func() {
+			for {
+				readFile(b.noRouteHTMLData)
+				ch <- b.noRouteHTMLData.content
+				time.Sleep(b.cfg.Interval)
+			}
+		}()
+	}
 	return ch
 }

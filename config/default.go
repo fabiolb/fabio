@@ -64,6 +64,9 @@ var defaultConfig = &Config{
 		},
 		Timeout: 10 * time.Second,
 		Retry:   500 * time.Millisecond,
+		File: File{
+			Interval: 2 * time.Second,
+		},
 	},
 	Runtime: Runtime{
 		GOGC:       800,
