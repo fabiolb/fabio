@@ -16,13 +16,8 @@ we ask for the following:
   already underway.
 * Only add libraries if they provide significant value. Consider copying the code
   (attribution) or writing it yourself.
-* Manage dependencies in the vendor path via `govendor` as separate commits per library
-  and format the `vendor.json` file with `vendorfmt`. Please make sure your commit
-  message has the following format:
-
-```
-Vendoring in version <git hash> of <pkgname>
-```
+* Manage dependencies with `go mod` and run `go mod vendor` afterwards to
+  sync the `vendor` folder for backwards compatibility.
 
 Once you are ready to send in a pull request, be sure to:
 
