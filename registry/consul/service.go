@@ -119,6 +119,7 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 
 				// build route command
 				weight := ""
+				weight_tags := ""
 				ropts := []string{}
 				tags := strings.Join(svctags, ",")
 				addr = net.JoinHostPort(addr, strconv.Itoa(port))
@@ -131,6 +132,8 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 						dst = "https://" + addr
 					case strings.HasPrefix(o, "weight="):
 						weight = o[len("weight="):]
+					case strings.HasPrefix(o, "weight_tags="):
+						weight_tags = o[len("weight_tags="):]
 					case strings.HasPrefix(o, "redirect="):
 						redir := strings.Split(o[len("redirect="):], ",")
 						if len(redir) == 2 {
@@ -146,7 +149,7 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 				}
 
 				cfg := "route add " + name + " " + route + " " + dst
-				if weight != "" {
+				if weight != "" && weight_tags == "" {
 					cfg += " weight " + weight
 				}
 				if tags != "" {
@@ -154,6 +157,9 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 				}
 				if len(ropts) > 0 {
 					cfg += " opts " + strconv.Quote(strings.Join(ropts, " "))
+				}
+				if weight != "" && weight_tags != "" {
+				        cfg += "\n route weight " + name + " " + route + " weight " + weight + " tags " + strconv.Quote(weight_tags)
 				}
 				config = append(config, cfg)
 			}
