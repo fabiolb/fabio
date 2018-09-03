@@ -200,6 +200,7 @@ func lookupHostFn(cfg *config.Config) func(string) *route.Target {
 	pick := route.Picker[cfg.Proxy.Strategy]
 	notFound := metrics.DefaultRegistry.GetCounter("notfound")
 	return func(host string) *route.Target {
+		host = strings.ToLower(host)
 		t := route.GetTable().LookupHost(host, pick)
 		if t == nil {
 			notFound.Inc(1)
