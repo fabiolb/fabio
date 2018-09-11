@@ -21,6 +21,16 @@
 
 #### Improvements
 
+ * [Issue #542](https://github.com/fabiolb/fabio/issues/542): urlprefix allow to ignore case
+
+  Fabio was forcing hostnames in routes added via Consul tags to lowercase.  This caused problems
+  with table lookups that were not case-insensitive.  The patch appled in #543 forces all routes added
+  via consul tags or the internal `addRoute` to have lower case hostnames in addition to forcing
+  hostnames to lowercase before performing table lookups.  This means that routes and table lookups
+  in fabio are no longer case sensitive.
+
+  Thanks to [@shantanugadgil](https://github.com/shantanugadgil) for the patch.
+
 #### Features
 
 ### [v1.5.9](https://github.com/fabiolb/fabio/releases/tag/v1.5.9) - 16 May 2018
