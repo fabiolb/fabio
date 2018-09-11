@@ -136,6 +136,7 @@ func NewTable(s string) (t Table, err error) {
 // addRoute adds a new route prefix -> target for the given service.
 func (t Table) addRoute(d *RouteDef) error {
 	host, path := hostpath(d.Src)
+	host = strings.ToLower(host) // maintain compatibility with parseURLPrefixTag
 
 	if d.Src == "" {
 		return errInvalidPrefix
@@ -383,6 +384,7 @@ func (t Table) LookupHost(host string, pick picker) *Target {
 }
 
 func (t Table) lookup(host, path, trace string, pick picker, match matcher) *Target {
+	host = strings.ToLower(host) // routes are always added lowercase
 	for _, r := range t[host] {
 		if match(path, r) {
 			n := len(r.Targets)
