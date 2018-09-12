@@ -24,14 +24,23 @@
  * [Issue #542](https://github.com/fabiolb/fabio/issues/542): Ignore host case when adding and matching routes
 
   Fabio was forcing hostnames in routes added via Consul tags to lowercase.  This caused problems
-  with table lookups that were not case-insensitive.  The patch appled in #543 forces all routes added
+  with table lookups that were not case-insensitive.  The patch applied in #543 forces all routes added
   via consul tags or the internal `addRoute` to have lower case hostnames in addition to forcing
-  hostnames to lowercase before performing table lookups.  This means that routes and table lookups
-  in fabio are no longer case sensitive.
+  hostnames to lowercase before performing table lookups.  This means that the host portion of routes and
+  host based table lookups in fabio are no longer case sensitive.
 
   Thanks to [@shantanugadgil](https://github.com/shantanugadgil) for the patch.
 
 #### Features
+
+ * [Issue #544](https://github.com/fabiolb/fabio/issues/544): Add $host pseudo variable
+
+  This PR added support for `$host` pseudo variable that behaves similarly to the `$path` variable.
+  You should now be able to create a global redirect for requests received on any host to the same or different
+  request host on the same or different path when combined with the `$path` variable.  This allows for a truly global
+  protocol redirect of HTTP -> HTTPS traffic irrespective of host and path.
+
+  Thanks to [@holtwilkins](https://github.com/holtwilkins) for the patch.
 
 ### [v1.5.9](https://github.com/fabiolb/fabio/releases/tag/v1.5.9) - 16 May 2018
 
