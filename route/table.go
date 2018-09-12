@@ -360,6 +360,7 @@ func (t Table) Lookup(req *http.Request, trace string, pick picker, match matche
 	for _, h := range hosts {
 		if target = t.lookup(h, req.URL.Path, trace, pick, match); target != nil {
 			if target.RedirectCode != 0 {
+				req.URL.Host = req.Host
 				target.BuildRedirectURL(req.URL) // build redirect url and cache in target
 				if target.RedirectURL.Scheme == req.Header.Get("X-Forwarded-Proto") &&
 					target.RedirectURL.Host == req.Host &&
