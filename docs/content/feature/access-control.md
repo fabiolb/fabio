@@ -41,8 +41,8 @@ taken from information available in the request.
 
 For `HTTP` requests the client `RemoteAddr` is always validated
 followed by all elements of the `X-Forwarded-For` header, if
-present.  When both of these elements match an `allow` the request
-will be allowed; similarly when either element matches a `deny` the
+present.  When all of these elements match an `allow` the request
+will be allowed; similarly when any element matches a `deny` the
 request will be denied.
 
 For `TCP` requests the source address of the network socket
