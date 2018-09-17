@@ -175,6 +175,8 @@ func TestProxyNoRouteStatus(t *testing.T) {
 }
 
 func TestProxyStripsPath(t *testing.T) {
+	//Glob Matching True
+	globMatching := config.Config{GlobMatching: true}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.RequestURI {
 		case "/bar":
@@ -188,7 +190,7 @@ func TestProxyStripsPath(t *testing.T) {
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable("route add mock /foo/bar " + server.URL + ` opts "strip=/foo"`)
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], &globMatching)
 		},
 	})
 	defer proxy.Close()
@@ -215,6 +217,8 @@ func TestProxyHost(t *testing.T) {
 	routes += "route add mock /hostcustom http://b.com/ opts \"host=bar.com\"\n"
 	routes += "route add mock / http://a.com/"
 	tbl, _ := route.NewTable(routes)
+	//Glob Matching True
+	globMatching := config.Config{GlobMatching: true}
 
 	proxy := httptest.NewServer(&HTTPProxy{
 		Transport: &http.Transport{
@@ -224,7 +228,7 @@ func TestProxyHost(t *testing.T) {
 			},
 		},
 		Lookup: func(r *http.Request) *route.Target {
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], &globMatching)
 		},
 	})
 	defer proxy.Close()
@@ -266,12 +270,14 @@ func TestHostRedirect(t *testing.T) {
 	routes := "route add https-redir *:80 https://$host$path opts \"redirect=301\"\n"
 
 	tbl, _ := route.NewTable(routes)
+	//Glob Matching True
+	globMatching := config.Config{GlobMatching: true}
 
 	proxy := httptest.NewServer(&HTTPProxy{
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			r.Host = "c.com"
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], &globMatching)
 		},
 	})
 	defer proxy.Close()
@@ -306,11 +312,13 @@ func TestPathRedirect(t *testing.T) {
 	routes += "route add mock /foo http://a.com/abc opts \"redirect=301\"\n"
 	routes += "route add mock /bar http://b.com/$path opts \"redirect=302 strip=/bar\"\n"
 	tbl, _ := route.NewTable(routes)
+	//Glob Matching True
+	globMatching := config.Config{GlobMatching: true}
 
 	proxy := httptest.NewServer(&HTTPProxy{
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], &globMatching)
 		},
 	})
 	defer proxy.Close()
@@ -472,13 +480,15 @@ func TestProxyHTTPSUpstream(t *testing.T) {
 	server.TLS = tlsServerConfig()
 	server.StartTLS()
 	defer server.Close()
+	//Glob Matching True
+	globMatching := config.Config{GlobMatching: true}
 
 	proxy := httptest.NewServer(&HTTPProxy{
 		Config:    config.Proxy{},
 		Transport: &http.Transport{TLSClientConfig: tlsClientConfig()},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable("route add srv / " + server.URL + ` opts "proto=https"`)
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], &globMatching)
 		},
 	})
 	defer proxy.Close()
@@ -497,6 +507,8 @@ func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
 	server.TLS = &tls.Config{}
 	server.StartTLS()
 	defer server.Close()
+	//Glob Matching True
+	globMatching := config.Config{GlobMatching: true}
 
 	proxy := httptest.NewServer(&HTTPProxy{
 		Config:    config.Proxy{},
@@ -506,7 +518,7 @@ func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
 		},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable("route add srv / " + server.URL + ` opts "proto=https tlsskipverify=true"`)
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], &globMatching)
 		},
 	})
 	defer proxy.Close()
@@ -699,6 +711,9 @@ func BenchmarkProxyLogger(b *testing.B) {
 		b.Fatal("logger.NewHTTPLogger:", err)
 	}
 
+	//Glob Matching True
+	globMatching := config.Config{GlobMatching: true}
+
 	proxy := &HTTPProxy{
 		Config: config.Proxy{
 			LocalIP:        "1.1.1.1",
@@ -707,7 +722,7 @@ func BenchmarkProxyLogger(b *testing.B) {
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable("route add mock / " + server.URL)
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], &globMatching)
 		},
 		Logger: l,
 	}

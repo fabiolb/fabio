@@ -2,6 +2,7 @@ package route
 
 import (
 	"fmt"
+	"github.com/fabiolb/fabio/config"
 	"net/http"
 	"sync"
 	"testing"
@@ -123,8 +124,10 @@ func makeRequests(t Table) []*http.Request {
 func benchmarkGet(t Table, match matcher, pick picker, pb *testing.PB) {
 	reqs := makeRequests(t)
 	k, n := len(reqs), 0
+	//Glob Matching True
+	globMatching := config.Config{GlobMatching: true}
 	for pb.Next() {
-		t.Lookup(reqs[n%k], "", pick, match)
+		t.Lookup(reqs[n%k], "", pick, match, &globMatching)
 		n++
 	}
 }

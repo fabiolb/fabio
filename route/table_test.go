@@ -3,6 +3,7 @@ package route
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/fabiolb/fabio/config"
 	"math"
 	"net/http"
 	"reflect"
@@ -492,6 +493,8 @@ func TestTableLookupIssue448(t *testing.T) {
 	route add mock ccc.com:443/bar https://ccc.com/baz opts "redirect=301"
 	route add mock / http://foo.com/
 	`
+	//Glob Matching True
+	globMatching := config.Config{GlobMatching: true}
 
 	tbl, err := NewTable(s)
 	if err != nil {
@@ -551,7 +554,7 @@ func TestTableLookupIssue448(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher).URL.String(), tt.dst; got != want {
+		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher, &globMatching).URL.String(), tt.dst; got != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}
@@ -573,6 +576,8 @@ func TestTableLookup(t *testing.T) {
 	route add svc *.bbb.abc.com/ http://foo.com:6100
 	route add svc xyz.com:80/ https://xyz.com
 	`
+	//Glob Matching True
+	globMatching := config.Config{GlobMatching: true}
 
 	tbl, err := NewTable(s)
 	if err != nil {
@@ -626,7 +631,7 @@ func TestTableLookup(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher).URL.String(), tt.dst; got != want {
+		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher, &globMatching).URL.String(), tt.dst; got != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}

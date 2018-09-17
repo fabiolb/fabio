@@ -33,6 +33,9 @@ func TestProxyWSUpstream(t *testing.T) {
 	defer wssServer.Close()
 	t.Log("Started WSS server: ", wssServer.URL)
 
+	//Glob Matching True
+	globMatching := config.Config{GlobMatching: true}
+
 	routes := "route add ws /ws  " + wsServer.URL + "\n"
 	routes += "route add ws /wss " + wssServer.URL + ` opts "proto=https"` + "\n"
 	routes += "route add ws /insecure " + wssServer.URL + ` opts "proto=https tlsskipverify=true"` + "\n"
@@ -44,7 +47,7 @@ func TestProxyWSUpstream(t *testing.T) {
 		InsecureTransport: &http.Transport{TLSClientConfig: tlsInsecureConfig()},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable(routes)
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], &globMatching)
 		},
 	})
 	defer httpProxy.Close()
@@ -56,7 +59,7 @@ func TestProxyWSUpstream(t *testing.T) {
 		InsecureTransport: &http.Transport{TLSClientConfig: tlsInsecureConfig()},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable(routes)
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], &globMatching)
 		},
 	})
 	httpsProxy.TLS = tlsServerConfig()
