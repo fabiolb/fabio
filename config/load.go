@@ -186,7 +186,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.UI.Title, "ui.title", defaultConfig.UI.Title, "optional title for the UI")
 	f.StringVar(&cfg.ProfileMode, "profile.mode", defaultConfig.ProfileMode, "enable profiling mode, one of [cpu, mem, mutex, block]")
 	f.StringVar(&cfg.ProfilePath, "profile.path", defaultConfig.ProfilePath, "path to profile dump file")
-	f.BoolVar(&cfg.GlobMatching, "glob.matching.enabled", defaultConfig.GlobMatching, "Enable/Disable Glob Matching on routes, one of [true, false]")
+	f.BoolVar(&cfg.DisableGlobMatching, "glob.matching.disabled", defaultConfig.DisableGlobMatching, "Disable Glob Matching on routes, one of [true, false]")
 
 	// deprecated flags
 	var proxyLogRoutes string

@@ -137,6 +137,7 @@ func main() {
 
 func newHTTPProxy(cfg *config.Config) http.Handler {
 	var w io.Writer
+	globDisabled := cfg.DisableGlobMatching
 	switch cfg.Log.AccessTarget {
 	case "":
 		log.Printf("[INFO] Access logging disabled")
@@ -183,7 +184,7 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 		Transport:         newTransport(nil),
 		InsecureTransport: newTransport(&tls.Config{InsecureSkipVerify: true}),
 		Lookup: func(r *http.Request) *route.Target {
-			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match, cfg)
+			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match, globDisabled)
 			if t == nil {
 				notFound.Inc(1)
 				log.Print("[WARN] No route for ", r.Host, r.URL)

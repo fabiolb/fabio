@@ -12,7 +12,6 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/metrics"
 	"github.com/gobwas/glob"
 )
@@ -296,7 +295,7 @@ func normalizeHost(host string, tls bool) string {
 
 // matchingHosts returns all keys (host name patterns) from the
 // routing table which match the normalized request hostname.
-func (t Table) matchingHosts(req *http.Request, cfg *config.Config) (hosts []string) {
+func (t Table) matchingHosts(req *http.Request, globDisabled bool) (hosts []string) {
 	host := normalizeHost(req.Host, req.TLS != nil)
 
 	// Issue 548 Glob matching causes performance decrease.
@@ -304,7 +303,7 @@ func (t Table) matchingHosts(req *http.Request, cfg *config.Config) (hosts []str
 	// Updated config to allow for disabling of Glob Matches
 	// Standard string compare is used if disabled
 	// glob.matching.enabled is false
-	if !cfg.GlobMatching {
+	if globDisabled {
 		for pattern := range t {
 			normpat := normalizeHost(pattern, req.TLS != nil)
 			if normpat == host {
@@ -316,7 +315,7 @@ func (t Table) matchingHosts(req *http.Request, cfg *config.Config) (hosts []str
 	} else { //glob.matching.enabled is true (default) Performance hit
 		for pattern := range t {
 			normpat := normalizeHost(pattern, req.TLS != nil)
-			// TODO setup compiled GLOBs in a separate MAP as routes are added/deleted
+			// TODO setup compiled GLOBs in a separate MAP
 			// TODO Issue #548
 			g := glob.MustCompile(normpat)
 			if g.Match(host) {
@@ -362,7 +361,7 @@ func Reverse(s string) string {
 // or nil if there is none. It first checks the routes for the host
 // and if none matches then it falls back to generic routes without
 // a host. This is useful for a catch-all '/' rule.
-func (t Table) Lookup(req *http.Request, trace string, pick picker, match matcher, cfg *config.Config) (target *Target) {
+func (t Table) Lookup(req *http.Request, trace string, pick picker, match matcher, globDisabled bool) (target *Target) {
 	if trace != "" {
 		if len(trace) > 16 {
 			trace = trace[:15]
@@ -372,7 +371,7 @@ func (t Table) Lookup(req *http.Request, trace string, pick picker, match matche
 
 	// find matching hosts for the request
 	// and add "no host" as the fallback option
-	hosts := t.matchingHosts(req, cfg)
+	hosts := t.matchingHosts(req, globDisabled)
 	if trace != "" {
 		log.Printf("[TRACE] %s Matching hosts: %v", trace, hosts)
 	}

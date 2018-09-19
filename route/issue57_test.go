@@ -1,7 +1,6 @@
 package route
 
 import (
-	"github.com/fabiolb/fabio/config"
 	"net/http"
 	"testing"
 )
@@ -25,8 +24,7 @@ func TestIssue57(t *testing.T) {
 	 	route del svcb`,
 	}
 
-	//Glob Matching True
-	globMatching := config.Config{GlobMatching: true}
+	globDisabled := false
 
 	req := &http.Request{URL: mustParse("/foo")}
 	want := "http://foo.com:800"
@@ -36,7 +34,7 @@ func TestIssue57(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%d: got %v want nil", i, err)
 		}
-		target := tbl.Lookup(req, "", rrPicker, prefixMatcher, &globMatching)
+		target := tbl.Lookup(req, "", rrPicker, prefixMatcher, globDisabled)
 		if target == nil {
 			t.Fatalf("%d: got %v want %v", i, target, want)
 		}
