@@ -85,4 +85,7 @@ func (t *Target) BuildRedirectURL(requestURL *url.URL) {
 	if t.RedirectURL.Path == "" {
 		t.RedirectURL.Path = "/"
 	}
+	if strings.Contains(t.RedirectURL.Host, "$host") {
+		t.RedirectURL.Host = strings.Replace(t.RedirectURL.Host, "$host", requestURL.Host, 1)
+	}
 }

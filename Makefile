@@ -20,16 +20,10 @@ GOVERSION = $(shell go version | awk '{print $$3;}')
 # GORELEASER is the path to the goreleaser binary.
 GORELEASER = $(shell which goreleaser)
 
-# GOVENDOR is the path to the govendor binary.
-GOVENDOR = $(shell which govendor)
-
-# VENDORFMT is the path to the vendorfmt binary.
-VENDORFMT = $(shell which vendorfmt)
-
 # pin versions for CI builds
 CI_CONSUL_VERSION=1.1.0
 CI_VAULT_VERSION=0.10.1
-CI_GO_VERSION=1.10.2
+CI_GO_VERSION=1.10.3
 
 # all is the default target
 all: test
@@ -46,22 +40,12 @@ help:
 	@echo "clean     - remove temp files"
 
 # build compiles fabio and the test dependencies
-build: checkdeps vendorfmt gofmt
+build: gofmt
 	go build
 
 # test runs the tests
 test: build
 	go test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
-
-# checkdeps ensures that all required dependencies are vendored in
-checkdeps:
-	[ -x "$(GOVENDOR)" ] || go get -u github.com/kardianos/govendor
-	govendor list +e | grep '^ e ' && { echo "Found missing packages. Please run 'govendor add +e'"; exit 1; } || : echo
-
-# vendorfmt ensures that the vendor/vendor.json file is formatted correctly
-vendorfmt:
-	[ -x "$(VENDORFMT)" ] || go get -u github.com/magiconair/vendorfmt/cmd/vendorfmt
-	vendorfmt
 
 # gofmt runs gofmt on the code
 gofmt:
@@ -156,4 +140,4 @@ clean:
 	rm -rf pkg dist fabio
 	find . -name '*.test' -delete
 
-.PHONY: all build checkdeps clean codeship gofmt gorelease help homebrew install linux pkg preflight release tag test vendorfmt
+.PHONY: all build clean codeship gofmt gorelease help homebrew install linux pkg preflight release tag test

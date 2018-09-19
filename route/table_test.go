@@ -569,6 +569,8 @@ func TestTableLookup(t *testing.T) {
 	route add svc z.abc.com/foo/ http://foo.com:3100
 	route add svc *.abc.com/ http://foo.com:4000
 	route add svc *.abc.com/foo/ http://foo.com:5000
+	route add svc *.aaa.abc.com/ http://foo.com:6000
+	route add svc *.bbb.abc.com/ http://foo.com:6100
 	route add svc xyz.com:80/ https://xyz.com
 	`
 
@@ -610,6 +612,10 @@ func TestTableLookup(t *testing.T) {
 		{&http.Request{Host: ".abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000"},
 		{&http.Request{Host: "x.y.abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000"},
 		{&http.Request{Host: "y.abc.com:80", URL: mustParse("/foo/")}, "http://foo.com:5000"},
+		{&http.Request{Host: "x.aaa.abc.com", URL: mustParse("/")}, "http://foo.com:6000"},
+		{&http.Request{Host: "x.aaa.abc.com", URL: mustParse("/foo")}, "http://foo.com:6000"},
+		{&http.Request{Host: "x.bbb.abc.com", URL: mustParse("/")}, "http://foo.com:6100"},
+		{&http.Request{Host: "x.bbb.abc.com", URL: mustParse("/foo")}, "http://foo.com:6100"},
 		{&http.Request{Host: "y.abc.com:443", URL: mustParse("/foo/"), TLS: &tls.ConnectionState{}}, "http://foo.com:5000"},
 
 		// exact match has precedence over glob match

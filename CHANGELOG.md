@@ -1,5 +1,47 @@
 ## Changelog
 
+### Unreleased
+
+#### Breaking Changes
+
+#### Bug Fixes
+
+ * [Issue #530](https://github.com/fabiolb/fabio/issues/530): Memory leak in go-metrics library
+
+   When metrics collection was enabled within fabio instances with very dynamic route changes memory usage quickly
+   ramped above expected levels.  Research done by [@galen0624](https://github.com/galen0624) identified the issue
+   and lead to the discovery of a fix in an updated version of the go-metrics library used by fabio.
+
+ * [Issue #506](https://github.com/fabiolb/fabio/issues/506): Wrong route for multiple matching host glob patterns
+
+   When multiple host glob patterns match an incoming request fabio can pick the wrong backend for the request.
+   This is because the sorting code that should sort the matching patterns from most specific to least specific
+   does not take into account that doamin names have their most specific part at the front. This has been fixed
+   by reversing the domain names before sorting.
+
+#### Improvements
+
+ * [Issue #542](https://github.com/fabiolb/fabio/issues/542): Ignore host case when adding and matching routes
+
+  Fabio was forcing hostnames in routes added via Consul tags to lowercase.  This caused problems
+  with table lookups that were not case-insensitive.  The patch applied in #543 forces all routes added
+  via consul tags or the internal `addRoute` to have lower case hostnames in addition to forcing
+  hostnames to lowercase before performing table lookups.  This means that the host portion of routes and
+  host based table lookups in fabio are no longer case sensitive.
+
+  Thanks to [@shantanugadgil](https://github.com/shantanugadgil) for the patch.
+
+#### Features
+
+ * [Issue #544](https://github.com/fabiolb/fabio/issues/544): Add $host pseudo variable
+
+  This PR added support for `$host` pseudo variable that behaves similarly to the `$path` variable.
+  You should now be able to create a global redirect for requests received on any host to the same or different
+  request host on the same or different path when combined with the `$path` variable.  This allows for a truly global
+  protocol redirect of HTTP -> HTTPS traffic irrespective of host and path.
+
+  Thanks to [@holtwilkins](https://github.com/holtwilkins) for the patch.
+
 ### [v1.5.9](https://github.com/fabiolb/fabio/releases/tag/v1.5.9) - 16 May 2018
 
 #### Notes

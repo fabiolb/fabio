@@ -47,8 +47,6 @@ var version = "1.5.9"
 
 var shuttingDown int32
 
-var logOutput logger.LevelWriter
-
 func main() {
 	logOutput := logger.NewLevelWriter(os.Stderr, "INFO", "2017/01/01 00:00:00 ")
 	log.SetOutput(logOutput)

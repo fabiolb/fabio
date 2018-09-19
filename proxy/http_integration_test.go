@@ -262,7 +262,46 @@ func TestProxyHost(t *testing.T) {
 	})
 }
 
-func TestRedirect(t *testing.T) {
+func TestHostRedirect(t *testing.T) {
+	routes := "route add https-redir *:80 https://$host$path opts \"redirect=301\"\n"
+
+	tbl, _ := route.NewTable(routes)
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Transport: http.DefaultTransport,
+		Lookup: func(r *http.Request) *route.Target {
+			r.Host = "c.com"
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+		},
+	})
+	defer proxy.Close()
+
+	tests := []struct {
+		req      string
+		wantCode int
+		wantLoc  string
+	}{
+		{req: "/baz", wantCode: 301, wantLoc: "https://c.com/baz"},
+	}
+
+	http.DefaultClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		// do not follow redirects
+		return http.ErrUseLastResponse
+	}
+
+	for _, tt := range tests {
+		resp, _ := mustGet(proxy.URL + tt.req)
+		if resp.StatusCode != tt.wantCode {
+			t.Errorf("got status code %d, want %d", resp.StatusCode, tt.wantCode)
+		}
+		gotLoc, _ := resp.Location()
+		if gotLoc.String() != tt.wantLoc {
+			t.Errorf("got location %s, want %s", gotLoc, tt.wantLoc)
+		}
+	}
+}
+
+func TestPathRedirect(t *testing.T) {
 	routes := "route add mock / http://a.com/$path opts \"redirect=301\"\n"
 	routes += "route add mock /foo http://a.com/abc opts \"redirect=301\"\n"
 	routes += "route add mock /bar http://b.com/$path opts \"redirect=302 strip=/bar\"\n"

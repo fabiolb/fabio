@@ -86,8 +86,7 @@ The full documentation is on [fabiolb.net](https://fabiolb.net/)
 
 3. Register a **health check** in consul as described [here](https://consul.io/docs/agent/checks.html).
 
-   Make sure the health check is **passing** since fabio will only watch services
-   which have a passing health check.
+   By default fabio only watches services which have a **passing** health check, unless overriden with [registry.consul.service.status](https://fabiolb.net/ref/registry.consul.service.status/).
 
 4. Register one `urlprefix-` tag per `host/path` prefix it serves, e.g.:
 

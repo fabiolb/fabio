@@ -1,0 +1,73 @@
+# github.com/armon/go-proxyproto v0.0.0-20150207025855-609d6338d3a7
+github.com/armon/go-proxyproto
+# github.com/circonus-labs/circonus-gometrics v0.0.0-20160830164725-f8c68ed96a06
+github.com/circonus-labs/circonus-gometrics
+github.com/circonus-labs/circonus-gometrics/api
+github.com/circonus-labs/circonus-gometrics/checkmgr
+# github.com/circonus-labs/circonusllhist v0.0.0-20160526043813-d724266ae527
+github.com/circonus-labs/circonusllhist
+# github.com/cyberdelia/go-metrics-graphite v0.0.0-20150826032200-b8345b7f01d5
+github.com/cyberdelia/go-metrics-graphite
+# github.com/fatih/structs v0.0.0-20160601093117-5ada2f449b10
+github.com/fatih/structs
+# github.com/gobwas/glob v0.0.0-20180208211842-19c076cdf202
+github.com/gobwas/glob
+github.com/gobwas/glob/compiler
+github.com/gobwas/glob/syntax
+github.com/gobwas/glob/match
+github.com/gobwas/glob/syntax/ast
+github.com/gobwas/glob/util/runes
+github.com/gobwas/glob/syntax/lexer
+github.com/gobwas/glob/util/strings
+# github.com/hashicorp/consul v0.8.0
+github.com/hashicorp/consul/api
+# github.com/hashicorp/errwrap v0.0.0-20141028054710-7554cd9344ce
+github.com/hashicorp/errwrap
+# github.com/hashicorp/go-cleanhttp v0.0.0-20160407174126-ad28ea4487f0
+github.com/hashicorp/go-cleanhttp
+# github.com/hashicorp/go-multierror v0.0.0-20150916205742-d30f09973e19
+github.com/hashicorp/go-multierror
+# github.com/hashicorp/go-retryablehttp v0.0.0-20160810172255-f4ed9b0fa01a
+github.com/hashicorp/go-retryablehttp
+# github.com/hashicorp/go-rootcerts v0.0.0-20160503143440-6bb64b370b90
+github.com/hashicorp/go-rootcerts
+# github.com/hashicorp/hcl v0.0.0-20160607001940-d7400db7143f
+github.com/hashicorp/hcl
+github.com/hashicorp/hcl/hcl/ast
+github.com/hashicorp/hcl/hcl/parser
+github.com/hashicorp/hcl/hcl/token
+github.com/hashicorp/hcl/json/parser
+github.com/hashicorp/hcl/hcl/scanner
+github.com/hashicorp/hcl/hcl/strconv
+github.com/hashicorp/hcl/json/scanner
+github.com/hashicorp/hcl/json/token
+# github.com/hashicorp/serf v0.7.0
+github.com/hashicorp/serf/coordinate
+# github.com/hashicorp/vault v0.6.0
+github.com/hashicorp/vault/api
+# github.com/magiconair/properties v0.0.0-20171031211101-49d762b9817b
+github.com/magiconair/properties
+# github.com/mitchellh/go-homedir v0.0.0-20160606030122-1111e456ffea
+github.com/mitchellh/go-homedir
+# github.com/mitchellh/mapstructure v0.0.0-20160212031839-d2dd02622084
+github.com/mitchellh/mapstructure
+# github.com/pascaldekloe/goe v0.0.0-20150719195608-f99183613f48
+github.com/pascaldekloe/goe/verify
+# github.com/pkg/profile v1.2.1
+github.com/pkg/profile
+# github.com/pubnub/go-metrics-statsd v0.0.0-20170124014003-7da61f429d6b
+github.com/pubnub/go-metrics-statsd
+# github.com/rcrowley/go-metrics v0.0.0-20180503174638-e2704e165165
+github.com/rcrowley/go-metrics
+# github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af
+github.com/rogpeppe/fastuuid
+# github.com/sergi/go-diff v0.0.0-20170118131230-24e2351369ec
+github.com/sergi/go-diff/diffmatchpatch
+# golang.org/x/net v0.0.0-20170114055629-f2499483f923
+golang.org/x/net/websocket
+golang.org/x/net/http2
+golang.org/x/net/http2/hpack
+golang.org/x/net/idna
+golang.org/x/net/lex/httplex
+# golang.org/x/sync v0.0.0-20170927054112-8e0aa688b654
+golang.org/x/sync/singleflight
