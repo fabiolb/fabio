@@ -67,9 +67,9 @@ func TestNoCaseMatcher(t *testing.T) {
 		matches bool
 		route   *Route
 	}{
-		{uri: "/fool", matches: false, route: &Route{Path: "/foo"}},
+		{uri: "/foo", matches: false, route: &Route{Path: "/fool"}},
 		{uri: "/foo", matches: true, route: &Route{Path: "/foo"}},
-		{uri: "/Foo", matches: true, route: &Route{Path: "/foo"}},
+		{uri: "/Fool", matches: true, route: &Route{Path: "/foo"}},
 		{uri: "/foo", matches: true, route: &Route{Path: "/Foo"}},
 	}
 

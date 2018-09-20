@@ -307,6 +307,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-proxy.matcher", "nocase"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.Matcher = "nocase"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.noroutestatus", "555"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Proxy.NoRouteStatus = 555

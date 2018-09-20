@@ -247,7 +247,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 		return nil, fmt.Errorf("invalid proxy.strategy: %s", cfg.Proxy.Strategy)
 	}
 
-	if cfg.Proxy.Matcher != "prefix" && cfg.Proxy.Matcher != "glob" && cfg.Proxy.Matcher != "noCase" {
+	if cfg.Proxy.Matcher != "prefix" && cfg.Proxy.Matcher != "glob" && cfg.Proxy.Matcher != "nocase" {
 		return nil, fmt.Errorf("invalid proxy.matcher: %s", cfg.Proxy.Matcher)
 	}
 
