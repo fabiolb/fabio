@@ -22,6 +22,8 @@ func TestGracefulShutdown(t *testing.T) {
 	}))
 	defer srv.Close()
 
+	globDisabled := false
+
 	// start proxy
 	addr := "127.0.0.1:57777"
 	var wg sync.WaitGroup
@@ -32,7 +34,7 @@ func TestGracefulShutdown(t *testing.T) {
 			Transport: http.DefaultTransport,
 			Lookup: func(r *http.Request) *route.Target {
 				tbl, _ := route.NewTable("route add svc / " + srv.URL)
-				return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+				return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globDisabled)
 			},
 		}
 		l := config.Listen{Addr: addr}

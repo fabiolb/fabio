@@ -27,6 +27,12 @@ import (
 	"github.com/pascaldekloe/goe/verify"
 )
 
+const (
+	// helper constants for the Lookup function
+	globEnabled  = false
+	globDisabled = true
+)
+
 func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 	var hdr http.Header = make(http.Header)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -188,7 +194,7 @@ func TestProxyStripsPath(t *testing.T) {
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable("route add mock /foo/bar " + server.URL + ` opts "strip=/foo"`)
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globEnabled)
 		},
 	})
 	defer proxy.Close()
@@ -224,7 +230,7 @@ func TestProxyHost(t *testing.T) {
 			},
 		},
 		Lookup: func(r *http.Request) *route.Target {
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globEnabled)
 		},
 	})
 	defer proxy.Close()
@@ -271,7 +277,7 @@ func TestHostRedirect(t *testing.T) {
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			r.Host = "c.com"
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globEnabled)
 		},
 	})
 	defer proxy.Close()
@@ -310,7 +316,7 @@ func TestPathRedirect(t *testing.T) {
 	proxy := httptest.NewServer(&HTTPProxy{
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globEnabled)
 		},
 	})
 	defer proxy.Close()
@@ -478,7 +484,7 @@ func TestProxyHTTPSUpstream(t *testing.T) {
 		Transport: &http.Transport{TLSClientConfig: tlsClientConfig()},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable("route add srv / " + server.URL + ` opts "proto=https"`)
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globEnabled)
 		},
 	})
 	defer proxy.Close()
@@ -497,7 +503,6 @@ func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
 	server.TLS = &tls.Config{}
 	server.StartTLS()
 	defer server.Close()
-
 	proxy := httptest.NewServer(&HTTPProxy{
 		Config:    config.Proxy{},
 		Transport: http.DefaultTransport,
@@ -506,7 +511,7 @@ func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
 		},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable("route add srv / " + server.URL + ` opts "proto=https tlsskipverify=true"`)
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globEnabled)
 		},
 	})
 	defer proxy.Close()
@@ -707,7 +712,7 @@ func BenchmarkProxyLogger(b *testing.B) {
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable("route add mock / " + server.URL)
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globEnabled)
 		},
 		Logger: l,
 	}
