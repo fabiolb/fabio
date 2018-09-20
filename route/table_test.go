@@ -13,7 +13,7 @@ import (
 
 const (
 	// helper constants for the Lookup function
-	globEnabled = false
+	globEnabled  = false
 	globDisabled = true
 )
 
@@ -505,8 +505,8 @@ func TestTableLookupIssue448(t *testing.T) {
 	}
 
 	var tests = []struct {
-		req          *http.Request
-		dst          string
+		req         *http.Request
+		dst         string
 		globEnabled bool
 	}{
 		{
@@ -587,8 +587,8 @@ func TestTableLookup(t *testing.T) {
 	}
 
 	var tests = []struct {
-		req          *http.Request
-		dst          string
+		req         *http.Request
+		dst         string
 		globEnabled bool
 	}{
 		// match on host and path with and without trailing slash

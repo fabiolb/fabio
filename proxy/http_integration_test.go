@@ -27,10 +27,9 @@ import (
 	"github.com/pascaldekloe/goe/verify"
 )
 
-
 const (
 	// helper constants for the Lookup function
-	globEnabled = false
+	globEnabled  = false
 	globDisabled = true
 )
 
@@ -704,8 +703,6 @@ func BenchmarkProxyLogger(b *testing.B) {
 	if err != nil {
 		b.Fatal("logger.NewHTTPLogger:", err)
 	}
-
-
 
 	proxy := &HTTPProxy{
 		Config: config.Proxy{

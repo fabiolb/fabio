@@ -24,7 +24,6 @@ func TestIssue57(t *testing.T) {
 	 	route del svcb`,
 	}
 
-
 	req := &http.Request{URL: mustParse("/foo")}
 	want := "http://foo.com:800"
 

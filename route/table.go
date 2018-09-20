@@ -295,7 +295,7 @@ func normalizeHost(host string, tls bool) string {
 
 // matchingHosts returns all keys (host name patterns) from the
 // routing table which match the normalized request hostname.
-func (t Table) matchingHosts(req *http.Request,) (hosts []string) {
+func (t Table) matchingHosts(req *http.Request) (hosts []string) {
 	host := normalizeHost(req.Host, req.TLS != nil)
 	for pattern := range t {
 		normpat := normalizeHost(pattern, req.TLS != nil)
@@ -328,7 +328,6 @@ func (t Table) matchingHosts(req *http.Request,) (hosts []string) {
 	}
 	return
 }
-
 
 // Issue 548 - Added separate func
 //
