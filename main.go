@@ -183,7 +183,7 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 		Transport:         newTransport(nil),
 		InsecureTransport: newTransport(&tls.Config{InsecureSkipVerify: true}),
 		Lookup: func(r *http.Request) *route.Target {
-			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match, cfg.DisableGlobMatching)
+			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match, cfg.GlobMatchingDisabled)
 			if t == nil {
 				notFound.Inc(1)
 				log.Print("[WARN] No route for ", r.Host, r.URL)

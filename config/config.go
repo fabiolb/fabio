@@ -7,17 +7,17 @@ import (
 )
 
 type Config struct {
-	Proxy               Proxy
-	Registry            Registry
-	Listen              []Listen
-	Log                 Log
-	Metrics             Metrics
-	UI                  UI
-	Runtime             Runtime
-	ProfileMode         string
-	ProfilePath         string
-	Insecure            bool
-	DisableGlobMatching bool
+	Proxy                Proxy
+	Registry             Registry
+	Listen               []Listen
+	Log                  Log
+	Metrics              Metrics
+	UI                   UI
+	Runtime              Runtime
+	ProfileMode          string
+	ProfilePath          string
+	Insecure             bool
+	GlobMatchingDisabled bool
 }
 
 type CertSource struct {
