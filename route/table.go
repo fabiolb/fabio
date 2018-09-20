@@ -295,32 +295,15 @@ func normalizeHost(host string, tls bool) string {
 
 // matchingHosts returns all keys (host name patterns) from the
 // routing table which match the normalized request hostname.
-func (t Table) matchingHosts(req *http.Request, globDisabled bool) (hosts []string) {
+func (t Table) matchingHosts(req *http.Request,) (hosts []string) {
 	host := normalizeHost(req.Host, req.TLS != nil)
-
-	// Issue 548 Glob matching causes performance decrease.
-	//
-	// Updated config to allow for disabling of Glob Matches
-	// Standard string compare is used if disabled
-	// glob.matching.enabled is false
-	if globDisabled {
-		for pattern := range t {
-			normpat := normalizeHost(pattern, req.TLS != nil)
-			if normpat == host {
-				//log.Printf("DEBUG Matched %s and %s", normpat, host)
-				hosts = append(hosts, pattern)
-				return
-			}
-		}
-	} else { //glob.matching.enabled is true (default) Performance hit
-		for pattern := range t {
-			normpat := normalizeHost(pattern, req.TLS != nil)
-			// TODO setup compiled GLOBs in a separate MAP
-			// TODO Issue #548
-			g := glob.MustCompile(normpat)
-			if g.Match(host) {
-				hosts = append(hosts, pattern)
-			}
+	for pattern := range t {
+		normpat := normalizeHost(pattern, req.TLS != nil)
+		// TODO setup compiled GLOBs in a separate MAP
+		// TODO Issue #548
+		g := glob.MustCompile(normpat)
+		if g.Match(host) {
+			hosts = append(hosts, pattern)
 		}
 	}
 
@@ -346,6 +329,25 @@ func (t Table) matchingHosts(req *http.Request, globDisabled bool) (hosts []stri
 	return
 }
 
+
+// Issue 548 - Added separate func
+//
+// matchingHostNoGlob returns the route from the
+// routing table which matches the normalized request hostname.
+func (t Table) matchingHostNoGlob(req *http.Request) (hosts []string) {
+	host := normalizeHost(req.Host, req.TLS != nil)
+
+	for pattern := range t {
+		normpat := normalizeHost(pattern, req.TLS != nil)
+		if normpat == host {
+			//log.Printf("DEBUG Matched %s and %s", normpat, host)
+			hosts = append(hosts, pattern)
+			return
+		}
+	}
+	return
+}
+
 // Reverse returns its argument string reversed rune-wise left to right.
 //
 // taken from https://github.com/golang/example/blob/master/stringutil/reverse.go
@@ -362,6 +364,8 @@ func Reverse(s string) string {
 // and if none matches then it falls back to generic routes without
 // a host. This is useful for a catch-all '/' rule.
 func (t Table) Lookup(req *http.Request, trace string, pick picker, match matcher, globDisabled bool) (target *Target) {
+
+	var hosts []string
 	if trace != "" {
 		if len(trace) > 16 {
 			trace = trace[:15]
@@ -371,7 +375,14 @@ func (t Table) Lookup(req *http.Request, trace string, pick picker, match matche
 
 	// find matching hosts for the request
 	// and add "no host" as the fallback option
-	hosts := t.matchingHosts(req, globDisabled)
+	// if globDisabled then match without Glob
+	// Issue 548
+	if globDisabled {
+		hosts = t.matchingHostNoGlob(req)
+	} else {
+		hosts = t.matchingHosts(req)
+	}
+
 	if trace != "" {
 		log.Printf("[TRACE] %s Matching hosts: %v", trace, hosts)
 	}
