@@ -60,3 +60,24 @@ func TestGlobMatcher(t *testing.T) {
 		})
 	}
 }
+
+func TestNoCaseMatcher(t *testing.T) {
+	tests := []struct {
+		uri     string
+		matches bool
+		route   *Route
+	}{
+		{uri: "/fool", matches: false, route: &Route{Path: "/foo"}},
+		{uri: "/foo", matches: true, route: &Route{Path: "/foo"}},
+		{uri: "/Foo", matches: true, route: &Route{Path: "/foo"}},
+		{uri: "/foo", matches: true, route: &Route{Path: "/Foo"}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.uri, func(t *testing.T) {
+			if got, want := noCaseMatcher(tt.uri, tt.route), tt.matches; got != want {
+				t.Fatalf("got %v want %v", got, want)
+			}
+		})
+	}
+}

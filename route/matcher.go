@@ -12,6 +12,7 @@ type matcher func(uri string, r *Route) bool
 var Matcher = map[string]matcher{
 	"prefix": prefixMatcher,
 	"glob":   globMatcher,
+	"noCase": noCaseMatcher,
 }
 
 // prefixMatcher matches path to the routes' path.
@@ -22,4 +23,9 @@ func prefixMatcher(uri string, r *Route) bool {
 // globMatcher matches path to the routes' path using gobwas/glob.
 func globMatcher(uri string, r *Route) bool {
 	return r.Glob.Match(uri)
+}
+
+// noCase matches path to the routes' path ignoring case
+func noCaseMatcher(uri string, r *Route) bool {
+	return strings.EqualFold(uri, r.Path)
 }
