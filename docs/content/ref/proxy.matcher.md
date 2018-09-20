@@ -19,7 +19,7 @@ function.
 For example, `/foo*` matches `/foo`, `/fool` and `/fools`. Also, `/foo/*/bar`
 matches `/foo/x/bar`.
 
-`nocase` matching is similar to `prefix`, except it uses a case insensitive comparison
+`iprefix` matching is similar to `prefix`, except it uses a case insensitive comparison
 
 The default is
 

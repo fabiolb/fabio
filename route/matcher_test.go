@@ -61,7 +61,7 @@ func TestGlobMatcher(t *testing.T) {
 	}
 }
 
-func TestNoCaseMatcher(t *testing.T) {
+func TestIPrefixMatcher(t *testing.T) {
 	tests := []struct {
 		uri     string
 		matches bool
@@ -75,7 +75,7 @@ func TestNoCaseMatcher(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.uri, func(t *testing.T) {
-			if got, want := noCaseMatcher(tt.uri, tt.route), tt.matches; got != want {
+			if got, want := iPrefixMatcher(tt.uri, tt.route), tt.matches; got != want {
 				t.Fatalf("got %v want %v", got, want)
 			}
 		})

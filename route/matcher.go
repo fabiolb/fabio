@@ -10,9 +10,9 @@ type matcher func(uri string, r *Route) bool
 // Matcher contains the available matcher functions.
 // Update config/load.go#load after updating.
 var Matcher = map[string]matcher{
-	"prefix": prefixMatcher,
-	"glob":   globMatcher,
-	"nocase": noCaseMatcher,
+	"prefix":  prefixMatcher,
+	"glob":    globMatcher,
+	"iprefix": iPrefixMatcher,
 }
 
 // prefixMatcher matches path to the routes' path.
@@ -25,8 +25,8 @@ func globMatcher(uri string, r *Route) bool {
 	return r.Glob.Match(uri)
 }
 
-// noCase matches path to the routes' path ignoring case
-func noCaseMatcher(uri string, r *Route) bool {
+// iPrefixMatcher matches path to the routes' path ignoring case
+func iPrefixMatcher(uri string, r *Route) bool {
 	lowerURI := strings.ToLower(uri)
 	lowerPath := strings.ToLower(r.Path)
 	return strings.HasPrefix(lowerURI, lowerPath)

@@ -307,9 +307,9 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
-			args: []string{"-proxy.matcher", "nocase"},
+			args: []string{"-proxy.matcher", "iprefix"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Proxy.Matcher = "nocase"
+				cfg.Proxy.Matcher = "iprefix"
 				return cfg
 			},
 		},
