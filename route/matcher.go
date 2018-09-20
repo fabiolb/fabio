@@ -27,6 +27,8 @@ func globMatcher(uri string, r *Route) bool {
 
 // iPrefixMatcher matches path to the routes' path ignoring case
 func iPrefixMatcher(uri string, r *Route) bool {
+	// todo(fs): if this turns out to be a performance issue we should cache
+	// todo(fs): strings.ToLower(r.Path) in r.PathLower
 	lowerURI := strings.ToLower(uri)
 	lowerPath := strings.ToLower(r.Path)
 	return strings.HasPrefix(lowerURI, lowerPath)
