@@ -77,5 +77,4 @@ var defaultConfig = &Config{
 		Color:  "light-green",
 		Access: "rw",
 	},
-	DisableGlobMatching: false,
 }

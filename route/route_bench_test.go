@@ -124,9 +124,8 @@ func benchmarkGet(t Table, match matcher, pick picker, pb *testing.PB) {
 	reqs := makeRequests(t)
 	k, n := len(reqs), 0
 	//Glob Matching True
-	globDisabled := false
 	for pb.Next() {
-		t.Lookup(reqs[n%k], "", pick, match, globDisabled)
+		t.Lookup(reqs[n%k], "", pick, match, globEnabled)
 		n++
 	}
 }

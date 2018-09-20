@@ -11,6 +11,12 @@ import (
 	"testing"
 )
 
+const (
+	// helper constants for the Lookup function
+	globEnabled = false
+	globDisabled = true
+)
+
 func TestTableParse(t *testing.T) {
 	genRoutes := func(n int, format string) (a []string) {
 		for i := 0; i < n; i++ {
@@ -501,7 +507,7 @@ func TestTableLookupIssue448(t *testing.T) {
 	var tests = []struct {
 		req          *http.Request
 		dst          string
-		globDisabled bool
+		globEnabled bool
 	}{
 		{
 			req: &http.Request{
@@ -552,7 +558,7 @@ func TestTableLookupIssue448(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher, tt.globDisabled).URL.String(), tt.dst; got != want {
+		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher, globEnabled).URL.String(), tt.dst; got != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}
@@ -583,52 +589,52 @@ func TestTableLookup(t *testing.T) {
 	var tests = []struct {
 		req          *http.Request
 		dst          string
-		globDisabled bool
+		globEnabled bool
 	}{
 		// match on host and path with and without trailing slash
-		{&http.Request{Host: "abc.com", URL: mustParse("/")}, "http://foo.com:1000", false},
-		{&http.Request{Host: "abc.com", URL: mustParse("/bar")}, "http://foo.com:1000", false},
-		{&http.Request{Host: "abc.com", URL: mustParse("/foo")}, "http://foo.com:1500", false},
-		{&http.Request{Host: "abc.com", URL: mustParse("/foo/")}, "http://foo.com:2000", false},
-		{&http.Request{Host: "abc.com", URL: mustParse("/foo/bar")}, "http://foo.com:2500", false},
-		{&http.Request{Host: "abc.com", URL: mustParse("/foo/bar/")}, "http://foo.com:3000", false},
+		{&http.Request{Host: "abc.com", URL: mustParse("/")}, "http://foo.com:1000", globEnabled},
+		{&http.Request{Host: "abc.com", URL: mustParse("/bar")}, "http://foo.com:1000", globEnabled},
+		{&http.Request{Host: "abc.com", URL: mustParse("/foo")}, "http://foo.com:1500", globEnabled},
+		{&http.Request{Host: "abc.com", URL: mustParse("/foo/")}, "http://foo.com:2000", globEnabled},
+		{&http.Request{Host: "abc.com", URL: mustParse("/foo/bar")}, "http://foo.com:2500", globEnabled},
+		{&http.Request{Host: "abc.com", URL: mustParse("/foo/bar/")}, "http://foo.com:3000", globEnabled},
 
 		// do not match on host but maybe on path
-		{&http.Request{Host: "def.com", URL: mustParse("/")}, "http://foo.com:800", false},
-		{&http.Request{Host: "def.com", URL: mustParse("/bar")}, "http://foo.com:800", false},
-		{&http.Request{Host: "def.com", URL: mustParse("/foo")}, "http://foo.com:900", false},
+		{&http.Request{Host: "def.com", URL: mustParse("/")}, "http://foo.com:800", globEnabled},
+		{&http.Request{Host: "def.com", URL: mustParse("/bar")}, "http://foo.com:800", globEnabled},
+		{&http.Request{Host: "def.com", URL: mustParse("/foo")}, "http://foo.com:900", globEnabled},
 
 		// strip default port
-		{&http.Request{Host: "abc.com:80", URL: mustParse("/")}, "http://foo.com:1000", false},
-		{&http.Request{Host: "abc.com:443", URL: mustParse("/"), TLS: &tls.ConnectionState{}}, "http://foo.com:1000", false},
+		{&http.Request{Host: "abc.com:80", URL: mustParse("/")}, "http://foo.com:1000", globEnabled},
+		{&http.Request{Host: "abc.com:443", URL: mustParse("/"), TLS: &tls.ConnectionState{}}, "http://foo.com:1000", globEnabled},
 
 		// not using default port
-		{&http.Request{Host: "abc.com:443", URL: mustParse("/")}, "http://foo.com:800", false},
-		{&http.Request{Host: "abc.com:80", URL: mustParse("/"), TLS: &tls.ConnectionState{}}, "http://foo.com:800", false},
+		{&http.Request{Host: "abc.com:443", URL: mustParse("/")}, "http://foo.com:800", globEnabled},
+		{&http.Request{Host: "abc.com:80", URL: mustParse("/"), TLS: &tls.ConnectionState{}}, "http://foo.com:800", globEnabled},
 
 		// glob match the host
-		{&http.Request{Host: "x.abc.com", URL: mustParse("/")}, "http://foo.com:4000", false},
-		{&http.Request{Host: "y.abc.com", URL: mustParse("/abc")}, "http://foo.com:4000", false},
-		{&http.Request{Host: "x.abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000", false},
-		{&http.Request{Host: "y.abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000", false},
-		{&http.Request{Host: ".abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000", false},
-		{&http.Request{Host: "x.y.abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000", false},
-		{&http.Request{Host: "y.abc.com:80", URL: mustParse("/foo/")}, "http://foo.com:5000", false},
-		{&http.Request{Host: "x.aaa.abc.com", URL: mustParse("/")}, "http://foo.com:6000", false},
-		{&http.Request{Host: "x.aaa.abc.com", URL: mustParse("/foo")}, "http://foo.com:6000", false},
-		{&http.Request{Host: "x.bbb.abc.com", URL: mustParse("/")}, "http://foo.com:6100", false},
-		{&http.Request{Host: "x.bbb.abc.com", URL: mustParse("/foo")}, "http://foo.com:6100", false},
-		{&http.Request{Host: "y.abc.com:443", URL: mustParse("/foo/"), TLS: &tls.ConnectionState{}}, "http://foo.com:5000", false},
+		{&http.Request{Host: "x.abc.com", URL: mustParse("/")}, "http://foo.com:4000", globEnabled},
+		{&http.Request{Host: "y.abc.com", URL: mustParse("/abc")}, "http://foo.com:4000", globEnabled},
+		{&http.Request{Host: "x.abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000", globEnabled},
+		{&http.Request{Host: "y.abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000", globEnabled},
+		{&http.Request{Host: ".abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000", globEnabled},
+		{&http.Request{Host: "x.y.abc.com", URL: mustParse("/foo/")}, "http://foo.com:5000", globEnabled},
+		{&http.Request{Host: "y.abc.com:80", URL: mustParse("/foo/")}, "http://foo.com:5000", globEnabled},
+		{&http.Request{Host: "x.aaa.abc.com", URL: mustParse("/")}, "http://foo.com:6000", globEnabled},
+		{&http.Request{Host: "x.aaa.abc.com", URL: mustParse("/foo")}, "http://foo.com:6000", globEnabled},
+		{&http.Request{Host: "x.bbb.abc.com", URL: mustParse("/")}, "http://foo.com:6100", globEnabled},
+		{&http.Request{Host: "x.bbb.abc.com", URL: mustParse("/foo")}, "http://foo.com:6100", globEnabled},
+		{&http.Request{Host: "y.abc.com:443", URL: mustParse("/foo/"), TLS: &tls.ConnectionState{}}, "http://foo.com:5000", globEnabled},
 
 		// exact match has precedence over glob match
-		{&http.Request{Host: "z.abc.com", URL: mustParse("/foo/")}, "http://foo.com:3100", false},
+		{&http.Request{Host: "z.abc.com", URL: mustParse("/foo/")}, "http://foo.com:3100", globEnabled},
 
 		// explicit port on route
-		{&http.Request{Host: "xyz.com", URL: mustParse("/")}, "https://xyz.com", false},
+		{&http.Request{Host: "xyz.com", URL: mustParse("/")}, "https://xyz.com", globEnabled},
 	}
 
 	for i, tt := range tests {
-		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher, tt.globDisabled).URL.String(), tt.dst; got != want {
+		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher, tt.globEnabled).URL.String(), tt.dst; got != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}
