@@ -18,6 +18,7 @@ type Config struct {
 	ProfilePath          string
 	Insecure             bool
 	GlobMatchingDisabled bool
+	GlobCacheSize        int
 }
 
 type CertSource struct {

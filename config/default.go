@@ -78,4 +78,5 @@ var defaultConfig = &Config{
 		Color:  "light-green",
 		Access: "rw",
 	},
+	GlobCacheSize: 1000,
 }
