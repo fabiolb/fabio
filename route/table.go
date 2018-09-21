@@ -295,13 +295,20 @@ func normalizeHost(host string, tls bool) string {
 
 // matchingHosts returns all keys (host name patterns) from the
 // routing table which match the normalized request hostname.
-func (t Table) matchingHosts(req *http.Request) (hosts []string) {
+func (t Table) matchingHosts(req *http.Request, globCache *GlobCache) (hosts []string) {
 	host := normalizeHost(req.Host, req.TLS != nil)
 	for pattern := range t {
 		normpat := normalizeHost(pattern, req.TLS != nil)
-		// TODO setup compiled GLOBs in a separate MAP
-		// TODO Issue #548
-		g := glob.MustCompile(normpat)
+
+		// Issue 548
+		//
+		//Get Compiled Glob from LRU cache
+		g, err := globCache.Get(normpat)
+		if err != nil {
+			log.Print("[Error] Compiling glob - ", err)
+			g = glob.MustCompile(normpat)
+		}
+
 		if g.Match(host) {
 			hosts = append(hosts, pattern)
 		}
@@ -362,7 +369,7 @@ func Reverse(s string) string {
 // or nil if there is none. It first checks the routes for the host
 // and if none matches then it falls back to generic routes without
 // a host. This is useful for a catch-all '/' rule.
-func (t Table) Lookup(req *http.Request, trace string, pick picker, match matcher, globDisabled bool) (target *Target) {
+func (t Table) Lookup(req *http.Request, trace string, pick picker, match matcher, globCache *GlobCache, globDisabled bool) (target *Target) {
 
 	var hosts []string
 	if trace != "" {
@@ -379,7 +386,7 @@ func (t Table) Lookup(req *http.Request, trace string, pick picker, match matche
 	if globDisabled {
 		hosts = t.matchingHostNoGlob(req)
 	} else {
-		hosts = t.matchingHosts(req)
+		hosts = t.matchingHosts(req, globCache)
 	}
 
 	if trace != "" {

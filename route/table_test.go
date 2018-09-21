@@ -17,6 +17,9 @@ const (
 	globDisabled = true
 )
 
+//Global GlobCache for Testing
+var globCache = NewGlobCache(1000)
+
 func TestTableParse(t *testing.T) {
 	genRoutes := func(n int, format string) (a []string) {
 		for i := 0; i < n; i++ {
@@ -558,7 +561,7 @@ func TestTableLookupIssue448(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher, globEnabled).URL.String(), tt.dst; got != want {
+		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher, globCache, globEnabled).URL.String(), tt.dst; got != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}
@@ -634,7 +637,7 @@ func TestTableLookup(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher, tt.globEnabled).URL.String(), tt.dst; got != want {
+		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher, globCache, globEnabled).URL.String(), tt.dst; got != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}

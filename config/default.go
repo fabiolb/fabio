@@ -82,6 +82,7 @@ var defaultConfig = &Config{
 		Access: "rw",
 	},
 
+
 	Tracing: Tracing{
 		TracingEnabled: false,
 		CollectorType:  "http",
@@ -91,4 +92,7 @@ var defaultConfig = &Config{
 		SamplerRate:    -1,
 		SpanHost:       "localhost:9998",
 	},
+
+	GlobCacheSize: 1000,
+
 }
