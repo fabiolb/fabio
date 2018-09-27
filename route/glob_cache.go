@@ -3,14 +3,18 @@ package route
 import (
 	"github.com/gobwas/glob"
 	"sync"
+	"reflect"
+	"fmt"
 )
+
+
 
 // GlobCache implements an LRU cache for compiled glob patterns.
 type GlobCache struct {
-	mu sync.RWMutex
+	//mu sync.RWMutex
 
 	// m maps patterns to compiled glob matchers.
-	m map[string]glob.Glob
+	m sync.Map
 
 	// l contains the added patterns and serves as an LRU cache.
 	// l has a fixed size and is initialized in the constructor.
@@ -25,7 +29,6 @@ type GlobCache struct {
 
 func NewGlobCache(size int) *GlobCache {
 	return &GlobCache{
-		m: make(map[string]glob.Glob, size),
 		l: make([]string, size),
 	}
 }
@@ -35,25 +38,33 @@ func NewGlobCache(size int) *GlobCache {
 // is not in the cache it will be added.
 func (c *GlobCache) Get(pattern string) (glob.Glob, error) {
 	// fast path with read lock
-	c.mu.RLock()
-	g := c.m[pattern]
-	c.mu.RUnlock()
-	if g != nil {
-		return g, nil
+	//c.mu.RLock()
+
+	if glb, _ := c.m.Load(pattern); glb != nil {
+
+		//Type Assert the returned interface{}
+		if glbReturn, ok := glb.(*glob.Glob); ok{
+			return *glbReturn, nil
+		} else {
+			err :=fmt.Errorf("[ERROR] - Error during Glob type Conversion type - %v", reflect.TypeOf(glb))
+			return nil, err
+		}
+		//c.mu.RUnlock()
+
 	}
 
 	// slow path with write lock
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	//c.mu.Lock()
+	//defer c.mu.Unlock()
 
 	// check again to handle race condition
-	g = c.m[pattern]
-	if g != nil {
-		return g, nil
-	}
+	//g = c.m[pattern]
+	//if g != nil {
+	//	return g, nil
+	//}
 
 	// try to compile pattern
-	g, err := glob.Compile(pattern)
+	glbCompiled, err := glob.Compile(pattern)
 	if err != nil {
 		return nil, err
 	}
@@ -61,19 +72,19 @@ func (c *GlobCache) Get(pattern string) (glob.Glob, error) {
 	// if the LRU buffer is not full just append
 	// the element to the buffer.
 	if c.n < len(c.l) {
-		c.m[pattern] = g
+		c.m.Store(pattern, glbCompiled)
 		c.l[c.n] = pattern
 		c.n++
-		return g, nil
+		return glbCompiled, nil
 	}
 
 	// otherwise, remove the oldest element and move
 	// the head. Note that once the buffer is full
 	// (c.n == len(c.l)) it will never become smaller
 	// again.
-	delete(c.m, c.l[c.h])
-	c.m[pattern] = g
+	c.m.Delete(c.l[c.h])
+	c.m.Store(pattern, glbCompiled)
 	c.l[c.h] = pattern
 	c.h = (c.h + 1) % c.n
-	return g, nil
+	return glbCompiled, nil
 }
