@@ -2,17 +2,12 @@ package route
 
 import (
 	"github.com/gobwas/glob"
+	"github.com/gobwas/glob/match"
 	"sync"
-	"reflect"
-	"fmt"
 )
-
-
 
 // GlobCache implements an LRU cache for compiled glob patterns.
 type GlobCache struct {
-	//mu sync.RWMutex
-
 	// m maps patterns to compiled glob matchers.
 	m sync.Map
 
@@ -38,30 +33,11 @@ func NewGlobCache(size int) *GlobCache {
 // is not in the cache it will be added.
 func (c *GlobCache) Get(pattern string) (glob.Glob, error) {
 	// fast path with read lock
-	//c.mu.RLock()
 
-	if glb, _ := c.m.Load(pattern); glb != nil {
-
+	if glb, ok := c.m.Load(pattern); ok {
 		//Type Assert the returned interface{}
-		if glbReturn, ok := glb.(*glob.Glob); ok{
-			return *glbReturn, nil
-		} else {
-			err :=fmt.Errorf("[ERROR] - Error during Glob type Conversion type - %v", reflect.TypeOf(glb))
-			return nil, err
-		}
-		//c.mu.RUnlock()
-
+		return glb.(match.Text), nil
 	}
-
-	// slow path with write lock
-	//c.mu.Lock()
-	//defer c.mu.Unlock()
-
-	// check again to handle race condition
-	//g = c.m[pattern]
-	//if g != nil {
-	//	return g, nil
-	//}
 
 	// try to compile pattern
 	glbCompiled, err := glob.Compile(pattern)
@@ -82,6 +58,7 @@ func (c *GlobCache) Get(pattern string) (glob.Glob, error) {
 	// the head. Note that once the buffer is full
 	// (c.n == len(c.l)) it will never become smaller
 	// again.
+	// TODO add logging for cache full - How will this impact performance
 	c.m.Delete(c.l[c.h])
 	c.m.Store(pattern, glbCompiled)
 	c.l[c.h] = pattern
