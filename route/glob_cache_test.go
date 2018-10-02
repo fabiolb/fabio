@@ -11,17 +11,20 @@ func TestGlobCache(t *testing.T) {
 
 	keys := func() []string {
 		var kk []string
-		for k := range c.m {
-			kk = append(kk, k)
-		}
+		c.m.Range(func(k, v interface{}) bool {
+			kk = append(kk, k.(string))
+			return true
+		})
 		sort.Strings(kk)
 		return kk
 	}
 
 	c.Get("a")
-	if got, want := len(c.m), 1; got != want {
-		t.Fatalf("got len %d want %d", got, want)
-	}
+	// TODO  add back in when sync.Map supports Len function
+	// TODO https://github.com/golang/go/issues/20680
+	//if got, want := len(c.m), 1; got != want {
+	//	t.Fatalf("got len %d want %d", got, want)
+	//}
 	if got, want := keys(), []string{"a"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %v want %v", got, want)
 	}
@@ -30,9 +33,11 @@ func TestGlobCache(t *testing.T) {
 	}
 
 	c.Get("b")
-	if got, want := len(c.m), 2; got != want {
-		t.Fatalf("got len %d want %d", got, want)
-	}
+	// TODO  add back in when sync.Map supports Len function
+	// TODO https://github.com/golang/go/issues/20680
+	//if got, want := len(c.m), 2; got != want {
+	//	t.Fatalf("got len %d want %d", got, want)
+	//}
 	if got, want := keys(), []string{"a", "b"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %v want %v", got, want)
 	}
@@ -41,9 +46,11 @@ func TestGlobCache(t *testing.T) {
 	}
 
 	c.Get("c")
-	if got, want := len(c.m), 3; got != want {
-		t.Fatalf("got len %d want %d", got, want)
-	}
+	// TODO  add back in when sync.Map supports Len function
+	// TODO https://github.com/golang/go/issues/20680
+	//if got, want := len(c.m), 3; got != want {
+	//	t.Fatalf("got len %d want %d", got, want)
+	//}
 	if got, want := keys(), []string{"a", "b", "c"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %v want %v", got, want)
 	}
@@ -52,9 +59,11 @@ func TestGlobCache(t *testing.T) {
 	}
 
 	c.Get("d")
-	if got, want := len(c.m), 3; got != want {
-		t.Fatalf("got len %d want %d", got, want)
-	}
+	// TODO  add back in when sync.Map supports Len function
+	// TODO https://github.com/golang/go/issues/20680
+	//if got, want := len(c.m), 3; got != want {
+	//	t.Fatalf("got len %d want %d", got, want)
+	//}
 	if got, want := keys(), []string{"b", "c", "d"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %v want %v", got, want)
 	}
