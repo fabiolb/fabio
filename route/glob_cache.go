@@ -3,9 +3,6 @@ package route
 import (
 	"github.com/gobwas/glob"
 	"sync"
-
-	"fmt"
-	"github.com/gobwas/glob/match"
 )
 
 // GlobCache implements an LRU cache for compiled glob patterns.
@@ -37,49 +34,7 @@ func (c *GlobCache) Get(pattern string) (glob.Glob, error) {
 	// fast path
 	if glb, ok := c.m.Load(pattern); ok {
 		//Type Assert the returned interface{}
-		switch t := glb.(type) {
-		case match.Text:
-			return glb.(match.Text), nil
-		case match.Nothing:
-			return glb.(match.Nothing), nil
-		case match.Any:
-			return glb.(match.Any), nil
-		case match.AnyOf:
-			return glb.(match.AnyOf), nil
-		case match.BTree:
-			return glb.(match.BTree), nil
-		case match.Contains:
-			return glb.(match.Contains), nil
-		case match.EveryOf:
-			return glb.(match.EveryOf), nil
-		case match.List:
-			return glb.(match.List), nil
-		case match.Max:
-			return glb.(match.Max), nil
-		case match.Min:
-			return glb.(match.Min), nil
-		case match.Prefix:
-			return glb.(match.Prefix), nil
-		case match.PrefixSuffix:
-			return glb.(match.PrefixSuffix), nil
-		case match.PrefixAny:
-			return glb.(match.PrefixAny), nil
-		case match.Range:
-			return glb.(match.Range), nil
-		case match.Row:
-			return glb.(match.Row), nil
-		case match.Single:
-			return glb.(match.Single), nil
-		case match.Suffix:
-			return glb.(match.Suffix), nil
-		case match.SuffixAny:
-			return glb.(match.SuffixAny), nil
-		case match.Super:
-			return glb.(match.Super), nil
-		default:
-			return nil, fmt.Errorf("[ERROR] Invalid type match in glob compare (%s)", t)
-		}
-
+		return glb.(glob.Glob), nil
 	}
 
 	// try to compile pattern
