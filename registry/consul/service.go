@@ -63,7 +63,6 @@ func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix str
 		m[name][id] = true
 	}
 
-	log.Printf("BLAH - %+v", client)
 	//Create Buffered Channel
 	serviceChan := make(chan ServiceChannel, 100)
 
