@@ -21,10 +21,11 @@ type be struct {
 
 func NewBackend(cfg *config.Consul) (registry.Backend, error) {
 	// create a reusable client
-	var httpTrans = &http.Transport{MaxIdleConnsPerHost:1000,  MaxIdleConns:1000}
-	var httpClient = &http.Client{Transport:httpTrans}
+	// Updated default Idle Connections setting to avoid TIME_WAIT issues
+	var httpTrans = &http.Transport{MaxIdleConnsPerHost: cfg.ConcurrentConsulRequests *2, MaxIdleConns: cfg.ConcurrentConsulRequests *2}
+	var httpClient = &http.Client{Transport: httpTrans}
 
-	c, err := api.NewClient(&api.Config{Address: cfg.Addr, Scheme: cfg.Scheme, Token: cfg.Token, HttpClient:httpClient})
+	c, err := api.NewClient(&api.Config{Address: cfg.Addr, Scheme: cfg.Scheme, Token: cfg.Token, HttpClient: httpClient})
 
 	if err != nil {
 		return nil, err

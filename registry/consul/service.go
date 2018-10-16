@@ -17,12 +17,11 @@ import (
 
 // Channel used to pass data to serviceConfig when using Go Routines
 type ServiceChannel struct {
-	Client *api.Client
-	Name	string
-	Passing map[string]bool
+	Client    *api.Client
+	Name      string
+	Passing   map[string]bool
 	TagPrefix string
 }
-
 
 // watchServices monitors the consul health checks and creates a new configuration
 // on every change.
@@ -40,15 +39,14 @@ func watchServices(client *api.Client, config *config.Consul, svcConfig chan str
 		}
 
 		log.Printf("[DEBUG] consul: Health changed to #%d", meta.LastIndex)
-		svcConfig <- servicesConfig(client, passingServices(checks, config.ServiceStatus, strict), config.TagPrefix)
+		svcConfig <- servicesConfig(client, passingServices(checks, config.ServiceStatus, strict), config.TagPrefix, config.ConcurrentConsulRequests)
 		lastIndex = meta.LastIndex
 	}
 }
 
-
 // servicesConfig determines which service instances have passing health checks
 // and then finds the ones which have tags with the right prefix to build the config from.
-func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix string) string {
+func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix string, concurrentRequests int) string {
 	// map service name to list of service passing for which the health check is ok
 	m := map[string]map[string]bool{}
 	for _, check := range checks {
@@ -64,21 +62,21 @@ func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix str
 	}
 
 	//Create Buffered Channel
-	serviceChan := make(chan ServiceChannel, 100)
+	serviceChan := make(chan ServiceChannel, concurrentRequests)
 
 	//Create Wait Group
 	var wg sync.WaitGroup
 	//config is where the update strings are stored
 	var config []string
 
-	//Spin up 100 Go Routines for getting service info from Consul
-	for i := 1; i <= 100; i++ {
+	//Spin up Go Routines for getting service info from Consul
+	for i := 1; i <= concurrentRequests; i++ {
 		wg.Add(1)
 		go serviceConfig(serviceChan, &wg, &config)
 	}
 	//Call serviceConfig Go Routines for every service
 	for name, passing := range m {
-		serviceChan <- ServiceChannel {Client:client, Name:name, Passing:passing, TagPrefix:tagPrefix}
+		serviceChan <- ServiceChannel{Client: client, Name: name, Passing: passing, TagPrefix: tagPrefix}
 	}
 
 	close(serviceChan)
@@ -94,7 +92,7 @@ func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix str
 func serviceConfig(ch chan ServiceChannel, wg *sync.WaitGroup, config *[]string) {
 
 	defer wg.Done()
-	for service := range ch{
+	for service := range ch {
 		if service.Name == "" || len(service.Passing) == 0 {
 			return
 		}
