@@ -77,10 +77,13 @@ func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix str
 	//Call serviceConfig Go Routines for every service
 	for name, passing := range m {
 		serviceChan <- ServiceChannel{Client: client, Name: name, Passing: passing, TagPrefix: tagPrefix}
+		log.Printf("BEFORE LOOP IS DONE %v", len(serviceChan))
 	}
-
+	log.Printf("AFTER LOOP IS DONE %v", len(serviceChan))
 	close(serviceChan)
+	log.Printf("AFTER CHAN CLOSE IS DONE %v", len(serviceChan))
 	wg.Wait()
+	log.Printf("AFTER WAIT IS DONE %v", len(serviceChan))
 
 	// sort config in reverse order to sort most specific config to the top
 	sort.Sort(sort.Reverse(sort.StringSlice(config)))
