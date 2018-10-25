@@ -21,6 +21,17 @@
 
 #### Improvements
 
+ * [PR #497](https://github.com/fabiolb/fabio/pull/497): Make tests pass with latest Consul and Vault versions
+ 
+   Thanks to [@pschultz](https://github.com/pschultz) for the patch.
+
+ * [PR #531](https://github.com/fabiolb/fabio/pull/531): Set flush buffer interval for non-SSE requests
+
+   This PR adds a `proxy.globalflushinterval` option to configure an interval when the HTTP Response 
+   Buffer is flushed.
+
+   Thanks to [@samm-git](https://github.com/samm-git) for the patch.
+
  * [Issue #542](https://github.com/fabiolb/fabio/issues/542): Ignore host case when adding and matching routes
 
   Fabio was forcing hostnames in routes added via Consul tags to lowercase.  This caused problems
@@ -30,6 +41,15 @@
   host based table lookups in fabio are no longer case sensitive.
 
   Thanks to [@shantanugadgil](https://github.com/shantanugadgil) for the patch.
+
+ * [Issue #548](https://github.com/fabiolb/fabio/issues/548): Slow glob matching with large number of services
+ 
+   This patch adds the new `glob.matching.enabled` option which controls whether glob matching is enabled for
+   route lookups. If the number of routes is large then the glob matching can have a performance impact and
+   disabling it may help.
+
+  Thanks to [@galen0624](https://github.com/galen0624) for the patch and 
+  [@leprechau](https://github.com/leprechau) for the review.
 
 #### Features
 
@@ -322,6 +342,7 @@ urlprefix-/foo redirect=301,https://www.foo.com$path
  * [PR #315](https://github.com/fabiolb/fabio/pull/315)/[Issue #135](https://github.com/fabiolb/fabio/issues/135): Vault PKI cert source
 
    This adds support for using [Vault](https://vaultproject.io/) as a PKI cert source.
+
    Thanks to [@pschultz](https://github.com/pschultz) for providing this patch!
 
 #### Bug Fixes
