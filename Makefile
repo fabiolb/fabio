@@ -70,7 +70,7 @@ pkg: build test
 # later targets can pick up the new tag value.
 release:
 	$(MAKE) tag
-	$(MAKE) preflight docker-test gorelease homebrew docker-aliases
+	$(MAKE) preflight docker-test gorelease homebrew
 
 # preflight runs some checks before a release
 preflight:
@@ -90,14 +90,6 @@ gorelease:
 # handle taps right now.
 homebrew:
 	build/homebrew.sh $(LAST_TAG)
-
-# docker-aliases creates aliases for the docker containers
-# since goreleaser doesn't handle that properly yet
-docker-aliases:
-	docker tag fabiolb/fabio:$(VERSION)-$(GOVERSION) magiconair/fabio:$(VERSION)-$(GOVERSION)
-	docker tag fabiolb/fabio:$(VERSION)-$(GOVERSION) magiconair/fabio:latest
-	docker push magiconair/fabio:$(VERSION)-$(GOVERSION)
-	docker push magiconair/fabio:latest
 
 # docker-test runs make test in a Docker container with
 # pinned versions of the external dependencies
