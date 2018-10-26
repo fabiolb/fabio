@@ -2,7 +2,7 @@ module github.com/fabiolb/fabio
 
 require (
 	github.com/armon/go-proxyproto v0.0.0-20150207025855-609d6338d3a7
-	github.com/circonus-labs/circonus-gometrics v0.0.0-20160830164725-f8c68ed96a06
+	github.com/circonus-labs/circonus-gometrics v1.0.0
 	github.com/circonus-labs/circonusllhist v0.0.0-20160526043813-d724266ae527 // indirect
 	github.com/cyberdelia/go-metrics-graphite v0.0.0-20150826032200-b8345b7f01d5
 	github.com/fatih/structs v0.0.0-20160601093117-5ada2f449b10 // indirect

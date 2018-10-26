@@ -16,6 +16,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -58,17 +59,20 @@ type CheckConfig struct {
 	// used to search for a check to use
 	// used as check.target when creating a check
 	InstanceID string
-	// unique check searching tag
+	// explicitly set check.target (default: instance id)
+	TargetHost string
+	// a custom display name for the check (as viewed in UI Checks)
+	// default: instance id
+	DisplayName string
+	// unique check searching tag (or tags)
 	// used to search for a check to use (combined with instanceid)
 	// used as a regular tag when creating a check
 	SearchTag string
-	// a custom display name for the check (as viewed in UI Checks)
-	DisplayName string
 	// httptrap check secret (for creating a check)
 	Secret string
 	// additional tags to add to a check (when creating a check)
 	// these tags will not be added to an existing check
-	Tags []string
+	Tags string
 	// max amount of time to to hold on to a submission url
 	// when a given submission fails (due to retries) if the
 	// time the url was last updated is > than this, the trap
@@ -81,14 +85,18 @@ type CheckConfig struct {
 	// overrides the behavior and will re-activate the metric when it is
 	// encountered. "(true|false)", default "false"
 	ForceMetricActivation string
+	// Type of check to use (default: httptrap)
+	Type string
+	// Custom check config fields (default: none)
+	CustomConfigFields map[string]string
 }
 
 // BrokerConfig options for broker
 type BrokerConfig struct {
 	// a specific broker id (numeric portion of cid)
 	ID string
-	// a tag that can be used to select 1-n brokers from which to select
-	// when creating a new check (e.g. datacenter:abc)
+	// one or more tags used to select 1-n brokers from which to select
+	// when creating a new check (e.g. datacenter:abc or loc:dfw,dc:abc)
 	SelectTag string
 	// for a broker to be considered viable it must respond to a
 	// connection attempt within this amount of time e.g. 200ms, 2s, 1m
@@ -114,11 +122,14 @@ type CheckTypeType string
 // CheckInstanceIDType check instance id
 type CheckInstanceIDType string
 
+// CheckTargetType check target/host
+type CheckTargetType string
+
 // CheckSecretType check secret
 type CheckSecretType string
 
 // CheckTagsType check tags
-type CheckTagsType []string
+type CheckTagsType string
 
 // CheckDisplayNameType check display name
 type CheckDisplayNameType string
@@ -133,31 +144,43 @@ type CheckManager struct {
 	Debug   bool
 	apih    *api.API
 
+	initialized   bool
+	initializedmu sync.RWMutex
+
 	// check
 	checkType             CheckTypeType
 	checkID               api.IDType
 	checkInstanceID       CheckInstanceIDType
-	checkSearchTag        api.SearchTagType
+	checkTarget           CheckTargetType
+	checkSearchTag        api.TagType
 	checkSecret           CheckSecretType
-	checkTags             CheckTagsType
+	checkTags             api.TagType
+	customConfigFields    map[string]string
 	checkSubmissionURL    api.URLType
 	checkDisplayName      CheckDisplayNameType
 	forceMetricActivation bool
+	forceCheckUpdate      bool
+
+	// metric tags
+	metricTags map[string][]string
+	mtmu       sync.Mutex
 
 	// broker
 	brokerID              api.IDType
-	brokerSelectTag       api.SearchTagType
+	brokerSelectTag       api.TagType
 	brokerMaxResponseTime time.Duration
 
 	// state
-	checkBundle      *api.CheckBundle
-	availableMetrics map[string]bool
-	trapURL          api.URLType
-	trapCN           BrokerCNType
-	trapLastUpdate   time.Time
-	trapMaxURLAge    time.Duration
-	trapmu           sync.Mutex
-	certPool         *x509.CertPool
+	checkBundle        *api.CheckBundle
+	cbmu               sync.Mutex
+	availableMetrics   map[string]bool
+	availableMetricsmu sync.Mutex
+	trapURL            api.URLType
+	trapCN             BrokerCNType
+	trapLastUpdate     time.Time
+	trapMaxURLAge      time.Duration
+	trapmu             sync.Mutex
+	certPool           *x509.CertPool
 }
 
 // Trap config
@@ -168,58 +191,58 @@ type Trap struct {
 
 // NewCheckManager returns a new check manager
 func NewCheckManager(cfg *Config) (*CheckManager, error) {
+	return New(cfg)
+}
+
+// New returns a new check manager
+func New(cfg *Config) (*CheckManager, error) {
 
 	if cfg == nil {
-		return nil, errors.New("Invalid Check Manager configuration (nil).")
+		return nil, errors.New("invalid Check Manager configuration (nil)")
 	}
 
-	cm := &CheckManager{
-		enabled: false,
-	}
+	cm := &CheckManager{enabled: true, initialized: false}
 
+	// Setup logging for check manager
 	cm.Debug = cfg.Debug
-
 	cm.Log = cfg.Log
+	if cm.Debug && cm.Log == nil {
+		cm.Log = log.New(os.Stderr, "", log.LstdFlags)
+	}
 	if cm.Log == nil {
-		if cm.Debug {
-			cm.Log = log.New(os.Stderr, "", log.LstdFlags)
-		} else {
-			cm.Log = log.New(ioutil.Discard, "", log.LstdFlags)
-		}
+		cm.Log = log.New(ioutil.Discard, "", log.LstdFlags)
 	}
 
 	if cfg.Check.SubmissionURL != "" {
 		cm.checkSubmissionURL = api.URLType(cfg.Check.SubmissionURL)
 	}
+
 	// Blank API Token *disables* check management
 	if cfg.API.TokenKey == "" {
-		if cm.checkSubmissionURL == "" {
-			return nil, errors.New("Invalid check manager configuration (no API token AND no submission url).")
-		}
-		if err := cm.initializeTrapURL(); err != nil {
+		cm.enabled = false
+	}
+
+	if !cm.enabled && cm.checkSubmissionURL == "" {
+		return nil, errors.New("invalid check manager configuration (no API token AND no submission url)")
+	}
+
+	if cm.enabled {
+		// initialize api handle
+		cfg.API.Debug = cm.Debug
+		cfg.API.Log = cm.Log
+		apih, err := api.New(&cfg.API)
+		if err != nil {
 			return nil, err
 		}
-		return cm, nil
+		cm.apih = apih
 	}
-
-	// enable check manager
-
-	cm.enabled = true
-
-	// initialize api handle
-
-	cfg.API.Debug = cm.Debug
-	cfg.API.Log = cm.Log
-
-	apih, err := api.NewAPI(&cfg.API)
-	if err != nil {
-		return nil, err
-	}
-	cm.apih = apih
 
 	// initialize check related data
-
-	cm.checkType = defaultCheckType
+	if cfg.Check.Type != "" {
+		cm.checkType = CheckTypeType(cfg.Check.Type)
+	} else {
+		cm.checkType = defaultCheckType
+	}
 
 	idSetting := "0"
 	if cfg.Check.ID != "" {
@@ -232,10 +255,9 @@ func NewCheckManager(cfg *Config) (*CheckManager, error) {
 	cm.checkID = api.IDType(id)
 
 	cm.checkInstanceID = CheckInstanceIDType(cfg.Check.InstanceID)
+	cm.checkTarget = CheckTargetType(cfg.Check.TargetHost)
 	cm.checkDisplayName = CheckDisplayNameType(cfg.Check.DisplayName)
-	cm.checkSearchTag = api.SearchTagType(cfg.Check.SearchTag)
 	cm.checkSecret = CheckSecretType(cfg.Check.Secret)
-	cm.checkTags = cfg.Check.Tags
 
 	fma := defaultForceMetricActivation
 	if cfg.Check.ForceMetricActivation != "" {
@@ -255,13 +277,28 @@ func NewCheckManager(cfg *Config) (*CheckManager, error) {
 	if cm.checkInstanceID == "" {
 		cm.checkInstanceID = CheckInstanceIDType(fmt.Sprintf("%s:%s", hn, an))
 	}
-
-	if cm.checkSearchTag == "" {
-		cm.checkSearchTag = api.SearchTagType(fmt.Sprintf("service:%s", an))
+	if cm.checkDisplayName == "" {
+		cm.checkDisplayName = CheckDisplayNameType(cm.checkInstanceID)
+	}
+	if cm.checkTarget == "" {
+		cm.checkTarget = CheckTargetType(cm.checkInstanceID)
 	}
 
-	if cm.checkDisplayName == "" {
-		cm.checkDisplayName = CheckDisplayNameType(fmt.Sprintf("%s /cgm", string(cm.checkInstanceID)))
+	if cfg.Check.SearchTag == "" {
+		cm.checkSearchTag = []string{fmt.Sprintf("service:%s", an)}
+	} else {
+		cm.checkSearchTag = strings.Split(strings.Replace(cfg.Check.SearchTag, " ", "", -1), ",")
+	}
+
+	if cfg.Check.Tags != "" {
+		cm.checkTags = strings.Split(strings.Replace(cfg.Check.Tags, " ", "", -1), ",")
+	}
+
+	cm.customConfigFields = make(map[string]string)
+	if len(cfg.Check.CustomConfigFields) > 0 {
+		for fld, val := range cfg.Check.CustomConfigFields {
+			cm.customConfigFields[fld] = val
+		}
 	}
 
 	dur := cfg.Check.MaxURLAge
@@ -275,7 +312,6 @@ func NewCheckManager(cfg *Config) (*CheckManager, error) {
 	cm.trapMaxURLAge = maxDur
 
 	// setup broker
-
 	idSetting = "0"
 	if cfg.Broker.ID != "" {
 		idSetting = cfg.Broker.ID
@@ -286,7 +322,9 @@ func NewCheckManager(cfg *Config) (*CheckManager, error) {
 	}
 	cm.brokerID = api.IDType(id)
 
-	cm.brokerSelectTag = api.SearchTagType(cfg.Broker.SelectTag)
+	if cfg.Broker.SelectTag != "" {
+		cm.brokerSelectTag = strings.Split(strings.Replace(cfg.Broker.SelectTag, " ", "", -1), ",")
+	}
 
 	dur = cfg.Broker.MaxResponseTime
 	if dur == "" {
@@ -300,20 +338,56 @@ func NewCheckManager(cfg *Config) (*CheckManager, error) {
 
 	// metrics
 	cm.availableMetrics = make(map[string]bool)
-
-	if err := cm.initializeTrapURL(); err != nil {
-		return nil, err
-	}
+	cm.metricTags = make(map[string][]string)
 
 	return cm, nil
 }
 
-// GetTrap return the trap url
-func (cm *CheckManager) GetTrap() (*Trap, error) {
-	if cm.trapURL == "" {
-		if err := cm.initializeTrapURL(); err != nil {
-			return nil, err
+// Initialize for sending metrics
+func (cm *CheckManager) Initialize() {
+
+	// if not managing the check, quicker initialization
+	if !cm.enabled {
+		err := cm.initializeTrapURL()
+		if err == nil {
+			cm.initializedmu.Lock()
+			cm.initialized = true
+			cm.initializedmu.Unlock()
+		} else {
+			cm.Log.Printf("[WARN] error initializing trap %s", err.Error())
 		}
+		return
+	}
+
+	// background initialization when we have to reach out to the api
+	go func() {
+		cm.apih.EnableExponentialBackoff()
+		err := cm.initializeTrapURL()
+		if err == nil {
+			cm.initializedmu.Lock()
+			cm.initialized = true
+			cm.initializedmu.Unlock()
+		} else {
+			cm.Log.Printf("[WARN] error initializing trap %s", err.Error())
+		}
+		cm.apih.DisableExponentialBackoff()
+	}()
+}
+
+// IsReady reflects if the check has been initialied and metrics can be sent to Circonus
+func (cm *CheckManager) IsReady() bool {
+	cm.initializedmu.RLock()
+	defer cm.initializedmu.RUnlock()
+	return cm.initialized
+}
+
+// GetSubmissionURL returns submission url for circonus
+func (cm *CheckManager) GetSubmissionURL() (*Trap, error) {
+	if cm.trapURL == "" {
+		return nil, fmt.Errorf("[ERROR] no submission url currently available")
+		// if err := cm.initializeTrapURL(); err != nil {
+		// 	return nil, err
+		// }
 	}
 
 	trap := &Trap{}
@@ -327,7 +401,9 @@ func (cm *CheckManager) GetTrap() (*Trap, error) {
 
 	if u.Scheme == "https" {
 		if cm.certPool == nil {
-			cm.loadCACert()
+			if err := cm.loadCACert(); err != nil {
+				return nil, err
+			}
 		}
 		t := &tls.Config{
 			RootCAs: cm.certPool,
