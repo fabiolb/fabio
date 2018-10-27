@@ -57,6 +57,7 @@ var defaultConfig = &Config{
 			ServiceAddr:                         ":9998",
 			ServiceName:                         "fabio",
 			ServiceStatus:                       []string{"passing"},
+			ServiceMonitors:                     1,
 			CheckInterval:                       time.Second,
 			CheckTimeout:                        3 * time.Second,
 			CheckScheme:                         "http",

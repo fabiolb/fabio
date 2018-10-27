@@ -71,9 +71,25 @@ func (w *ServiceMonitor) makeConfig(checks []*api.HealthCheck) string {
 		m[name][id] = true
 	}
 
-	var config []string
+	n := w.config.ServiceMonitors
+	if n <= 0 {
+		n = 1
+	}
+
+	sem := make(chan int, n)
+	cfgs := make(chan []string, len(m))
 	for name, passing := range m {
-		cfg := w.serviceConfig(name, passing)
+		name, passing := name, passing
+		go func() {
+			sem <- 1
+			cfgs <- w.serviceConfig(name, passing)
+			<-sem
+		}()
+	}
+
+	var config []string
+	for i := 0; i < len(m); i++ {
+		cfg := <-cfgs
 		config = append(config, cfg...)
 	}
 

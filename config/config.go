@@ -146,6 +146,7 @@ type Consul struct {
 	CheckTLSSkipVerify                  bool
 	CheckDeregisterCriticalServiceAfter string
 	ChecksRequired                      string
+	ServiceMonitors                     int
 }
 
 type Tracing struct {
