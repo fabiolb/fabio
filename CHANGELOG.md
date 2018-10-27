@@ -48,7 +48,7 @@
 
  * [Issue #548](https://github.com/fabiolb/fabio/issues/548): Slow glob matching with large number of services
 
-   This patch adds the new `glob.matching.enabled` option which controls whether glob matching is enabled for
+   This patch adds the new `glob.matching.disabled` option which controls whether glob matching is enabled for
    route lookups. If the number of routes is large then the glob matching can have a performance impact and
    disabling it may help.
 
