@@ -33,7 +33,7 @@ func (r routecmd) build() []string {
 		}
 	}
 
-	
+
 	// generate route commands
 	var config []string
 	for _, tag := range routetags {
