@@ -612,6 +612,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-registry.consul.serviceMonitors", "5"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.ServiceMonitors = 5
+				return cfg
+			},
+		},
+		{
 			args: []string{"-log.access.format", "foobar"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Log.AccessFormat = "foobar"

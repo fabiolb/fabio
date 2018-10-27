@@ -179,6 +179,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.BoolVar(&cfg.Registry.Consul.CheckTLSSkipVerify, "registry.consul.register.checkTLSSkipVerify", defaultConfig.Registry.Consul.CheckTLSSkipVerify, "service check TLS verification")
 	f.StringVar(&cfg.Registry.Consul.CheckDeregisterCriticalServiceAfter, "registry.consul.register.checkDeregisterCriticalServiceAfter", defaultConfig.Registry.Consul.CheckDeregisterCriticalServiceAfter, "critical service deregistration timeout")
 	f.StringVar(&cfg.Registry.Consul.ChecksRequired, "registry.consul.checksRequired", defaultConfig.Registry.Consul.ChecksRequired, "number of checks which must pass: one or all")
+	f.IntVar(&cfg.Registry.Consul.ServiceMonitors, "registry.consul.serviceMonitors", defaultConfig.Registry.Consul.ServiceMonitors, "concurrency for route updates")
 	f.IntVar(&cfg.Runtime.GOGC, "runtime.gogc", defaultConfig.Runtime.GOGC, "sets runtime.GOGC")
 	f.IntVar(&cfg.Runtime.GOMAXPROCS, "runtime.gomaxprocs", defaultConfig.Runtime.GOMAXPROCS, "sets runtime.GOMAXPROCS")
 	f.StringVar(&cfg.UI.Access, "ui.access", defaultConfig.UI.Access, "access mode, one of [ro, rw]")
@@ -235,6 +236,10 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	cfg.Registry.Consul.CheckScheme = defaultConfig.Registry.Consul.CheckScheme
 	if cfg.UI.Listen.CertSource.Name != "" {
 		cfg.Registry.Consul.CheckScheme = "https"
+	}
+
+	if cfg.Registry.Consul.ServiceMonitors <= 0 {
+		cfg.Registry.Consul.ServiceMonitors = 1
 	}
 
 	if gzipContentTypesValue != "" {
