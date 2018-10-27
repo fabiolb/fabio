@@ -1,6 +1,58 @@
 package consul
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+
+	"github.com/hashicorp/consul/api"
+)
+
+func TestRouteCmd(t *testing.T) {
+	cases := []struct {
+		name string
+		r    routecmd
+		cfg  []string
+	}{
+		{
+			name: "http",
+			r: routecmd{
+				prefix: "p-",
+				svc: &api.CatalogService{
+					ServiceName:    "svc-1",
+					ServiceAddress: "1.1.1.1",
+					ServicePort:    2222,
+					ServiceTags:    []string{`p-foo/bar`},
+				},
+			},
+			cfg: []string{
+				`route add svc-1 foo/bar http://1.1.1.1:2222/`,
+			},
+		},
+		{
+			name: "tcp",
+			r: routecmd{
+				prefix: "p-",
+				svc: &api.CatalogService{
+					ServiceName:    "svc-1",
+					ServiceAddress: "1.1.1.1",
+					ServicePort:    2222,
+					ServiceTags:    []string{`p-:1234 proto=tcp`},
+				},
+			},
+			cfg: []string{
+				`route add svc-1 :1234 tcp://1.1.1.1:2222`,
+			},
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got, want := c.r.build(), c.cfg; !reflect.DeepEqual(got, want) {
+				t.Fatalf("\ngot  %#v\nwant %#v", got, want)
+			}
+		})
+	}
+}
 
 func TestParseTag(t *testing.T) {
 	prefix := "p-"
