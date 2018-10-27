@@ -125,8 +125,9 @@ func (b *be) WatchServices() chan string {
 	log.Printf("[INFO] consul: Using dynamic routes")
 	log.Printf("[INFO] consul: Using tag prefix %q", b.cfg.TagPrefix)
 
+	m := NewServiceMonitor(b.c, b.cfg, b.dc)
 	svc := make(chan string)
-	go watchServices(b.c, b.cfg, svc)
+	go m.Watch(svc)
 	return svc
 }
 
