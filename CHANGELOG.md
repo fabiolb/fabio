@@ -1,5 +1,22 @@
 ## Changelog
 
+### Unreleased
+
+#### Breaking Changes
+
+#### Bug Fixes
+
+#### Improvements
+
+#### Features
+
+ * [PR #429](https://github.com/fabiolb/fabio/issues/429): Support for opentracing
+
+   This patch adds support for opentracing.
+
+   Thanks to Jeremy White, Kristina Fischer, Micheal Murphz, Nathan West,
+   Austin Hartzheim and Jacob Hansen for this patch!
+
 ### [v1.5.10](https://github.com/fabiolb/fabio/releases/tag/v1.5.10) - 25 Oct 2018
 
 #### Breaking Changes
