@@ -8,7 +8,7 @@ test-and-lint: test lint
 
 .PHONY: test
 test:
-	go test -v -cover -race ./...
+	go test -v -cover ./...
 
 cover:
 	@rm -rf cover-all.out
