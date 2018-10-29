@@ -17,6 +17,13 @@
    Thanks to Jeremy White, Kristina Fischer, Micheal Murphz, Nathan West,
    Austin Hartzheim and Jacob Hansen for this patch!
 
+ * [PR #553](https://github.com/fabiolb/fabio/issues/553): Support for case-insensitive matching
+
+   This patch adds a new `iprefix` option to the `proxy.matcher` to support case-insensitive
+   path prefix matching.
+
+   Thanks to [@herbrandson](https://github.com/herbrandson) for the patch.
+
 ### [v1.5.10](https://github.com/fabiolb/fabio/releases/tag/v1.5.10) - 25 Oct 2018
 
 #### Breaking Changes
