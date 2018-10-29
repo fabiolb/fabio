@@ -33,30 +33,32 @@ func TestProxyWSUpstream(t *testing.T) {
 	defer wssServer.Close()
 	t.Log("Started WSS server: ", wssServer.URL)
 
+	globDisabled := false
+
 	routes := "route add ws /ws  " + wsServer.URL + "\n"
 	routes += "route add ws /wss " + wssServer.URL + ` opts "proto=https"` + "\n"
 	routes += "route add ws /insecure " + wssServer.URL + ` opts "proto=https tlsskipverify=true"` + "\n"
 	routes += "route add ws /foo/strip  " + wsServer.URL + ` opts "strip=/foo"` + "\n"
 
 	httpProxy := httptest.NewServer(&HTTPProxy{
-		Config:            &config.Config{Proxy: config.Proxy{NoRouteStatus: 404, GZIPContentTypes: regexp.MustCompile(".*")}},
+		Config:            config.Proxy{NoRouteStatus: 404, GZIPContentTypes: regexp.MustCompile(".*")},
 		Transport:         &http.Transport{TLSClientConfig: tlsClientConfig()},
 		InsecureTransport: &http.Transport{TLSClientConfig: tlsInsecureConfig()},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable(routes)
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globDisabled)
 		},
 	})
 	defer httpProxy.Close()
 	t.Log("Started HTTP proxy: ", httpProxy.URL)
 
 	httpsProxy := httptest.NewUnstartedServer(&HTTPProxy{
-		Config:            &config.Config{Proxy: config.Proxy{NoRouteStatus: 404}},
+		Config:            config.Proxy{NoRouteStatus: 404},
 		Transport:         &http.Transport{TLSClientConfig: tlsClientConfig()},
 		InsecureTransport: &http.Transport{TLSClientConfig: tlsInsecureConfig()},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable(routes)
-			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"])
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globDisabled)
 		},
 	})
 	httpsProxy.TLS = tlsServerConfig()

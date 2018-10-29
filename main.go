@@ -44,7 +44,7 @@ import (
 // It is also set by the linker when fabio
 // is built via the Makefile or the build/docker.sh
 // script to ensure the correct version nubmer
-var version = "1.5.9"
+var version = "1.5.10"
 
 var shuttingDown int32
 
@@ -183,11 +183,11 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 	}
 
 	return &proxy.HTTPProxy{
-		Config:            cfg,
+		Config:            cfg.Proxy,
 		Transport:         newTransport(nil),
 		InsecureTransport: newTransport(&tls.Config{InsecureSkipVerify: true}),
 		Lookup: func(r *http.Request) *route.Target {
-			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match)
+			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match, cfg.GlobMatchingDisabled)
 			if t == nil {
 				notFound.Inc(1)
 				log.Print("[WARN] No route for ", r.Host, r.URL)

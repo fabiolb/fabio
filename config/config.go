@@ -7,18 +7,21 @@ import (
 )
 
 type Config struct {
-	Proxy       Proxy
-	Registry    Registry
-	Listen      []Listen
-	Log         Log
-	Metrics     Metrics
-	UI          UI
-	Runtime     Runtime
+
+	Proxy                Proxy
+	Registry             Registry
+	Listen               []Listen
+	Log                  Log
+	Metrics              Metrics
+	UI                   UI
+	Runtime              Runtime
 	Tracing     Tracing
-	FastCGI     FastCGI
-	ProfileMode string
-	ProfilePath string
-	Insecure    bool
+	ProfileMode          string
+	ProfilePath          string
+	Insecure             bool
+	GlobMatchingDisabled bool
+
+
 }
 
 type CertSource struct {
@@ -61,6 +64,7 @@ type Proxy struct {
 	ResponseHeaderTimeout time.Duration
 	KeepAliveTimeout      time.Duration
 	FlushInterval         time.Duration
+	GlobalFlushInterval   time.Duration
 	LocalIP               string
 	ClientIPHeader        string
 	TLSHeader             string
@@ -157,10 +161,3 @@ type Tracing struct {
 	SpanHost       string
 }
 
-type FastCGI struct {
-	Index        string
-	Root         string
-	SplitPath    string
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
-}

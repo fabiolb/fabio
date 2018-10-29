@@ -46,10 +46,6 @@ and you need to add a separate `urlprefix-` tag for every `host/path` prefix the
 
 	# TCP examples
 	urlprefix-:3306 proto=tcp                          # route external port 3306
-
-    # Fast-CGI example
-    urlprefix-/blog proto=fcgi
-    urlprefix-/home proto=fcgi strip=/home
 	```
 
 5. Start fabio without a config file

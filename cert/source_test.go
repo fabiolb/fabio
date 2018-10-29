@@ -9,6 +9,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"math/big"
@@ -250,8 +251,18 @@ func TestConsulSource(t *testing.T) {
 			resp, err := http.Get("http://127.0.0.1:8500/v1/status/leader")
 			// /v1/status/leader returns '\n""' while consul is in leader election mode
 			// and '"127.0.0.1:8300"' when not. So we punt by checking the
-			// Content-Length header instead of the actual body content :)
-			return err == nil && resp.StatusCode == 200 && resp.ContentLength > 10
+			// body length instead of the actual body content :)
+			if err != nil {
+				return false
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode != 200 {
+				return false
+			}
+
+			n, err := io.Copy(ioutil.Discard, resp.Body)
+			return err == nil && n > 10
 		}
 
 		// We need give consul ~8-10 seconds to become ready until I've
@@ -336,6 +347,15 @@ func vaultServer(t *testing.T, addr, rootToken string) (*exec.Cmd, *vaultapi.Cli
 	}
 
 	path "secret/fabio/cert/*" {
+	  capabilities = ["read"]
+	}
+
+	# Vault >= 0.10. (KV Version 2)
+	path "secret/metadata/fabio/cert/" {
+	  capabilities = ["list"]
+	}
+
+	path "secret/data/fabio/cert/*" {
 	  capabilities = ["read"]
 	}
 
@@ -425,7 +445,26 @@ func TestVaultSource(t *testing.T) {
 	// create a cert and store it in vault
 	certPEM, keyPEM := makePEM("localhost", time.Minute)
 	data := map[string]interface{}{"cert": string(certPEM), "key": string(keyPEM)}
-	if _, err := client.Logical().Write(certPath+"/localhost", data); err != nil {
+
+	var nilSource *VaultSource // for calling helper methods
+
+	mountPath, v2, err := nilSource.isKVv2(certPath, client)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p := certPath + "/localhost"
+	if v2 {
+		t.Log("Vault: KV backend: V2")
+		data = map[string]interface{}{
+			"data":    data,
+			"options": map[string]interface{}{},
+		}
+		p = nilSource.addPrefixToVKVPath(p, mountPath, "data")
+	} else {
+		t.Log("Vault: KV backend: V1")
+	}
+	if _, err := client.Logical().Write(p, data); err != nil {
 		t.Fatalf("logical.Write failed: %s", err)
 	}
 

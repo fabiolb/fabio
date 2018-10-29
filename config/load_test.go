@@ -363,6 +363,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-proxy.globalflushinterval", "5ms"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.GlobalFlushInterval = 5 * time.Millisecond
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.maxconn", "555"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Proxy.MaxConn = 555

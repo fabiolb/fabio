@@ -32,7 +32,7 @@ func TestIssue57(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%d: got %v want nil", i, err)
 		}
-		target := tbl.Lookup(req, "", rrPicker, prefixMatcher)
+		target := tbl.Lookup(req, "", rrPicker, prefixMatcher, globEnabled)
 		if target == nil {
 			t.Fatalf("%d: got %v want %v", i, target, want)
 		}

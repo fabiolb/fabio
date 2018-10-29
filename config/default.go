@@ -36,13 +36,14 @@ var defaultConfig = &Config{
 		},
 	},
 	Proxy: Proxy{
-		MaxConn:       10000,
-		Strategy:      "rnd",
-		Matcher:       "prefix",
-		NoRouteStatus: 404,
-		DialTimeout:   30 * time.Second,
-		FlushInterval: time.Second,
-		LocalIP:       LocalIPString(),
+		MaxConn:             10000,
+		Strategy:            "rnd",
+		Matcher:             "prefix",
+		NoRouteStatus:       404,
+		DialTimeout:         30 * time.Second,
+		FlushInterval:       time.Second,
+		GlobalFlushInterval: 0,
+		LocalIP:             LocalIPString(),
 	},
 	Registry: Registry{
 		Backend: "consul",
@@ -88,11 +89,4 @@ var defaultConfig = &Config{
 		SpanHost:       "localhost:9998",
 	},
 
-	FastCGI: FastCGI{
-		Root:         "",
-		Index:        "index.php",
-		SplitPath:    ".php",
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-	},
 }

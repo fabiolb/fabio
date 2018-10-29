@@ -40,9 +40,9 @@ The source ip used for validation against the defined ruleset is
 taken from information available in the request.
 
 For `HTTP` requests the client `RemoteAddr` is always validated
-followed by the first element of the `X-Forwarded-For` header, if
-present.  When either of these elements match an `allow` the request
-will be allowed; similarly when either element matches a `deny` the
+followed by all elements of the `X-Forwarded-For` header, if
+present.  When all of these elements match an `allow` the request
+will be allowed; similarly when any element matches a `deny` the
 request will be denied.
 
 For `TCP` requests the source address of the network socket

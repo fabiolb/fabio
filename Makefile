@@ -20,16 +20,9 @@ GOVERSION = $(shell go version | awk '{print $$3;}')
 # GORELEASER is the path to the goreleaser binary.
 GORELEASER = $(shell which goreleaser)
 
-# GOVENDOR is the path to the govendor binary.
-GOVENDOR = $(shell which govendor)
-
-# VENDORFMT is the path to the vendorfmt binary.
-VENDORFMT = $(shell which vendorfmt)
-
 # pin versions for CI builds
-CI_CONSUL_VERSION=1.0.6
-CI_VAULT_VERSION=0.9.6
-CI_GO_VERSION=1.10.2
+CI_CONSUL_VERSION=1.3.0
+CI_VAULT_VERSION=0.11.4
 
 # all is the default target
 all: test
@@ -46,22 +39,12 @@ help:
 	@echo "clean     - remove temp files"
 
 # build compiles fabio and the test dependencies
-build: checkdeps vendorfmt gofmt
+build: gofmt
 	go build
 
 # test runs the tests
 test: build
 	go test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
-
-# checkdeps ensures that all required dependencies are vendored in
-checkdeps:
-	[ -x "$(GOVENDOR)" ] || go get -u github.com/kardianos/govendor
-	govendor list +e | grep '^ e ' && { echo "Found missing packages. Please run 'govendor add +e'"; exit 1; } || : echo
-
-# vendorfmt ensures that the vendor/vendor.json file is formatted correctly
-vendorfmt:
-	[ -x "$(VENDORFMT)" ] || go get -u github.com/magiconair/vendorfmt/cmd/vendorfmt
-	vendorfmt
 
 # gofmt runs gofmt on the code
 gofmt:
@@ -87,7 +70,7 @@ pkg: build test
 # later targets can pick up the new tag value.
 release:
 	$(MAKE) tag
-	$(MAKE) preflight docker-test gorelease homebrew docker-aliases
+	$(MAKE) preflight docker-test gorelease homebrew
 
 # preflight runs some checks before a release
 preflight:
@@ -108,14 +91,6 @@ gorelease:
 homebrew:
 	build/homebrew.sh $(LAST_TAG)
 
-# docker-aliases creates aliases for the docker containers
-# since goreleaser doesn't handle that properly yet
-docker-aliases:
-	docker tag fabiolb/fabio:$(VERSION)-$(GOVERSION) magiconair/fabio:$(VERSION)-$(GOVERSION)
-	docker tag fabiolb/fabio:$(VERSION)-$(GOVERSION) magiconair/fabio:latest
-	docker push magiconair/fabio:$(VERSION)-$(GOVERSION)
-	docker push magiconair/fabio:latest
-
 # docker-test runs make test in a Docker container with
 # pinned versions of the external dependencies
 #
@@ -123,20 +98,12 @@ docker-aliases:
 # cache the binaries and prevent repeated downloads since
 # ADD <url> downloads the file every time.
 docker-test:
-	test -r consul_$(CI_CONSUL_VERSION)_linux_amd64.zip || \
-		wget https://releases.hashicorp.com/consul/$(CI_CONSUL_VERSION)/consul_$(CI_CONSUL_VERSION)_linux_amd64.zip
-	test -r vault_$(CI_VAULT_VERSION)_linux_amd64.zip || \
-		wget https://releases.hashicorp.com/vault/$(CI_VAULT_VERSION)/vault_$(CI_VAULT_VERSION)_linux_amd64.zip
-	test -r go$(CI_GO_VERSION).linux-amd64.tar.gz || \
-		wget https://dl.google.com/go/go$(CI_GO_VERSION).linux-amd64.tar.gz
 	docker build \
 		--build-arg consul_version=$(CI_CONSUL_VERSION) \
 		--build-arg vault_version=$(CI_VAULT_VERSION) \
-		--build-arg go_version=$(CI_GO_VERSION) \
 		-t test-fabio \
-		-f Dockerfile-test \
+		-f Dockerfile \
 		.
-	docker run -it test-fabio make test
 
 # codeship runs the CI on codeship
 codeship:
@@ -156,4 +123,4 @@ clean:
 	rm -rf pkg dist fabio
 	find . -name '*.test' -delete
 
-.PHONY: all build checkdeps clean codeship gofmt gorelease help homebrew install linux pkg preflight release tag test vendorfmt
+.PHONY: all build clean codeship gofmt gorelease help homebrew install linux pkg preflight release tag test
