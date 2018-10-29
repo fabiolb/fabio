@@ -29,7 +29,7 @@ func NewServiceMonitor(client *api.Client, config *config.Consul, dc string) *Se
 }
 
 // Watch monitors the consul health checks and sends a new
-// configuration to the updates channnel on every change.
+// configuration to the updates channel on every change.
 func (w *ServiceMonitor) Watch(updates chan string) {
 	var lastIndex uint64
 	for {
@@ -54,7 +54,7 @@ func (w *ServiceMonitor) Watch(updates chan string) {
 	}
 }
 
-// makeCconfig determines which service instances have passing health checks
+// makeConfig determines which service instances have passing health checks
 // and then finds the ones which have tags with the right prefix to build the config from.
 func (w *ServiceMonitor) makeConfig(checks []*api.HealthCheck) string {
 	// map service name to list of service passing for which the health check is ok
