@@ -54,7 +54,7 @@ func (w *ServiceMonitor) Watch(updates chan string) {
 	}
 }
 
-// makeCconfig determines which service instances have passing health checks
+// makeConfig determines which service instances have passing health checks
 // and then finds the ones which have tags with the right prefix to build the config from.
 func (w *ServiceMonitor) makeConfig(checks []*api.HealthCheck) string {
 	// map service name to list of service passing for which the health check is ok
