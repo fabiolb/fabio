@@ -1,5 +1,4 @@
 [![Gitter chat](http://img.shields.io/badge/gitter-join%20chat%20%E2%86%92-brightgreen.svg)](https://gitter.im/opentracing/public) [![Build Status](https://travis-ci.org/opentracing/opentracing-go.svg?branch=master)](https://travis-ci.org/opentracing/opentracing-go) [![GoDoc](https://godoc.org/github.com/opentracing/opentracing-go?status.svg)](http://godoc.org/github.com/opentracing/opentracing-go)
-[![Sourcegraph Badge](https://sourcegraph.com/github.com/opentracing/opentracing-go/-/badge.svg)](https://sourcegraph.com/github.com/opentracing/opentracing-go?badge)
 
 # OpenTracing API for Go
 
@@ -27,7 +26,7 @@ The simplest starting point is `./default_tracer.go`. As early as possible, call
     import ".../some_tracing_impl"
 
     func main() {
-        opentracing.SetGlobalTracer(
+        opentracing.InitGlobalTracer(
             // tracing impl specific:
             some_tracing_impl.New(...),
         )
@@ -134,21 +133,6 @@ reference.
     }
 ```
 
-#### Conditionally capture a field using `log.Noop`
-
-In some situations, you may want to dynamically decide whether or not
-to log a field.  For example, you may want to capture additional data,
-such as a customer ID, in non-production environments:
-
-```go
-    func Customer(order *Order) log.Field {
-        if os.Getenv("ENVIRONMENT") == "dev" {
-            return log.String("customer", order.Customer.ID)
-        }
-        return log.Noop()
-    }
-```
-
 #### Goroutine-safety
 
 The entire public API is goroutine-safe and does not require external
@@ -161,7 +145,3 @@ Tracing system implementors may be able to reuse or copy-paste-modify the `basic
 ## API compatibility
 
 For the time being, "mild" backwards-incompatible changes may be made without changing the major version number. As OpenTracing and `opentracing-go` mature, backwards compatibility will become more of a priority.
-
-## Tracer test suite
-
-A test suite is available in the [harness](https://godoc.org/github.com/opentracing/opentracing-go/harness) package that can assist Tracer implementors to assert that their Tracer is working correctly.
