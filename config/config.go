@@ -7,6 +7,7 @@ import (
 )
 
 type Config struct {
+
 	Proxy                Proxy
 	Registry             Registry
 	Listen               []Listen
@@ -14,10 +15,13 @@ type Config struct {
 	Metrics              Metrics
 	UI                   UI
 	Runtime              Runtime
+	Tracing     Tracing
 	ProfileMode          string
 	ProfilePath          string
 	Insecure             bool
 	GlobMatchingDisabled bool
+
+
 }
 
 type CertSource struct {
@@ -146,3 +150,14 @@ type Consul struct {
 	CheckDeregisterCriticalServiceAfter string
 	ChecksRequired                      string
 }
+
+type Tracing struct {
+	TracingEnabled bool
+	CollectorType  string
+	ConnectString  string
+	ServiceName    string
+	Topic          string
+	SamplerRate    float64
+	SpanHost       string
+}
+
