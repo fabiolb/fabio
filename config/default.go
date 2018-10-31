@@ -65,6 +65,7 @@ var defaultConfig = &Config{
 			CheckTimeout:    3 * time.Second,
 			CheckScheme:     "http",
 			ChecksRequired:  "one",
+			PollingInterval: 0,
 		},
 		Custom: Custom{
 			Host:               "",

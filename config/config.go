@@ -155,6 +155,7 @@ type Consul struct {
 	ChecksRequired     string
 	ServiceMonitors    int
 	TLS                ConsulTlS
+	PollingInterval    time.Duration
 }
 
 type Custom struct {
