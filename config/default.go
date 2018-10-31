@@ -63,6 +63,7 @@ var defaultConfig = &Config{
 			CheckScheme:                         "http",
 			CheckDeregisterCriticalServiceAfter: "90m",
 			ChecksRequired:                      "one",
+			PollingInterval: 					 0,
 		},
 		Timeout: 10 * time.Second,
 		Retry:   500 * time.Millisecond,
