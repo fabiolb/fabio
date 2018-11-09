@@ -165,6 +165,8 @@ github.com/mitchellh/mapstructure v0.0.0-20160212031839-d2dd02622084 h1:Z2EJ6SUY
 github.com/mitchellh/mapstructure v0.0.0-20160212031839-d2dd02622084/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mitchellh/reflectwalk v1.0.0 h1:9D+8oIskB4VJBN5SFlmc27fSlIBZaov1Wpk/IfikLNY=
 github.com/mitchellh/reflectwalk v1.0.0/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
+github.com/mwitkow/grpc-proxy v0.0.0-20181017164139-0f1106ef9c76 h1:LxaK681Aane3f53b4qVTXXq83lL9fWwBTaaZOf9VizA=
+github.com/mwitkow/grpc-proxy v0.0.0-20181017164139-0f1106ef9c76/go.mod h1:x5OoJHDHqxHS801UIuhqGl6QdSAEJvtausosHSdazIo=
 github.com/ncw/swift v1.0.42 h1:ztvRb6hs52IHOcaYt73f9lXYLIeIuWgdooRDhdyllGI=
 github.com/ncw/swift v1.0.42/go.mod h1:23YIA4yWVnGwv2dQlN4bB7egfYX6YLn0Yo/S6zZO/ZM=
 github.com/opentracing-contrib/go-observer v0.0.0-20170622124052-a52f23424492 h1:lM6RxxfUMrYL/f8bWEUqdXrANWtrL7Nndbm9iFN0DlU=

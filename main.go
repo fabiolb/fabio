@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"google.golang.org/grpc"
 	"io"
 	"log"
 	"net"
@@ -32,6 +33,7 @@ import (
 	"github.com/fabiolb/fabio/registry/static"
 	"github.com/fabiolb/fabio/route"
 	"github.com/fabiolb/fabio/trace"
+	grpc_proxy "github.com/mwitkow/grpc-proxy/proxy"
 	"github.com/pkg/profile"
 	dmp "github.com/sergi/go-diff/diffmatchpatch"
 )
@@ -137,6 +139,10 @@ func main() {
 
 	exit.Wait()
 	log.Print("[INFO] Down")
+}
+
+func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config) grpc.StreamHandler {
+	return grpc_proxy.TransparentHandler(proxy.GetGRPCDirector(cfg, tlscfg))
 }
 
 func newHTTPProxy(cfg *config.Config) http.Handler {
@@ -270,6 +276,13 @@ func startServers(cfg *config.Config) {
 			go func() {
 				h := newHTTPProxy(cfg)
 				if err := proxy.ListenAndServeHTTP(l, h, tlscfg); err != nil {
+					exit.Fatal("[FATAL] ", err)
+				}
+			}()
+		case "grpc", "grpcs":
+			go func() {
+				h := newGrpcProxy(cfg, tlscfg)
+				if err := proxy.ListenAndServeGRPC(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
 				}
 			}()

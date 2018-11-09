@@ -62,6 +62,7 @@ require (
 	github.com/mitchellh/go-homedir v0.0.0-20160606030122-1111e456ffea // indirect
 	github.com/mitchellh/go-testing-interface v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v0.0.0-20160212031839-d2dd02622084 // indirect
+	github.com/mwitkow/grpc-proxy v0.0.0-20181017164139-0f1106ef9c76
 	github.com/ncw/swift v1.0.42 // indirect
 	github.com/opentracing-contrib/go-observer v0.0.0-20170622124052-a52f23424492 // indirect
 	github.com/opentracing/opentracing-go v1.0.2
@@ -96,7 +97,7 @@ require (
 	golang.org/x/sys v0.0.0-20181107165924-66b7b1311ac8 // indirect
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
 	google.golang.org/appengine v1.3.0 // indirect
-	google.golang.org/grpc v1.16.0 // indirect
+	google.golang.org/grpc v1.16.0
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/vmihailenco/msgpack.v2 v2.9.1 // indirect
 )
