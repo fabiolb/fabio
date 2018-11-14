@@ -30,14 +30,14 @@ func watchServices(client *api.Client, config *config.Consul, svcConfig chan str
 		}
 
 		log.Printf("[DEBUG] consul: Health changed to #%d", meta.LastIndex)
-		svcConfig <- servicesConfig(client, passingServices(checks, config.ServiceStatus, strict), config.TagPrefix)
+		svcConfig <- servicesConfig(client, passingServices(checks, config.ServiceStatus, strict), config.TagPrefix, config.RawTagPrefix)
 		lastIndex = meta.LastIndex
 	}
 }
 
 // servicesConfig determines which service instances have passing health checks
 // and then finds the ones which have tags with the right prefix to build the config from.
-func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix string) string {
+func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix, rawTagPrefix string) string {
 	// map service name to list of service passing for which the health check is ok
 	m := map[string]map[string]bool{}
 	for _, check := range checks {
@@ -54,7 +54,7 @@ func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix str
 
 	var config []string
 	for name, passing := range m {
-		cfg := serviceConfig(client, name, passing, tagPrefix)
+		cfg := serviceConfig(client, name, passing, tagPrefix, rawTagPrefix)
 		config = append(config, cfg...)
 	}
 
@@ -65,7 +65,7 @@ func servicesConfig(client *api.Client, checks []*api.HealthCheck, tagPrefix str
 }
 
 // serviceConfig constructs the config for all good instances of a single service.
-func serviceConfig(client *api.Client, name string, passing map[string]bool, tagPrefix string) (config []string) {
+func serviceConfig(client *api.Client, name string, passing map[string]bool, tagPrefix, rawTagPrefix string) (config []string) {
 	if name == "" || len(passing) == 0 {
 		return nil
 	}
@@ -87,6 +87,10 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 		"DC": dc,
 	}
 
+	if !strings.HasSuffix(rawTagPrefix, " ") {
+		rawTagPrefix += " "
+	}
+
 	for _, svc := range svcs {
 		// check if the instance is in the list of instances
 		// which passed the health check
@@ -94,16 +98,23 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 			continue
 		}
 
-		// get all tags which do not have the tag prefix
+		// get all tags which do not have the tag prefix or the raw tag prefix
 		var svctags []string
 		for _, tag := range svc.ServiceTags {
-			if !strings.HasPrefix(tag, tagPrefix) {
+			if !strings.HasPrefix(tag, tagPrefix) && !strings.HasPrefix(tag, rawTagPrefix) {
 				svctags = append(svctags, tag)
 			}
 		}
 
 		// generate route commands
 		for _, tag := range svc.ServiceTags {
+			// add raw tags as is
+			if strings.HasPrefix(tag, rawTagPrefix) {
+				tag = strings.TrimSpace(tag[len(rawTagPrefix):])
+				config = append(config, tag)
+				continue
+			}
+
 			if route, opts, ok := parseURLPrefixTag(tag, tagPrefix, env); ok {
 				name, addr, port := svc.ServiceName, svc.ServiceAddress, svc.ServicePort
 

@@ -53,6 +53,7 @@ var defaultConfig = &Config{
 			KVPath:                              "/fabio/config",
 			NoRouteHTMLPath:                     "/fabio/noroute.html",
 			TagPrefix:                           "urlprefix-",
+			RawTagPrefix:                        "fabio",
 			Register:                            true,
 			ServiceAddr:                         ":9998",
 			ServiceName:                         "fabio",

@@ -563,6 +563,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-registry.consul.rawtagprefix", "p-"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.RawTagPrefix = "p-"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-registry.consul.register.enabled=false"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Registry.Consul.Register = false
