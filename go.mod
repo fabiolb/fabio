@@ -16,7 +16,7 @@ require (
 	github.com/gobwas/glob v0.0.0-20180208211842-19c076cdf202
 	github.com/gogo/protobuf v1.1.1 // indirect
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
-	github.com/hashicorp/consul v0.8.0
+	github.com/hashicorp/consul v1.3.1
 	github.com/hashicorp/errwrap v0.0.0-20141028054710-7554cd9344ce // indirect
 	github.com/hashicorp/go-cleanhttp v0.0.0-20160407174126-ad28ea4487f0 // indirect
 	github.com/hashicorp/go-multierror v0.0.0-20150916205742-d30f09973e19 // indirect
