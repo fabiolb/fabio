@@ -60,3 +60,24 @@ func TestGlobMatcher(t *testing.T) {
 		})
 	}
 }
+
+func TestIPrefixMatcher(t *testing.T) {
+	tests := []struct {
+		uri     string
+		matches bool
+		route   *Route
+	}{
+		{uri: "/foo", matches: false, route: &Route{Path: "/fool"}},
+		{uri: "/foo", matches: true, route: &Route{Path: "/foo"}},
+		{uri: "/Fool", matches: true, route: &Route{Path: "/foo"}},
+		{uri: "/foo", matches: true, route: &Route{Path: "/Foo"}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.uri, func(t *testing.T) {
+			if got, want := iPrefixMatcher(tt.uri, tt.route), tt.matches; got != want {
+				t.Fatalf("got %v want %v", got, want)
+			}
+		})
+	}
+}

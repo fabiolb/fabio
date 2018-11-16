@@ -8,8 +8,8 @@ title: "proxy.matcher"
 * `prefix`: prefix matching
 * `glob`:  glob matching
 
-When `prefix` matching is enabled then the route path must be a 
-prefix of the request URI, e.g. `/foo` matches `/foo`, `/foot` but 
+When `prefix` matching is enabled then the route path must be a
+prefix of the request URI, e.g. `/foo` matches `/foo`, `/foot` but
 not `/fo`.
 
 When `glob` matching is enabled the route is evaluated according to
@@ -18,6 +18,8 @@ function.
 
 For example, `/foo*` matches `/foo`, `/fool` and `/fools`. Also, `/foo/*/bar`
 matches `/foo/x/bar`.
+
+`iprefix` matching is similar to `prefix`, except it uses a case insensitive comparison
 
 The default is
 

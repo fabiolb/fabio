@@ -40,14 +40,12 @@ func (w *ServiceMonitor) Watch(updates chan string) {
 		} else {
 			q = &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
 		}
-
 		checks, meta, err := w.client.Health().State("any", q)
 		if err != nil {
 			log.Printf("[WARN] consul: Error fetching health state. %v", err)
 			time.Sleep(time.Second)
 			continue
 		}
-
 		log.Printf("[DEBUG] consul: Health changed to #%d", meta.LastIndex)
 
 		// determine which services have passing health checks

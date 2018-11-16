@@ -31,6 +31,7 @@ import (
 	"github.com/fabiolb/fabio/registry/file"
 	"github.com/fabiolb/fabio/registry/static"
 	"github.com/fabiolb/fabio/route"
+	"github.com/fabiolb/fabio/trace"
 	"github.com/pkg/profile"
 	dmp "github.com/sergi/go-diff/diffmatchpatch"
 )
@@ -116,6 +117,9 @@ func main() {
 	initMetrics(cfg)
 	initRuntime(cfg)
 	initBackend(cfg)
+	//Init OpenTracing if Enabled in the Properties File Tracing.TracingEnabled
+	trace.InitializeTracer(&cfg.Tracing)
+
 	startAdmin(cfg)
 
 	go watchNoRouteHTML(cfg)
@@ -190,9 +194,10 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 			}
 			return t
 		},
-		Requests: metrics.DefaultRegistry.GetTimer("requests"),
-		Noroute:  metrics.DefaultRegistry.GetCounter("notfound"),
-		Logger:   l,
+		Requests:  metrics.DefaultRegistry.GetTimer("requests"),
+		Noroute:   metrics.DefaultRegistry.GetCounter("notfound"),
+		Logger:    l,
+		TracerCfg: cfg.Tracing,
 	}
 }
 
