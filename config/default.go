@@ -57,6 +57,7 @@ var defaultConfig = &Config{
 			ServiceAddr:                         ":9998",
 			ServiceName:                         "fabio",
 			ServiceStatus:                       []string{"passing"},
+			ServiceMonitors:                     1,
 			CheckInterval:                       time.Second,
 			CheckTimeout:                        3 * time.Second,
 			CheckScheme:                         "http",
@@ -79,4 +80,13 @@ var defaultConfig = &Config{
 		Access: "rw",
 	},
 	GlobCacheSize: 1000,
+	Tracing: Tracing{
+		TracingEnabled: false,
+		CollectorType:  "http",
+		ConnectString:  "http://localhost:9411/api/v1/spans",
+		ServiceName:    "Fabiolb",
+		Topic:          "Fabiolb-Kafka-Topic",
+		SamplerRate:    -1,
+		SpanHost:       "localhost:9998",
+	},
 }

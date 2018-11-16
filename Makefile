@@ -21,9 +21,8 @@ GOVERSION = $(shell go version | awk '{print $$3;}')
 GORELEASER = $(shell which goreleaser)
 
 # pin versions for CI builds
-CI_CONSUL_VERSION=1.2.3
-CI_VAULT_VERSION=0.11.1
-CI_GO_VERSION=1.11
+CI_CONSUL_VERSION=1.3.0
+CI_VAULT_VERSION=0.11.4
 
 # all is the default target
 all: test
@@ -71,7 +70,7 @@ pkg: build test
 # later targets can pick up the new tag value.
 release:
 	$(MAKE) tag
-	$(MAKE) preflight docker-test gorelease homebrew docker-aliases
+	$(MAKE) preflight docker-test gorelease homebrew
 
 # preflight runs some checks before a release
 preflight:
@@ -92,14 +91,6 @@ gorelease:
 homebrew:
 	build/homebrew.sh $(LAST_TAG)
 
-# docker-aliases creates aliases for the docker containers
-# since goreleaser doesn't handle that properly yet
-docker-aliases:
-	docker tag fabiolb/fabio:$(VERSION)-$(GOVERSION) magiconair/fabio:$(VERSION)-$(GOVERSION)
-	docker tag fabiolb/fabio:$(VERSION)-$(GOVERSION) magiconair/fabio:latest
-	docker push magiconair/fabio:$(VERSION)-$(GOVERSION)
-	docker push magiconair/fabio:latest
-
 # docker-test runs make test in a Docker container with
 # pinned versions of the external dependencies
 #
@@ -107,20 +98,12 @@ docker-aliases:
 # cache the binaries and prevent repeated downloads since
 # ADD <url> downloads the file every time.
 docker-test:
-	test -r consul_$(CI_CONSUL_VERSION)_linux_amd64.zip || \
-		wget https://releases.hashicorp.com/consul/$(CI_CONSUL_VERSION)/consul_$(CI_CONSUL_VERSION)_linux_amd64.zip
-	test -r vault_$(CI_VAULT_VERSION)_linux_amd64.zip || \
-		wget https://releases.hashicorp.com/vault/$(CI_VAULT_VERSION)/vault_$(CI_VAULT_VERSION)_linux_amd64.zip
-	test -r go$(CI_GO_VERSION).linux-amd64.tar.gz || \
-		wget https://dl.google.com/go/go$(CI_GO_VERSION).linux-amd64.tar.gz
 	docker build \
 		--build-arg consul_version=$(CI_CONSUL_VERSION) \
 		--build-arg vault_version=$(CI_VAULT_VERSION) \
-		--build-arg go_version=$(CI_GO_VERSION) \
 		-t test-fabio \
-		-f Dockerfile-test \
+		-f Dockerfile \
 		.
-	docker run -it test-fabio make test
 
 # codeship runs the CI on codeship
 codeship:

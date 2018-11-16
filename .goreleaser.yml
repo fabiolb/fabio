@@ -26,9 +26,12 @@ sign:
   artifacts: checksum
 
 dockers:
-  - image: fabiolb/fabio
-    latest: true
-    tag_template: '{{ .Version }}-{{ .Env.GOVERSION }}'
+  -
+    dockerfile: Dockerfile-goreleaser
+    image_templates:
+      - 'fabiolb/fabio:latest'
+      - 'fabiolb/fabio:{{ .Version }}-{{ .Env.GOVERSION }}'
+      - 'magiconair/fabio:latest'
+      - 'magiconair/fabio:{{ .Version }}-{{ .Env.GOVERSION }}'
     extra_files:
-      - build/ca-certificates.crt
       - fabio.properties

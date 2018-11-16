@@ -307,6 +307,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-proxy.matcher", "iprefix"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.Matcher = "iprefix"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.noroutestatus", "555"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Proxy.NoRouteStatus = 555
@@ -608,6 +615,13 @@ func TestLoad(t *testing.T) {
 			args: []string{"-registry.consul.service.status", "a, b, "},
 			cfg: func(cfg *Config) *Config {
 				cfg.Registry.Consul.ServiceStatus = []string{"a", "b"}
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.serviceMonitors", "5"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.ServiceMonitors = 5
 				return cfg
 			},
 		},
@@ -942,6 +956,13 @@ func TestLoad(t *testing.T) {
 			args: []string{"-proxy.noroutestatus", "1000"},
 			cfg:  func(cfg *Config) *Config { return nil },
 			err:  errors.New("proxy.noroutestatus must be between 100 and 999"),
+		},
+		{
+			args: []string{"-glob.cache.size", "1000"},
+			cfg: func(cfg *Config) *Config {
+				cfg.GlobCacheSize = 1000
+				return cfg
+			},
 		},
 		{
 			args: []string{"-cfg"},

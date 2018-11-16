@@ -6,6 +6,30 @@
 
 #### Bug Fixes
 
+#### Improvements
+
+#### Features
+
+ * [PR #429](https://github.com/fabiolb/fabio/issues/429): Support for opentracing
+
+   This patch adds support for opentracing.
+
+   Thanks to Jeremy White, Kristina Fischer, Micheal Murphz, Nathan West,
+   Austin Hartzheim and Jacob Hansen for this patch!
+
+ * [PR #553](https://github.com/fabiolb/fabio/issues/553): Support for case-insensitive matching
+
+   This patch adds a new `iprefix` option to the `proxy.matcher` to support case-insensitive
+   path prefix matching.
+
+   Thanks to [@herbrandson](https://github.com/herbrandson) for the patch.
+
+### [v1.5.10](https://github.com/fabiolb/fabio/releases/tag/v1.5.10) - 25 Oct 2018
+
+#### Breaking Changes
+
+#### Bug Fixes
+
  * [Issue #530](https://github.com/fabiolb/fabio/issues/530): Memory leak in go-metrics library
 
    When metrics collection was enabled within fabio instances with very dynamic route changes memory usage quickly
@@ -21,6 +45,21 @@
 
 #### Improvements
 
+ * The default Docker image is now based on alpine:3.8 and runs the full test suite during build. It also sets
+   `/usr/bin/fabio` as `ENTRYPOINT` with `-cfg /etc/fabio/fabio.properties` as default command line arguments.
+   The previous image was built on `scratch`.
+
+ * [PR #497](https://github.com/fabiolb/fabio/pull/497): Make tests pass with latest Consul and Vault versions
+
+   Thanks to [@pschultz](https://github.com/pschultz) for the patch.
+
+ * [PR #531](https://github.com/fabiolb/fabio/pull/531): Set flush buffer interval for non-SSE requests
+
+   This PR adds a `proxy.globalflushinterval` option to configure an interval when the HTTP Response
+   Buffer is flushed.
+
+   Thanks to [@samm-git](https://github.com/samm-git) for the patch.
+
  * [Issue #542](https://github.com/fabiolb/fabio/issues/542): Ignore host case when adding and matching routes
 
   Fabio was forcing hostnames in routes added via Consul tags to lowercase.  This caused problems
@@ -30,6 +69,15 @@
   host based table lookups in fabio are no longer case sensitive.
 
   Thanks to [@shantanugadgil](https://github.com/shantanugadgil) for the patch.
+
+ * [Issue #548](https://github.com/fabiolb/fabio/issues/548): Slow glob matching with large number of services
+
+   This patch adds the new `glob.matching.disabled` option which controls whether glob matching is enabled for
+   route lookups. If the number of routes is large then the glob matching can have a performance impact and
+   disabling it may help.
+
+  Thanks to [@galen0624](https://github.com/galen0624) for the patch and
+  [@leprechau](https://github.com/leprechau) for the review.
 
 #### Features
 
@@ -322,6 +370,7 @@ urlprefix-/foo redirect=301,https://www.foo.com$path
  * [PR #315](https://github.com/fabiolb/fabio/pull/315)/[Issue #135](https://github.com/fabiolb/fabio/issues/135): Vault PKI cert source
 
    This adds support for using [Vault](https://vaultproject.io/) as a PKI cert source.
+
    Thanks to [@pschultz](https://github.com/pschultz) for providing this patch!
 
 #### Bug Fixes
