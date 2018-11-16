@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/fabiolb/fabio/admin"
+	"github.com/fabiolb/fabio/auth"
 	"github.com/fabiolb/fabio/cert"
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/exit"
@@ -206,6 +207,12 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 		}
 	}
 
+	authSchemes, err := auth.LoadAuthSchemes(cfg.Proxy.AuthSchemes)
+
+	if err != nil {
+		exit.Fatal("[FATAL]", err)
+	}
+
 	return &proxy.HTTPProxy{
 		Config:            cfg.Proxy,
 		Transport:         newTransport(nil),
@@ -218,10 +225,11 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 			}
 			return t
 		},
-		Requests:  metrics.DefaultRegistry.GetTimer("requests"),
-		Noroute:   metrics.DefaultRegistry.GetCounter("notfound"),
-		Logger:    l,
-		TracerCfg: cfg.Tracing,
+		Requests:    metrics.DefaultRegistry.GetTimer("requests"),
+		Noroute:     metrics.DefaultRegistry.GetCounter("notfound"),
+		Logger:      l,
+		TracerCfg:   cfg.Tracing,
+		AuthSchemes: authSchemes,
 	}
 }
 
