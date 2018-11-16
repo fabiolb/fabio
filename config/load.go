@@ -191,7 +191,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&obsoleteStr, "registry.consul.register.checkDeregisterCriticalServiceAfter", "", "This option is deprecated and has no effect.")
 	f.StringVar(&cfg.Registry.Consul.ChecksRequired, "registry.consul.checksRequired", defaultConfig.Registry.Consul.ChecksRequired, "number of checks which must pass: one or all")
 	f.IntVar(&cfg.Registry.Consul.ServiceMonitors, "registry.consul.serviceMonitors", defaultConfig.Registry.Consul.ServiceMonitors, "concurrency for route updates")
-	f.IntVar(&cfg.Registry.Consul.PollingInterval, "registry.consul.pollinginterval", defaultConfig.Registry.Consul.PollingInterval, "polling interval for route updates")
+	f.DurationVar(&cfg.Registry.Consul.PollInterval, "registry.consul.pollInterval", defaultConfig.Registry.Consul.PollInterval, "poll interval for route updates")
 	f.IntVar(&cfg.Runtime.GOGC, "runtime.gogc", defaultConfig.Runtime.GOGC, "sets runtime.GOGC")
 	f.IntVar(&cfg.Runtime.GOMAXPROCS, "runtime.gomaxprocs", defaultConfig.Runtime.GOMAXPROCS, "sets runtime.GOMAXPROCS")
 	f.StringVar(&cfg.UI.Access, "ui.access", defaultConfig.UI.Access, "access mode, one of [ro, rw]")

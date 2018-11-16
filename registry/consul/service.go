@@ -34,10 +34,10 @@ func (w *ServiceMonitor) Watch(updates chan string) {
 	var lastIndex uint64
 	var q *api.QueryOptions
 	for {
-		if w.config.PollingInterval != 0 {
+		if w.config.PollInterval != 0 {
 			q = &api.QueryOptions{RequireConsistent: true}
-			time.Sleep(w.config.PollingInterval * time.Millisecond)
-		}else {
+			time.Sleep(w.config.PollInterval)
+		} else {
 			q = &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
 		}
 
