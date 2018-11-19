@@ -85,6 +85,7 @@ require (
 	github.com/sergi/go-diff v0.0.0-20170118131230-24e2351369ec
 	github.com/sirupsen/logrus v1.2.0 // indirect
 	github.com/soheilhy/cmux v0.1.4 // indirect
+	github.com/tg123/go-htpasswd v0.0.0-20181019180120-0849ceac46bc // indirect
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20171017195756-830351dc03c6 // indirect
 	github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926 // indirect
 	github.com/ugorji/go/codec v0.0.0-20181022190402-e5e69e061d4f // indirect
