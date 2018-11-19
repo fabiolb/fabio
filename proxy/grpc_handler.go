@@ -78,7 +78,11 @@ func GetGRPCDirector(cfg *config.Config, tlscfg *tls.Config) func(ctx context.Co
 
 		if target.URL.Scheme == "grpcs" && tlscfg != nil {
 			opts = append(opts, grpc.WithTransportCredentials(
-				credentials.NewTLS(&tls.Config{ClientCAs: tlscfg.ClientCAs, InsecureSkipVerify: target.TLSSkipVerify})))
+				credentials.NewTLS(&tls.Config{
+					ClientCAs:          tlscfg.ClientCAs,
+					InsecureSkipVerify: target.TLSSkipVerify,
+					ServerName:         target.Opts["grpcservername"],
+				})))
 		}
 
 		newCtx := context.Background()
