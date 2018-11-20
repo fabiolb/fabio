@@ -83,11 +83,12 @@ type Runtime struct {
 }
 
 type Circonus struct {
-	APIKey   string
-	APIApp   string
-	APIURL   string
-	CheckID  string
-	BrokerID string
+	APIKey        string
+	APIApp        string
+	APIURL        string
+	CheckID       string
+	BrokerID      string
+	SubmissionURL string
 }
 
 type Log struct {

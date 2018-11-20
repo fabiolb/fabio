@@ -53,18 +53,19 @@ func TestTimer(t *testing.T) {
 func TestAll(t *testing.T) {
 	start := time.Now()
 
-	if os.Getenv("CIRCONUS_API_TOKEN") == "" {
-		t.Skip("skipping test; $CIRCONUS_API_TOKEN not set")
+	if os.Getenv("CIRCONUS_API_TOKEN") == "" && os.Getenv("CIRCONUS_SUBMISSION_URL") == "" {
+		t.Skip("skipping test; $CIRCONUS_API_TOKEN or $CIRCONUS_SUBMISSION_URL not set")
 	}
 
 	t.Log("Testing cgm functionality -- this *will* create/use a check")
 
 	cfg := config.Circonus{
-		APIKey:   os.Getenv("CIRCONUS_API_TOKEN"),
-		APIApp:   os.Getenv("CIRCONUS_API_APP"),
-		APIURL:   os.Getenv("CIRCONUS_API_URL"),
-		CheckID:  os.Getenv("CIRCONUS_CHECK_ID"),
-		BrokerID: os.Getenv("CIRCONUS_BROKER_ID"),
+		SubmissionURL: os.Getenv("CIRCONUS_SUBMISSION_URL"),
+		APIKey:        os.Getenv("CIRCONUS_API_TOKEN"),
+		APIApp:        os.Getenv("CIRCONUS_API_APP"),
+		APIURL:        os.Getenv("CIRCONUS_API_URL"),
+		CheckID:       os.Getenv("CIRCONUS_CHECK_ID"),
+		BrokerID:      os.Getenv("CIRCONUS_BROKER_ID"),
 	}
 
 	interval, err := time.ParseDuration("60s")

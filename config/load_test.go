@@ -745,6 +745,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-metrics.circonus.submissionurl", "value"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Metrics.Circonus.SubmissionURL = "value"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-runtime.gogc", "555"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Runtime.GOGC = 555
