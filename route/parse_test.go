@@ -32,6 +32,11 @@ func TestParse(t *testing.T) {
 			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: ":1234", Dst: "tcp://1.2.3.4:5678"}},
 		},
 		{
+			desc: "RouteAddGRPCService",
+			in:   `route add svc :1234 grpc://1.2.3.4:5678`,
+			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: ":1234", Dst: "grpc://1.2.3.4:5678"}},
+		},
+		{
 			desc: "RouteAddServiceWeight",
 			in:   `route add svc /prefix http://1.2.3.4/ weight 1.2`,
 			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/", Weight: 1.2}},

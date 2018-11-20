@@ -81,7 +81,10 @@ func GetGRPCDirector(cfg *config.Config, tlscfg *tls.Config) func(ctx context.Co
 				credentials.NewTLS(&tls.Config{
 					ClientCAs:          tlscfg.ClientCAs,
 					InsecureSkipVerify: target.TLSSkipVerify,
-					ServerName:         target.Opts["grpcservername"],
+					// as per the http/2 spec, the host header isn't required, so if your
+					// target service doesn't have IP SANs in it's certificate
+					// then you will need to override the servername
+					ServerName: target.Opts["grpcservername"],
 				})))
 		}
 
