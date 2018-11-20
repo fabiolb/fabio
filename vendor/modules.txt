@@ -4,7 +4,7 @@ github.com/Shopify/sarama
 github.com/apache/thrift/lib/go/thrift
 # github.com/armon/go-proxyproto v0.0.0-20150207025855-609d6338d3a7
 github.com/armon/go-proxyproto
-# github.com/circonus-labs/circonus-gometrics v1.0.0
+# github.com/circonus-labs/circonus-gometrics v2.2.4+incompatible
 github.com/circonus-labs/circonus-gometrics
 github.com/circonus-labs/circonus-gometrics/api
 github.com/circonus-labs/circonus-gometrics/checkmgr
@@ -42,11 +42,11 @@ github.com/golang/snappy
 github.com/hashicorp/consul/api
 # github.com/hashicorp/errwrap v0.0.0-20141028054710-7554cd9344ce
 github.com/hashicorp/errwrap
-# github.com/hashicorp/go-cleanhttp v0.0.0-20160407174126-ad28ea4487f0
+# github.com/hashicorp/go-cleanhttp v0.5.0
 github.com/hashicorp/go-cleanhttp
 # github.com/hashicorp/go-multierror v0.0.0-20150916205742-d30f09973e19
 github.com/hashicorp/go-multierror
-# github.com/hashicorp/go-retryablehttp v0.0.0-20160810172255-f4ed9b0fa01a
+# github.com/hashicorp/go-retryablehttp v0.5.0
 github.com/hashicorp/go-retryablehttp
 # github.com/hashicorp/go-rootcerts v0.0.0-20160503143440-6bb64b370b90
 github.com/hashicorp/go-rootcerts
@@ -91,6 +91,8 @@ github.com/pascaldekloe/goe/verify
 # github.com/pierrec/lz4 v2.0.5+incompatible
 github.com/pierrec/lz4
 github.com/pierrec/lz4/internal/xxh32
+# github.com/pkg/errors v0.8.0
+github.com/pkg/errors
 # github.com/pkg/profile v1.2.1
 github.com/pkg/profile
 # github.com/pubnub/go-metrics-statsd v0.0.0-20170124014003-7da61f429d6b
@@ -101,12 +103,19 @@ github.com/rcrowley/go-metrics
 github.com/rogpeppe/fastuuid
 # github.com/sergi/go-diff v0.0.0-20170118131230-24e2351369ec
 github.com/sergi/go-diff/diffmatchpatch
-# golang.org/x/net v0.0.0-20170114055629-f2499483f923
+# github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926
+github.com/tv42/httpunix
+# golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
 golang.org/x/net/websocket
 golang.org/x/net/http2
 golang.org/x/net/context
+golang.org/x/net/http/httpguts
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
-golang.org/x/net/lex/httplex
-# golang.org/x/sync v0.0.0-20170927054112-8e0aa688b654
+# golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
 golang.org/x/sync/singleflight
+# golang.org/x/text v0.3.0
+golang.org/x/text/secure/bidirule
+golang.org/x/text/unicode/bidi
+golang.org/x/text/unicode/norm
+golang.org/x/text/transform

@@ -24,8 +24,8 @@ func circonusRegistry(prefix string, circ config.Circonus, interval time.Duratio
 	var initError error
 
 	once.Do(func() {
-		if circ.APIKey == "" {
-			initError = errors.New("metrics: Circonus API token key")
+		if circ.APIKey == "" && circ.SubmissionURL == "" {
+			initError = errors.New("metrics: Circonus API token key or SubmissionURL")
 			return
 		}
 
@@ -41,6 +41,7 @@ func circonusRegistry(prefix string, circ config.Circonus, interval time.Duratio
 
 		cfg := &cgm.Config{}
 
+		cfg.CheckManager.Check.SubmissionURL = circ.SubmissionURL
 		cfg.CheckManager.API.TokenKey = circ.APIKey
 		cfg.CheckManager.API.TokenApp = circ.APIApp
 		cfg.CheckManager.API.URL = circ.APIURL
