@@ -15,12 +15,16 @@ Fabio reports the following metrics:
 
 Name                        | Type     | Description
 --------------------------- | -------- | -------------
-`{route}.rx`                | timer    | Number of bytes received by fabion for TCP target
+`{route}.rx`                | timer    | Number of bytes received by fabio for TCP target
 `{route}.tx`                | timer    | Number of bytes transmitted by fabio for TCP target
 `{route}`                   | timer    | Average response time for a route
 `http.status.code.{code}`   | timer    | Average response time for all HTTP(S) requests per status code
 `notfound`                  | counter  | Number of failed HTTP route lookups
 `requests`                  | timer    | Average response time for all HTTP(S) requests
+`grpc.requests`             | timer    | Average response time for all GRPC(S) requests
+`grpc.noroute`              | counter  | Number of failed GRPC route lookups
+`grpc.conn`                 | counter  | Number of established GRPC proxy connections
+`grpc.status.{code}`        | timer    | Average response time for all GRPC(S) requests per status code
 `tcp.conn`                  | counter  | Number of established TCP proxy connections
 `tcp.connfail`              | counter  | Number of TCP upstream connection failures
 `tcp.noroute`               | counter  | Number of failed TCP upstream route lookups
@@ -28,6 +32,7 @@ Name                        | Type     | Description
 `tcp_sni.connfail`          | counter  | Number of failed TCP+SNI proxy connections
 `tcp_sni.noroute`           | counter  | Number of failed TCP+SNI upstream route lookups
 `ws.conn`                   | gauge    | Number of actively open websocket connections
+
 
 ### Legend
 

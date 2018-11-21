@@ -141,8 +141,27 @@ func main() {
 	log.Print("[INFO] Down")
 }
 
-func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config) grpc.StreamHandler {
-	return grpc_proxy.TransparentHandler(proxy.GetGRPCDirector(cfg, tlscfg))
+func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config) []grpc.ServerOption {
+	statsHandler := &proxy.GrpcStatsHandler{
+		Connect: metrics.DefaultRegistry.GetCounter("grpc.conn"),
+		Request: metrics.DefaultRegistry.GetTimer("grpc.requests"),
+		NoRoute: metrics.DefaultRegistry.GetCounter("grpc.noroute"),
+	}
+
+	proxyInterceptor := proxy.GrpcProxyInterceptor{
+		Config:       cfg,
+		StatsHandler: statsHandler,
+	}
+
+	handler := grpc_proxy.TransparentHandler(proxy.GetGRPCDirector(tlscfg))
+
+	return []grpc.ServerOption{
+		grpc.CustomCodec(grpc_proxy.Codec()),
+		grpc.UnknownServiceHandler(handler),
+		grpc.UnaryInterceptor(proxyInterceptor.Unary),
+		grpc.StreamInterceptor(proxyInterceptor.Stream),
+		grpc.StatsHandler(statsHandler),
+	}
 }
 
 func newHTTPProxy(cfg *config.Config) http.Handler {
