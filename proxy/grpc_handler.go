@@ -4,6 +4,13 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"log"
+	"net"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/metrics"
 	"github.com/fabiolb/fabio/route"
@@ -13,12 +20,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/stats"
 	"google.golang.org/grpc/status"
-	"log"
-	"net"
-	"net/http"
-	"net/url"
-	"strings"
-	"time"
 )
 
 type gRPCServer struct {
@@ -68,6 +69,8 @@ func GetGRPCDirector(tlscfg *tls.Config) func(ctx context.Context, fullMethodNam
 					// then you will need to override the servername
 					ServerName: target.Opts["grpcservername"],
 				})))
+		} else {
+			opts = append(opts, grpc.WithInsecure())
 		}
 
 		newCtx := context.Background()
