@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"google.golang.org/grpc"
 	"io"
 	"log"
 	"net"
@@ -36,6 +35,7 @@ import (
 	grpc_proxy "github.com/mwitkow/grpc-proxy/proxy"
 	"github.com/pkg/profile"
 	dmp "github.com/sergi/go-diff/diffmatchpatch"
+	"google.golang.org/grpc"
 )
 
 // version contains the version number
@@ -158,7 +158,6 @@ func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config) []grpc.ServerOption {
 	return []grpc.ServerOption{
 		grpc.CustomCodec(grpc_proxy.Codec()),
 		grpc.UnknownServiceHandler(handler),
-		grpc.UnaryInterceptor(proxyInterceptor.Unary),
 		grpc.StreamInterceptor(proxyInterceptor.Stream),
 		grpc.StatsHandler(statsHandler),
 	}

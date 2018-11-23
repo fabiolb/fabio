@@ -99,27 +99,6 @@ func (p proxyStream) Context() context.Context {
 	return p.ctx
 }
 
-func (g GrpcProxyInterceptor) Unary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	target, err := g.lookup(ctx, info.FullMethod)
-
-	if err != nil {
-		return nil, err
-	}
-
-	ctx = context.WithValue(ctx, targetKey{}, target)
-
-	start := time.Now()
-
-	res, err := handler(ctx, req)
-
-	end := time.Now()
-	dur := end.Sub(start)
-
-	target.Timer.Update(dur)
-
-	return res, err
-}
-
 func (g GrpcProxyInterceptor) Stream(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	ctx := stream.Context()
 
