@@ -85,7 +85,12 @@ func (t *Target) denyByIP(ip net.IP) bool {
 				log.Print("[ERROR] failed to assert ip block while checking allow rule for ", t.Service)
 				continue
 			}
+			// debug logging
+			log.Printf("[DEBUG] checking %s against ip allow rule %s", ip.String(), block.String())
+			// check block
 			if block.Contains(ip) {
+				// debug logging
+				log.Printf("[DEBUG] allowing request from %s via %s", ip.String(), block.String())
 				// specific allow matched - allow this request
 				return false
 			}
@@ -104,6 +109,9 @@ func (t *Target) denyByIP(ip net.IP) bool {
 				log.Print("[INFO] failed to assert ip block while checking deny rule for ", t.Service)
 				continue
 			}
+			// debug logging
+			log.Printf("[DEBUG] checking %s against ip deny rule %s", ip.String(), block.String())
+			// check block
 			if block.Contains(ip) {
 				// specific deny matched - deny this request
 				log.Printf("[INFO] route rules denied access from %s to %s",
@@ -112,6 +120,9 @@ func (t *Target) denyByIP(ip net.IP) bool {
 			}
 		}
 	}
+
+	// debug logging
+	log.Printf("[DEBUG] default allowing request from %s that was not denied", ip.String())
 
 	// default - do not deny
 	return false
