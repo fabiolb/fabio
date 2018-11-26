@@ -73,9 +73,7 @@ func GetGRPCDirector(tlscfg *tls.Config) func(ctx context.Context, fullMethodNam
 			opts = append(opts, grpc.WithInsecure())
 		}
 
-		newCtx := context.Background()
-		newCtx = metadata.NewOutgoingContext(newCtx, md)
-
+		newCtx := metadata.NewOutgoingContext(ctx, md)
 		conn, err := grpc.DialContext(newCtx, target.URL.Host, opts...)
 
 		return newCtx, conn, err
