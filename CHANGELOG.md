@@ -6,6 +6,13 @@
 
 #### Bug Fixes
 
+  * [PR #577](https://github.com/fabiolb/fabio/issues/577): Fix ip access rules within tcp proxy
+
+  Access rules were not being evaluated in the `tcp` proxy.
+
+  Thanks to [@KEZHwMlXV1vFzs6QvY8v5WjX5](https://github.com/KEZHwMlXV1vFzs6QvY8v5WjX5) for identifying the issue,
+  providing a solution, and testing.
+
 #### Improvements
 
 #### Features
