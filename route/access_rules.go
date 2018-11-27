@@ -64,9 +64,16 @@ func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
 
 // AccessDeniedTCP checks rules on the target for TCP proxy routes.
 func (t *Target) AccessDeniedTCP(c net.Conn) bool {
-	ip := net.ParseIP(c.RemoteAddr().String())
-	if t.denyByIP(ip) {
-		return true
+	var addr *net.TCPAddr
+	var ok bool
+	// validate remote address assertion
+	if addr, ok = c.RemoteAddr().(*net.TCPAddr); !ok {
+		log.Printf("[ERROR] failed to assert remote connection address for %s", t.Service)
+		return false
+	}
+	// check remote connection address
+	if t.denyByIP(addr.IP) {
+			return true
 	}
 	// default allow
 	return false
@@ -82,7 +89,7 @@ func (t *Target) denyByIP(ip net.IP) bool {
 		var block *net.IPNet
 		for _, x := range t.accessRules[ipAllowTag] {
 			if block, ok = x.(*net.IPNet); !ok {
-				log.Print("[ERROR] failed to assert ip block while checking allow rule for ", t.Service)
+				log.Printf("[ERROR] failed to assert ip block while checking allow rule for %s", t.Service)
 				continue
 			}
 			// debug logging
@@ -106,7 +113,7 @@ func (t *Target) denyByIP(ip net.IP) bool {
 		var block *net.IPNet
 		for _, x := range t.accessRules[ipDenyTag] {
 			if block, ok = x.(*net.IPNet); !ok {
-				log.Print("[INFO] failed to assert ip block while checking deny rule for ", t.Service)
+				log.Printf("[INFO] failed to assert ip block while checking deny rule for %s", t.Service)
 				continue
 			}
 			// debug logging
