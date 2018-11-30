@@ -17,6 +17,7 @@ import (
 	"github.com/fabiolb/fabio/route"
 	grpc_proxy "github.com/mwitkow/grpc-proxy/proxy"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
@@ -92,7 +93,8 @@ func (g GrpcProxyInterceptor) Stream(srv interface{}, stream grpc.ServerStream, 
 	target, err := g.lookup(ctx, info.FullMethod)
 
 	if err != nil {
-		return err
+		log.Println("[WARN] grpc: error looking up route ", err)
+		return status.Errorf(codes.Internal, "internal error")
 	}
 
 	ctx = context.WithValue(ctx, targetKey{}, target)
