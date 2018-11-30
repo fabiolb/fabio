@@ -93,8 +93,14 @@ func (g GrpcProxyInterceptor) Stream(srv interface{}, stream grpc.ServerStream, 
 	target, err := g.lookup(ctx, info.FullMethod)
 
 	if err != nil {
-		log.Println("[WARN] grpc: error looking up route ", err)
-		return status.Errorf(codes.Internal, "internal error")
+		log.Println("[ERROR] grpc: error looking up route", err)
+		return status.Error(codes.Internal, "internal error")
+	}
+
+	if target == nil {
+		g.StatsHandler.NoRoute.Inc(1)
+		log.Println("[WARN] grpc: no route found for", info.FullMethod)
+		return status.Error(codes.NotFound, "no route found")
 	}
 
 	ctx = context.WithValue(ctx, targetKey{}, target)
@@ -111,11 +117,7 @@ func (g GrpcProxyInterceptor) Stream(srv interface{}, stream grpc.ServerStream, 
 	end := time.Now()
 	dur := end.Sub(start)
 
-	if target != nil {
-		target.Timer.Update(dur)
-	} else {
-		g.StatsHandler.NoRoute.Inc(1)
-	}
+	target.Timer.Update(dur)
 
 	return err
 }
