@@ -75,24 +75,24 @@ func (t *Target) AccessDeniedTCP(c net.Conn) bool {
 	if len(t.accessRules) == 0 {
 		return false
 	}
-	// validate remote address assertion
-	if addr, ok := c.RemoteAddr().(*net.TCPAddr); !ok {
+	// get remote address and validate assertion
+	addr, ok := c.RemoteAddr().(*net.TCPAddr)
+	if !ok {
 		log.Printf("[ERROR] failed to assert remote connection address for %s", t.Service)
 		return false
-		// check remote connection address
-		if t.denyByIP(addr.IP) {
-			return true
-		}
+	}
+	// check remote connection address
+	if t.denyByIP(addr.IP) {
+		return true
 	}
 	// default allow
 	return false
 }
 
 func (t *Target) denyByIP(ip net.IP) bool {
-	if ip == nil || t.accessRules == nil {
+	if ip == nil || len(t.accessRules) == 0 {
 		return false
 	}
-
 	// check allow (whitelist) first if it exists
 	if _, ok := t.accessRules[ipAllowTag]; ok {
 		var block *net.IPNet

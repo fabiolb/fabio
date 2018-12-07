@@ -45,6 +45,17 @@ to the destination without decrypting the traffic.
   if no matching certificate was found. This matches the default
   behavior of the Go TLS server implementation.
 
+* `pxyproto`: When set to 'true' the listener will respect upstream v1
+  PROXY protocol headers.
+  NOTE: PROXY protocol was on by default from 1.1.3 to 1.5.10.
+  This changed to off when this option was introduced with
+  the 1.5.11 release.
+  For more information about the PROXY protocol, please see:
+  http://www.haproxy.org/download/1.5/doc/proxy-protocol.txt
+
+* `pxytimeout`: Sets PROXY protocol header read timeout as a duration (e.g. '250ms').
+  This defaults to 250ms if not set when 'pxyproto' is enabled.
+
 #### TLS options
 
 * `tlsmin`: Sets the minimum TLS version for the handshake. This value
