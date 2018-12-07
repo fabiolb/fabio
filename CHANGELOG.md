@@ -4,6 +4,22 @@
 
 #### Breaking Changes
 
+  * [Issue #524](https://github.com/fabiolb/fabio/issues/524): Fix TCP proxy
+    
+	Adding access control in 1.5.8 broke the TCP proxy for clients which wait
+	for a server handshake before they send data themself, e.g. MySQL client.
+	Calling `RemoteAddr` to check the access list is a blocking call on the
+	underlying listener. The Go team fixed this for HTTP in
+	https://github.com/golang/go/issues/12943 but fabio was still affected. 
+
+	This patch **disables** the PROXY protocol by default and you have to
+	**enable** it if you need it. You can control this with the `pxyproto` and
+	`pxytimeout` options which allow to enable/disable the protocol and add a
+	timeout for auto-detection if it is enabled. 
+
+	Thanks to [@pschultz](https://github.com/pschultz) and
+	[@leprechau](https://github.com/leprechau) for the debugging and patch.
+
 #### Bug Fixes
 
   * [PR #577](https://github.com/fabiolb/fabio/issues/577): Fix ip access rules within tcp proxy
