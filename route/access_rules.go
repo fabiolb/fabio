@@ -89,7 +89,7 @@ func (t *Target) AccessDeniedTCP(c net.Conn) bool {
 }
 
 func (t *Target) denyByIP(ip net.IP) bool {
-	if ip == nil || t.accessRules == nil {
+	if ip == nil || len(t.accessRules) == 0 {
 		return false
 	}
 
