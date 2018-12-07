@@ -16,16 +16,20 @@ const (
 
 // AccessDeniedHTTP checks rules on the target for HTTP proxy routes.
 func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
-	var ip net.IP
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	// No rules ... skip checks
+	if t.accessRules == nil || len(t.accessRules) == 0 {
+		return false
+	}
 
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		log.Printf("[ERROR] failed to get host from remote header %s: %s",
 			r.RemoteAddr, err.Error())
 		return false
 	}
 
-	if ip = net.ParseIP(host); ip == nil {
+	ip := net.ParseIP(host)
+	if ip == nil {
 		log.Printf("[WARN] failed to parse remote address %s", host)
 	}
 
@@ -64,16 +68,21 @@ func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
 
 // AccessDeniedTCP checks rules on the target for TCP proxy routes.
 func (t *Target) AccessDeniedTCP(c net.Conn) bool {
-	var addr *net.TCPAddr
-	var ok bool
-	// validate remote address assertion
-	if addr, ok = c.RemoteAddr().(*net.TCPAddr); !ok {
-		log.Printf("[ERROR] failed to assert remote connection address for %s", t.Service)
+	// Calling RemoteAddr on a proxy-protocol enabled connection.
+	// Therefore we explicitly check and bail out early if there are no
+	// rules defined for the target.
+	// See https://github.com/fabiolb/fabio/issues/524 for background.
+	if t.accessRules == nil || len(t.accessRules) == 0 {
 		return false
 	}
-	// check remote connection address
-	if t.denyByIP(addr.IP) {
+	// validate remote address assertion
+	if addr, ok := c.RemoteAddr().(*net.TCPAddr); !ok {
+		log.Printf("[ERROR] failed to assert remote connection address for %s", t.Service)
+		return false
+		// check remote connection address
+		if t.denyByIP(addr.IP) {
 			return true
+		}
 	}
 	// default allow
 	return false
