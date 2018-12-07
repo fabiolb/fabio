@@ -9,7 +9,7 @@ require (
 	github.com/Shopify/toxiproxy v2.1.3+incompatible // indirect
 	github.com/apache/thrift v0.0.0-20181028152738-da1169d75b15 // indirect
 	github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da // indirect
-	github.com/armon/go-proxyproto v0.0.0-20150207025855-609d6338d3a7
+	github.com/armon/go-proxyproto v0.0.0-20180202201750-5b7edb60ff5f
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.15.76 // indirect
 	github.com/boltdb/bolt v1.3.1 // indirect

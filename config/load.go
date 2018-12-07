@@ -382,6 +382,14 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 				return Listen{}, err
 			}
 			l.TLSCiphers = c
+		case "pxyproto":
+			l.ProxyProto = (v == "true")
+		case "pxytimeout":
+			d, err := time.ParseDuration(v)
+			if err != nil {
+				return Listen{}, err
+			}
+			l.ProxyHeaderTimeout = d
 		}
 	}
 
@@ -403,7 +411,11 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 		log.Printf("[INFO] vault-pki requires strictmatch; enabling strictmatch for listener %s", l.Addr)
 		l.StrictMatch = true
 	}
-
+	if l.ProxyProto && l.ProxyHeaderTimeout == 0 {
+		// We should define a safe default if proxy-protocol was enabled but no header timeout was set.
+		// See https://github.com/fabiolb/fabio/issues/524 for more information.
+		l.ProxyHeaderTimeout = 250 * time.Millisecond
+	}
 	return
 }
 
