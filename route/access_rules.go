@@ -17,7 +17,7 @@ const (
 // AccessDeniedHTTP checks rules on the target for HTTP proxy routes.
 func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
 	// No rules ... skip checks
-	if t.accessRules == nil || len(t.accessRules) == 0 {
+	if len(t.accessRules) == 0 {
 		return false
 	}
 
@@ -72,7 +72,7 @@ func (t *Target) AccessDeniedTCP(c net.Conn) bool {
 	// Therefore we explicitly check and bail out early if there are no
 	// rules defined for the target.
 	// See https://github.com/fabiolb/fabio/issues/524 for background.
-	if t.accessRules == nil || len(t.accessRules) == 0 {
+	if len(t.accessRules) == 0 {
 		return false
 	}
 	// validate remote address assertion
