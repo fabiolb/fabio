@@ -3,16 +3,17 @@ package proxy
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/fabiolb/fabio/config"
 	"net"
 	"time"
 
 	proxyproto "github.com/armon/go-proxyproto"
 )
 
-func ListenTCP(laddr string, cfg *tls.Config) (net.Listener, error) {
-	addr, err := net.ResolveTCPAddr("tcp", laddr)
+func ListenTCP(l config.Listen, cfg *tls.Config) (net.Listener, error) {
+	addr, err := net.ResolveTCPAddr("tcp", l.Addr)
 	if err != nil {
-		return nil, fmt.Errorf("listen: Fail to resolve tcp addr. %s", laddr)
+		return nil, fmt.Errorf("listen: Fail to resolve tcp addr. %s", l.Addr)
 	}
 
 	var ln net.Listener
@@ -25,7 +26,12 @@ func ListenTCP(laddr string, cfg *tls.Config) (net.Listener, error) {
 	ln = tcpKeepAliveListener{ln.(*net.TCPListener)}
 
 	// enable PROXY protocol support
-	ln = &proxyproto.Listener{Listener: ln}
+	if l.ProxyProto {
+		ln = &proxyproto.Listener{
+			Listener:           ln,
+			ProxyHeaderTimeout: l.ProxyHeaderTimeout,
+		}
+	}
 
 	// enable TLS
 	if cfg != nil {

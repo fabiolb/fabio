@@ -28,7 +28,7 @@ Using the library is very simple:
 list, err := net.Listen("tcp", "...")
 
 // Wrap listener in a proxyproto listener
-proxyList := &proxyproto.Listener{list}
+proxyList := &proxyproto.Listener{Listener: list}
 conn, err :=proxyList.Accept()
 
 ...

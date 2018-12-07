@@ -2,7 +2,7 @@
 github.com/Shopify/sarama
 # github.com/apache/thrift v0.0.0-20181028152738-da1169d75b15
 github.com/apache/thrift/lib/go/thrift
-# github.com/armon/go-proxyproto v0.0.0-20150207025855-609d6338d3a7
+# github.com/armon/go-proxyproto v0.0.0-20180202201750-5b7edb60ff5f
 github.com/armon/go-proxyproto
 # github.com/circonus-labs/circonus-gometrics v2.2.4+incompatible
 github.com/circonus-labs/circonus-gometrics

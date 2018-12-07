@@ -55,7 +55,7 @@ func Shutdown(timeout time.Duration) {
 }
 
 func ListenAndServeHTTP(l config.Listen, h http.Handler, cfg *tls.Config) error {
-	ln, err := ListenTCP(l.Addr, cfg)
+	ln, err := ListenTCP(l, cfg)
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func ListenAndServeHTTP(l config.Listen, h http.Handler, cfg *tls.Config) error 
 }
 
 func ListenAndServeTCP(l config.Listen, h tcp.Handler, cfg *tls.Config) error {
-	ln, err := ListenTCP(l.Addr, cfg)
+	ln, err := ListenTCP(l, cfg)
 	if err != nil {
 		return err
 	}
