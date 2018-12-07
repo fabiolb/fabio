@@ -36,6 +36,12 @@ github.com/gobwas/glob/syntax/lexer
 github.com/gobwas/glob/util/strings
 # github.com/gogo/protobuf v1.1.1
 github.com/gogo/protobuf/proto
+# github.com/golang/protobuf v1.2.0
+github.com/golang/protobuf/proto
+github.com/golang/protobuf/ptypes
+github.com/golang/protobuf/ptypes/any
+github.com/golang/protobuf/ptypes/duration
+github.com/golang/protobuf/ptypes/timestamp
 # github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db
 github.com/golang/snappy
 # github.com/hashicorp/consul v1.4.0
@@ -72,6 +78,8 @@ github.com/magiconair/properties
 github.com/mitchellh/go-homedir
 # github.com/mitchellh/mapstructure v0.0.0-20160212031839-d2dd02622084
 github.com/mitchellh/mapstructure
+# github.com/mwitkow/grpc-proxy v0.0.0-20181017164139-0f1106ef9c76
+github.com/mwitkow/grpc-proxy/proxy
 # github.com/opentracing-contrib/go-observer v0.0.0-20170622124052-a52f23424492
 github.com/opentracing-contrib/go-observer
 # github.com/opentracing/opentracing-go v1.0.2
@@ -105,17 +113,50 @@ github.com/rogpeppe/fastuuid
 github.com/sergi/go-diff/diffmatchpatch
 # github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926
 github.com/tv42/httpunix
-# golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
+# golang.org/x/net v0.0.0-20181114220301-adae6a3d119a
 golang.org/x/net/websocket
-golang.org/x/net/http2
 golang.org/x/net/context
-golang.org/x/net/http/httpguts
+golang.org/x/net/trace
+golang.org/x/net/http2
+golang.org/x/net/internal/timeseries
 golang.org/x/net/http2/hpack
+golang.org/x/net/http/httpguts
 golang.org/x/net/idna
-# golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
+# golang.org/x/sync v0.0.0-20181108010431-42b317875d0f
 golang.org/x/sync/singleflight
+# golang.org/x/sys v0.0.0-20181122145206-62eef0e2fa9b
+golang.org/x/sys/unix
 # golang.org/x/text v0.3.0
 golang.org/x/text/secure/bidirule
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
 golang.org/x/text/transform
+# google.golang.org/genproto v0.0.0-20181109154231-b5d43981345b
+google.golang.org/genproto/googleapis/rpc/status
+# google.golang.org/grpc v1.16.0
+google.golang.org/grpc
+google.golang.org/grpc/credentials
+google.golang.org/grpc/metadata
+google.golang.org/grpc/stats
+google.golang.org/grpc/status
+google.golang.org/grpc/codes
+google.golang.org/grpc/balancer
+google.golang.org/grpc/balancer/roundrobin
+google.golang.org/grpc/connectivity
+google.golang.org/grpc/encoding
+google.golang.org/grpc/encoding/proto
+google.golang.org/grpc/grpclog
+google.golang.org/grpc/internal
+google.golang.org/grpc/internal/backoff
+google.golang.org/grpc/internal/channelz
+google.golang.org/grpc/internal/envconfig
+google.golang.org/grpc/internal/grpcrand
+google.golang.org/grpc/internal/transport
+google.golang.org/grpc/keepalive
+google.golang.org/grpc/naming
+google.golang.org/grpc/peer
+google.golang.org/grpc/resolver
+google.golang.org/grpc/resolver/dns
+google.golang.org/grpc/resolver/passthrough
+google.golang.org/grpc/tap
+google.golang.org/grpc/balancer/base

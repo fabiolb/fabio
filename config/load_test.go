@@ -99,6 +99,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-proxy.addr", ":5555;proto=grpc"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "grpc"}}
+				return cfg
+			},
+		},
+		{
 			desc: "-proxy.addr with tls configs",
 			args: []string{"-proxy.addr", `:5555;rt=1s;wt=2s;tlsmin=0x0300;tlsmax=0x305;tlsciphers="0x123,0x456"`},
 			cfg: func(cfg *Config) *Config {
@@ -941,16 +948,22 @@ func TestLoad(t *testing.T) {
 			err:  errors.New("proto 'https' requires cert source"),
 		},
 		{
-			desc: "-proxy.addr with cert source and proto 'http' requires proto 'https' or 'tcp'",
-			args: []string{"-proxy.addr", ":5555;cs=name;proto=http", "-proxy.cs", "cs=name;type=path;cert=value"},
+			desc: "-proxy.addr with proto 'grpcs' requires cert source",
+			args: []string{"-proxy.addr", ":5555;proto=grpcs"},
 			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("cert source requires proto 'https' or 'tcp'"),
+			err:  errors.New("proto 'grpcs' requires cert source"),
 		},
 		{
-			desc: "-proxy.addr with cert source and proto 'tcp+sni' requires proto 'https' or 'tcp'",
+			desc: "-proxy.addr with cert source and proto 'http' requires proto 'https', 'tcp', or 'grpcs'",
+			args: []string{"-proxy.addr", ":5555;cs=name;proto=http", "-proxy.cs", "cs=name;type=path;cert=value"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("cert source requires proto 'https', 'tcp' or 'grpcs'"),
+		},
+		{
+			desc: "-proxy.addr with cert source and proto 'tcp+sni' requires proto 'https', 'tcp' or 'grpcs'",
 			args: []string{"-proxy.addr", ":5555;cs=name;proto=tcp+sni", "-proxy.cs", "cs=name;type=path;cert=value"},
 			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("cert source requires proto 'https' or 'tcp'"),
+			err:  errors.New("cert source requires proto 'https', 'tcp' or 'grpcs'"),
 		},
 		{
 			desc: "-proxy.noroutestatus too small",

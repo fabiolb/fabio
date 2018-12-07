@@ -46,6 +46,13 @@ and you need to add a separate `urlprefix-` tag for every `host/path` prefix the
 
 	# TCP examples
 	urlprefix-:3306 proto=tcp                          # route external port 3306
+	
+	# GRPC/S examples
+	urlprefix-/my.service/Method proto=grpc                      # method specific route
+	urlprefix-/my.service proto=grpc                             # service specific route
+	urlprefix-/my.service proto=grpcs                            # TLS upstream
+	urlprefix-/my.service proto=grpcs grpcservername=my.service  # TLS upstream with servername override
+	urlprefix-/my.service proto=grpcs tlsskipverify=true         # TLS upstream and self-signed cert
 	```
 
 5. Start fabio without a config file

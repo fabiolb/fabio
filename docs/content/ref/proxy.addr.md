@@ -18,6 +18,8 @@ The supported protocols are:
 
 * `http` for HTTP based protocols
 * `https` for HTTPS based protocols
+* `grpc` for GRPC based protocols
+* `grpcs` for GRPC+TLS based protocols
 * `tcp` for a raw TCP proxy with or witout TLS support
 * `tcp+sni` for an SNI aware TCP proxy
 
@@ -76,6 +78,12 @@ to the destination without decrypting the traffic.
 
     # HTTPS listener on port 443 with certificate source and TLS options
     proxy.addr = :443;cs=some-name;tlsmin=tls10;tlsmax=tls11;tlsciphers="0xc00a,0xc02b"
+    
+    # GRPC listener on port 8888 
+    proxy.addr = :8888;proto=grpc
+    
+    # GRPCS listener on port 8888 with certificate source
+    proxy.addr = :8888;proto=grpcs;cs=some-name
 
     # TCP listener on port 1234 with port routing
     proxy.addr = :1234;proto=tcp

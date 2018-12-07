@@ -32,8 +32,10 @@ import (
 	"github.com/fabiolb/fabio/registry/static"
 	"github.com/fabiolb/fabio/route"
 	"github.com/fabiolb/fabio/trace"
+	grpc_proxy "github.com/mwitkow/grpc-proxy/proxy"
 	"github.com/pkg/profile"
 	dmp "github.com/sergi/go-diff/diffmatchpatch"
+	"google.golang.org/grpc"
 )
 
 // version contains the version number
@@ -137,6 +139,28 @@ func main() {
 
 	exit.Wait()
 	log.Print("[INFO] Down")
+}
+
+func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config) []grpc.ServerOption {
+	statsHandler := &proxy.GrpcStatsHandler{
+		Connect: metrics.DefaultRegistry.GetCounter("grpc.conn"),
+		Request: metrics.DefaultRegistry.GetTimer("grpc.requests"),
+		NoRoute: metrics.DefaultRegistry.GetCounter("grpc.noroute"),
+	}
+
+	proxyInterceptor := proxy.GrpcProxyInterceptor{
+		Config:       cfg,
+		StatsHandler: statsHandler,
+	}
+
+	handler := grpc_proxy.TransparentHandler(proxy.GetGRPCDirector(tlscfg))
+
+	return []grpc.ServerOption{
+		grpc.CustomCodec(grpc_proxy.Codec()),
+		grpc.UnknownServiceHandler(handler),
+		grpc.StreamInterceptor(proxyInterceptor.Stream),
+		grpc.StatsHandler(statsHandler),
+	}
 }
 
 func newHTTPProxy(cfg *config.Config) http.Handler {
@@ -270,6 +294,13 @@ func startServers(cfg *config.Config) {
 			go func() {
 				h := newHTTPProxy(cfg)
 				if err := proxy.ListenAndServeHTTP(l, h, tlscfg); err != nil {
+					exit.Fatal("[FATAL] ", err)
+				}
+			}()
+		case "grpc", "grpcs":
+			go func() {
+				h := newGrpcProxy(cfg, tlscfg)
+				if err := proxy.ListenAndServeGRPC(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
 				}
 			}()
