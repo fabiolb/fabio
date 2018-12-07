@@ -68,7 +68,7 @@ func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
 
 // AccessDeniedTCP checks rules on the target for TCP proxy routes.
 func (t *Target) AccessDeniedTCP(c net.Conn) bool {
-	// Calling RemoteAddr on a proxy-protocol enabled connection.
+	// Calling RemoteAddr on a proxy-protocol enabled connection may block.
 	// Therefore we explicitly check and bail out early if there are no
 	// rules defined for the target.
 	// See https://github.com/fabiolb/fabio/issues/524 for background.
