@@ -9,7 +9,7 @@ proxy support the service needs to advertise `urlprefix-/my.service/Method proto
 Consul. In addition, fabio needs to be configured with a grpc listener:
 
 ```
-fabio -proxy.addr ':1234;proto=grpc'
+fabio -proxy.addr ':1234;proto=tcp'
 ```
 
 As per the HTTP/2 spec, the host header is not required, so host matching is not supported for GRPC proxying.
