@@ -1,6 +1,6 @@
 ---
 title: "GRPC Proxy"
-since: "1.5.10"
+since: "1.5.11"
 ---
 
 fabio can run a transparent GRPC proxy which dynamically forwards an incoming
@@ -27,10 +27,10 @@ validation for a target set the `tlsskipverify=true` option.
 ```
 urlprefix-/foo proto=grpcs
 urlprefix-/foo proto=grpcs tlsskipverify=true
-``` 
+```
 
 For TLS upstream servers (when using the consul registry) fabio will direct your traffic to an advertised service IP. If your service certificate does not contain an IP SAN, the certificate verification will fail. You can set the override the server name in the tls config by setting `grpcservername=<servername>` in the `urlprefix-` tag.
 
 ```
 urlprefix-/ proto=grpcs grpcservername=my.service.hostname
-``` 
+```
