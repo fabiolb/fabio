@@ -1,6 +1,6 @@
 ---
 title: "Authorization"
-since: "1.5.10"
+since: "1.5.11"
 ---
 
 fabio supports basic http authorization on a per-route basis.

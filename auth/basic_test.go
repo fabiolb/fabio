@@ -180,7 +180,7 @@ func TestBasic_Authorized_should_set_www_realm_header(t *testing.T) {
 	_ = basicAuth.Authorized(&http.Request{Header: http.Header{}}, rw)
 
 	got := rw.Header().Get("WWW-Authenticate")
-	want := "Basic realm=\"testrealm\""
+	want := `Basic realm="testrealm"`
 
 	if strings.Compare(got, want) != 0 {
 		t.Errorf("got '%s', want '%s'", got, want)

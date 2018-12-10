@@ -14,12 +14,12 @@ func TestLoadAuthSchemes(t *testing.T) {
 				Name: "myauth",
 				Type: "basic",
 				Basic: config.BasicAuth{
-					File: "/some/non/existant/file",
+					File: "/some/non/existent/file",
 				},
 			},
 		})
 
-		const errorText = "open /some/non/existant/file: no such file or directory"
+		const errorText = "open /some/non/existent/file: no such file or directory"
 
 		if err.Error() != errorText {
 			t.Fatalf("got %s, want %s", err.Error(), errorText)
