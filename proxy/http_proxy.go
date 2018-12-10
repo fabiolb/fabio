@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fabiolb/fabio/auth"
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/logger"
 	"github.com/fabiolb/fabio/metrics"
@@ -60,6 +61,9 @@ type HTTPProxy struct {
 	// UUID returns a unique id in uuid format.
 	// If UUID is nil, uuid.NewUUID() is used.
 	UUID func() string
+
+	// Auth schemes registered with the server
+	AuthSchemes map[string]auth.AuthScheme
 }
 
 func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -80,6 +84,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer span.Finish()
 
 	t := p.Lookup(r)
+
 	if t == nil {
 		status := p.Config.NoRouteStatus
 		if status < 100 || status > 999 {
@@ -95,6 +100,11 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if t.AccessDeniedHTTP(r) {
 		http.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
+	if !t.Authorized(r, w, p.AuthSchemes) {
+		http.Error(w, "authorization failed", http.StatusUnauthorized)
 		return
 	}
 

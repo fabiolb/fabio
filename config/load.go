@@ -113,6 +113,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	var listenerValue string
 	var uiListenerValue string
 	var certSourcesValue string
+	var authSchemesValue string
 	var readTimeout, writeTimeout time.Duration
 	var gzipContentTypesValue string
 
@@ -140,6 +141,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.DurationVar(&writeTimeout, "proxy.writetimeout", defaultValues.WriteTimeout, "write timeout for outgoing responses")
 	f.DurationVar(&cfg.Proxy.FlushInterval, "proxy.flushinterval", defaultConfig.Proxy.FlushInterval, "flush interval for streaming responses")
 	f.DurationVar(&cfg.Proxy.GlobalFlushInterval, "proxy.globalflushinterval", defaultConfig.Proxy.GlobalFlushInterval, "flush interval for non-streaming responses")
+	f.StringVar(&authSchemesValue, "proxy.auth", defaultValues.AuthSchemesValue, "auth schemes")
 	f.StringVar(&cfg.Log.AccessFormat, "log.access.format", defaultConfig.Log.AccessFormat, "access log format")
 	f.StringVar(&cfg.Log.AccessTarget, "log.access.target", defaultConfig.Log.AccessTarget, "access log target")
 	f.StringVar(&cfg.Log.RoutesFormat, "log.routes.format", defaultConfig.Log.RoutesFormat, "log format of routing table updates")
@@ -221,6 +223,14 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	if err != nil {
 		return nil, err
 	}
+
+	authSchemes, err := parseAuthSchemes(authSchemesValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	cfg.Proxy.AuthSchemes = authSchemes
 
 	if uiListenerValue != "" {
 		kvs, err := parseKVSlice(uiListenerValue)
@@ -559,6 +569,62 @@ func parseCertSource(cfg map[string]string) (c CertSource, err error) {
 		// no-op
 	default:
 		return CertSource{}, fmt.Errorf("unknown cert source type %s", c.Type)
+	}
+
+	return
+}
+
+func parseAuthSchemes(cfgs string) (as map[string]AuthScheme, err error) {
+	kvs, err := parseKVSlice(cfgs)
+	if err != nil {
+		return nil, err
+	}
+	as = map[string]AuthScheme{}
+	for _, cfg := range kvs {
+		src, err := parseAuthScheme(cfg)
+		if err != nil {
+			return nil, err
+		}
+		as[src.Name] = src
+	}
+	return
+}
+
+func parseAuthScheme(cfg map[string]string) (a AuthScheme, err error) {
+	if cfg == nil {
+		return
+	}
+
+	for k, v := range cfg {
+		switch k {
+		case "name":
+			a.Name = v
+		case "type":
+			a.Type = v
+		}
+	}
+
+	if a.Name == "" {
+		return AuthScheme{}, errors.New("missing 'name' in auth")
+	}
+
+	switch a.Type {
+	case "":
+		return AuthScheme{}, fmt.Errorf("missing 'type' in auth '%s'", a.Name)
+	case "basic":
+		a.Basic = BasicAuth{
+			File:  cfg["file"],
+			Realm: cfg["realm"],
+		}
+
+		if a.Basic.File == "" {
+			return AuthScheme{}, fmt.Errorf("missing 'file' in auth '%s'", a.Name)
+		}
+		if a.Basic.Realm == "" {
+			a.Basic.Realm = a.Name
+		}
+	default:
+		return AuthScheme{}, fmt.Errorf("unknown auth type '%s'", a.Type)
 	}
 
 	return

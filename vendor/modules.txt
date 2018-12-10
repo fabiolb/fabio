@@ -111,6 +111,11 @@ github.com/rcrowley/go-metrics
 github.com/rogpeppe/fastuuid
 # github.com/sergi/go-diff v0.0.0-20170118131230-24e2351369ec
 github.com/sergi/go-diff/diffmatchpatch
+# github.com/tg123/go-htpasswd v0.0.0-20181019180120-0849ceac46bc
+github.com/tg123/go-htpasswd
+# golang.org/x/crypto v0.0.0-20181112202954-3d3f9f413869
+golang.org/x/crypto/bcrypt
+golang.org/x/crypto/blowfish
 # github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926
 github.com/tv42/httpunix
 # golang.org/x/net v0.0.0-20181114220301-adae6a3d119a

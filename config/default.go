@@ -9,6 +9,7 @@ import (
 var defaultValues = struct {
 	ListenerValue         string
 	CertSourcesValue      string
+	AuthSchemesValue      string
 	ReadTimeout           time.Duration
 	WriteTimeout          time.Duration
 	UIListenerValue       string
@@ -44,6 +45,7 @@ var defaultConfig = &Config{
 		FlushInterval:       time.Second,
 		GlobalFlushInterval: 0,
 		LocalIP:             LocalIPString(),
+		AuthSchemes:         map[string]AuthScheme{},
 	},
 	Registry: Registry{
 		Backend: "consul",

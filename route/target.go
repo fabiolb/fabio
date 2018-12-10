@@ -57,6 +57,9 @@ type Target struct {
 
 	// accessRules is map of access information for the target.
 	accessRules map[string][]interface{}
+
+	// name of the auth handler for this target
+	AuthScheme string
 }
 
 func (t *Target) BuildRedirectURL(requestURL *url.URL) {

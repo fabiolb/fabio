@@ -89,6 +89,8 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 			log.Printf("[ERROR] failed to process access rules: %s",
 				err.Error())
 		}
+
+		t.AuthScheme = opts["auth"]
 	}
 
 	r.Targets = append(r.Targets, t)

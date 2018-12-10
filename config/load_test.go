@@ -259,6 +259,40 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			desc: "-proxy.auth with source basic",
+			args: []string{"-proxy.auth", "name=foo;type=basic;file=/some/file/on/disk;realm=realm"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.AuthSchemes = map[string]AuthScheme{
+					"foo": {
+						Name: "foo",
+						Type: "basic",
+						Basic: BasicAuth{
+							File:  "/some/file/on/disk",
+							Realm: "realm",
+						},
+					},
+				}
+				return cfg
+			},
+		},
+		{
+			desc: "-proxy.auth with source basic and no realm specified",
+			args: []string{"-proxy.auth", "name=foo;type=basic;file=/some/file/on/disk"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.AuthSchemes = map[string]AuthScheme{
+					"foo": {
+						Name: "foo",
+						Type: "basic",
+						Basic: BasicAuth{
+							File:  "/some/file/on/disk",
+							Realm: "foo",
+						},
+					},
+				}
+				return cfg
+			},
+		},
+		{
 			desc: "issue 305",
 			args: []string{
 				"-proxy.addr", ":443;cs=consul-cs,:80,:2375;proto=tcp+sni",
@@ -976,6 +1010,24 @@ func TestLoad(t *testing.T) {
 			args: []string{"-proxy.noroutestatus", "1000"},
 			cfg:  func(cfg *Config) *Config { return nil },
 			err:  errors.New("proxy.noroutestatus must be between 100 and 999"),
+		},
+		{
+			desc: "-proxy.auth with unknown auth type 'foo'",
+			args: []string{"-proxy.auth", "name=myauth;type=foo"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("unknown auth type 'foo'"),
+		},
+		{
+			desc: "-proxy.auth with missing name",
+			args: []string{"-proxy.auth", "type=basic;file=/some/file;realm=realm"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("missing 'name' in auth"),
+		},
+		{
+			desc: "-proxy.auth basic with missing file",
+			args: []string{"-proxy.auth", "name=foo;type=basic;realm=realm"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("missing 'file' in auth 'foo'"),
 		},
 		{
 			args: []string{"-cfg"},
