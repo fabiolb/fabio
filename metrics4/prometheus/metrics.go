@@ -9,17 +9,21 @@ import (
 
 type Provider struct {
 	counters map[string]metrics4.Counter
+	gauges map[string]metrics4.Gauge
 }
 
 func NewProvider() *Provider {
-	return &Provider{make(map[string]metrics4.Counter)}
+	return &Provider{
+		make(map[string]metrics4.Counter),
+		make(map[string]metrics4.Gauge),
+	}
 }
 
 func (p *Provider) NewCounter(name string) metrics4.Counter {
 	// TODO(max): Add lock ?
 	if p.counters[name] == nil {
 		p.counters[name] = prometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: metrics4.FABIO_NAMESPACE,
+			Namespace: metrics4.FabioNamespace,
 			Subsystem: "",
 			Name:      name,
 			Help:      "",
@@ -27,4 +31,18 @@ func (p *Provider) NewCounter(name string) metrics4.Counter {
 	}
 
 	return p.counters[name]
+}
+
+func (p *Provider) NewGauge(name string) metrics4.Gauge {
+	// TODO(max): Add lock ?
+	if p.gauges[name] == nil {
+		p.gauges[name] = prometheus.NewGaugeFrom(stdprometheus.GaugeOpts{
+			Namespace: metrics4.FabioNamespace,
+			Subsystem: "",
+			Name:      name,
+			Help:      "",
+		}, []string{})
+	}
+
+	return p.gauges[name]
 }

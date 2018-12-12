@@ -34,8 +34,6 @@ import (
 	"github.com/fabiolb/fabio/route"
 	"github.com/pkg/profile"
 	dmp "github.com/sergi/go-diff/diffmatchpatch"
-
-	"github.com/go-kit/kit/metrics"
 )
 
 // version contains the version number
@@ -200,13 +198,13 @@ func newHTTPProxy(cfg *config.Config, stats metrics4.Provider) *proxy.HTTPProxy 
 		},
 		//Requests: stats.NewTimer("requests"),
 		Noroute:  stats.NewCounter("notfound"),
-		//WSConn:   stats.NewGauge("ws.conn"),
+		WSConn:   stats.NewGauge("wsconn"),
 		Metrics:  stats,
 		Logger:   l,
 	}
 }
 
-func lookupHostFn(cfg *config.Config, notFound metrics.Counter) func(string) *route.Target {
+func lookupHostFn(cfg *config.Config, notFound metrics4.Counter) func(string) *route.Target {
 	pick := route.Picker[cfg.Proxy.Strategy]
 	return func(host string) *route.Target {
 		t := route.GetTable().LookupHost(host, pick)
@@ -275,7 +273,7 @@ func startServers(cfg *config.Config, stats metrics4.Provider) {
 			go func() {
 				h := newHTTPProxy(cfg, stats)
 				// reset the ws.conn gauge
-				//h.WSConn.Update(0)
+				h.WSConn.Set(0)
 				if err := proxy.ListenAndServeHTTP(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
 				}

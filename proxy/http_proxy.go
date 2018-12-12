@@ -51,7 +51,7 @@ type HTTPProxy struct {
 	Noroute metrics4.Counter
 
 	// WSConn counts the number of open web socket connections.
-	//WSConn metrics4.Gauge
+	WSConn metrics4.Gauge
 
 	// Metrics is the configured metrics backend provider.
 	Metrics metrics4.Provider
@@ -172,7 +172,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return tls.Dial(network, address, tr.(*http.Transport).TLSClientConfig)
 			}
 		}
-		h = newRawProxy(targetURL.Host, dial /*, p.WSConn*/)
+		h = newRawProxy(targetURL.Host, dial, p.WSConn)
 
 	case accept == "text/event-stream":
 		// use the flush interval for SSE (server-sent events)

@@ -2,7 +2,13 @@ package metrics4
 
 import "github.com/go-kit/kit/metrics"
 
-const FABIO_NAMESPACE = "fabio"
+const FabioNamespace = "fabio"
+
+type Counter metrics.Counter
+
+type Gauge metrics.Gauge
+
+type Timer metrics.Timer
 
 // Provider is an abstraction of a metrics backend.
 type Provider interface {
@@ -10,7 +16,7 @@ type Provider interface {
 	NewCounter(name string) Counter
 
 	// NewGauge creates a new gauge object.
-	//NewGauge(name string, labels ...string) Gauge
+	NewGauge(name string) Gauge
 
 	// NewTimer creates a new timer object.
 	//NewTimer(name string, labels ...string) Timer
@@ -34,7 +40,7 @@ func NewMultiProvider(p []Provider) *MultiProvider {
 // NewCounter creates a MultiCounter with counter objects for all registered
 // providers.
 func (mp *MultiProvider) NewCounter(name string) Counter {
-	var c []metrics.Counter
+	var c []Counter
 	for _, p := range mp.p {
 		c = append(c, p.NewCounter(name))
 	}
@@ -43,13 +49,13 @@ func (mp *MultiProvider) NewCounter(name string) Counter {
 
 // NewGauge creates a MultiGauge with gauge objects for all registered
 // providers.
-//func (mp *MultiProvider) NewGauge(name string, labels ...string) Gauge {
-//	var v []Gauge
-//	for _, p := range mp.p {
-//		v = append(v, p.NewGauge(name, labels...))
-//	}
-//	return &MultiGauge{v}
-//}
+func (mp *MultiProvider) NewGauge(name string) Gauge {
+	var g []Gauge
+	for _, p := range mp.p {
+		g = append(g, p.NewGauge(name))
+	}
+	return &MultiGauge{g}
+}
 
 // NewTimer creates a MultiTimer with timer objects for all registered
 // providers.
@@ -75,37 +81,45 @@ func (mp *MultiProvider) NewCounter(name string) Counter {
 
 // MultiCounter wraps zero or more counters.
 type MultiCounter struct {
-	c []metrics.Counter
+	counters []Counter
 }
 
 func (mc *MultiCounter) Add(delta float64) {
-	for _, c := range mc.c {
+	for _, c := range mc.counters {
 		c.Add(delta)
 	}
 }
 
 func (mc *MultiCounter) With(labelValues... string) metrics.Counter {
-	for _, c := range mc.c {
+	for _, c := range mc.counters {
 		c.With(labelValues...)
 	}
 	return mc
 }
 
-// Gauge measures a value.
-//type Gauge interface {
-//	Update(int)
-//}
-
 // MultiGauge wraps zero or more gauges.
-//type MultiGauge struct {
-//	v []Gauge
-//}
+type MultiGauge struct {
+	gauges []Gauge
+}
 
-//func (m *MultiGauge) Update(n int) {
-//	for _, v := range m.v {
-//		v.Update(n)
-//	}
-//}
+func (mg *MultiGauge) Add(delta float64) {
+	for _, g := range mg.gauges {
+		g.Add(delta)
+	}
+}
+
+func (mg *MultiGauge) Set(delta float64) {
+	for _, g := range mg.gauges {
+		g.Set(delta)
+	}
+}
+
+func (mg *MultiGauge) With(labelValues... string) metrics.Gauge {
+	for _, g := range mg.gauges {
+		g.With(labelValues...)
+	}
+	return mg
+}
 
 // Timer measures the time of an event.
 //type Timer interface {
@@ -122,11 +136,3 @@ func (mc *MultiCounter) With(labelValues... string) metrics.Counter {
 //		t.Update(d)
 //	}
 //}
-
-//type Metric interface {
-//	String() string
-//}
-//
-//type MetricsContainer []*Metric
-
-type Counter metrics.Counter
