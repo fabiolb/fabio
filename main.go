@@ -116,10 +116,6 @@ func main() {
 
 	metrics := initMetrics(cfg)
 
-	// TODO(max): Remove
-	counter := metrics.NewCounter("test")
-	counter.Add(123)
-
 	initRuntime(cfg)
 	initBackend(cfg)
 	startAdmin(cfg, metrics)
@@ -196,7 +192,7 @@ func newHTTPProxy(cfg *config.Config, stats metrics4.Provider) *proxy.HTTPProxy 
 			}
 			return t
 		},
-		//Requests: stats.NewTimer("requests"),
+		Requests: stats.NewTimer("requests"),
 		Noroute:  stats.NewCounter("notfound"),
 		WSConn:   stats.NewGauge("wsconn"),
 		Metrics:  stats,

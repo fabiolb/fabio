@@ -57,7 +57,3 @@ package flat
 //func (t *Timer) Update(d time.Duration) {
 //	fmt.Printf("%s:%d|ms\n", t.Name, d/time.Millisecond)
 //}
-//
-//func (t *Timer) String() string {
-//	return fmt.Sprintf("%s:something|ms\n", t.Name)
-//}

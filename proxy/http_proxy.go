@@ -44,7 +44,7 @@ type HTTPProxy struct {
 	Lookup func(*http.Request) *route.Target
 
 	// Requests is a timer metric which is updated for every request.
-	//Requests metrics4.Timer
+	Requests metrics4.ITimer
 
 	// Noroute is a counter metric which is updated for every request
 	// where Lookup() returns nil.
@@ -196,19 +196,19 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	rw := &responseWriter{w: w}
 	h.ServeHTTP(rw, r)
 	end := timeNow()
-	//dur := end.Sub(start)
+	dur := end.Sub(start)
 
-	//if p.Requests != nil {
-	//	p.Requests.Update(dur)
-	//}
-	//if t.Timer != nil {
-	//	t.Timer.Update(dur)
-	//}
+	if p.Requests != nil {
+		p.Requests.Duration(float64(dur))
+	}
+	if t.Timer != nil {
+		t.Timer.Duration(float64(dur))
+	}
 	if rw.code <= 0 {
 		return
 	}
 
-	//metrics.NewTimer("http.status", "code", strconv.Itoa(rw.code)).Update(dur)
+	metrics.NewTimer("http_status").With("code", strconv.Itoa(rw.code)).Duration(float64(dur))
 
 	// write access log
 	if p.Logger != nil {

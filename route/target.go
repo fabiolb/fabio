@@ -1,6 +1,7 @@
 package route
 
 import (
+	"github.com/fabiolb/fabio/metrics4"
 	"net/url"
 	"strings"
 
@@ -50,7 +51,7 @@ type Target struct {
 	Weight float64
 
 	// Timer measures throughput and latency of this target
-	//Timer metrics4.Timer
+	Timer metrics4.ITimer
 
 	// TimerName is the name of the timer in the metrics registry
 	TimerName names.Service

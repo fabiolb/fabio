@@ -8,14 +8,18 @@ import (
 )
 
 type Provider struct {
-	counters map[string]metrics4.Counter
-	gauges map[string]metrics4.Gauge
+	counters   map[string]metrics4.Counter
+	gauges     map[string]metrics4.Gauge
+	timers     map[string]metrics4.Timer
+	histograms map[string]metrics4.Histogram
 }
 
 func NewProvider() *Provider {
 	return &Provider{
 		make(map[string]metrics4.Counter),
 		make(map[string]metrics4.Gauge),
+		make(map[string]metrics4.Timer),
+		make(map[string]metrics4.Histogram),
 	}
 }
 
@@ -45,4 +49,23 @@ func (p *Provider) NewGauge(name string) metrics4.Gauge {
 	}
 
 	return p.gauges[name]
+}
+
+func (p *Provider) NewHistogram(name string) metrics4.Histogram {
+	// TODO(max): Add lock ?
+	if p.histograms[name] == nil {
+		p.histograms[name] = prometheus.NewHistogramFrom(stdprometheus.HistogramOpts{
+			Namespace: metrics4.FabioNamespace,
+			Subsystem: "",
+			Name:      name,
+			Help:      "",
+			// TODO: Look on 'Buckets'
+		}, []string{})
+	}
+
+	return p.histograms[name]
+}
+
+func (p *Provider) NewTimer(name string) metrics4.ITimer {
+	return nil
 }
