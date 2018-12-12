@@ -199,16 +199,16 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	dur := end.Sub(start)
 
 	if p.Requests != nil {
-		p.Requests.Duration(float64(dur))
+		p.Requests.Duration(float64(dur.Nanoseconds()))
 	}
 	if t.Timer != nil {
-		t.Timer.Duration(float64(dur))
+		t.Timer.Duration(float64(dur.Nanoseconds()))
 	}
 	if rw.code <= 0 {
 		return
 	}
 
-	metrics.NewTimer("http_status").With("code", strconv.Itoa(rw.code)).Duration(float64(dur))
+	metrics.NewTimer("http_status").With("code", strconv.Itoa(rw.code)).Duration(float64(dur.Nanoseconds()))
 
 	// write access log
 	if p.Logger != nil {

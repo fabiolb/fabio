@@ -44,6 +44,7 @@ func (t *Timer) Reset() {
 }
 
 func (t *Timer) Duration(duration float64) {
+	duration = duration / float64(t.unit)
 	for _, h := range t.histograms {
 		h.Observe(duration)
 	}
