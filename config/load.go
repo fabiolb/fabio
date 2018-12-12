@@ -149,6 +149,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.DurationVar(&cfg.Metrics.Interval, "metrics.interval", defaultConfig.Metrics.Interval, "metrics reporting interval")
 	f.DurationVar(&cfg.Metrics.Timeout, "metrics.timeout", defaultConfig.Metrics.Timeout, "timeout for metrics to become available")
 	f.DurationVar(&cfg.Metrics.Retry, "metrics.retry", defaultConfig.Metrics.Retry, "retry interval during startup")
+	f.StringVar(&cfg.Metrics.PrometheusEndpoint, "metrics.prometheus.endpoint", defaultConfig.Metrics.PrometheusEndpoint, "Metrics endpoint for Prometheus")
 	f.StringVar(&cfg.Metrics.GraphiteAddr, "metrics.graphite.addr", defaultConfig.Metrics.GraphiteAddr, "graphite server address")
 	f.StringVar(&cfg.Metrics.StatsDAddr, "metrics.statsd.addr", defaultConfig.Metrics.StatsDAddr, "statsd server address")
 	f.StringVar(&cfg.Metrics.Circonus.APIKey, "metrics.circonus.apikey", defaultConfig.Metrics.Circonus.APIKey, "Circonus API token key")

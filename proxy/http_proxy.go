@@ -44,14 +44,14 @@ type HTTPProxy struct {
 	Lookup func(*http.Request) *route.Target
 
 	// Requests is a timer metric which is updated for every request.
-	Requests metrics4.Timer
+	//Requests metrics4.Timer
 
 	// Noroute is a counter metric which is updated for every request
 	// where Lookup() returns nil.
 	Noroute metrics4.Counter
 
 	// WSConn counts the number of open web socket connections.
-	WSConn metrics4.Gauge
+	//WSConn metrics4.Gauge
 
 	// Metrics is the configured metrics backend provider.
 	Metrics metrics4.Provider
@@ -112,10 +112,10 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if t.RedirectCode != 0 {
 		http.Redirect(w, r, t.RedirectURL.String(), t.RedirectCode)
-		if t.Timer != nil {
-			t.Timer.Update(0)
-		}
-		metrics.NewCounter("http.status", "code", strconv.Itoa(t.RedirectCode)).Count(1)
+		//if t.Timer != nil {
+		//	t.Timer.Update(0)
+		//}
+		metrics.NewCounter("http.status").With("code", strconv.Itoa(t.RedirectCode)).Add(1)
 		return
 	}
 
@@ -172,7 +172,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return tls.Dial(network, address, tr.(*http.Transport).TLSClientConfig)
 			}
 		}
-		h = newRawProxy(targetURL.Host, dial, p.WSConn)
+		h = newRawProxy(targetURL.Host, dial /*, p.WSConn*/)
 
 	case accept == "text/event-stream":
 		// use the flush interval for SSE (server-sent events)
@@ -196,19 +196,19 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	rw := &responseWriter{w: w}
 	h.ServeHTTP(rw, r)
 	end := timeNow()
-	dur := end.Sub(start)
+	//dur := end.Sub(start)
 
-	if p.Requests != nil {
-		p.Requests.Update(dur)
-	}
-	if t.Timer != nil {
-		t.Timer.Update(dur)
-	}
+	//if p.Requests != nil {
+	//	p.Requests.Update(dur)
+	//}
+	//if t.Timer != nil {
+	//	t.Timer.Update(dur)
+	//}
 	if rw.code <= 0 {
 		return
 	}
 
-	metrics.NewTimer("http.status", "code", strconv.Itoa(rw.code)).Update(dur)
+	//metrics.NewTimer("http.status", "code", strconv.Itoa(rw.code)).Update(dur)
 
 	// write access log
 	if p.Logger != nil {

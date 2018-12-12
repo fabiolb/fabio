@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/fabiolb/fabio/metrics4/prometheus"
 	"io"
 	"log"
 	"net"
@@ -23,9 +24,6 @@ import (
 	"github.com/fabiolb/fabio/exit"
 	"github.com/fabiolb/fabio/logger"
 	"github.com/fabiolb/fabio/metrics4"
-	"github.com/fabiolb/fabio/metrics4/flat"
-	"github.com/fabiolb/fabio/metrics4/label"
-	"github.com/fabiolb/fabio/metrics4/statsdraw"
 	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy"
 	"github.com/fabiolb/fabio/proxy/tcp"
@@ -36,6 +34,8 @@ import (
 	"github.com/fabiolb/fabio/route"
 	"github.com/pkg/profile"
 	dmp "github.com/sergi/go-diff/diffmatchpatch"
+
+	"github.com/go-kit/kit/metrics"
 )
 
 // version contains the version number
@@ -45,7 +45,7 @@ import (
 //
 // It is also set by the linker when fabio
 // is built via the Makefile or the build/docker.sh
-// script to ensure the correct version nubmer
+// script to ensure the correct version number
 var version = "1.5.8"
 
 var shuttingDown int32
@@ -76,7 +76,7 @@ func main() {
 
 	// warn once so that it is at the beginning of the log
 	// this will also start the reminder go routine if necessary.
-	WarnIfRunAsRoot(cfg.Insecure)
+	//WarnIfRunAsRoot(cfg.Insecure)
 
 	// setup profiling if enabled
 	var prof interface {
@@ -117,9 +117,14 @@ func main() {
 	})
 
 	metrics := initMetrics(cfg)
+
+	// TODO(max): Remove
+	counter := metrics.NewCounter("test")
+	counter.Add(123)
+
 	initRuntime(cfg)
 	initBackend(cfg)
-	startAdmin(cfg)
+	startAdmin(cfg, metrics)
 
 	go watchNoRouteHTML(cfg)
 
@@ -132,7 +137,7 @@ func main() {
 	startServers(cfg, metrics)
 
 	// warn again so that it is visible in the terminal
-	WarnIfRunAsRoot(cfg.Insecure)
+	//WarnIfRunAsRoot(cfg.Insecure)
 
 	exit.Wait()
 	log.Print("[INFO] Down")
@@ -188,25 +193,25 @@ func newHTTPProxy(cfg *config.Config, stats metrics4.Provider) *proxy.HTTPProxy 
 		Lookup: func(r *http.Request) *route.Target {
 			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match)
 			if t == nil {
-				notFound.Count(1)
+				notFound.Add(1)
 				log.Print("[WARN] No route for ", r.Host, r.URL)
 			}
 			return t
 		},
-		Requests: stats.NewTimer("requests"),
+		//Requests: stats.NewTimer("requests"),
 		Noroute:  stats.NewCounter("notfound"),
-		WSConn:   stats.NewGauge("ws.conn"),
+		//WSConn:   stats.NewGauge("ws.conn"),
 		Metrics:  stats,
 		Logger:   l,
 	}
 }
 
-func lookupHostFn(cfg *config.Config, notFound metrics4.Counter) func(string) *route.Target {
+func lookupHostFn(cfg *config.Config, notFound metrics.Counter) func(string) *route.Target {
 	pick := route.Picker[cfg.Proxy.Strategy]
 	return func(host string) *route.Target {
 		t := route.GetTable().LookupHost(host, pick)
 		if t == nil {
-			notFound.Count(1)
+			notFound.Add(1)
 			log.Print("[WARN] No route for ", host)
 		}
 		return t
@@ -228,7 +233,7 @@ func makeTLSConfig(l config.Listen) (*tls.Config, error) {
 	return tlscfg, nil
 }
 
-func startAdmin(cfg *config.Config) {
+func startAdmin(cfg *config.Config, stats metrics4.Provider) {
 	log.Printf("[INFO] Admin server access mode %q", cfg.UI.Access)
 	log.Printf("[INFO] Admin server listening on %q", cfg.UI.Listen.Addr)
 	go func() {
@@ -270,7 +275,7 @@ func startServers(cfg *config.Config, stats metrics4.Provider) {
 			go func() {
 				h := newHTTPProxy(cfg, stats)
 				// reset the ws.conn gauge
-				h.WSConn.Update(0)
+				//h.WSConn.Update(0)
 				if err := proxy.ListenAndServeHTTP(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
 				}
@@ -314,18 +319,20 @@ func initMetrics(cfg *config.Config) metrics4.Provider {
 	for _, x := range strings.Split(cfg.Metrics.Target, ",") {
 		x = strings.TrimSpace(x)
 		switch x {
-		case "flat":
-			p = append(p, &flat.Provider{})
-		case "label":
-			p = append(p, &label.Provider{})
-		case "statsd_raw":
-			// prefix := cfg.Metrics.Prefix // prefix is a template and needs to be expanded
-			prefix := ""
-			pp, err := statsdraw.NewProvider(prefix, cfg.Metrics.StatsDAddr, cfg.Metrics.Interval)
-			if err != nil {
-				exit.Fatalf("[FATAL] Cannot initialize statsd metrics: %s", err)
-			}
-			p = append(p, pp)
+		case "prometheus":
+			p = append(p, prometheus.NewProvider())
+		//case "flat":
+		//	p = append(p, &flat.Provider{})
+		//case "label":
+		//	p = append(p, &label.Provider{})
+		//case "statsd_raw":
+		//	// prefix := cfg.Metrics.Prefix // prefix is a template and needs to be expanded
+		//	prefix := ""
+		//	pp, err := statsdraw.NewProvider(prefix, cfg.Metrics.StatsDAddr, cfg.Metrics.Interval)
+		//	if err != nil {
+		//		exit.Fatalf("[FATAL] Cannot initialize statsd metrics: %s", err)
+		//	}
+		//	p = append(p, pp)
 		default:
 			log.Printf("[WARN] Skipping unknown metrics provider %q", x)
 			continue
@@ -454,7 +461,7 @@ func unregisterMetrics(p metrics4.Provider, oldTable, newTable route.Table) {
 	for n := range oldNames {
 		if !newNames[n] {
 			log.Printf("[INFO] Unregistering metric %s", n)
-			p.Unregister(n)
+			//p.Unregister(n)
 		}
 	}
 }

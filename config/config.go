@@ -95,15 +95,16 @@ type Log struct {
 }
 
 type Metrics struct {
-	Target       string
-	Prefix       string
-	Names        string
-	Interval     time.Duration
-	Timeout      time.Duration
-	Retry        time.Duration
-	GraphiteAddr string
-	StatsDAddr   string
-	Circonus     Circonus
+	Target             string
+	Prefix             string
+	Names              string
+	Interval           time.Duration
+	Timeout            time.Duration
+	Retry              time.Duration
+	PrometheusEndpoint string
+	GraphiteAddr       string
+	StatsDAddr         string
+	Circonus           Circonus
 }
 
 type Registry struct {

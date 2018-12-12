@@ -16,7 +16,7 @@ func copyBuffer(dst io.Writer, src io.Reader, c metrics4.Counter) (err error) {
 			nw, ew := dst.Write(buf[0:nr])
 			if nw > 0 {
 				if c != nil {
-					c.Count(nw)
+					c.Add(float64(nw))
 				}
 			}
 			if ew != nil {
