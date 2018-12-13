@@ -1,8 +1,6 @@
 package metrics4
 
 import (
-	"time"
-
 	"github.com/go-kit/kit/metrics"
 )
 
@@ -12,44 +10,9 @@ type Counter metrics.Counter
 
 type Gauge metrics.Gauge
 
-//type Histogram metrics.Histogram
-
-type TimerStruct struct {
-	histogram metrics.Histogram
-	start     time.Time
-}
-
-func NewTimerStruct(h metrics.Histogram, start time.Time) Timer {
-	return &TimerStruct{
-		h,
-		start,
-	}
-}
-
 type Timer interface {
-	Start()
-	Stop()
-	Observe(duration time.Duration)
-	With(labelValues ... string) Timer
-}
-
-func (t *TimerStruct) Stop() {
-	t.histogram.Observe(float64(time.Since(t.start).Nanoseconds()) / float64(time.Millisecond))
-}
-
-func (t *TimerStruct) Start() {
-	t.start = time.Now()
-}
-
-func (t *TimerStruct) Observe(duration time.Duration) {
-	t.histogram.Observe(float64(duration.Nanoseconds()) / float64(time.Millisecond))
-}
-
-func (t *TimerStruct) With(labelValues ... string) Timer {
-	return &TimerStruct{
-		t.histogram.With(labelValues...),
-		t.start,
-	}
+	Observe(float64)
+	With(... string) Timer
 }
 
 // Provider is an abstraction of a metrics backend.
@@ -159,21 +122,9 @@ type MultiTimer struct {
 	timers []Timer
 }
 
-func (mt *MultiTimer) Observe(duration time.Duration) {
+func (mt *MultiTimer) Observe(duration float64) {
 	for _, t := range mt.timers {
 		t.Observe(duration)
-	}
-}
-
-func (mt *MultiTimer) Start() {
-	for _, t := range mt.timers {
-		t.Start()
-	}
-}
-
-func (mt *MultiTimer) Stop() {
-	for _, t := range mt.timers {
-		t.Stop()
 	}
 }
 

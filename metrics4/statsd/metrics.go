@@ -2,6 +2,7 @@ package statsd
 
 import (
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/metrics"
 	"time"
 
 	"github.com/fabiolb/fabio/metrics4"
@@ -24,7 +25,7 @@ func NewProvider(addr string, interval time.Duration) (metrics4.Provider, error)
 }
 
 func (p *Provider) NewCounter(name string, labels ...string) metrics4.Counter {
-	return &metrics4.NoopCounter{}
+	return p.client.NewCounter(name, 1)
 }
 
 func (p *Provider) NewGauge(name string, labels ...string) metrics4.Gauge {
@@ -32,5 +33,32 @@ func (p *Provider) NewGauge(name string, labels ...string) metrics4.Gauge {
 }
 
 func (p *Provider) NewTimer(name string, labels ...string) metrics4.Timer {
-	return &metrics4.NoopTimer{}
+	return &Timer{
+		timing: p.client.NewTiming(name, 1),
+	}
+}
+
+type Timer struct {
+	timing    *statsd.Timing
+	histogram metrics.Histogram
+}
+
+func (t *Timer) Observe(value float64) {
+	if t.timing != nil {
+		t.timing.Observe(value)
+	} else if t.histogram != nil {
+		t.histogram.Observe(value)
+	}
+}
+
+func (t *Timer) With(labelValues ... string) metrics4.Timer {
+	if t.timing != nil {
+		return &Timer{
+			histogram: t.timing.With(labelValues...),
+		}
+	} else {
+		return &Timer{
+			histogram: t.histogram.With(labelValues...),
+		}
+	}
 }

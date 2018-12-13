@@ -1,8 +1,6 @@
 package metrics4
 
 import (
-	"time"
-
 	"github.com/go-kit/kit/metrics"
 )
 
@@ -20,11 +18,7 @@ var noopTimer = NoopTimer{}
 
 type NoopTimer struct{}
 
-func (t *NoopTimer) Observe(time.Duration) {}
-
-func (t *NoopTimer) Start() {}
-
-func (t *NoopTimer) Stop() {}
+func (t *NoopTimer) Observe(float64) {}
 
 func (t *NoopTimer) With(labels ... string) Timer {
 	return t
