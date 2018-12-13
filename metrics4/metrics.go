@@ -112,7 +112,7 @@ func (mp *MultiProvider) NewTimer(name string, labels... string) Timer {
 	return &MultiTimer{t}
 }
 
-// NewHistogram creates a MultiTimer with timer objects for all registered
+// NewHistogram creates a MultiHistogram with histogram objects for all registered
 // providers.
 func (mp *MultiProvider) NewHistogram(name string, labels... string) Histogram {
 	var h []Histogram
@@ -185,6 +185,7 @@ func (mh *MultiHistogram) With(labelValues ... string) metrics.Histogram {
 	return &MultiHistogram{labeledHistograms}
 }
 
+// MultiTimer wraps zero or more timers.
 type MultiTimer struct {
 	timers []Timer
 }
