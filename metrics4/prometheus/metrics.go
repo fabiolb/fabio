@@ -30,9 +30,7 @@ func (p *Provider) NewCounter(name string, labels ... string) metrics4.Counter {
 	if p.counters[name] == nil {
 		p.counters[name] = prometheus.NewCounterFrom(stdprometheus.CounterOpts{
 			Namespace: metrics4.FabioNamespace,
-			Subsystem: "",
 			Name:      name,
-			Help:      "",
 		}, labels)
 	}
 
@@ -45,30 +43,12 @@ func (p *Provider) NewGauge(name string, labels ... string) metrics4.Gauge {
 	if p.gauges[name] == nil {
 		p.gauges[name] = prometheus.NewGaugeFrom(stdprometheus.GaugeOpts{
 			Namespace: metrics4.FabioNamespace,
-			Subsystem: "",
 			Name:      name,
-			Help:      "",
 		}, labels)
 	}
 
 	return p.gauges[name]
 }
-
-//func (p *Provider) NewHistogram(name string, labels ... string) metrics4.Histogram {
-//	p.mutex.Lock()
-//	defer p.mutex.Unlock()
-//	if p.histograms[name] == nil {
-//		p.histograms[name] = prometheus.NewHistogramFrom(stdprometheus.HistogramOpts{
-//			Namespace: metrics4.FabioNamespace,
-//			Subsystem: "",
-//			Name:      name,
-//			Help:      "",
-//			// TODO: Look on 'Buckets'
-//		}, labels)
-//	}
-//
-//	return p.histograms[name]
-//}
 
 func (p *Provider) NewTimer(name string, labels ... string) metrics4.Timer {
 	p.mutex.Lock()

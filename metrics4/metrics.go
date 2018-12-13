@@ -63,14 +63,12 @@ type Provider interface {
 	// NewTimer creates a new timer object.
 	NewTimer(name string, labels ... string) Timer
 
-	// NewHistogram creates a new histogram object.
-	//NewHistogram(name string, labels ... string) Histogram
+	// Dispose()
 
 	// Unregister removes a previously registered
 	// name or metric. Required for go-metrics and
-	// service pruning. This signature is probably not
-	// correct.
-	//Unregister(v interface{})
+	// service pruning.
+	// Unregister(name string)
 }
 
 // MultiProvider wraps zero or more providers.
@@ -111,16 +109,6 @@ func (mp *MultiProvider) NewTimer(name string, labels ... string) Timer {
 	}
 	return &MultiTimer{t}
 }
-
-// NewHistogram creates a MultiHistogram with histogram objects for all registered
-// providers.
-//func (mp *MultiProvider) NewHistogram(name string, labels ... string) Histogram {
-//	var h []Histogram
-//	for _, p := range mp.p {
-//		h = append(h, p.NewHistogram(name, labels...))
-//	}
-//	return &MultiHistogram{h}
-//}
 
 // MultiCounter wraps zero or more counters.
 type MultiCounter struct {
@@ -165,27 +153,6 @@ func (mg *MultiGauge) With(labelValues ... string) metrics.Gauge {
 	}
 	return &MultiGauge{labeledGauges}
 }
-
-// MultiGauge wraps zero or more gauges.
-//type MultiHistogram struct {
-//	histograms []Histogram
-//}
-//
-//func (mh *MultiHistogram) Observe(delta float64) {
-//	for _, h := range mh.histograms {
-//		if h != nil {
-//			h.Observe(delta)
-//		}
-//	}
-//}
-//
-//func (mh *MultiHistogram) With(labelValues ... string) metrics.Histogram {
-//	labeledHistograms := make([]Histogram, len(mh.histograms))
-//	for i, h := range mh.histograms {
-//		labeledHistograms[i] = h.With(labelValues...)
-//	}
-//	return &MultiHistogram{labeledHistograms}
-//}
 
 // MultiTimer wraps zero or more timers.
 type MultiTimer struct {

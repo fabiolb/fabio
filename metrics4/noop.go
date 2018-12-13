@@ -41,13 +41,3 @@ func (g *NoopGauge) Set(float64) {}
 func (g *NoopGauge) With(... string) metrics.Gauge {
 	return g
 }
-
-//var noopHistogram = NoopHistogram{}
-//
-//type NoopHistogram struct{}
-//
-//func (h *NoopHistogram) With(labelValues ...string) metrics.Histogram {
-//	return h
-//}
-//
-//func (h *NoopHistogram) Observe(value float64) {}
