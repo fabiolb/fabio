@@ -196,15 +196,13 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	dur := end.Sub(start)
 
 	if p.Requests != nil {
-		p.Requests.Observe(dur)
+		p.Requests.Observe(float64(dur.Nanoseconds()) / float64(time.Millisecond))
 	}
 	if rw.code <= 0 {
 		return
 	}
 
-	http_status_timer := metrics.NewTimer("http_status", "code")
-	http_status_timer = http_status_timer.With("code", strconv.Itoa(rw.code))
-	http_status_timer.Observe(dur)
+	metrics.NewTimer("http_status", "code").With("code", strconv.Itoa(rw.code)).Observe(float64(dur.Nanoseconds()) / float64(time.Millisecond))
 
 	// write access log
 	if p.Logger != nil {

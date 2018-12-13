@@ -96,15 +96,20 @@ type Log struct {
 
 type Metrics struct {
 	Target string
-	//Prefix             string
-	//Names              string
+	// TODO (max): Remove ?
+	Prefix             string
+	// TODO (max): Remove ?
+	Names              string
 	Interval time.Duration
-	//Timeout            time.Duration
-	//Retry              time.Duration
+	// TODO (max): Remove ?
+	Timeout            time.Duration
+	// TODO (max): Remove ?
+	Retry              time.Duration
 	PrometheusMetricsEndpoint string
 	StatsDAddr                string
 	GraphiteAddr              string
-	//Circonus           Circonus
+	// TODO (max): Remove ?
+	Circonus           Circonus
 }
 
 type Registry struct {
