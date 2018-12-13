@@ -1,8 +1,9 @@
 package metrics4
 
 import (
-	"github.com/go-kit/kit/metrics"
 	"time"
+
+	"github.com/go-kit/kit/metrics"
 )
 
 const FabioNamespace = "fabio"
@@ -13,48 +14,42 @@ type Gauge metrics.Gauge
 
 type Histogram metrics.Histogram
 
-// TODO(max): Refactor Timer thingies
-type Timer struct {
-	histograms []Histogram
-	start      time.Time
-	unit       time.Duration
+type TimerStruct struct {
+	histogram Histogram
+	start     time.Time
 }
 
-type ITimer interface {
-	Unit(time.Duration)
-	Reset()
-	Stop()
-	Duration(float64)
-	With(labelValues... string) ITimer
-}
-
-func (t *Timer) Unit(u time.Duration) {
-	t.unit = u
-}
-
-func (t *Timer) Stop() {
-	duration := float64(time.Since(t.start).Nanoseconds()) / float64(t.unit)
-	for _, h := range t.histograms {
-		h.Observe(duration)
+func NewTimerStruct(h Histogram, start time.Time) Timer {
+	return &TimerStruct{
+		h,
+		start,
 	}
 }
 
-func (t *Timer) Reset() {
+type Timer interface {
+	Start()
+	Stop()
+	Observe(duration time.Duration)
+	With(labelValues ... string) Timer
+}
+
+func (t *TimerStruct) Stop() {
+	t.histogram.Observe(float64(time.Since(t.start).Nanoseconds()) / float64(time.Millisecond))
+}
+
+func (t *TimerStruct) Start() {
 	t.start = time.Now()
 }
 
-func (t *Timer) Duration(duration float64) {
-	duration = duration / float64(t.unit)
-	for _, h := range t.histograms {
-		h.Observe(duration)
-	}
+func (t *TimerStruct) Observe(duration time.Duration) {
+	t.histogram.Observe(float64(duration.Nanoseconds()) / float64(time.Millisecond))
 }
 
-func (t *Timer) With(labelValues... string) ITimer {
-	for _, h := range t.histograms {
-		h.With(labelValues...)
+func (t *TimerStruct) With(labelValues ... string) Timer {
+	return &TimerStruct{
+		t.histogram.With(labelValues...),
+		t.start,
 	}
-	return t
 }
 
 // Provider is an abstraction of a metrics backend.
@@ -66,7 +61,7 @@ type Provider interface {
 	NewGauge(name string) Gauge
 
 	// NewTimer creates a new timer object.
-	NewTimer(name string) ITimer
+	NewTimer(name string) Timer
 
 	// NewHistogram creates a new histogram object.
 	NewHistogram(name string) Histogram
@@ -109,18 +104,12 @@ func (mp *MultiProvider) NewGauge(name string) Gauge {
 
 // NewTimer creates a MultiTimer with timer objects for all registered
 // providers.
-func (mp *MultiProvider) NewTimer(name string) ITimer {
-	var h []Histogram
-
+func (mp *MultiProvider) NewTimer(name string) Timer {
+	var t []Timer
 	for _, p := range mp.p {
-		h = append(h, p.NewHistogram(name))
+		t = append(t, p.NewTimer(name))
 	}
-
-	return &Timer{
-		histograms: h,
-		start:      time.Now(),
-		unit:       time.Millisecond,
-	}
+	return &MultiTimer{t}
 }
 
 // NewHistogram creates a MultiTimer with timer objects for all registered
@@ -193,3 +182,31 @@ func (mh *MultiHistogram) With(labelValues ... string) metrics.Histogram {
 	return mh
 }
 
+type MultiTimer struct {
+	timers []Timer
+}
+
+func (mt *MultiTimer) Observe(duration time.Duration) {
+	for _, t := range mt.timers {
+		t.Observe(duration)
+	}
+}
+
+func (mt *MultiTimer) Start() {
+	for _, t := range mt.timers {
+		t.Start()
+	}
+}
+
+func (mt *MultiTimer) Stop() {
+	for _, t := range mt.timers {
+		t.Stop()
+	}
+}
+
+func (mt *MultiTimer) With(labelValues ... string) Timer {
+	for _, t := range mt.timers {
+		t.With(labelValues...)
+	}
+	return mt
+}

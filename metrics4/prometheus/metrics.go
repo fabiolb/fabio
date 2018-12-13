@@ -2,6 +2,7 @@ package prometheus
 
 import (
 	"github.com/fabiolb/fabio/metrics4"
+	"time"
 
 	"github.com/go-kit/kit/metrics/prometheus"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
@@ -66,6 +67,15 @@ func (p *Provider) NewHistogram(name string) metrics4.Histogram {
 	return p.histograms[name]
 }
 
-func (p *Provider) NewTimer(name string) metrics4.ITimer {
-	return nil
+func (p *Provider) NewTimer(name string) metrics4.Timer {
+	if p.timers[name] == nil {
+		h := prometheus.NewHistogramFrom(stdprometheus.HistogramOpts{
+			Namespace: metrics4.FabioNamespace,
+			Name:      name,
+		}, []string{})
+
+		p.timers[name] = metrics4.NewTimerStruct(h, time.Now())
+	}
+
+	return p.timers[name]
 }

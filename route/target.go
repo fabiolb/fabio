@@ -50,8 +50,9 @@ type Target struct {
 	// Weight is the actual weight for this service in percent.
 	Weight float64
 
-	// Timer measures throughput and latency of this target
-	Timer metrics4.ITimer
+	// TODO(max): Isn't it the same as Requests timer in HTTPProxy
+	// TimerStruct measures throughput and latency of this target
+	Timer metrics4.Timer
 
 	// TimerName is the name of the timer in the metrics registry
 	TimerName names.Service
