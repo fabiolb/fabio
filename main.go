@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/fabiolb/fabio/metrics4/prometheus"
 	"io"
 	"log"
 	"net"
@@ -24,6 +23,8 @@ import (
 	"github.com/fabiolb/fabio/exit"
 	"github.com/fabiolb/fabio/logger"
 	"github.com/fabiolb/fabio/metrics4"
+	"github.com/fabiolb/fabio/metrics4/prometheus"
+	"github.com/fabiolb/fabio/metrics4/statsd"
 	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy"
 	"github.com/fabiolb/fabio/proxy/tcp"
@@ -319,14 +320,14 @@ func initMetrics(cfg *config.Config) metrics4.Provider {
 		//	p = append(p, &flat.Provider{})
 		//case "label":
 		//	p = append(p, &label.Provider{})
-		//case "statsd_raw":
-		//	// prefix := cfg.Metrics.Prefix // prefix is a template and needs to be expanded
-		//	prefix := ""
-		//	pp, err := statsdraw.NewProvider(prefix, cfg.Metrics.StatsDAddr, cfg.Metrics.Interval)
-		//	if err != nil {
-		//		exit.Fatalf("[FATAL] Cannot initialize statsd metrics: %s", err)
-		//	}
-		//	p = append(p, pp)
+		case "statsd":
+			provider, err := statsd.NewProvider(cfg.Metrics.StatsDAddr, cfg.Metrics.Interval)
+
+			if err != nil {
+				exit.Fatalf("[FATAL] Cannot initialize statsd metrics: %s", err)
+			}
+
+			p = append(p, provider)
 		default:
 			log.Printf("[WARN] Skipping unknown metrics provider %q", x)
 			continue

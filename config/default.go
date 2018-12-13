@@ -26,14 +26,14 @@ var defaultConfig = &Config{
 		Level:        "INFO",
 	},
 	Metrics: Metrics{
-		Prefix:   "{{clean .Hostname}}.{{clean .Exec}}",
-		Names:    "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
+		//Prefix:   "{{clean .Hostname}}.{{clean .Exec}}",
+		//Names:    "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}",
 		Interval: 30 * time.Second,
-		Timeout:  10 * time.Second,
-		Retry:    500 * time.Millisecond,
-		Circonus: Circonus{
-			APIApp: "fabio",
-		},
+		//Timeout:  10 * time.Second,
+		//Retry:    500 * time.Millisecond,
+		//Circonus: Circonus{
+		//	APIApp: "fabio",
+		//},
 	},
 	Proxy: Proxy{
 		MaxConn:       10000,

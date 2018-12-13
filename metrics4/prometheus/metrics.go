@@ -13,7 +13,6 @@ type Provider struct {
 	counters   map[string]metrics4.Counter
 	gauges     map[string]metrics4.Gauge
 	timers     map[string]metrics4.Timer
-	histograms map[string]metrics4.Histogram
 	mutex      sync.Mutex
 }
 
@@ -22,7 +21,6 @@ func NewProvider() *Provider {
 		counters: make(map[string]metrics4.Counter),
 		gauges: make(map[string]metrics4.Gauge),
 		timers: make(map[string]metrics4.Timer),
-		histograms: make(map[string]metrics4.Histogram),
 	}
 }
 
@@ -56,21 +54,21 @@ func (p *Provider) NewGauge(name string, labels ... string) metrics4.Gauge {
 	return p.gauges[name]
 }
 
-func (p *Provider) NewHistogram(name string, labels ... string) metrics4.Histogram {
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
-	if p.histograms[name] == nil {
-		p.histograms[name] = prometheus.NewHistogramFrom(stdprometheus.HistogramOpts{
-			Namespace: metrics4.FabioNamespace,
-			Subsystem: "",
-			Name:      name,
-			Help:      "",
-			// TODO: Look on 'Buckets'
-		}, labels)
-	}
-
-	return p.histograms[name]
-}
+//func (p *Provider) NewHistogram(name string, labels ... string) metrics4.Histogram {
+//	p.mutex.Lock()
+//	defer p.mutex.Unlock()
+//	if p.histograms[name] == nil {
+//		p.histograms[name] = prometheus.NewHistogramFrom(stdprometheus.HistogramOpts{
+//			Namespace: metrics4.FabioNamespace,
+//			Subsystem: "",
+//			Name:      name,
+//			Help:      "",
+//			// TODO: Look on 'Buckets'
+//		}, labels)
+//	}
+//
+//	return p.histograms[name]
+//}
 
 func (p *Provider) NewTimer(name string, labels ... string) metrics4.Timer {
 	p.mutex.Lock()

@@ -12,14 +12,14 @@ type Counter metrics.Counter
 
 type Gauge metrics.Gauge
 
-type Histogram metrics.Histogram
+//type Histogram metrics.Histogram
 
 type TimerStruct struct {
-	histogram Histogram
+	histogram metrics.Histogram
 	start     time.Time
 }
 
-func NewTimerStruct(h Histogram, start time.Time) Timer {
+func NewTimerStruct(h metrics.Histogram, start time.Time) Timer {
 	return &TimerStruct{
 		h,
 		start,
@@ -55,16 +55,16 @@ func (t *TimerStruct) With(labelValues ... string) Timer {
 // Provider is an abstraction of a metrics backend.
 type Provider interface {
 	// NewCounter creates a new counter object.
-	NewCounter(name string, labels... string) Counter
+	NewCounter(name string, labels ... string) Counter
 
 	// NewGauge creates a new gauge object.
-	NewGauge(name string, labels... string) Gauge
+	NewGauge(name string, labels ... string) Gauge
 
 	// NewTimer creates a new timer object.
-	NewTimer(name string, labels... string) Timer
+	NewTimer(name string, labels ... string) Timer
 
 	// NewHistogram creates a new histogram object.
-	NewHistogram(name string, labels... string) Histogram
+	//NewHistogram(name string, labels ... string) Histogram
 
 	// Unregister removes a previously registered
 	// name or metric. Required for go-metrics and
@@ -84,7 +84,7 @@ func NewMultiProvider(p []Provider) *MultiProvider {
 
 // NewCounter creates a MultiCounter with counter objects for all registered
 // providers.
-func (mp *MultiProvider) NewCounter(name string, labels... string) Counter {
+func (mp *MultiProvider) NewCounter(name string, labels ... string) Counter {
 	var c []Counter
 	for _, p := range mp.p {
 		c = append(c, p.NewCounter(name, labels...))
@@ -94,7 +94,7 @@ func (mp *MultiProvider) NewCounter(name string, labels... string) Counter {
 
 // NewGauge creates a MultiGauge with gauge objects for all registered
 // providers.
-func (mp *MultiProvider) NewGauge(name string, labels... string) Gauge {
+func (mp *MultiProvider) NewGauge(name string, labels ... string) Gauge {
 	var g []Gauge
 	for _, p := range mp.p {
 		g = append(g, p.NewGauge(name, labels...))
@@ -104,7 +104,7 @@ func (mp *MultiProvider) NewGauge(name string, labels... string) Gauge {
 
 // NewTimer creates a MultiTimer with timer objects for all registered
 // providers.
-func (mp *MultiProvider) NewTimer(name string, labels... string) Timer {
+func (mp *MultiProvider) NewTimer(name string, labels ... string) Timer {
 	var t []Timer
 	for _, p := range mp.p {
 		t = append(t, p.NewTimer(name, labels...))
@@ -114,13 +114,13 @@ func (mp *MultiProvider) NewTimer(name string, labels... string) Timer {
 
 // NewHistogram creates a MultiHistogram with histogram objects for all registered
 // providers.
-func (mp *MultiProvider) NewHistogram(name string, labels... string) Histogram {
-	var h []Histogram
-	for _, p := range mp.p {
-		h = append(h, p.NewHistogram(name, labels...))
-	}
-	return &MultiHistogram{h}
-}
+//func (mp *MultiProvider) NewHistogram(name string, labels ... string) Histogram {
+//	var h []Histogram
+//	for _, p := range mp.p {
+//		h = append(h, p.NewHistogram(name, labels...))
+//	}
+//	return &MultiHistogram{h}
+//}
 
 // MultiCounter wraps zero or more counters.
 type MultiCounter struct {
@@ -167,23 +167,25 @@ func (mg *MultiGauge) With(labelValues ... string) metrics.Gauge {
 }
 
 // MultiGauge wraps zero or more gauges.
-type MultiHistogram struct {
-	histograms []Histogram
-}
-
-func (mh *MultiHistogram) Observe(delta float64) {
-	for _, h := range mh.histograms {
-		h.Observe(delta)
-	}
-}
-
-func (mh *MultiHistogram) With(labelValues ... string) metrics.Histogram {
-	labeledHistograms := make([]Histogram, len(mh.histograms))
-	for i, h := range mh.histograms {
-		labeledHistograms[i] = h.With(labelValues...)
-	}
-	return &MultiHistogram{labeledHistograms}
-}
+//type MultiHistogram struct {
+//	histograms []Histogram
+//}
+//
+//func (mh *MultiHistogram) Observe(delta float64) {
+//	for _, h := range mh.histograms {
+//		if h != nil {
+//			h.Observe(delta)
+//		}
+//	}
+//}
+//
+//func (mh *MultiHistogram) With(labelValues ... string) metrics.Histogram {
+//	labeledHistograms := make([]Histogram, len(mh.histograms))
+//	for i, h := range mh.histograms {
+//		labeledHistograms[i] = h.With(labelValues...)
+//	}
+//	return &MultiHistogram{labeledHistograms}
+//}
 
 // MultiTimer wraps zero or more timers.
 type MultiTimer struct {
