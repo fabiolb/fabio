@@ -2,6 +2,7 @@ package metrics4
 
 import (
 	"github.com/go-kit/kit/metrics"
+	"io"
 )
 
 const FabioNamespace = "fabio"
@@ -23,12 +24,8 @@ type Provider interface {
 	// NewTimer creates a new timer object.
 	NewTimer(name string, labels ... string) Timer
 
-	// Dispose()
-
-	// Unregister removes a previously registered
-	// name or metric. Required for go-metrics and
-	// service pruning.
-	// Unregister(name string)
+	// It extends Provider with Close method which closes a disposable objects that are connected with a provider.
+	io.Closer
 }
 
 // MultiProvider wraps zero or more providers.

@@ -14,7 +14,7 @@ type Provider struct {
 	mutex      sync.Mutex
 }
 
-func NewProvider() *Provider {
+func NewProvider() metrics4.Provider {
 	return &Provider{
 		counters: make(map[string]metrics4.Counter),
 		gauges: make(map[string]metrics4.Gauge),
@@ -59,4 +59,8 @@ func (p *Provider) NewTimer(name string, labels ... string) metrics4.Timer {
 	}
 
 	return p.timers[name]
+}
+
+func (p *Provider) Close() error {
+	return nil
 }
