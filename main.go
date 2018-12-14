@@ -119,7 +119,7 @@ func main() {
 
 	initRuntime(cfg)
 	initBackend(cfg)
-	startAdmin(cfg, metrics)
+	startAdmin(cfg)
 
 	go watchNoRouteHTML(cfg)
 
@@ -228,7 +228,7 @@ func makeTLSConfig(l config.Listen) (*tls.Config, error) {
 	return tlscfg, nil
 }
 
-func startAdmin(cfg *config.Config, stats metrics4.Provider) {
+func startAdmin(cfg *config.Config) {
 	log.Printf("[INFO] Admin server access mode %q", cfg.UI.Access)
 	log.Printf("[INFO] Admin server listening on %q", cfg.UI.Listen.Addr)
 	go func() {
