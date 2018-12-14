@@ -1,6 +1,7 @@
 package statsd
 
 import (
+	"github.com/fabiolb/fabio/metrics4"
 	"net"
 	"testing"
 	"time"
@@ -23,107 +24,95 @@ func TestIdenticalNamesForCounters(t *testing.T) {
 	counter.Add(1)
 }
 
-func TestLabeledCounters(t *testing.T) {
-	counterMessage := "fabio_counter_code_200:1.000000|c\n"
-
+func createProvider(t *testing.T, addr string, interval time.Duration) metrics4.Provider {
 	provider, err := NewProvider(addr, time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
+	return provider
+}
 
-	l, err := net.ListenPacket("udp", addr)
+func createUdpConnection(t *testing.T, addr string) net.PacketConn {
+	conn, err := net.ListenPacket("udp", addr)
 	if err != nil {
 		t.Fatal(err)
 	}
+	return conn
+}
 
+func readStringFromUdpConnection(t *testing.T, conn net.PacketConn, length int) string {
+	buffer := make([]byte, length)
+	read, _, err := conn.ReadFrom(buffer)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(buffer[:read])
+}
+
+func startTimeout(t *testing.T, duration time.Duration) {
 	go func() {
-		timer := time.NewTimer(5 * time.Second)
+		timer := time.NewTimer(duration)
 		<-timer.C
 		t.Fatal("timeout")
 	}()
+}
 
-	defer l.Close()
+func TestLabeledCounters(t *testing.T) {
+	counterMessage := "fabio_counter_code_200:1.000000|c\n"
+
+	provider := createProvider(t, addr, time.Second)
+	defer provider.Close()
+
+	conn := createUdpConnection(t, addr)
+	defer conn.Close()
+
+	startTimeout(t, 5 * time.Second)
 
 	provider.NewCounter("counter", "code").With("code", "200").Add(1)
 
-	buffer := make([]byte, len(counterMessage))
+	message := readStringFromUdpConnection(t, conn, len(counterMessage))
 
-	read, _, err := l.ReadFrom(buffer)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if msg := string(buffer[:read]); msg != counterMessage {
-		t.Fatalf("Unexpected message:\nGot:\t%s\nExpected:\t%s\n", msg, counterMessage)
+	if message != counterMessage {
+		t.Fatalf("Unexpected message:\nGot:\t%s\nExpected:\t%s\n", message, counterMessage)
 	}
 }
 
 func TestLabeledTimers(t *testing.T) {
 	timerMessage := "fabio_timer_code_200:0.500000|ms"
 
-	provider, err := NewProvider(addr, time.Second)
-	if err != nil {
-		t.Fatal(err)
-	}
+	provider := createProvider(t, addr, time.Second)
+	defer provider.Close()
 
-	l, err := net.ListenPacket("udp", addr)
-	if err != nil {
-		t.Fatal(err)
-	}
+	conn := createUdpConnection(t, addr)
+	defer conn.Close()
 
-	go func() {
-		timer := time.NewTimer(5 * time.Second)
-		<-timer.C
-		t.Fatal("timeout")
-	}()
-
-	defer l.Close()
+	startTimeout(t, 5 * time.Second)
 
 	provider.NewTimer("timer", "code").With("code", "200").Observe(0.5)
 
-	buffer := make([]byte, len(timerMessage))
+	message := readStringFromUdpConnection(t, conn, len(timerMessage))
 
-	read, _, err := l.ReadFrom(buffer)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if msg := string(buffer[:read]); msg != timerMessage {
-		t.Fatalf("Unexpected message:\nGot:\t%s\nExpected:\t%s\n", msg, timerMessage)
+	if message != timerMessage {
+		t.Fatalf("Unexpected message:\nGot:\t%s\nExpected:\t%s\n", message, timerMessage)
 	}
 }
 
 func TestLabeledGauges(t *testing.T) {
 	gaugeMessage := "fabio_gauge_code_200:5.000000|g"
 
-	provider, err := NewProvider(addr, time.Second)
-	if err != nil {
-		t.Fatal(err)
-	}
+	provider := createProvider(t, addr, time.Second)
+	defer provider.Close()
 
-	l, err := net.ListenPacket("udp", addr)
-	if err != nil {
-		t.Fatal(err)
-	}
+	conn := createUdpConnection(t, addr)
+	defer conn.Close()
 
-	go func() {
-		timer := time.NewTimer(5 * time.Second)
-		<-timer.C
-		t.Fatal("timeout")
-	}()
-
-	defer l.Close()
+	startTimeout(t, 5 * time.Second)
 
 	provider.NewGauge("gauge", "code").With("code", "200").Add(5)
 
-	buffer := make([]byte, len(gaugeMessage))
+	message := readStringFromUdpConnection(t, conn, len(gaugeMessage))
 
-	read, _, err := l.ReadFrom(buffer)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if msg := string(buffer[:read]); msg != gaugeMessage {
-		t.Fatalf("Unexpected message:\nGot:\t%s\nExpected:\t%s\n", msg, gaugeMessage)
+	if message != gaugeMessage {
+		t.Fatalf("Unexpected message:\nGot:\t%s\nExpected:\t%s\n", message, gaugeMessage)
 	}
 }
