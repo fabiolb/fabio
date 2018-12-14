@@ -7,22 +7,23 @@ import (
 
 const FabioNamespace = "fabio"
 
-type Counter metrics.Counter
+type Counter = metrics.Counter
 
-type Gauge metrics.Gauge
+type Gauge = metrics.Gauge
 
 type Timer = metrics.Histogram
 
 // Provider is an abstraction of a metrics backend.
 type Provider interface {
 	// NewCounter creates a new counter object.
-	NewCounter(name string, labels ... string) Counter
+	// labels - array of labels names
+	NewCounter(name string, labelsNames ... string) Counter
 
 	// NewGauge creates a new gauge object.
-	NewGauge(name string, labels ... string) Gauge
+	NewGauge(name string, labelsNames ... string) Gauge
 
 	// NewTimer creates a new timer object.
-	NewTimer(name string, labels ... string) Timer
+	NewTimer(name string, labelsNames ... string) Timer
 
 	// It extends Provider with Close method which closes a disposable objects that are connected with a provider.
 	io.Closer
@@ -65,6 +66,21 @@ func (mp *MultiProvider) NewTimer(name string, labels ... string) Timer {
 		t = append(t, p.NewTimer(name, labels...))
 	}
 	return &MultiTimer{t}
+}
+
+func (mp *MultiProvider) Close() error {
+	var errors []error
+	for _, p := range mp.p {
+		e := p.Close()
+		if e != nil {
+			errors = append(errors, e)
+		}
+	}
+	if len(errors) > 0 {
+		// TODO(max): Define MultiError
+		return errors[0]
+	}
+	return nil
 }
 
 // MultiCounter wraps zero or more counters.
