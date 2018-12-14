@@ -12,11 +12,6 @@ type Gauge metrics.Gauge
 
 type Timer = metrics.Histogram
 
-//type Timer interface {
-//	Observe(float64)
-//	With(... string) Timer
-//}
-
 // Provider is an abstraction of a metrics backend.
 type Provider interface {
 	// NewCounter creates a new counter object.

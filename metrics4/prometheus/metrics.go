@@ -1,13 +1,10 @@
 package prometheus
 
 import (
-	"sync"
-	"time"
-
 	"github.com/fabiolb/fabio/metrics4"
-	"github.com/go-kit/kit/metrics"
 	"github.com/go-kit/kit/metrics/prometheus"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
+	"sync"
 )
 
 type Provider struct {
@@ -55,32 +52,11 @@ func (p *Provider) NewTimer(name string, labels ... string) metrics4.Timer {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	if p.timers[name] == nil {
-		h := prometheus.NewHistogramFrom(stdprometheus.HistogramOpts{
+		p.timers[name] = prometheus.NewHistogramFrom(stdprometheus.HistogramOpts{
 			Namespace: metrics4.FabioNamespace,
 			Name:      name,
 		}, labels)
-
-		p.timers[name] = &Timer{
-			h,
-			time.Now(),
-		}
 	}
 
 	return p.timers[name]
-}
-
-type Timer struct {
-	histogram metrics.Histogram
-	start     time.Time
-}
-
-func (t *Timer) Observe(dur float64) {
-	t.histogram.Observe(dur)
-}
-
-func (t *Timer) With(labelValues ... string) metrics4.Timer {
-	return &Timer{
-		t.histogram.With(labelValues...),
-		t.start,
-	}
 }
