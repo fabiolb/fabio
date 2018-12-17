@@ -6,8 +6,7 @@ import (
 	cgm "github.com/circonus-labs/circonus-gometrics"
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/metrics4"
-	"github.com/fabiolb/fabio/metrics4/gm"
-	rcgm "github.com/rcrowley/go-metrics"
+	"github.com/fabiolb/fabio/metrics4/untagged"
 	"log"
 	"os"
 	"sync"
@@ -15,20 +14,17 @@ import (
 )
 
 var (
-	circonus *cgmRegistry
-	once     sync.Once
+	metrics *cgm.CirconusMetrics
+	once    sync.Once
 )
 
-func NewProvider(cfg config.Circonus, interval time.Duration) (metrics4.Provider, error) {
-	r, err := circonusRegistry("", cfg, interval)
-	if err != nil {
-		return nil, err
-	}
-	return gm.NewProvider(r), nil
+type Provider struct {
+	c *cgm.CirconusMetrics
 }
 
-func circonusRegistry(prefix string, circonusCfg config.Circonus, interval time.Duration) (rcgm.Registry, error) {
+func NewProvider(circonusCfg config.Circonus, interval time.Duration) (metrics4.Provider, error) {
 	var initError error
+	var metrics *cgm.CirconusMetrics
 
 	once.Do(func() {
 		if circonusCfg.APIKey == "" {
@@ -64,129 +60,77 @@ func circonusRegistry(prefix string, circonusCfg config.Circonus, interval time.
 			return
 		}
 
-		circonus = &cgmRegistry{metrics, prefix}
-
 		metrics.Start()
 
 		log.Print("[INFO] Sending metrics to Circonus")
 	})
 
-	return circonus, initError
+	return &Provider{metrics}, initError
 }
 
-type cgmRegistry struct {
-	metrics *cgm.CirconusMetrics
-	prefix  string
+func (p *Provider) NewCounter(name string, labelsNames ... string) metrics4.Counter {
+	if len(labelsNames) == 0 {
+		return &Counter{p.c, name}
+	}
+	return untagged.NewCounter(p, name, labelsNames)
 }
 
-func (m *cgmRegistry) Names() []string { return nil }
-
-func (m *cgmRegistry) Get(string) interface{} { return nil }
-
-func (m *cgmRegistry) Register(string, interface{}) error { return nil }
-
-func (m *cgmRegistry) RunHealthchecks() {}
-
-func (m *cgmRegistry) GetOrRegister(string, interface{}) interface{} { return nil }
-
-func (m *cgmRegistry) Each(func(string, interface{})) {}
-
-func (m *cgmRegistry) Unregister(name string) {}
-
-func (m *cgmRegistry) UnregisterAll() {}
-
-func (m *cgmRegistry) GetCounter(name string) rcgm.Counter {
-	metricName := fmt.Sprintf("%s`%s", m.prefix, name)
-	return &cgmCounter{m.metrics, metricName}
+func (p *Provider) NewGauge(name string, labelsNames ... string) metrics4.Gauge {
+	if len(labelsNames) == 0 {
+		return &Gauge{p.c, name}
+	}
+	return untagged.NewGauge(p, name, labelsNames)
 }
 
-func (m *cgmRegistry) GetTimer(name string) rcgm.Timer {
-	metricName := fmt.Sprintf("%s`%s", m.prefix, name)
-	return &cgmTimer{m.metrics, metricName}
+func (p *Provider) NewTimer(name string, labelsNames ... string) metrics4.Timer {
+	if len(labelsNames) == 0 {
+		return &Timer{p.c.NewHistogram(name)}
+	}
+	return untagged.NewTimer(p, name, labelsNames)
 }
 
-type cgmCounter struct {
-	metrics *cgm.CirconusMetrics
-	name    string
-}
-
-func (c *cgmCounter) Inc(n int64) {
-	c.metrics.IncrementByValue(c.name, uint64(n))
-}
-
-func (c *cgmCounter) Dec(n int64) {}
-
-func (c *cgmCounter) Clear() {}
-
-func (c *cgmCounter) Count() int64 {
-	return 0
-}
-
-func (c *cgmCounter) Snapshot() rcgm.Counter {
-	return c
-}
-
-type cgmTimer struct {
-	metrics *cgm.CirconusMetrics
-	name    string
-}
-
-func (t *cgmTimer) Percentile(nth float64) float64 { return 0 }
-
-func (t *cgmTimer) Rate1() float64 { return 0 }
-
-func (t *cgmTimer) Update(d time.Duration) {
-	t.metrics.Timing(t.name, float64(d))
-}
-
-func (t *cgmTimer) UpdateSince(start time.Time) {}
-
-func (t *cgmTimer) Count() int64 {
-	return 0
-}
-
-func (t *cgmTimer) Min() int64 {
-	return 0
-}
-
-func (t *cgmTimer) Max() int64 {
-	return 0
-}
-
-func (t *cgmTimer) Mean() float64 {
-	return 0
-}
-
-func (t *cgmTimer) Percentiles([]float64) []float64 {
+func (p *Provider) Close() error {
 	return nil
 }
 
-func (t *cgmTimer) Rate5() float64 {
-	return 0
+type Counter struct {
+	metrics *cgm.CirconusMetrics
+	name    string
 }
 
-func (t *cgmTimer) Rate15() float64 {
-	return 0
+func (c *Counter) Add(value float64) {
+	c.metrics.Add(c.name, uint64(value))
 }
 
-func (t *cgmTimer) Snapshot() rcgm.Timer {
-	return t
+func (c *Counter) With(labels ... string) metrics4.Counter {
+	return c
 }
 
-func (t *cgmTimer) RateMean() float64 {
-	return 0
+type Gauge struct {
+	metrics *cgm.CirconusMetrics
+	name    string
 }
 
-func (t *cgmTimer) StdDev() float64 {
-	return 0
+func (g *Gauge) Add(value float64) {
+	g.metrics.Add(g.name, uint64(value))
 }
 
-func (t *cgmTimer) Sum() int64 {
-	return 0
+func (g *Gauge) Set(value float64) {
+	g.metrics.Set(g.name, uint64(value))
 }
 
-func (t *cgmTimer) Time(func()) {}
+func (g *Gauge) With(labels ... string) metrics4.Gauge {
+	return g
+}
 
-func (t *cgmTimer) Variance() float64 {
-	return 0
+type Timer struct {
+	h *cgm.Histogram
+}
+
+func (t *Timer) Observe(duration float64) {
+	t.h.RecordValue(duration)
+}
+
+func (g *Timer) With(labels ... string) metrics4.Timer {
+	return g
 }
