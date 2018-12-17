@@ -9,9 +9,10 @@ import (
 	"github.com/fabiolb/fabio/metrics4/gm"
 	rcgm "github.com/rcrowley/go-metrics"
 	"net"
+	"time"
 )
 
-func NewProvider(cfg config.Graphite) (metrics4.Provider, error) {
+func NewProvider(cfg config.Graphite, interval time.Duration) (metrics4.Provider, error) {
 	if cfg.Addr == "" {
 		return nil, errors.New(" graphite addr missing")
 	}
@@ -23,7 +24,7 @@ func NewProvider(cfg config.Graphite) (metrics4.Provider, error) {
 
 	registry := rcgm.NewRegistry()
 
-	go graphite.Graphite(registry, cfg.Interval, metrics4.FabioNamespace, a)
+	go graphite.Graphite(registry, interval, metrics4.FabioNamespace, a)
 
 	return gm.NewProvider(registry), nil
 }

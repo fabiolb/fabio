@@ -16,10 +16,10 @@ type Provider struct {
 	sampleRate float64
 }
 
-func NewProvider(cfg config.StatsD) metrics4.Provider {
+func NewProvider(cfg config.StatsD, interval time.Duration) metrics4.Provider {
 	client := statsd.New(metrics4.FabioNamespace + ".", log.NewNopLogger())
 
-	ticker := time.NewTicker(cfg.Interval)
+	ticker := time.NewTicker(interval)
 
 	go client.SendLoop(ticker.C, "udp", cfg.Addr)
 

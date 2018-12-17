@@ -98,33 +98,26 @@ type Metrics struct {
 	Target string
 	//Prefix     string
 	//Names      string
-	//Interval   time.Duration
+	Interval   time.Duration
 	//Timeout    time.Duration
 	//Retry      time.Duration
 	Prometheus Prometheus
 	StatsD     StatsD
-	StdOut     StdOut
 	Graphite   Graphite
-	//Circonus   Circonus
+	Circonus   Circonus
 }
 
 type Graphite struct {
-	Addr     string
-	Interval time.Duration
+	Addr string
 }
 
 type StatsD struct {
 	Addr       string
-	Interval   time.Duration
 	SampleRate float64
 }
 
 type Prometheus struct {
 	MetricsEndpoint string
-}
-
-type StdOut struct {
-	Interval time.Duration
 }
 
 type Registry struct {

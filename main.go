@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/fabiolb/fabio/metrics4/circonus"
 	"github.com/fabiolb/fabio/metrics4/graphite"
 	"github.com/fabiolb/fabio/metrics4/stdout"
 	"io"
@@ -319,7 +320,7 @@ func initMetrics(cfg *config.Config) metrics4.Provider {
 		case "prometheus":
 			p = append(p, prometheus.NewProvider())
 		case "graphite":
-			provider, err := graphite.NewProvider(cfg.Metrics.Graphite)
+			provider, err := graphite.NewProvider(cfg.Metrics.Graphite, cfg.Metrics.Interval)
 
 			if err != nil {
 				exit.Fatalf("[FATAL] Cannot initialize graphite metrics: %s", err)
@@ -327,9 +328,17 @@ func initMetrics(cfg *config.Config) metrics4.Provider {
 
 			p = append(p, provider)
 		case "statsd":
-			p = append(p, statsd.NewProvider(cfg.Metrics.StatsD))
+			p = append(p, statsd.NewProvider(cfg.Metrics.StatsD, cfg.Metrics.Interval))
 		case "stdout":
-			p = append(p, stdout.NewProvider(cfg.Metrics.StdOut))
+			p = append(p, stdout.NewProvider(cfg.Metrics.Interval))
+		case "circonus":
+			provider, err := circonus.NewProvider(cfg.Metrics.Circonus, cfg.Metrics.Interval)
+
+			if err != nil {
+				exit.Fatalf("[FATAL] Cannot initialize circonus metrics: %s", err)
+			}
+
+			p = append(p, provider)
 		default:
 			log.Printf("[WARN] Skipping unknown metrics provider %q", x)
 			continue
