@@ -143,20 +143,33 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Log.AccessTarget, "log.access.target", defaultConfig.Log.AccessTarget, "access log target")
 	f.StringVar(&cfg.Log.RoutesFormat, "log.routes.format", defaultConfig.Log.RoutesFormat, "log format of routing table updates")
 	f.StringVar(&cfg.Log.Level, "log.level", defaultConfig.Log.Level, "log level: TRACE, DEBUG, INFO, WARN, ERROR, FATAL")
+
 	f.StringVar(&cfg.Metrics.Target, "metrics.target", defaultConfig.Metrics.Target, "metrics backend")
+
 	//f.StringVar(&cfg.Metrics.Prefix, "metrics.prefix", defaultConfig.Metrics.Prefix, "prefix for reported metrics")
 	//f.StringVar(&cfg.Metrics.Names, "metrics.names", defaultConfig.Metrics.Names, "route metric name template")
-	f.DurationVar(&cfg.Metrics.Interval, "metrics.interval", defaultConfig.Metrics.Interval, "metrics reporting interval")
+	//f.DurationVar(&cfg.Metrics.Interval, "metrics.interval", defaultConfig.Metrics.Interval, "metrics reporting interval")
 	//f.DurationVar(&cfg.Metrics.Timeout, "metrics.timeout", defaultConfig.Metrics.Timeout, "timeout for metrics to become available")
 	//f.DurationVar(&cfg.Metrics.Retry, "metrics.retry", defaultConfig.Metrics.Retry, "retry interval during startup")
-	f.StringVar(&cfg.Metrics.PrometheusMetricsEndpoint, "metrics.prometheus.endpoint", defaultConfig.Metrics.PrometheusMetricsEndpoint, "Metrics endpoint for Prometheus")
-	f.StringVar(&cfg.Metrics.GraphiteAddr, "metrics.graphite.addr", defaultConfig.Metrics.GraphiteAddr, "graphite server address")
-	f.StringVar(&cfg.Metrics.StatsDAddr, "metrics.statsd.addr", defaultConfig.Metrics.StatsDAddr, "statsd server address")
+
+	f.StringVar(&cfg.Metrics.Prometheus.MetricsEndpoint, "metrics.prometheus.endpoint", defaultConfig.Metrics.Prometheus.MetricsEndpoint, "metrics endpoint for Prometheus")
+
+	f.StringVar(&cfg.Metrics.Graphite.Addr, "metrics.graphite.addr", defaultConfig.Metrics.Graphite.Addr, "graphite server address")
+	f.DurationVar(&cfg.Metrics.Graphite.Interval, "metrics.graphite.interval", defaultConfig.Metrics.Graphite.Interval, "graphite sending interval")
+
+	f.DurationVar(&cfg.Metrics.StdOut.Interval, "metrics.stdout.interval", defaultConfig.Metrics.StdOut.Interval, "stdout logging interval")
+
+	f.StringVar(&cfg.Metrics.StatsD.Addr, "metrics.statsd.addr", defaultConfig.Metrics.StatsD.Addr, "statsd server address")
+	f.StringVar(&cfg.Metrics.StatsD.Protocol, "metrics.statsd.protocol", defaultConfig.Metrics.StatsD.Protocol, "statsd server protocol")
+	f.DurationVar(&cfg.Metrics.StatsD.Interval, "metrics.statsd.interval", defaultConfig.Metrics.StatsD.Interval, "statsd sending interval")
+	f.Float64Var(&cfg.Metrics.StatsD.SampleRate, "metrics.statsd.sampleRate", defaultConfig.Metrics.StatsD.SampleRate, "statsd sample rate")
+
 	//f.StringVar(&cfg.Metrics.Circonus.APIKey, "metrics.circonus.apikey", defaultConfig.Metrics.Circonus.APIKey, "Circonus API token key")
 	//f.StringVar(&cfg.Metrics.Circonus.APIApp, "metrics.circonus.apiapp", defaultConfig.Metrics.Circonus.APIApp, "Circonus API token app")
 	//f.StringVar(&cfg.Metrics.Circonus.APIURL, "metrics.circonus.apiurl", defaultConfig.Metrics.Circonus.APIURL, "Circonus API URL")
 	//f.StringVar(&cfg.Metrics.Circonus.BrokerID, "metrics.circonus.brokerid", defaultConfig.Metrics.Circonus.BrokerID, "Circonus Broker ID")
 	//f.StringVar(&cfg.Metrics.Circonus.CheckID, "metrics.circonus.checkid", defaultConfig.Metrics.Circonus.CheckID, "Circonus Check ID")
+
 	f.StringVar(&cfg.Registry.Backend, "registry.backend", defaultConfig.Registry.Backend, "registry backend")
 	f.DurationVar(&cfg.Registry.Timeout, "registry.timeout", defaultConfig.Registry.Timeout, "timeout for registry to become available")
 	f.DurationVar(&cfg.Registry.Retry, "registry.retry", defaultConfig.Registry.Retry, "retry interval during startup")

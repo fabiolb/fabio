@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/fabiolb/fabio/metrics4/graphite"
 	"io"
 	"log"
 	"net"
@@ -316,12 +317,16 @@ func initMetrics(cfg *config.Config) metrics4.Provider {
 		switch x {
 		case "prometheus":
 			p = append(p, prometheus.NewProvider())
-		//case "flat":
-		//	p = append(p, &flat.Provider{})
-		//case "label":
-		//	p = append(p, &label.Provider{})
+		case "graphite":
+			provider, err := graphite.NewProvider(cfg.Metrics.Graphite)
+
+			if err != nil {
+				exit.Fatalf("[FATAL] Cannot initialize statsd metrics: %s", err)
+			}
+
+			p = append(p, provider)
 		case "statsd":
-			provider, err := statsd.NewProvider(cfg.Metrics.StatsDAddr, cfg.Metrics.Interval)
+			provider, err := statsd.NewProvider(cfg.Metrics.StatsD)
 
 			if err != nil {
 				exit.Fatalf("[FATAL] Cannot initialize statsd metrics: %s", err)

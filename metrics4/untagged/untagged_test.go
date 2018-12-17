@@ -1,4 +1,4 @@
-package metrics4
+package untagged
 
 import (
 	"github.com/stretchr/testify/assert"

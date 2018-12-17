@@ -6,6 +6,8 @@ import (
 )
 
 const FabioNamespace = "fabio"
+const DotDelimiter = "."
+const UnderscoreDelimiter = "_"
 
 type Counter = metrics.Counter
 

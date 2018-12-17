@@ -77,8 +77,8 @@ func (s *Server) handler() http.Handler {
 }
 
 func initMetricsHandlers(mux *http.ServeMux, s *Server) {
-	if strings.Contains(s.Cfg.Metrics.Target, "prometheus") && s.Cfg.Metrics.PrometheusMetricsEndpoint != "" {
-		mux.HandleFunc(s.Cfg.Metrics.PrometheusMetricsEndpoint, promhttp.Handler().ServeHTTP)
+	if strings.Contains(s.Cfg.Metrics.Target, "prometheus") && s.Cfg.Metrics.Prometheus.MetricsEndpoint != "" {
+		mux.HandleFunc(s.Cfg.Metrics.Prometheus.MetricsEndpoint, promhttp.Handler().ServeHTTP)
 	}
 }
 
