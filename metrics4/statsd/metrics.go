@@ -16,14 +16,14 @@ type Provider struct {
 	sampleRate float64
 }
 
-func NewProvider(cfg config.StatsD) (metrics4.Provider, error) {
+func NewProvider(cfg config.StatsD) metrics4.Provider {
 	client := statsd.New(metrics4.FabioNamespace + ".", log.NewNopLogger())
 
 	ticker := time.NewTicker(cfg.Interval)
 
 	go client.SendLoop(ticker.C, "udp", cfg.Addr)
 
-	return &Provider{client, ticker, cfg.SampleRate}, nil
+	return &Provider{client, ticker, cfg.SampleRate}
 }
 
 func (p *Provider) NewCounter(name string, labelsNames ...string) metrics4.Counter {

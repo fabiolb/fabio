@@ -9,13 +9,13 @@ import (
 	"os"
 )
 
-func NewProvider(cfg config.StdOut) (metrics4.Provider, error) {
+func NewProvider(cfg config.StdOut) metrics4.Provider {
 	logger := log.New(os.Stdout, "localhost: ", log.Lmicroseconds)
 
 	r := rcgm.NewRegistry()
 
 	go rcgm.Log(r, cfg.Interval, logger)
 
-	return gm.NewProvider(r), nil
+	return gm.NewProvider(r)
 }
 

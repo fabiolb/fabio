@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/fabiolb/fabio/metrics4/graphite"
+	"github.com/fabiolb/fabio/metrics4/stdout"
 	"io"
 	"log"
 	"net"
@@ -321,18 +322,14 @@ func initMetrics(cfg *config.Config) metrics4.Provider {
 			provider, err := graphite.NewProvider(cfg.Metrics.Graphite)
 
 			if err != nil {
-				exit.Fatalf("[FATAL] Cannot initialize statsd metrics: %s", err)
+				exit.Fatalf("[FATAL] Cannot initialize graphite metrics: %s", err)
 			}
 
 			p = append(p, provider)
 		case "statsd":
-			provider, err := statsd.NewProvider(cfg.Metrics.StatsD)
-
-			if err != nil {
-				exit.Fatalf("[FATAL] Cannot initialize statsd metrics: %s", err)
-			}
-
-			p = append(p, provider)
+			p = append(p, statsd.NewProvider(cfg.Metrics.StatsD))
+		case "stdout":
+			p = append(p, stdout.NewProvider(cfg.Metrics.StdOut))
 		default:
 			log.Printf("[WARN] Skipping unknown metrics provider %q", x)
 			continue
