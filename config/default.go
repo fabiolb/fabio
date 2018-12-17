@@ -30,7 +30,6 @@ var defaultConfig = &Config{
 			MetricsEndpoint: "/metrics/prometheus",
 		},
 		StatsD: StatsD{
-			Protocol:   "udp",
 			Interval:   30 * time.Second,
 			SampleRate: 1,
 		},

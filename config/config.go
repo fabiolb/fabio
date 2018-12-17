@@ -115,7 +115,6 @@ type Graphite struct {
 
 type StatsD struct {
 	Addr       string
-	Protocol   string
 	Interval   time.Duration
 	SampleRate float64
 }

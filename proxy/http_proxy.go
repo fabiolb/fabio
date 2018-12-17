@@ -202,7 +202,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	metrics.NewTimer("http_status", "code").With("code", strconv.Itoa(rw.code)).Observe(float64(dur.Nanoseconds()) / float64(time.Millisecond))
+	metrics.NewTimer("http.status", "code").With("code", strconv.Itoa(rw.code)).Observe(float64(dur.Nanoseconds()) / float64(time.Millisecond))
 
 	// write access log
 	if p.Logger != nil {

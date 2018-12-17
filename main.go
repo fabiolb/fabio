@@ -196,7 +196,7 @@ func newHTTPProxy(cfg *config.Config, stats metrics4.Provider) *proxy.HTTPProxy 
 		},
 		Requests: stats.NewTimer("requests"),
 		Noroute:  stats.NewCounter("notfound"),
-		WSConn:   stats.NewGauge("wsconn"),
+		WSConn:   stats.NewGauge("ws.conn"),
 		Metrics:  stats,
 		Logger:   l,
 	}

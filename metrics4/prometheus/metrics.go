@@ -4,6 +4,7 @@ import (
 	"github.com/fabiolb/fabio/metrics4"
 	"github.com/go-kit/kit/metrics/prometheus"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
+	"strings"
 	"sync"
 )
 
@@ -12,6 +13,10 @@ type Provider struct {
 	gauges     map[string]metrics4.Gauge
 	timers     map[string]metrics4.Timer
 	mutex      sync.Mutex
+}
+
+func normalizeName(name string) string {
+	return strings.Replace(name, ".", "_", -1)
 }
 
 func NewProvider() metrics4.Provider {
@@ -23,6 +28,7 @@ func NewProvider() metrics4.Provider {
 }
 
 func (p *Provider) NewCounter(name string, labels ... string) metrics4.Counter {
+	name = normalizeName(name)
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	if p.counters[name] == nil {
@@ -36,6 +42,7 @@ func (p *Provider) NewCounter(name string, labels ... string) metrics4.Counter {
 }
 
 func (p *Provider) NewGauge(name string, labels ... string) metrics4.Gauge {
+	name = normalizeName(name)
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	if p.gauges[name] == nil {
@@ -49,6 +56,7 @@ func (p *Provider) NewGauge(name string, labels ... string) metrics4.Gauge {
 }
 
 func (p *Provider) NewTimer(name string, labels ... string) metrics4.Timer {
+	name = normalizeName(name)
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	if p.timers[name] == nil {

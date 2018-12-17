@@ -23,7 +23,7 @@ func NewProvider(cfg config.Graphite) (metrics4.Provider, error) {
 
 	registry := rcgm.NewRegistry()
 
-	go graphite.Graphite(registry, cfg.Interval, metrics4.FabioNamespace + "_", a)
+	go graphite.Graphite(registry, cfg.Interval, metrics4.FabioNamespace, a)
 
 	return gm.NewProvider(registry), nil
 }

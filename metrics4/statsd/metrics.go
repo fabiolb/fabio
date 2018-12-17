@@ -17,11 +17,11 @@ type Provider struct {
 }
 
 func NewProvider(cfg config.StatsD) (metrics4.Provider, error) {
-	client := statsd.New(metrics4.FabioNamespace+"_", log.NewNopLogger())
+	client := statsd.New(metrics4.FabioNamespace + ".", log.NewNopLogger())
 
 	ticker := time.NewTicker(cfg.Interval)
 
-	go client.SendLoop(ticker.C, cfg.Protocol, cfg.Addr)
+	go client.SendLoop(ticker.C, "udp", cfg.Addr)
 
 	return &Provider{client, ticker, cfg.SampleRate}, nil
 }
