@@ -1,7 +1,6 @@
 package metrics4
 
 import (
-	"github.com/fabiolb/fabio/metrics4/prefix"
 	"github.com/go-kit/kit/metrics"
 	"io"
 )
@@ -52,7 +51,6 @@ func (mp *MultiProvider) NewCounter(name string, labels ... string) Counter {
 // NewGauge creates a MultiGauge with gauge objects for all registered
 // providers.
 func (mp *MultiProvider) NewGauge(name string, labels ... string) Gauge {
-	name = prefix.GetPrefixedName(name)
 	g := make([]Gauge, len(mp.p))
 	for i, p := range mp.p {
 		g[i] = p.NewGauge(name, labels...)
@@ -63,7 +61,6 @@ func (mp *MultiProvider) NewGauge(name string, labels ... string) Gauge {
 // NewTimer creates a MultiTimer with timer objects for all registered
 // providers.
 func (mp *MultiProvider) NewTimer(name string, labels ... string) Timer {
-	name = prefix.GetPrefixedName(name)
 	t := make([]Timer, len(mp.p))
 	for i, p := range mp.p {
 		t[i] = p.NewTimer(name, labels...)

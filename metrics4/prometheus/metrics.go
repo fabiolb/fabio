@@ -17,7 +17,9 @@ type Provider struct {
 }
 
 func normalizeName(name string) string {
-	return strings.Replace(name, ".", "_", -1)
+	name = strings.Replace(name, ".", "_", -1)
+	name = strings.Replace(name, "-", "_", -1)
+	return name
 }
 
 func NewProvider(prefix string) metrics4.Provider {
