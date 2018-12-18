@@ -20,16 +20,16 @@ package route
 // }
 //
 // func newStubRegistry() metrics.Registry {
-// 	return &stubRegistry{prefix: make(map[string]bool)}
+// 	return &stubRegistry{names: make(map[string]bool)}
 // }
 //
 // type stubRegistry struct {
-// 	prefix map[string]bool
+// 	names map[string]bool
 // }
 //
 // func (p *stubRegistry) Names() []string {
 // 	n := []string{}
-// 	for k := range p.prefix {
+// 	for k := range p.names {
 // 		n = append(n, k)
 // 	}
 // 	sort.Strings(n)
@@ -37,19 +37,19 @@ package route
 // }
 //
 // func (p *stubRegistry) Unregister(name string) {
-// 	delete(p.prefix, name)
+// 	delete(p.names, name)
 // }
 //
 // func (p *stubRegistry) UnregisterAll() {
-// 	p.prefix = map[string]bool{}
+// 	p.names = map[string]bool{}
 // }
 //
 // func (p *stubRegistry) GetCounter(name string) metrics.Counter {
-// 	p.prefix[name] = true
+// 	p.names[name] = true
 // 	return metrics.NoopCounter{}
 // }
 //
 // func (p *stubRegistry) GetTimer(name string) metrics.Timer {
-// 	p.prefix[name] = true
+// 	p.names[name] = true
 // 	return metrics.NoopTimer{}
 // }

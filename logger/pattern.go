@@ -326,9 +326,9 @@ func atoi(b *bytes.Buffer, i int64, pad int) {
 
 // parse parses a format string into a pattern based on the following rules:
 //
-// The format string consists of text and fields. Field prefix start with a '$'
-// and consist of ASCII characters [a-zA-Z0-9.-_]. Field prefix like
-// '$header.name' will render the HTTP header 'name'. All other field prefix
+// The format string consists of text and fields. Field names start with a '$'
+// and consist of ASCII characters [a-zA-Z0-9.-_]. Field names like
+// '$header.name' will render the HTTP header 'name'. All other field names
 // must exist in the fields map.
 func parse(format string, fields map[string]field) (p pattern, err error) {
 	// text is a helper to add raw text to the log output.

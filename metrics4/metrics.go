@@ -17,7 +17,7 @@ type Timer = metrics.Histogram
 // Provider is an abstraction of a metrics backend.
 type Provider interface {
 	// NewCounter creates a new counter object.
-	// labels - array of labels prefix
+	// labels - array of labels names
 	NewCounter(name string, labelsNames ... string) Counter
 
 	// NewGauge creates a new gauge object.
