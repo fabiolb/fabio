@@ -22,20 +22,20 @@ import (
 // DefaultRegistry stores the metrics library provider.
 var DefaultRegistry Registry = NoopRegistry{}
 
-// DefaultNames contains the default template for route metric names.
+// DefaultNames contains the default template for route metric prefix.
 const DefaultNames = "{{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}"
 
-// DefaulPrefix contains the default template for metrics prefix.
+// DefaultPrefix contains the default template for metrics prefix.
 const DefaultPrefix = "{{clean .Hostname}}.{{clean .Exec}}"
 
-// names stores the template for the route metric names.
+// prefix stores the template for the route metric prefix.
 var names *template.Template
 
 // prefix stores the final prefix string to use it with metric collectors where applicable, i.e. Graphite/StatsD
 var prefix string
 
 func init() {
-	// make sure names is initialized to something
+	// make sure prefix is initialized to something
 	var err error
 	if names, err = parseNames(DefaultNames); err != nil {
 		panic(err)
@@ -50,7 +50,7 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 	}
 
 	if names, err = parseNames(cfg.Names); err != nil {
-		return nil, fmt.Errorf("metrics: invalid names template. %s", err)
+		return nil, fmt.Errorf("metrics: invalid prefix template. %s", err)
 	}
 
 	switch cfg.Target {
@@ -107,7 +107,7 @@ func parseNames(tmpl string) (*template.Template, error) {
 	funcMap := template.FuncMap{
 		"clean": clean,
 	}
-	t, err := template.New("names").Funcs(funcMap).Parse(tmpl)
+	t, err := template.New("prefix").Funcs(funcMap).Parse(tmpl)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func TargetName(service, host, path string, targetURL *url.URL) (string, error) 
 	return name.String(), nil
 }
 
-// clean creates safe names for graphite reporting by replacing
+// clean creates safe prefix for graphite reporting by replacing
 // some characters with underscores.
 // TODO(fs): This may need updating for other metrics backends.
 func clean(s string) string {

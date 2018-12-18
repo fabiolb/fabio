@@ -112,7 +112,7 @@ func serviceConfig(client *api.Client, name string, passing map[string]bool, tag
 					addr = svc.Address
 				}
 
-				// add .local suffix on OSX for simple host names w/o domain
+				// add .local suffix on OSX for simple host prefix w/o domain
 				if runtime.GOOS == "darwin" && !strings.Contains(addr, ".") && !strings.HasSuffix(addr, ".local") {
 					addr += ".local"
 				}

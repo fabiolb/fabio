@@ -20,9 +20,10 @@ var (
 
 type Provider struct {
 	c *cgm.CirconusMetrics
+	prefix string
 }
 
-func NewProvider(circonusCfg config.Circonus, interval time.Duration) (metrics4.Provider, error) {
+func NewProvider(circonusCfg config.Circonus, interval time.Duration, prefix string) (metrics4.Provider, error) {
 	var initError error
 	var metrics *cgm.CirconusMetrics
 
@@ -65,10 +66,11 @@ func NewProvider(circonusCfg config.Circonus, interval time.Duration) (metrics4.
 		log.Print("[INFO] Sending metrics to Circonus")
 	})
 
-	return &Provider{metrics}, initError
+	return &Provider{metrics, prefix}, initError
 }
 
 func (p *Provider) NewCounter(name string, labelsNames ... string) metrics4.Counter {
+	name = getPrefixName(p.prefix, name)
 	if len(labelsNames) == 0 {
 		return &Counter{p.c, name}
 	}
@@ -76,6 +78,7 @@ func (p *Provider) NewCounter(name string, labelsNames ... string) metrics4.Coun
 }
 
 func (p *Provider) NewGauge(name string, labelsNames ... string) metrics4.Gauge {
+	name = getPrefixName(p.prefix, name)
 	if len(labelsNames) == 0 {
 		return &Gauge{p.c, name}
 	}
@@ -83,6 +86,7 @@ func (p *Provider) NewGauge(name string, labelsNames ... string) metrics4.Gauge 
 }
 
 func (p *Provider) NewTimer(name string, labelsNames ... string) metrics4.Timer {
+	name = getPrefixName(p.prefix, name)
 	if len(labelsNames) == 0 {
 		return &Timer{p.c.NewHistogram(name)}
 	}
@@ -91,6 +95,13 @@ func (p *Provider) NewTimer(name string, labelsNames ... string) metrics4.Timer 
 
 func (p *Provider) Close() error {
 	return nil
+}
+
+func getPrefixName(prefix string, name string) string {
+	if len(prefix) == 0 {
+		return name
+	}
+	return fmt.Sprintf("%s`%s", prefix, name)
 }
 
 type Counter struct {

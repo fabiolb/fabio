@@ -16,8 +16,12 @@ type Provider struct {
 	sampleRate float64
 }
 
-func NewProvider(cfg config.StatsD, interval time.Duration) metrics4.Provider {
-	client := statsd.New(metrics4.FabioNamespace + ".", log.NewNopLogger())
+func NewProvider(cfg config.StatsD, interval time.Duration, prefix string) metrics4.Provider {
+	if len(prefix) != 0 {
+		prefix = prefix + "."
+	}
+
+	client := statsd.New(prefix, log.NewNopLogger())
 
 	ticker := time.NewTicker(interval)
 

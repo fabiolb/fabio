@@ -1,13 +1,12 @@
 package metrics4
 
 import (
+	"github.com/fabiolb/fabio/metrics4/prefix"
 	"github.com/go-kit/kit/metrics"
 	"io"
 )
 
 const FabioNamespace = "fabio"
-const DotDelimiter = "."
-const UnderscoreDelimiter = "_"
 
 type Counter = metrics.Counter
 
@@ -18,7 +17,7 @@ type Timer = metrics.Histogram
 // Provider is an abstraction of a metrics backend.
 type Provider interface {
 	// NewCounter creates a new counter object.
-	// labels - array of labels names
+	// labels - array of labels prefix
 	NewCounter(name string, labelsNames ... string) Counter
 
 	// NewGauge creates a new gauge object.
@@ -33,7 +32,7 @@ type Provider interface {
 
 // MultiProvider wraps zero or more providers.
 type MultiProvider struct {
-	p []Provider
+	p      []Provider
 }
 
 func NewMultiProvider(p []Provider) *MultiProvider {
@@ -43,9 +42,9 @@ func NewMultiProvider(p []Provider) *MultiProvider {
 // NewCounter creates a MultiCounter with counter objects for all registered
 // providers.
 func (mp *MultiProvider) NewCounter(name string, labels ... string) Counter {
-	var c []Counter
-	for _, p := range mp.p {
-		c = append(c, p.NewCounter(name, labels...))
+	c := make([]Counter, len(mp.p))
+	for i, p := range mp.p {
+		c[i] = p.NewCounter(name, labels...)
 	}
 	return &MultiCounter{c}
 }
@@ -53,9 +52,10 @@ func (mp *MultiProvider) NewCounter(name string, labels ... string) Counter {
 // NewGauge creates a MultiGauge with gauge objects for all registered
 // providers.
 func (mp *MultiProvider) NewGauge(name string, labels ... string) Gauge {
-	var g []Gauge
-	for _, p := range mp.p {
-		g = append(g, p.NewGauge(name, labels...))
+	name = prefix.GetPrefixedName(name)
+	g := make([]Gauge, len(mp.p))
+	for i, p := range mp.p {
+		g[i] = p.NewGauge(name, labels...)
 	}
 	return &MultiGauge{g}
 }
@@ -63,9 +63,10 @@ func (mp *MultiProvider) NewGauge(name string, labels ... string) Gauge {
 // NewTimer creates a MultiTimer with timer objects for all registered
 // providers.
 func (mp *MultiProvider) NewTimer(name string, labels ... string) Timer {
-	var t []Timer
-	for _, p := range mp.p {
-		t = append(t, p.NewTimer(name, labels...))
+	name = prefix.GetPrefixedName(name)
+	t := make([]Timer, len(mp.p))
+	for i, p := range mp.p {
+		t[i] = p.NewTimer(name, labels...)
 	}
 	return &MultiTimer{t}
 }

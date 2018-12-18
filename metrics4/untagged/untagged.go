@@ -3,6 +3,7 @@ package untagged
 import (
 	"errors"
 	"github.com/fabiolb/fabio/metrics4"
+	"github.com/fabiolb/fabio/metrics4/prefix"
 	"strings"
 )
 
@@ -28,7 +29,7 @@ func makeNameFromLabels(labelsNames []string, labels []string) string {
 	if err != nil {
 		panic(err)
 	}
-	return strings.Join(labels, metrics4.DotDelimiter)
+	return strings.Join(labels, prefix.DotDelimiter)
 }
 
 type metric struct {
@@ -52,7 +53,7 @@ type counter struct {
 func (c *counter) Add(delta float64) {}
 
 func (c *counter) With(labels ... string) metrics4.Counter {
-	return c.m.p.NewCounter(c.m.name + metrics4.DotDelimiter + makeNameFromLabels(c.m.labelsNames, labels))
+	return c.m.p.NewCounter(c.m.name + prefix.DotDelimiter + makeNameFromLabels(c.m.labelsNames, labels))
 }
 
 func NewCounter(p metrics4.Provider, name string, labelsNames []string) metrics4.Counter {
@@ -68,7 +69,7 @@ type timer struct {
 func (t *timer) Observe(value float64) {}
 
 func (t *timer) With(labels ... string) metrics4.Timer {
-	return t.m.p.NewTimer(t.m.name + metrics4.DotDelimiter + makeNameFromLabels(t.m.labelsNames, labels))
+	return t.m.p.NewTimer(t.m.name + prefix.DotDelimiter + makeNameFromLabels(t.m.labelsNames, labels))
 }
 
 func NewTimer(p metrics4.Provider, name string, labelsNames []string) metrics4.Timer {
@@ -86,7 +87,7 @@ func (g *gauge) Add(value float64) {}
 func (g *gauge) Set(value float64) {}
 
 func (g *gauge) With(labels ... string) metrics4.Gauge {
-	return g.m.p.NewGauge(g.m.name + metrics4.DotDelimiter + makeNameFromLabels(g.m.labelsNames, labels))
+	return g.m.p.NewGauge(g.m.name + prefix.DotDelimiter + makeNameFromLabels(g.m.labelsNames, labels))
 }
 
 func NewGauge(p metrics4.Provider, name string, labelsNames []string) metrics4.Gauge {

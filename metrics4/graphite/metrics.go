@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func NewProvider(cfg config.Graphite, interval time.Duration) (metrics4.Provider, error) {
+func NewProvider(cfg config.Graphite, interval time.Duration, prefix string) (metrics4.Provider, error) {
 	if cfg.Addr == "" {
 		return nil, errors.New(" graphite addr missing")
 	}
@@ -24,7 +24,7 @@ func NewProvider(cfg config.Graphite, interval time.Duration) (metrics4.Provider
 
 	registry := rcgm.NewRegistry()
 
-	go graphite.Graphite(registry, interval, metrics4.FabioNamespace, a)
+	go graphite.Graphite(registry, interval, prefix, a)
 
 	return gm.NewProvider(registry), nil
 }

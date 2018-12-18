@@ -146,15 +146,12 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 
 	f.StringVar(&cfg.Metrics.Target, "metrics.target", defaultConfig.Metrics.Target, "metrics backend")
 
-	//f.StringVar(&cfg.Metrics.Prefix, "metrics.prefix", defaultConfig.Metrics.Prefix, "prefix for reported metrics")
-	//f.StringVar(&cfg.Metrics.Names, "metrics.names", defaultConfig.Metrics.Names, "route metric name template")
+	f.StringVar(&cfg.Metrics.Prefix, "metrics.prefix", defaultConfig.Metrics.Prefix, "prefix for reported metrics")
 	f.DurationVar(&cfg.Metrics.Interval, "metrics.interval", defaultConfig.Metrics.Interval, "metrics reporting interval")
-	//f.DurationVar(&cfg.Metrics.Timeout, "metrics.timeout", defaultConfig.Metrics.Timeout, "timeout for metrics to become available")
-	//f.DurationVar(&cfg.Metrics.Retry, "metrics.retry", defaultConfig.Metrics.Retry, "retry interval during startup")
 
 	f.StringVar(&cfg.Metrics.Prometheus.MetricsEndpoint, "metrics.prometheus.endpoint", defaultConfig.Metrics.Prometheus.MetricsEndpoint, "metrics endpoint for Prometheus")
 
-	f.StringVar(&cfg.Metrics.Graphite.Addr, "metrics.graphite.addr", defaultConfig.Metrics.Graphite.Addr, "graphite carbon receiver (plaintext) address")
+	f.StringVar(&cfg.Metrics.Graphite.Addr, "metrics.graphite.addr", defaultConfig.Metrics.Graphite.Addr, "graphite carbon receiver or aggregator (plaintext) address")
 
 	f.StringVar(&cfg.Metrics.StatsD.Addr, "metrics.statsd.addr", defaultConfig.Metrics.StatsD.Addr, "statsd server address")
 	f.Float64Var(&cfg.Metrics.StatsD.SampleRate, "metrics.statsd.sampleRate", defaultConfig.Metrics.StatsD.SampleRate, "statsd sample rate")

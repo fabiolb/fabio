@@ -96,11 +96,8 @@ type Log struct {
 
 type Metrics struct {
 	Target string
-	//Prefix     string
-	//Names      string
+	Prefix     string
 	Interval   time.Duration
-	//Timeout    time.Duration
-	//Retry      time.Duration
 	Prometheus Prometheus
 	StatsD     StatsD
 	Graphite   Graphite

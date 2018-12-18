@@ -9,21 +9,23 @@ import (
 )
 
 type Provider struct {
-	counters   map[string]metrics4.Counter
-	gauges     map[string]metrics4.Gauge
-	timers     map[string]metrics4.Timer
-	mutex      sync.Mutex
+	counters map[string]metrics4.Counter
+	gauges   map[string]metrics4.Gauge
+	timers   map[string]metrics4.Timer
+	mutex    sync.Mutex
+	prefix   string
 }
 
 func normalizeName(name string) string {
 	return strings.Replace(name, ".", "_", -1)
 }
 
-func NewProvider() metrics4.Provider {
+func NewProvider(prefix string) metrics4.Provider {
 	return &Provider{
 		counters: make(map[string]metrics4.Counter),
-		gauges: make(map[string]metrics4.Gauge),
-		timers: make(map[string]metrics4.Timer),
+		gauges:   make(map[string]metrics4.Gauge),
+		timers:   make(map[string]metrics4.Timer),
+		prefix:   prefix,
 	}
 }
 
@@ -33,7 +35,7 @@ func (p *Provider) NewCounter(name string, labels ... string) metrics4.Counter {
 	defer p.mutex.Unlock()
 	if p.counters[name] == nil {
 		p.counters[name] = prometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: metrics4.FabioNamespace,
+			Namespace: normalizeName(p.prefix),
 			Name:      name,
 		}, labels)
 	}
@@ -47,7 +49,7 @@ func (p *Provider) NewGauge(name string, labels ... string) metrics4.Gauge {
 	defer p.mutex.Unlock()
 	if p.gauges[name] == nil {
 		p.gauges[name] = prometheus.NewGaugeFrom(stdprometheus.GaugeOpts{
-			Namespace: metrics4.FabioNamespace,
+			Namespace: normalizeName(p.prefix),
 			Name:      name,
 		}, labels)
 	}
@@ -61,7 +63,7 @@ func (p *Provider) NewTimer(name string, labels ... string) metrics4.Timer {
 	defer p.mutex.Unlock()
 	if p.timers[name] == nil {
 		p.timers[name] = prometheus.NewHistogramFrom(stdprometheus.HistogramOpts{
-			Namespace: metrics4.FabioNamespace,
+			Namespace: normalizeName(p.prefix),
 			Name:      name,
 		}, labels)
 	}

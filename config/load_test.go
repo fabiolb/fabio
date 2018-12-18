@@ -647,9 +647,9 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
-			args: []string{"-metrics.names", "some names"},
+			args: []string{"-metrics.prefix", "some prefix"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Metrics.Names = "some names"
+				cfg.Metrics.Names = "some prefix"
 				return cfg
 			},
 		},

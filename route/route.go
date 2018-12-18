@@ -2,6 +2,7 @@ package route
 
 import (
 	"fmt"
+	"github.com/fabiolb/fabio/metrics4/names"
 	"log"
 	"net/url"
 	"reflect"
@@ -9,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fabiolb/fabio/metrics4/names"
 	"github.com/gobwas/glob"
 )
 

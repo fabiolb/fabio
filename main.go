@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/fabiolb/fabio/metrics4/circonus"
 	"github.com/fabiolb/fabio/metrics4/graphite"
+	"github.com/fabiolb/fabio/metrics4/prefix"
 	"github.com/fabiolb/fabio/metrics4/stdout"
 	"io"
 	"log"
@@ -313,14 +314,15 @@ func startServers(cfg *config.Config, stats metrics4.Provider) {
 }
 
 func initMetrics(cfg *config.Config) metrics4.Provider {
+	prefix.InitPrefix(cfg.Metrics.Prefix)
 	var p []metrics4.Provider
 	for _, x := range strings.Split(cfg.Metrics.Target, ",") {
 		x = strings.TrimSpace(x)
 		switch x {
 		case "prometheus":
-			p = append(p, prometheus.NewProvider())
+			p = append(p, prometheus.NewProvider(prefix.GetPrefix()))
 		case "graphite":
-			provider, err := graphite.NewProvider(cfg.Metrics.Graphite, cfg.Metrics.Interval)
+			provider, err := graphite.NewProvider(cfg.Metrics.Graphite, cfg.Metrics.Interval, prefix.GetPrefix())
 
 			if err != nil {
 				exit.Fatalf("[FATAL] Cannot initialize graphite metrics: %s", err)
@@ -328,11 +330,11 @@ func initMetrics(cfg *config.Config) metrics4.Provider {
 
 			p = append(p, provider)
 		case "statsd":
-			p = append(p, statsd.NewProvider(cfg.Metrics.StatsD, cfg.Metrics.Interval))
+			p = append(p, statsd.NewProvider(cfg.Metrics.StatsD, cfg.Metrics.Interval, prefix.GetPrefix()))
 		case "stdout":
 			p = append(p, stdout.NewProvider(cfg.Metrics.Interval))
 		case "circonus":
-			provider, err := circonus.NewProvider(cfg.Metrics.Circonus, cfg.Metrics.Interval)
+			provider, err := circonus.NewProvider(cfg.Metrics.Circonus, cfg.Metrics.Interval, prefix.GetPrefix())
 
 			if err != nil {
 				exit.Fatalf("[FATAL] Cannot initialize circonus metrics: %s", err)
