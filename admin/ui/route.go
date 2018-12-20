@@ -91,7 +91,7 @@ $(function(){
 			tbl += '<td>' + (i+1) + '</td>';
 			tbl += '<td>' + r.service + '</td>';
 			tbl += '<td>' + r.src + '</td>';
-			tbl += '<td>' + r.dst + '</td>';
+			tbl += '<td><a href="' + r.dst + '">' + r.dst + '</a></td>';
 			tbl += '<td>' + r.opts + '</td>';
 			tbl += '<td>' + (r.weight * 100).toFixed(2) + '%</td>';
 			tbl += '</tr>';
