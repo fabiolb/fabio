@@ -119,7 +119,11 @@ $(function(){
 			if (val == "") {
 				val = "default"
 			}
-            d.append('<li><a href="/manual'+path+'">'+val+'</a></li>');
+			d.append(
+				$('<li />').append(
+					$('<a />').attr('href', '/manual'+path).text(val)
+				)
+			);
 		});
 	});
 
