@@ -4,7 +4,9 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net"
+	"time"
 
+	proxyproto "github.com/armon/go-proxyproto"
 	"github.com/fabiolb/fabio/proxy/internal"
 	"github.com/fabiolb/fabio/proxy/tcp"
 )
@@ -107,4 +109,26 @@ func newLocalListener() net.Listener {
 		}
 	}
 	return l
+}
+
+func NewServerWithProxyProto(h tcp.Handler) *Server {
+	srv := NewUnstartedServerWithProxyProto(h)
+	srv.Start()
+	return srv
+}
+
+func NewTLSServerWithProxyProto(h tcp.Handler) *Server {
+	srv := NewUnstartedServerWithProxyProto(h)
+	srv.StartTLS()
+	return srv
+}
+
+func NewUnstartedServerWithProxyProto(h tcp.Handler) *Server {
+	return &Server{
+		Listener: &proxyproto.Listener{
+			Listener:           newLocalListener(),
+			ProxyHeaderTimeout: time.Duration(100 * time.Millisecond),
+		},
+		Config: &tcp.Server{Handler: h},
+	}
 }

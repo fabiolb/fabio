@@ -62,6 +62,18 @@ func (p *Proxy) ServeTCP(in net.Conn) error {
 	}
 	defer out.Close()
 
+	// enable PROXY protocol support on outbound connection
+	if t.ProxyProto {
+		err := WriteProxyHeader(out, in)
+		if err != nil {
+			log.Print("[WARN] tcp: write proxy protocol header failed. ", err)
+			if p.ConnFail != nil {
+				p.ConnFail.Inc(1)
+			}
+			return err
+		}
+	}
+
 	errc := make(chan error, 2)
 	cp := func(dst io.Writer, src io.Reader, c metrics.Counter) {
 		errc <- copyBuffer(dst, src, c)

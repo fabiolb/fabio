@@ -113,6 +113,18 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	}
 	defer out.Close()
 
+	// enable PROXY protocol support on outbound connection
+	if t.ProxyProto {
+		err := WriteProxyHeader(out, in)
+		if err != nil {
+			log.Print("[WARN] tcp+sni: write proxy protocol header failed. ", err)
+			if p.ConnFail != nil {
+				p.ConnFail.Inc(1)
+			}
+			return err
+		}
+	}
+
 	// write the data already read from the connection
 	n, err := out.Write(data)
 	if err != nil {

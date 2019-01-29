@@ -60,6 +60,9 @@ type Target struct {
 
 	// name of the auth handler for this target
 	AuthScheme string
+
+	// ProxyProto enables PROXY Protocol on upstream connection
+	ProxyProto bool
 }
 
 func (t *Target) BuildRedirectURL(requestURL *url.URL) {
