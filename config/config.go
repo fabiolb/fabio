@@ -151,6 +151,7 @@ type Consul struct {
 	CheckDeregisterCriticalServiceAfter string
 	ChecksRequired                      string
 	ServiceMonitors                     int
+	TLS                                 ConsulTlS
 }
 
 type Tracing struct {
@@ -172,4 +173,12 @@ type AuthScheme struct {
 type BasicAuth struct {
 	Realm string
 	File  string
+}
+
+type ConsulTlS struct {
+	KeyFile            string
+	CertFile           string
+	CAFile             string
+	CAPath             string
+	InsecureSkipVerify bool
 }
