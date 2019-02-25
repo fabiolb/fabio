@@ -4,48 +4,89 @@
 
 #### Breaking Changes
 
-  * [Issue #524](https://github.com/fabiolb/fabio/issues/524): Fix TCP proxy
-    
-	Adding access control in 1.5.8 broke the TCP proxy for clients which wait
-	for a server handshake before they send data themself, e.g. MySQL client.
-	Calling `RemoteAddr` to check the access list is a blocking call on the
-	underlying listener. The Go team fixed this for HTTP in
-	https://github.com/golang/go/issues/12943 but fabio was still affected. 
+* [Issue #524](https://github.com/fabiolb/fabio/issues/524): Fix TCP proxy
 
-	This patch **disables** the PROXY protocol by default and you have to
-	**enable** it if you need it. You can control this with the `pxyproto` and
-	`pxytimeout` options which allow to enable/disable the protocol and add a
-	timeout for auto-detection if it is enabled. 
+  Adding access control in 1.5.8 broke the TCP proxy for clients which wait
+  for a server handshake before they send data themself, e.g. MySQL client.
+  Calling `RemoteAddr` to check the access list is a blocking call on the
+  underlying listener. The Go team fixed this for HTTP in
+  https://github.com/golang/go/issues/12943 but fabio was still affected.
 
-	Thanks to [@pschultz](https://github.com/pschultz) and
-	[@leprechau](https://github.com/leprechau) for the debugging and patch.
+  This patch **disables** the PROXY protocol by default and you have to
+  **enable** it if you need it. You can control this with the `pxyproto` and
+  `pxytimeout` options which allow to enable/disable the protocol and add a
+  timeout for auto-detection if it is enabled.
+
+  Thanks to [@pschultz](https://github.com/pschultz) and
+  [@leprechau](https://github.com/leprechau) for the debugging and patch.
 
 #### Bug Fixes
 
-  * [PR #577](https://github.com/fabiolb/fabio/issues/577): Fix ip access rules within tcp proxy
+* [PR #577](https://github.com/fabiolb/fabio/pull/577): Fix ip access rules within tcp proxy
 
-    Access rules were not being evaluated in the `tcp` proxy.
+  Access rules were not being evaluated in the `tcp` proxy.
 
-    Thanks to [@KEZHwMlXV1vFzs6QvY8v5WjX5](https://github.com/KEZHwMlXV1vFzs6QvY8v5WjX5) for identifying the issue,
-    providing a solution, and testing.
+  Thanks to [@KEZHwMlXV1vFzs6QvY8v5WjX5](https://github.com/KEZHwMlXV1vFzs6QvY8v5WjX5) for identifying the issue, providing a solution, and testing.
+
+* [PR #588](https://github.com/fabiolb/fabio/pull/588): Fix XSS vulnerability in UI
+
+  Thanks to [@pschultz](https://github.com/pschultz).
 
 #### Improvements
 
+* [PR #564](https://github.com/fabiolb/fabio/pull/564): refactor consul service monitor
+
+  This patch addresses [Issue #558](https://github.com/fabiolb/fabio/issues/558) where
+  route updates are delayed when there are a large number of services registered in
+  Consul. This patch adds a new option `registry.consul.serviceMonitors` to configure
+  the concurrency for routing table updates.
+
+  Thanks to [@galen0624](https://github.com/galen0624) for the issue report and the initial
+  patch.
+
+* [PR #574](https://github.com/fabiolb/fabio/pull/574): add support for circonus.submissionurl
+
+  Thanks to [@stack72](https://github.com/stack72) for the patch.
+
+* [PR #583](https://github.com/fabiolb/fabio/pull/583): Make dest column clickable
+
+  This patch updates the documentation around the PROXY protocol.
+
+  Thanks to [@pschultz](https://github.com/pschultz).
+
+* [PR #587](https://github.com/fabiolb/fabio/pull/587): Make dest column clickable
+
+  This patch makes the dest column in the fabio UI clickable.
+
+  Thanks to [@kneufeld](https://github.com/kneufeld).
+
 #### Features
 
- * [PR #429](https://github.com/fabiolb/fabio/issues/429): Support for opentracing
+* [PR #429](https://github.com/fabiolb/fabio/issues/429): Support for opentracing
 
    This patch adds support for opentracing.
 
    Thanks to Jeremy White, Kristina Fischer, Micheal Murphz, Nathan West,
    Austin Hartzheim and Jacob Hansen for this patch!
 
- * [PR #553](https://github.com/fabiolb/fabio/issues/553): Support for case-insensitive matching
+* [PR #553](https://github.com/fabiolb/fabio/issues/553): Support for case-insensitive matching
 
-   This patch adds a new `iprefix` option to the `proxy.matcher` to support case-insensitive
-   path prefix matching.
+  This patch adds a new `iprefix` option to the `proxy.matcher` to support case-insensitive
+  path prefix matching.
 
-   Thanks to [@herbrandson](https://github.com/herbrandson) for the patch.
+  Thanks to [@herbrandson](https://github.com/herbrandson) for the patch.
+
+* [PR #573](https://github.com/fabiolb/fabio/pull/573): add http-basic auth reading from a file
+
+  This patch adds support for HTTP Basic Authentication via an `htpasswd` file.
+
+  Thanks to [@andyroyle](https://github.com/andyroyle) for the patch.
+
+* [PR #575](https://github.com/fabiolb/fabio/pull/575): Add GRPC proxy support
+
+  This patch adds proper GRPC proxy support, including TLS upstream and TLS termination.
+
+  Thanks to [@andyroyle](https://github.com/andyroyle) for the patch.
 
 ### [v1.5.10](https://github.com/fabiolb/fabio/releases/tag/v1.5.10) - 25 Oct 2018
 
@@ -1009,4 +1050,3 @@ fabio is known to work with vault 0.6.4.
 ### [v1.0.0](https://github.com/fabiolb/fabio/releases/tag/v1.0.0) - 16 Oct 2015
 
  * Initial open-source release
-
