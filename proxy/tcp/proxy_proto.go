@@ -1,7 +1,6 @@
 package tcp
 
 import (
-	"fmt"
 	"net"
 )
 
@@ -19,7 +18,7 @@ func WriteProxyHeader(out, in net.Conn) error {
 		proto = "TCP6"
 	}
 
-	header := fmt.Sprintf("PROXY %s %s %s %s %s\r\n", proto, clientAddr, serverAddr, clientPort, serverPort)
+	header := "PROXY " + proto + " " + clientAddr + " " + serverAddr + " " + clientPort + " " + serverPort + "\r\n"
 	_, err := out.Write([]byte(header))
 	return err
 }

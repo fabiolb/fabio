@@ -2,7 +2,6 @@ package tcptest
 
 import (
 	"crypto/tls"
-	"fmt"
 	"net"
 	"time"
 )
@@ -32,7 +31,7 @@ func (d *RetryDialer) Dial(network, addr string) (c net.Conn, err error) {
 			return nil, err
 		}
 		if d.ProxyProto {
-			pxy := fmt.Sprintf("PROXY TCP4 1.2.3.4 5.6.7.8 12345 54321\r\n")
+			pxy := "PROXY TCP4 1.2.3.4 5.6.7.8 12345 54321\r\n"
 			conn.Write([]byte(pxy))
 		}
 		return conn, err
@@ -59,7 +58,7 @@ func (d *TLSRetryDialer) Dial(network, addr string) (c net.Conn, err error) {
 			return nil, err
 		}
 		if d.ProxyProto {
-			pxy := fmt.Sprintf("PROXY TCP4 1.2.3.4 5.6.7.8 12345 54321\r\n")
+			pxy := "PROXY TCP4 1.2.3.4 5.6.7.8 12345 54321\r\n"
 			conn.Write([]byte(pxy))
 		}
 		return tls.Client(conn, d.TLS), nil
