@@ -74,30 +74,37 @@ $(function(){
 	var params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
 
 	function renderRoutes(routes) {
-		var $table = $("table.routes");
+		var $table = $('table.routes');
 
-		var tbl = '<thead><tr>';
-		tbl += '<th>#</th>';
-		tbl += '<th>Service</th>';
-		tbl += '<th>Source</th>';
-		tbl += '<th>Dest</th>';
-		tbl += '<th>Options</th>';
-		tbl += '<th>Weight</th>';
-		tbl += '</tr></thead><tbody>'
-		tbl += '<tbody>'
+		var thead = '<thead><tr>';
+		thead += '<th>#</th>';
+		thead += '<th>Service</th>';
+		thead += '<th>Source</th>';
+		thead += '<th>Dest</th>';
+		thead += '<th>Options</th>';
+		thead += '<th>Weight</th>';
+		thead += '</tr></thead>';
+
+		var $tbody = $('<tbody />');
+
 		for (var i=0; i < routes.length; i++) {
 			var r = routes[i];
-			tbl += '<tr>';
-			tbl += '<td>' + (i+1) + '</td>';
-			tbl += '<td>' + r.service + '</td>';
-			tbl += '<td>' + r.src + '</td>';
-			tbl += '<td>' + r.dst + '</td>';
-			tbl += '<td>' + r.opts + '</td>';
-			tbl += '<td>' + (r.weight * 100).toFixed(2) + '%</td>';
-			tbl += '</tr>';
+
+			var $tr = $('<tr />')
+
+			$tr.append($('<td />').text(i+1));
+			$tr.append($('<td />').text(r.service));
+			$tr.append($('<td />').text(r.src));
+			$tr.append($('<td />').text(r.dst));
+			$tr.append($('<td />').text(r.opts));
+			$tr.append($('<td />').text((r.weight * 100).toFixed(2) + '%'));
+
+			$tr.appendTo($tbody);
 		}
-		tbl += '</tbody>';
-		$table.html(tbl);
+
+		$table.empty().
+			append($(thead)).
+			append($tbody);
 	}
 
 	var $filter = $('#filter');
@@ -105,7 +112,6 @@ $(function(){
 		$("tr").show();
 		if (!v) return;
 		var words = v.split(' ');
-		console.log('words: ', words);
 		for (var i=0; i < words.length; i++) {
 			var w = words[i].trim();
 			if (w == "") continue;
@@ -135,11 +141,14 @@ $(function(){
 			if (val == "") {
 				val = "default"
 			}
-            d.append('<li><a href="/manual'+path+'">'+val+'</a></li>');
+			d.append(
+				$('<li />').append(
+					$('<a />').attr('href', '/manual'+path).text(val)
+				)
+			);
 		});
 	});
-
-})
+});
 </script>
 
 </body>
