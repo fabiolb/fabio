@@ -96,6 +96,7 @@ $(function(){
 			$tr.append($('<td />').text(r.service));
 			$tr.append($('<td />').text(r.src));
 			$tr.append($('<td />').text(r.dst));
+			$tr.append($('<td />').append($('<a />').attr('href', r.dst).text(r.dst)));
 			$tr.append($('<td />').text(r.opts));
 			$tr.append($('<td />').text((r.weight * 100).toFixed(2) + '%'));
 
