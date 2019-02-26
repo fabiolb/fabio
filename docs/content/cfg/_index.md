@@ -30,6 +30,7 @@ Option                                     | Description
 `deny=ip:10.0.0.0/8,ip:fe80::1234`         | Deny requests that source from the `10.0.0.0/8` CIDR mask or `fe80::1234`.  All other requests will be allowed.
 `strip=/path`                              | Forward `/path/to/file` as `/to/file`
 `proto=tcp`                                | Upstream service is TCP, `dst` must be `:port`
+`pxyproto=true`                            | Enables PROXY protocol on outbount TCP connection
 `proto=https`                              | Upstream service is HTTPS
 `tlsskipverify=true`                       | Disable TLS cert validation for HTTPS upstream
 `host=name`                                | Set the `Host` header to `name`. If `name == 'dst'` then the `Host` header will be set to the registered upstream host name

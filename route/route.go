@@ -74,6 +74,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		t.StripPath = opts["strip"]
 		t.TLSSkipVerify = opts["tlsskipverify"] == "true"
 		t.Host = opts["host"]
+		t.ProxyProto = opts["pxyproto"] == "true"
 
 		if opts["redirect"] != "" {
 			t.RedirectCode, err = strconv.Atoi(opts["redirect"])
