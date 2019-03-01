@@ -3,6 +3,12 @@
 	height: 100%;
 }
 
+/* set navbar to static for now. If JS is enabled, we will revert to fixed in
+ * custom.js, but if JS isn't enabled a fixed header overlaps the content. */
+.site-header.sticky .navbar {
+    position: static;
+}
+
 article.main-content {
 	padding-top: 0;
 }
