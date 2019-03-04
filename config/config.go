@@ -170,6 +170,8 @@ type AuthScheme struct {
 }
 
 type BasicAuth struct {
-	Realm string
-	File  string
+	Realm   string
+	File    string
+	Refresh time.Duration
+	ModTime time.Time // the htpasswd file last modification time
 }

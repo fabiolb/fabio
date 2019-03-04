@@ -3,6 +3,8 @@ package auth
 import (
 	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/fabiolb/fabio/config"
 	"github.com/tg123/go-htpasswd"
@@ -15,12 +17,43 @@ type basic struct {
 }
 
 func newBasicAuth(cfg config.BasicAuth) (AuthScheme, error) {
-	secrets, err := htpasswd.New(cfg.File, htpasswd.DefaultSystems, func(err error) {
-		log.Println("[WARN] Error reading Htpasswd file: ", err)
-	})
+	bad := func(err error) {
+		log.Println("[WARN] Error processing a line in an htpasswd file:", err)
+	}
 
+	stat, err := os.Stat(cfg.File)
 	if err != nil {
 		return nil, err
+	}
+	cfg.ModTime = stat.ModTime()
+
+	secrets, err := htpasswd.New(cfg.File, htpasswd.DefaultSystems, bad)
+	if err != nil {
+		return nil, err
+	}
+
+	if cfg.Refresh > 0 {
+		go func() {
+			ticker := time.NewTicker(cfg.Refresh).C
+			for range ticker {
+				stat, err := os.Stat(cfg.File)
+				if err != nil {
+					log.Println("[WARN] Error accessing htpasswd file:", err)
+					continue // to prevent nil pointer dereference below
+				}
+
+				// refresh the htpasswd file only if its modification time has changed
+				// even if the new htpasswd file is older than previously loaded
+				if cfg.ModTime != stat.ModTime() {
+					if err := secrets.Reload(bad); err == nil {
+						log.Println("[INFO] The htpasswd file has been successfully reloaded")
+						cfg.ModTime = stat.ModTime()
+					} else {
+						log.Println("[WARN] Error reloading htpasswd file:", err)
+					}
+				}
+			}
+		}()
 	}
 
 	return &basic{

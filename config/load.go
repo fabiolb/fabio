@@ -613,8 +613,9 @@ func parseAuthScheme(cfg map[string]string) (a AuthScheme, err error) {
 		return AuthScheme{}, fmt.Errorf("missing 'type' in auth '%s'", a.Name)
 	case "basic":
 		a.Basic = BasicAuth{
-			File:  cfg["file"],
-			Realm: cfg["realm"],
+			File:    cfg["file"],
+			Realm:   cfg["realm"],
+			Refresh: 0, // the htpasswd file refresh is disabled by default
 		}
 
 		if a.Basic.File == "" {
@@ -623,6 +624,18 @@ func parseAuthScheme(cfg map[string]string) (a AuthScheme, err error) {
 		if a.Basic.Realm == "" {
 			a.Basic.Realm = a.Name
 		}
+
+		if cfg["refresh"] != "" {
+			d, err := time.ParseDuration(cfg["refresh"])
+			if err != nil {
+				return AuthScheme{}, err
+			}
+			if d < time.Second {
+				d = time.Second
+			}
+			a.Basic.Refresh = d
+		}
+
 	default:
 		return AuthScheme{}, fmt.Errorf("unknown auth type '%s'", a.Type)
 	}
