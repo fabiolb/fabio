@@ -40,7 +40,7 @@ func isServiceCheck(c *api.HealthCheck) bool {
 	return c.ServiceID != "" &&
 		c.CheckID != "serfHealth" &&
 		c.CheckID != "_node_maintenance" &&
-		!strings.HasPrefix("_service_maintenance:", c.CheckID)
+		!strings.HasPrefix(c.CheckID, "_service_maintenance:")
 }
 
 // isAgentCritical returns true if the agent on the node on which the service
