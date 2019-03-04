@@ -23,32 +23,33 @@ referenced in a route configuration.
 When you configure the route, you must reference the unique name for the authorization scheme:
 
     route add svc / https://127.0.0.1:8080 auth=<name>
-    
+
     urlprefix-/ proto=https auth=<name>
-    
+
 The following types of authorization schemes are available:
 
- * [`basic`](#basic): legacy store for a single TLS and a set of client auth certificates
- 
+* [`basic`](#basic): legacy store for a single TLS and a set of client auth certificates
+
 At the end you also find a list of [examples](#examples).
 
 ### Basic
 
 The basic authorization scheme leverages [Http Basic Auth](https://en.wikipedia.org/wiki/Basic_access_authentication) and reads a [htpasswd](https://httpd.apache.org/docs/2.4/misc/password_encryptions.html) file at startup and credentials are cached until the service exits.
 
-The `file` option contains the path to the htpasswd file. The `realm` parameter is optional (default is to use the `name`)  
+The `file` option contains the path to the htpasswd file. The `realm` parameter is optional (default is to use the `name`). The `refresh` option can set the htpasswd file refresh interval. Minimal refresh interval is `1s` to void busy loop. By default refresh is disabled i.e. set to zero.
 
-    name=<name>;type=basic;file=<file>;realm=<realm>
+    name=<name>;type=basic;file=<file>;realm=<realm>;refresh=<interval>
 
 Supported htpasswd formats are detailed [here](https://github.com/tg123/go-htpasswd)
 
-##### Examples
+#### Examples
 
-    # single basic auth scheme 
-    
+    # single basic auth scheme
     name=mybasicauth;type=basic;file=p/creds.htpasswd;
 
-    # basic auth with multiple schemes
+    # single basic auth scheme with refresh interval set to 30 seconds
+    name=mybasicauth;type=basic;file=p/creds.htpasswd;refresh=30s
 
-    proxy.auth = name=mybasicauth;type=basic;file=p/creds.htpasswd
+    # basic auth with multiple schemes
+    proxy.auth = name=mybasicauth;type=basic;file=p/creds.htpasswd;refresh=30s
                  name=myotherauth;type=basic;file=p/other-creds.htpasswd;realm=myrealm
