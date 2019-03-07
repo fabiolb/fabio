@@ -155,12 +155,12 @@ type Consul struct {
 }
 
 type CustomBE struct {
-	Host string
-	Scheme 	string
-	Timeout time.Duration
-	SSLCheck	bool
-	PollingInterval time.Duration
-	NoRouteHTML	string
+	Host               string
+	Scheme             string
+	CheckTLSSkipVerify bool
+	PollingInterval    time.Duration
+	NoRouteHTML        string
+	Timeout            time.Duration
 }
 
 type Tracing struct {

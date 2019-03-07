@@ -6,8 +6,6 @@ import (
 	"log"
 )
 
-
-
 type BE struct {
 	cfg *config.CustomBE
 }

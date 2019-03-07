@@ -5,18 +5,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/fabiolb/fabio/registry/custom"
-	"io"
-	"log"
-	"net"
-	"net/http"
-	"os"
-	"runtime"
-	"runtime/debug"
-	"strings"
-	"sync"
-	"sync/atomic"
-	"time"
 	"github.com/fabiolb/fabio/admin"
 	"github.com/fabiolb/fabio/auth"
 	"github.com/fabiolb/fabio/cert"
@@ -29,6 +17,7 @@ import (
 	"github.com/fabiolb/fabio/proxy/tcp"
 	"github.com/fabiolb/fabio/registry"
 	"github.com/fabiolb/fabio/registry/consul"
+	"github.com/fabiolb/fabio/registry/custom"
 	"github.com/fabiolb/fabio/registry/file"
 	"github.com/fabiolb/fabio/registry/static"
 	"github.com/fabiolb/fabio/route"
@@ -37,6 +26,17 @@ import (
 	"github.com/pkg/profile"
 	dmp "github.com/sergi/go-diff/diffmatchpatch"
 	"google.golang.org/grpc"
+	"io"
+	"log"
+	"net"
+	"net/http"
+	"os"
+	"runtime"
+	"runtime/debug"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
 )
 
 // version contains the version number
@@ -425,23 +425,21 @@ func initBackend(cfg *config.Config) {
 
 func watchBackend(cfg *config.Config, first chan bool) {
 	var (
-		last   string
-		svccfg string
-		mancfg string
-		customBE	string
+		last     string
+		svccfg   string
+		mancfg   string
+		customBE string
 
 		once sync.Once
 	)
 
-
-	switch cfg.Registry.Backend{
+	switch cfg.Registry.Backend {
 	//Custom Back End.  Gets JSON from Remote Backend that contains a slice of route.RouteDef.  It loads the route table
 	//Directly from that input
 	case "custom":
-
 		svc := registry.Default.WatchServices()
 		for {
-			customBE = <- svc
+			customBE = <-svc
 			if customBE != "OK" {
 				log.Printf("[ERROR] error during update from custom back end - %s", customBE)
 			}
@@ -483,9 +481,7 @@ func watchBackend(cfg *config.Config, first chan bool) {
 			once.Do(func() { close(first) })
 		}
 
-
 	}
-
 
 }
 

@@ -134,7 +134,7 @@ func NewTable(s string) (t Table, err error) {
 	return t, nil
 }
 
-func NewTableCustomBE(defs []*RouteDef) (t Table, err error){
+func NewTableCustomBE(defs []*RouteDef) (t Table, err error) {
 
 	t = make(Table)
 	for _, d := range defs {
@@ -154,7 +154,6 @@ func NewTableCustomBE(defs []*RouteDef) (t Table, err error){
 	}
 	return t, nil
 }
-
 
 // addRoute adds a new route prefix -> target for the given service.
 func (t Table) addRoute(d *RouteDef) error {
