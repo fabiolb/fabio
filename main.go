@@ -210,7 +210,7 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 	authSchemes, err := auth.LoadAuthSchemes(cfg.Proxy.AuthSchemes)
 
 	if err != nil {
-		exit.Fatal("[FATAL]", err)
+		exit.Fatal("[FATAL] ", err)
 	}
 
 	return &proxy.HTTPProxy{
