@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/fabiolb/fabio/registry/custom"
 	"io"
 	"log"
 	"net"
@@ -16,7 +17,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
 	"github.com/fabiolb/fabio/admin"
 	"github.com/fabiolb/fabio/auth"
 	"github.com/fabiolb/fabio/cert"
@@ -399,6 +399,8 @@ func initBackend(cfg *config.Config) {
 			registry.Default, err = static.NewBackend(&cfg.Registry.Static)
 		case "consul":
 			registry.Default, err = consul.NewBackend(&cfg.Registry.Consul)
+		case "custom":
+			registry.Default, err = custom.NewBackend(&cfg.Registry.Custom)
 		default:
 			exit.Fatal("[FATAL] Unknown registry backend ", cfg.Registry.Backend)
 		}
@@ -426,43 +428,65 @@ func watchBackend(cfg *config.Config, first chan bool) {
 		last   string
 		svccfg string
 		mancfg string
+		customBE	string
 
 		once sync.Once
 	)
 
-	svc := registry.Default.WatchServices()
-	man := registry.Default.WatchManual()
 
-	for {
-		select {
-		case svccfg = <-svc:
-		case mancfg = <-man:
+	switch cfg.Registry.Backend{
+	//Custom Back End.  Gets JSON from Remote Backend that contains a slice of route.RouteDef.  It loads the route table
+	//Directly from that input
+	case "custom":
+
+		svc := registry.Default.WatchServices()
+		for {
+			customBE = <- svc
+			if customBE != "OK" {
+				log.Printf("[ERROR] error during update from custom back end - %s", customBE)
+			}
+			once.Do(func() { close(first) })
+		}
+	//All other back ends
+	default:
+		svc := registry.Default.WatchServices()
+		man := registry.Default.WatchManual()
+
+		for {
+			select {
+			case svccfg = <-svc:
+			case mancfg = <-man:
+			}
+
+			// manual config overrides service config
+			// order matters
+			next := svccfg + "\n" + mancfg
+			if next == last {
+				continue
+			}
+
+			aliases, err := route.ParseAliases(next)
+			if err != nil {
+				log.Printf("[WARN]: %s", err)
+			}
+			registry.Default.Register(aliases)
+
+			t, err := route.NewTable(next)
+			if err != nil {
+				log.Printf("[WARN] %s", err)
+				continue
+			}
+			route.SetTable(t)
+			logRoutes(t, last, next, cfg.Log.RoutesFormat)
+			last = next
+
+			once.Do(func() { close(first) })
 		}
 
-		// manual config overrides service config
-		// order matters
-		next := svccfg + "\n" + mancfg
-		if next == last {
-			continue
-		}
 
-		aliases, err := route.ParseAliases(next)
-		if err != nil {
-			log.Printf("[WARN]: %s", err)
-		}
-		registry.Default.Register(aliases)
-
-		t, err := route.NewTable(next)
-		if err != nil {
-			log.Printf("[WARN] %s", err)
-			continue
-		}
-		route.SetTable(t)
-		logRoutes(t, last, next, cfg.Log.RoutesFormat)
-		last = next
-
-		once.Do(func() { close(first) })
 	}
+
+
 }
 
 func watchNoRouteHTML(cfg *config.Config) {
