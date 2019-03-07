@@ -156,8 +156,8 @@ type Consul struct {
 
 type CustomBE struct {
 	Host               string
-	Path  string
-	QueryParams string
+	Path               string
+	QueryParams        string
 	Scheme             string
 	CheckTLSSkipVerify bool
 	PollingInterval    time.Duration

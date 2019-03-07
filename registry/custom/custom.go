@@ -33,7 +33,7 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 
 	if cfg.QueryParams != "" {
 		URL = fmt.Sprintf("%s://%s/%s?%s", cfg.Scheme, cfg.Host, cfg.Path, cfg.QueryParams)
-	}else {
+	} else {
 		URL = fmt.Sprintf("%s://%s/%s", cfg.Scheme, cfg.Host, cfg.Path)
 	}
 
@@ -43,12 +43,11 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 	}
 	req.Close = true
 
-
 	for {
 
 		resp, err := client.Do(req)
 		if err != nil {
-			ch <- fmt.Sprintf("Error Sending HTTPs Request To Custom BE - %s -%s", URL, err.Error())
+			ch <- fmt.Sprintf("Error Sending HTTPs Request To Custom be - %s -%s", URL, err.Error())
 			time.Sleep(cfg.PollingInterval)
 			continue
 		}
@@ -68,11 +67,12 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 		}
 
 		//TODO validate data
-
+		fmt.Printf("*********Building Table %s *************\n", time.Now())
 		t, err := route.NewTableCustomBE(Routes)
 		if err != nil {
 			ch <- fmt.Sprintf("Error generating new table - %s", err.Error())
 		}
+		fmt.Printf("*********Building Table Complete %s *************\n", time.Now())
 		route.SetTable(t)
 
 		ch <- "OK"

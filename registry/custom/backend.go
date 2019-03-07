@@ -6,39 +6,39 @@ import (
 	"log"
 )
 
-type BE struct {
+type be struct {
 	cfg *config.CustomBE
 }
 
 func NewBackend(cfg *config.CustomBE) (registry.Backend, error) {
-	return &BE{cfg}, nil
+	return &be{cfg}, nil
 }
 
-func (b *BE) Register(services []string) error {
+func (b *be) Register(services []string) error {
 	return nil
 }
 
-func (b *BE) Deregister(serviceName string) error {
+func (b *be) Deregister(serviceName string) error {
 	return nil
 }
 
-func (b *BE) DeregisterAll() error {
+func (b *be) DeregisterAll() error {
 	return nil
 }
 
-func (b *BE) ManualPaths() ([]string, error) {
+func (b *be) ManualPaths() ([]string, error) {
 	return nil, nil
 }
 
-func (b *BE) ReadManual(string) (value string, version uint64, err error) {
+func (b *be) ReadManual(string) (value string, version uint64, err error) {
 	return "", 0, nil
 }
 
-func (b *BE) WriteManual(path string, value string, version uint64) (ok bool, err error) {
+func (b *be) WriteManual(path string, value string, version uint64) (ok bool, err error) {
 	return false, nil
 }
 
-func (b *BE) WatchServices() chan string {
+func (b *be) WatchServices() chan string {
 
 	log.Printf("[INFO] custom: Using custom routes from %s", b.cfg.Host)
 	ch := make(chan string, 1)
@@ -46,13 +46,12 @@ func (b *BE) WatchServices() chan string {
 	return ch
 }
 
-func (b *BE) WatchManual() chan string {
+func (b *be) WatchManual() chan string {
 	return make(chan string)
 }
 
-func (b *BE) WatchNoRouteHTML() chan string {
+func (b *be) WatchNoRouteHTML() chan string {
 	ch := make(chan string, 1)
-	//TODO figure out what to send back
 	ch <- b.cfg.NoRouteHTML
 	return ch
 }
