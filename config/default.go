@@ -73,6 +73,8 @@ var defaultConfig = &Config{
 			PollingInterval:    5,
 			NoRouteHTML:        "",
 			Timeout:            10,
+			Path:	"",
+			QueryParams: "",
 		},
 		Timeout: 10 * time.Second,
 		Retry:   500 * time.Millisecond,

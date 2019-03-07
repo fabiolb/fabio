@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/route"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
@@ -16,6 +15,7 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 
 	var Routes *[]route.RouteDef
 	var trans *http.Transport
+	var URL string
 
 	if cfg.CheckTLSSkipVerify {
 		trans = &http.Transport{}
@@ -28,44 +28,42 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 
 	client := &http.Client{
 		Transport: trans,
-		Timeout:   cfg.Timeout * time.Second,
+		Timeout:   cfg.Timeout,
 	}
 
-	URL := fmt.Sprintf("%s://%s", cfg.Scheme, cfg.Host)
+	if cfg.QueryParams != "" {
+		URL = fmt.Sprintf("%s://%s/%s?%s", cfg.Scheme, cfg.Host, cfg.Path, cfg.QueryParams)
+	}else {
+		URL = fmt.Sprintf("%s://%s/%s", cfg.Scheme, cfg.Host, cfg.Path)
+	}
+
 	req, err := http.NewRequest("GET", URL, nil)
 	if err != nil {
 		log.Printf("[ERROR] Can not generate new HTTP request")
 	}
 	req.Close = true
 
-	fmt.Printf("custom config - %+v", cfg)
 
 	for {
 
 		resp, err := client.Do(req)
 		if err != nil {
 			ch <- fmt.Sprintf("Error Sending HTTPs Request To Custom BE - %s -%s", URL, err.Error())
-			time.Sleep(cfg.PollingInterval * time.Second)
+			time.Sleep(cfg.PollingInterval)
 			continue
 		}
 
 		if resp.StatusCode != 200 {
 			ch <- fmt.Sprintf("Error Non-200 return (%v) from  -%s", resp.StatusCode, URL)
-			time.Sleep(cfg.PollingInterval * time.Second)
+			time.Sleep(cfg.PollingInterval)
 			continue
 		}
 
-		body, err := ioutil.ReadAll(resp.Body)
+		decoder := json.NewDecoder(resp.Body)
+		err = decoder.Decode(&Routes)
 		if err != nil {
-			ch <- fmt.Sprintf("Error Can not read response from -%s,  %s", URL, err.Error())
-			time.Sleep(cfg.PollingInterval * time.Second)
-			continue
-		}
-
-		err = json.Unmarshal(body, Routes)
-		if err != nil {
-			ch <- fmt.Sprintf("Error Can not unmarshal response - %s,  %s", URL, err.Error())
-			time.Sleep(cfg.PollingInterval * time.Second)
+			ch <- fmt.Sprintf("Error decoding request - %s -%s", URL, err.Error())
+			time.Sleep(cfg.PollingInterval)
 			continue
 		}
 
@@ -73,12 +71,13 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 
 		t, err := route.NewTableCustomBE(Routes)
 		if err != nil {
-			ch <- err.Error()
+			ch <- fmt.Sprintf("Error generating new table - %s", err.Error())
 		}
 		route.SetTable(t)
 
 		ch <- "OK"
-		time.Sleep(cfg.PollingInterval * time.Second)
+		fmt.Printf("got from %s\n", URL)
+		time.Sleep(cfg.PollingInterval)
 
 	}
 
