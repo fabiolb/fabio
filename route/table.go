@@ -134,17 +134,17 @@ func NewTable(s string) (t Table, err error) {
 	return t, nil
 }
 
-func NewTableCustomBE(defs []*RouteDef) (t Table, err error) {
+func NewTableCustomBE(defs *[]RouteDef) (t Table, err error) {
 
 	t = make(Table)
-	for _, d := range defs {
+	for _, d := range *defs {
 		switch d.Cmd {
 		case RouteAddCmd:
-			err = t.addRoute(d)
+			err = t.addRoute(&d)
 		case RouteDelCmd:
-			err = t.delRoute(d)
+			err = t.delRoute(&d)
 		case RouteWeightCmd:
-			err = t.weighRoute(d)
+			err = t.weighRoute(&d)
 		default:
 			err = fmt.Errorf("route: invalid command: %s", d.Cmd)
 		}

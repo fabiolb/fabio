@@ -14,7 +14,7 @@ import (
 
 func customRoutes(cfg *config.CustomBE, ch chan string) {
 
-	var Routes []*route.RouteDef
+	var Routes *[]route.RouteDef
 	var trans *http.Transport
 
 	if cfg.CheckTLSSkipVerify {
@@ -37,6 +37,8 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 		log.Printf("[ERROR] Can not generate new HTTP request")
 	}
 	req.Close = true
+
+	fmt.Printf("custom config - %+v", cfg)
 
 	for {
 
