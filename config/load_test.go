@@ -1030,6 +1030,13 @@ func TestLoad(t *testing.T) {
 			err:  errors.New("missing 'file' in auth 'foo'"),
 		},
 		{
+			args: []string{"-glob.cache.size", "1000"},
+			cfg: func(cfg *Config) *Config {
+				cfg.GlobCacheSize = 1000
+				return cfg
+			},
+		},
+		{
 			args: []string{"-cfg"},
 			cfg:  func(cfg *Config) *Config { return nil },
 			err:  errInvalidConfig,
