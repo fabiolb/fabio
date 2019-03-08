@@ -21,11 +21,11 @@ import (
 // is not zero. Refresh cannot be less than one second to prevent
 // busy loops.
 type VaultSource struct {
-	Client       *vaultClient
-	CertPath     string
-	ClientCAPath string
-	CAUpgradeCN  string
-	Refresh      time.Duration
+	Client             *vaultClient
+	CertPath           string
+	ClientCAPath       string
+	CAUpgradeCN        string
+	Refresh            time.Duration
 	VaultTokenFromFile string
 	VaultTokenPath     string
 }
