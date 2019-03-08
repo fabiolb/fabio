@@ -67,16 +67,15 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 		}
 
 		//TODO validate data
-		fmt.Printf("*********Building Table %s *************\n", time.Now())
+		log.Printf("[DEBUG] *********Building Table %s *************\n", time.Now())
 		t, err := route.NewTableCustomBE(Routes)
 		if err != nil {
 			ch <- fmt.Sprintf("Error generating new table - %s", err.Error())
 		}
-		fmt.Printf("*********Building Table Complete %s *************\n", time.Now())
+		log.Printf("[DEBUG] *********Building Table Complete %s *************\n", time.Now())
 		route.SetTable(t)
 
 		ch <- "OK"
-		fmt.Printf("got from %s\n", URL)
 		time.Sleep(cfg.PollingInterval)
 
 	}
