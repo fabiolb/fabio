@@ -3,8 +3,8 @@ title: "registry.backend"
 ---
 
 `registry.backend` configures which backend is used.
-Supported backends are: `consul`, `static`, `file`, `custom`. if custom is used fabio makes an api call to a remote system
-that system must return the below json schema
+Supported backends are: `consul`, `static`, `file`, `custom`. If custom is used fabio makes an api 
+call to a remote system expecting the below json response
 
 ```json
 [
