@@ -17,7 +17,7 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 	var trans *http.Transport
 	var URL string
 
-	if cfg.CheckTLSSkipVerify {
+	if !cfg.CheckTLSSkipVerify {
 		trans = &http.Transport{}
 
 	} else {
