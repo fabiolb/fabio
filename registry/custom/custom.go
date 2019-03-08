@@ -44,7 +44,7 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 	req.Close = true
 
 	for {
-
+		log.Printf("[DEBUG] *********Starting Request %s *************\n", time.Now())
 		resp, err := client.Do(req)
 		if err != nil {
 			ch <- fmt.Sprintf("Error Sending HTTPs Request To Custom be - %s -%s", URL, err.Error())
@@ -57,7 +57,7 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 			time.Sleep(cfg.PollingInterval)
 			continue
 		}
-
+		log.Printf("[DEBUG] *********Decoding Json %s *************\n", time.Now())
 		decoder := json.NewDecoder(resp.Body)
 		err = decoder.Decode(&Routes)
 		if err != nil {
@@ -73,7 +73,7 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 		}
 		log.Printf("[DEBUG] *********Building Table Complete %s *************\n", time.Now())
 		route.SetTable(t)
-
+		log.Printf("[DEBUG] *********Table Set Complete %s *************\n", time.Now())
 		ch <- "OK"
 		time.Sleep(cfg.PollingInterval)
 
