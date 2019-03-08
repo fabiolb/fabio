@@ -29,18 +29,23 @@ func NewServiceMonitor(client *api.Client, config *config.Consul, dc string) *Se
 }
 
 // Watch monitors the consul health checks and sends a new
-// configuration to the updates channnel on every change.
+// configuration to the updates channel on every change.
 func (w *ServiceMonitor) Watch(updates chan string) {
 	var lastIndex uint64
+	var q *api.QueryOptions
 	for {
-		q := &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
+		if w.config.PollInterval != 0 {
+			q = &api.QueryOptions{RequireConsistent: true}
+			time.Sleep(w.config.PollInterval)
+		} else {
+			q = &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
+		}
 		checks, meta, err := w.client.Health().State("any", q)
 		if err != nil {
 			log.Printf("[WARN] consul: Error fetching health state. %v", err)
 			time.Sleep(time.Second)
 			continue
 		}
-
 		log.Printf("[DEBUG] consul: Health changed to #%d", meta.LastIndex)
 
 		// determine which services have passing health checks
@@ -54,7 +59,7 @@ func (w *ServiceMonitor) Watch(updates chan string) {
 	}
 }
 
-// makeCconfig determines which service instances have passing health checks
+// makeConfig determines which service instances have passing health checks
 // and then finds the ones which have tags with the right prefix to build the config from.
 func (w *ServiceMonitor) makeConfig(checks []*api.HealthCheck) string {
 	// map service name to list of service passing for which the health check is ok

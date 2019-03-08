@@ -152,6 +152,7 @@ type Consul struct {
 	CheckDeregisterCriticalServiceAfter string
 	ChecksRequired                      string
 	ServiceMonitors                     int
+	PollInterval                        time.Duration
 }
 
 type Tracing struct {
