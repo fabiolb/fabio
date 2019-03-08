@@ -66,7 +66,6 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 			continue
 		}
 
-		//TODO validate data
 		log.Printf("[DEBUG] *********Building Table %s *************\n", time.Now())
 		t, err := route.NewTableCustomBE(Routes)
 		if err != nil {

@@ -1,9 +1,9 @@
 ---
-title: "registry.custom.pollinginterval"
+title: "registry.custom.timeout"
 ---
 
-`registry.custom.pollinginterval` is the length of time between API calls
+`registry.custom.timeout` controls the timeout for the API call
 
 The default is
 
-    registry.custom.pollinginterval = 10s
+    registry.custom.timeout = 5s

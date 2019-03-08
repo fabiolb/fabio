@@ -1,9 +1,9 @@
 ---
-title: "registry.custom.host"
+title: "registry.custom.pollinginterval"
 ---
 
-`registry.custom.host` configures the host:port for fabio to make the API call
+`registry.custom.pollinginterval` is the length of time between API calls
 
 The default is
 
-    registry.custom.host =
+    registry.custom.pollinginterval = 10s
