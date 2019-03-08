@@ -71,6 +71,8 @@ func NewSource(cfg config.CertSource) (Source, error) {
 			CAUpgradeCN:  cfg.CAUpgradeCN,
 			Refresh:      cfg.Refresh,
 			Client:       DefaultVaultClient,
+			VaultTokenFromFile: cfg.VaultTokenFromFile,
+			VaultTokenPath:     cfg.VaultTokenPath,
 		}, nil
 	case "vault-pki":
 		src := NewVaultPKISource()
