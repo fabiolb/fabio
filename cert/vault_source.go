@@ -21,11 +21,13 @@ import (
 // is not zero. Refresh cannot be less than one second to prevent
 // busy loops.
 type VaultSource struct {
-	Client       *vaultClient
-	CertPath     string
-	ClientCAPath string
-	CAUpgradeCN  string
-	Refresh      time.Duration
+	Client             *vaultClient
+	CertPath           string
+	ClientCAPath       string
+	CAUpgradeCN        string
+	Refresh            time.Duration
+	VaultTokenFromFile string
+	VaultTokenPath     string
 }
 
 func (s *VaultSource) LoadClientCAs() (*x509.CertPool, error) {
@@ -81,7 +83,7 @@ func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error)
 		pemBlocks[name+"-"+typ+".pem"] = b
 	}
 
-	c, err := s.Client.Get()
+	c, err := s.Client.Get(s.VaultTokenFromFile, s.VaultTokenPath)
 	if err != nil {
 		return nil, fmt.Errorf("vault: client: %s", err)
 	}

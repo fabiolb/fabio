@@ -3,6 +3,7 @@ package cert
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"log"
 	"strings"
 	"sync"
@@ -23,11 +24,14 @@ type vaultClient struct {
 
 var DefaultVaultClient = &vaultClient{}
 
-func (c *vaultClient) Get() (*api.Client, error) {
+func (c *vaultClient) Get(vaultTokenFromFile string, vaultTokenPath string) (*api.Client, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	if c.client != nil {
+		if vaultTokenFromFile == "true" {
+			c.client.SetToken(getVaultTokenFromFile(vaultTokenPath))
+		}
 		return c.client, nil
 	}
 
@@ -39,16 +43,17 @@ func (c *vaultClient) Get() (*api.Client, error) {
 	if c.addr != "" {
 		conf.Address = c.addr
 	}
-
 	client, err := api.NewClient(conf)
 	if err != nil {
 		return nil, err
 	}
 
+	if vaultTokenFromFile == "true" {
+		c.token = getVaultTokenFromFile(vaultTokenPath)
+	}
 	if c.token != "" {
 		client.SetToken(c.token)
 	}
-
 	token := client.Token()
 	if token == "" {
 		return nil, errors.New("vault: no token")
@@ -131,4 +136,15 @@ func (c *vaultClient) keepTokenAlive() {
 		ttl = time.Duration(resp.Auth.LeaseDuration) * time.Second
 		timer.Reset(ttl / 2)
 	}
+}
+
+func getVaultTokenFromFile(c string) string {
+	b, err := ioutil.ReadFile(c) // just pass the file name
+	if err != nil {
+		log.Printf("[WARN] vault: Failed to get Token From File: %s", err)
+	}
+	str := string(b)
+	str = strings.TrimSuffix(str, "\n")
+	log.Printf("[DEBUG] vault: successfully fetch token from file: %s", c)
+	return str
 }

@@ -531,6 +531,10 @@ func parseCertSource(cfg map[string]string) (c CertSource, err error) {
 			c.Type = v
 		case "cert":
 			c.CertPath = v
+		case "tokenfromfile":
+			c.VaultTokenFromFile = v
+		case "tokenpath":
+			c.VaultTokenPath = v
 		case "key":
 			c.KeyPath = v
 		case "clientca":
