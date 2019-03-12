@@ -44,6 +44,7 @@ type Listen struct {
 	TLSCiphers         []uint16
 	ProxyProto         bool
 	ProxyHeaderTimeout time.Duration
+	Refresh            time.Duration
 }
 
 type UI struct {

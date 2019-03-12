@@ -64,14 +64,15 @@ func TestParseTag(t *testing.T) {
 		ok    bool
 	}{
 		{tag: "p", route: "", ok: false},
-		{tag: "p-", route: "", ok: false},
-		{tag: "p- ", route: "", ok: false},
+		{tag: "p-", route: "", ok: true},
+		{tag: "p- ", route: "", ok: true},
 		{tag: "p-/", route: "/", ok: true},
 		{tag: " p-/", route: "/", ok: true},
 		{tag: "p-/ ", route: "/", ok: true},
 		{tag: "p- / ", route: "/", ok: true},
 		{tag: "p-/foo", route: "/foo", ok: true},
 		{tag: "p- /foo", route: "/foo", ok: true},
+		{tag: "p-1.1.1.1:999", route: "1.1.1.1:999", ok: true},
 		{tag: "p-bar/foo", route: "bar/foo", ok: true},
 		{tag: "p-bar/foo/foo", route: "bar/foo/foo", ok: true},
 		{tag: "p-www.bar.com/foo/foo", route: "www.bar.com/foo/foo", ok: true},

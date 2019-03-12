@@ -20,6 +20,10 @@ GOVERSION = $(shell go version | awk '{print $$3;}')
 # GORELEASER is the path to the goreleaser binary.
 GORELEASER = $(shell which goreleaser)
 
+UNAME := $(shell uname)
+VAULTCHECK = $(shell which vault)
+CONSULCHECK = $(shell which consul)
+
 # pin versions for CI builds
 CI_CONSUL_VERSION=1.3.0
 CI_VAULT_VERSION=0.11.4
@@ -44,6 +48,34 @@ build: gofmt
 
 # test runs the tests
 test: build
+
+ifeq ($(UNAME),Darwin)
+ifeq ($(VAULTCHECK),/usr/local/bin/vault)
+	@echo "Vault found, skipping install..."
+else
+	brew install vault
+endif
+
+ifeq ($(CONSULCHECK),/usr/local/bin/consul)
+	@echo "Consul found, skipping install..."
+	go test -p 1 ${GOFILES} --cover
+
+else
+	brew install consul
+	go test -p 1 ${GOFILES} --cover
+endif
+endif
+
+ifeq ($(UNAME),Linux)
+	yum install unzip -y
+	wget https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
+	unzip consul_1.4.0_linux_amd64.zip
+	cp consul /usr/local/bin/
+	wget https://releases.hashicorp.com/vault/1.0.2/vault_1.0.2_linux_amd64.zip
+	unzip vault_1.0.2_linux_amd64.zip
+	cp vault /usr/local/bin
+	go test ${GOFILES} --cover
+endif
 	go test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 
 # gofmt runs gofmt on the code
