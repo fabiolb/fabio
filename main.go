@@ -94,6 +94,8 @@ func main() {
 			mode = profile.MutexProfile
 		case "block":
 			mode = profile.BlockProfile
+		case "trace":
+			mode = profile.TraceProfile
 		default:
 			log.Fatalf("[FATAL] Invalid profile mode %q", cfg.ProfileMode)
 		}
