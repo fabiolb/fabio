@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
+	"runtime/pprof"
 	"sort"
 	"strings"
 	"sync"
@@ -109,7 +111,6 @@ func hostpath(prefix string) (host string, path string) {
 }
 
 func NewTable(s bytes.Buffer) (t Table, err error) {
-
 	defs, err := Parse(s)
 	if err != nil {
 		return nil, err
