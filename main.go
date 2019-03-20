@@ -77,7 +77,7 @@ func main() {
 
 	// warn once so that it is at the beginning of the log
 	// this will also start the reminder go routine if necessary.
-	WarnIfRunAsRoot(cfg.Insecure)
+	//WarnIfRunAsRoot(cfg.Insecure)
 
 	// setup profiling if enabled
 	var prof interface {
@@ -139,7 +139,7 @@ func main() {
 	startServers(cfg)
 
 	// warn again so that it is visible in the terminal
-	WarnIfRunAsRoot(cfg.Insecure)
+	//WarnIfRunAsRoot(cfg.Insecure)
 
 	exit.Wait()
 	log.Print("[INFO] Down")
