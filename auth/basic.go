@@ -21,18 +21,18 @@ func newBasicAuth(cfg config.BasicAuth) (AuthScheme, error) {
 		log.Println("[WARN] Error processing a line in an htpasswd file:", err)
 	}
 
-	stat, err := os.Stat(cfg.File)
-	if err != nil {
-		return nil, err
-	}
-	cfg.ModTime = stat.ModTime()
-
 	secrets, err := htpasswd.New(cfg.File, htpasswd.DefaultSystems, bad)
 	if err != nil {
 		return nil, err
 	}
 
 	if cfg.Refresh > 0 {
+		stat, err := os.Stat(cfg.File)
+		if err != nil {
+			return nil, err
+		}
+		cfg.ModTime = stat.ModTime()
+
 		go func() {
 			ticker := time.NewTicker(cfg.Refresh).C
 			for range ticker {
