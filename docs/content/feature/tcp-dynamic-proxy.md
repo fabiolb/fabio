@@ -10,7 +10,7 @@ To use TCP Dynamic proxy support the service needs to advertise `urlprefix-127.0
 Consul. In addition, fabio needs to be configured with a placeholder for the proxy.addr.:
 
 ```
-fabio -proxy.addr '0.0.0.0:0;proto=tcp-dynamic'
+fabio -proxy.addr '0.0.0.0:0;proto=tcp-dynamic;refresh=5s'
 ```
 
 The TCP listener is started for the given TCP ports.  To use IP addressing to separate the services, matching IP
