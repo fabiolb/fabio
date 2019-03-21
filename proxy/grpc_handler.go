@@ -74,6 +74,7 @@ func GetGRPCDirector(tlscfg *tls.Config) func(ctx context.Context, fullMethodNam
 type GrpcProxyInterceptor struct {
 	Config       *config.Config
 	StatsHandler *GrpcStatsHandler
+	GlobCache    *route.GlobCache
 }
 
 type targetKey struct{}
@@ -153,7 +154,7 @@ func (g GrpcProxyInterceptor) lookup(ctx context.Context, fullMethodName string)
 		Header: headers,
 	}
 
-	return route.GetTable().Lookup(req, req.Header.Get("trace"), pick, match, g.Config.GlobMatchingDisabled), nil
+	return route.GetTable().Lookup(req, req.Header.Get("trace"), pick, match, g.GlobCache, g.Config.GlobMatchingDisabled), nil
 }
 
 type GrpcStatsHandler struct {

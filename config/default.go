@@ -83,7 +83,6 @@ var defaultConfig = &Config{
 		Access: "rw",
 	},
 
-
 	Tracing: Tracing{
 		TracingEnabled: false,
 		CollectorType:  "http",
@@ -95,5 +94,4 @@ var defaultConfig = &Config{
 	},
 
 	GlobCacheSize: 1000,
-
 }

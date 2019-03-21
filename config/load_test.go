@@ -667,7 +667,7 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
-			args: []string{"-registry.consul.register.pollinterval", "5s"},
+			args: []string{"-registry.consul.pollInterval", "5s"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Registry.Consul.PollInterval = 5 * time.Second
 				return cfg

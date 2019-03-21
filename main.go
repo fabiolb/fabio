@@ -143,6 +143,10 @@ func main() {
 }
 
 func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config) []grpc.ServerOption {
+
+	//Init Glob Cache
+	globCache := route.NewGlobCache(cfg.GlobCacheSize)
+
 	statsHandler := &proxy.GrpcStatsHandler{
 		Connect: metrics.DefaultRegistry.GetCounter("grpc.conn"),
 		Request: metrics.DefaultRegistry.GetTimer("grpc.requests"),
@@ -152,6 +156,7 @@ func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config) []grpc.ServerOption {
 	proxyInterceptor := proxy.GrpcProxyInterceptor{
 		Config:       cfg,
 		StatsHandler: statsHandler,
+		GlobCache:    globCache,
 	}
 
 	handler := grpc_proxy.TransparentHandler(proxy.GetGRPCDirector(tlscfg))
