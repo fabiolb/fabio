@@ -488,7 +488,6 @@ func watchBackend(cfg *config.Config, first chan bool) {
 	}
 }
 
-
 func watchNoRouteHTML(cfg *config.Config) {
 	html := registry.Default.WatchNoRouteHTML()
 	for {
