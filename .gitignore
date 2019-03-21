@@ -20,4 +20,3 @@ fabio.sublime-*
 demo/cert/
 /pkg/
 dist/
-fabio.properties.test
