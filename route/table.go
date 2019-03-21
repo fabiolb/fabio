@@ -7,8 +7,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
-	"runtime/pprof"
 	"sort"
 	"strings"
 	"sync"
