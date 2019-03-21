@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -24,13 +25,19 @@ type vaultClient struct {
 
 var DefaultVaultClient = &vaultClient{}
 
-func (c *vaultClient) Get(vaultTokenFromFile string, vaultTokenPath string) (*api.Client, error) {
+var prevFetchedToken string
+
+func (c *vaultClient) Get(fetchVaultToken string) (*api.Client, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	if c.client != nil {
-		if vaultTokenFromFile == "true" {
-			c.client.SetToken(getVaultTokenFromFile(vaultTokenPath))
+		if fetchVaultToken != "" {
+			token := getVaultToken(fetchVaultToken)
+			if token != prevFetchedToken {
+				c.client.SetToken(token)
+				prevFetchedToken = token
+			}
 		}
 		return c.client, nil
 	}
@@ -48,8 +55,12 @@ func (c *vaultClient) Get(vaultTokenFromFile string, vaultTokenPath string) (*ap
 		return nil, err
 	}
 
-	if vaultTokenFromFile == "true" {
-		c.token = getVaultTokenFromFile(vaultTokenPath)
+	if fetchVaultToken != "" {
+		token := getVaultToken(fetchVaultToken)
+		if token != prevFetchedToken {
+			c.client.SetToken(token)
+			prevFetchedToken = token
+		}
 	}
 	if c.token != "" {
 		client.SetToken(c.token)
@@ -138,13 +149,23 @@ func (c *vaultClient) keepTokenAlive() {
 	}
 }
 
-func getVaultTokenFromFile(c string) string {
-	b, err := ioutil.ReadFile(c) // just pass the file name
-	if err != nil {
-		log.Printf("[WARN] vault: Failed to get Token From File: %s", err)
+func getVaultToken(c string) string {
+	c = strings.TrimSpace(c)
+	cArray := strings.Split(c, ":")
+	var token string
+	if cArray[0] == "file" {
+		b, err := ioutil.ReadFile(cArray[1]) // just pass the file name
+		if err != nil {
+			log.Printf("[WARN] Vault: Failed to fetch token from  %s", c)
+		}
+		token = string(b)
+		log.Printf("[DEBUG] Vault: Successfully fetched token from %s", c)
+	}else if cArray[0] == "env" {
+		token = os.Getenv(cArray[1])
+		if len(token) == 0 {
+			log.Printf("[WARN] Vault: Failed to fetch token from  %s", c)
+		}
+		log.Printf("[DEBUG] Vault: Successfully fetched token from %s", c)
 	}
-	str := string(b)
-	str = strings.TrimSuffix(str, "\n")
-	log.Printf("[DEBUG] vault: successfully fetch token from file: %s", c)
-	return str
+	return token
 }

@@ -30,8 +30,7 @@ type CertSource struct {
 	CAUpgradeCN        string
 	Refresh            time.Duration
 	Header             http.Header
-	VaultTokenFromFile string
-	VaultTokenPath     string
+	VaultFetchToken     string
 }
 
 type Listen struct {
