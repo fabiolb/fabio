@@ -161,6 +161,8 @@ func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config) []grpc.ServerOption {
 		grpc.UnknownServiceHandler(handler),
 		grpc.StreamInterceptor(proxyInterceptor.Stream),
 		grpc.StatsHandler(statsHandler),
+		grpc.MaxRecvMsgSize(1024 * 1024 * 1024),
+		grpc.MaxSendMsgSize(1024 * 1024 * 1024),
 	}
 }
 
