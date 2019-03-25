@@ -33,8 +33,9 @@ func (c *vaultClient) Get(fetchVaultToken string) (*api.Client, error) {
 
 	if c.client != nil {
 		if fetchVaultToken != "" {
-			token := getVaultToken(fetchVaultToken)
+			token := strings.TrimSpace(getVaultToken(fetchVaultToken))
 			if token != prevFetchedToken {
+				log.Printf("[DEBUG] Vault: token has changed, setting new token")
 				c.client.SetToken(token)
 				prevFetchedToken = token
 			}
@@ -56,9 +57,10 @@ func (c *vaultClient) Get(fetchVaultToken string) (*api.Client, error) {
 	}
 
 	if fetchVaultToken != "" {
-		token := getVaultToken(fetchVaultToken)
+		token := strings.TrimSpace(getVaultToken(fetchVaultToken))
+		log.Printf("[DEBUG] Vault: fetching initial token")
 		if token != prevFetchedToken {
-			c.client.SetToken(token)
+			c.token = token
 			prevFetchedToken = token
 		}
 	}
