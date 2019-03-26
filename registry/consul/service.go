@@ -19,6 +19,7 @@ type ServiceMonitor struct {
 	strict bool
 }
 
+// NewServiceMonitor creates a new ServiceMonitor for given Consul dc
 func NewServiceMonitor(client *api.Client, config *config.Consul, dc string) *ServiceMonitor {
 	return &ServiceMonitor{
 		client: client,
@@ -30,7 +31,7 @@ func NewServiceMonitor(client *api.Client, config *config.Consul, dc string) *Se
 
 // Watch monitors the consul health checks and sends a new
 // configuration to the updates channnel on every change.
-func (w *ServiceMonitor) Watch(updates chan string) {
+func (w *ServiceMonitor) Watch(updates chan<- string) {
 	var lastIndex uint64
 	for {
 		q := &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
@@ -46,6 +47,9 @@ func (w *ServiceMonitor) Watch(updates chan string) {
 		// determine which services have passing health checks
 		passing := passingServices(checks, w.config.ServiceStatus, w.strict)
 
+		// limit to services which have the required tag prefix
+		passing = matchingServices(w.config.TagPrefix, checks)
+
 		// build the config for the passing services
 		updates <- w.makeConfig(passing)
 
@@ -54,7 +58,7 @@ func (w *ServiceMonitor) Watch(updates chan string) {
 	}
 }
 
-// makeCconfig determines which service instances have passing health checks
+// makeConfig determines which service instances have passing health checks
 // and then finds the ones which have tags with the right prefix to build the config from.
 func (w *ServiceMonitor) makeConfig(checks []*api.HealthCheck) string {
 	// map service name to list of service passing for which the health check is ok

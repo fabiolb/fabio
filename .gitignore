@@ -13,6 +13,7 @@
 .DS_Store
 .idea
 .vagrant
+.vscode
 build/builds/
 fabio
 fabio.exe
