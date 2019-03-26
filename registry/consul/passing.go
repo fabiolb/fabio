@@ -48,7 +48,9 @@ func isServiceCheck(c *api.HealthCheck) bool {
 func isAgentCritical(svc *api.HealthCheck, checks []*api.HealthCheck) bool {
 	for _, c := range checks {
 		if svc.Node == c.Node && c.CheckID == "serfHealth" && c.Status == "critical" {
-			log.Printf("[DEBUG] consul: Skipping service %q since agent on node %q is down: %s", c.ServiceID, c.Node, c.Output)
+			if c.ServiceID != "" {
+				log.Printf("[DEBUG] consul: Skipping service %q since agent on node %q is down: %s", c.ServiceID, c.Node, c.Output)
+			}
 			return true
 		}
 	}

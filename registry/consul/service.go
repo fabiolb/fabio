@@ -3,6 +3,7 @@ package consul
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"sort"
 	"strings"
 	"time"
@@ -33,6 +34,7 @@ func NewServiceMonitor(client *api.Client, config *config.Consul, dc string) *Se
 // configuration to the updates channnel on every change.
 func (w *ServiceMonitor) Watch(updates chan<- string) {
 	var lastIndex uint64
+	var lastPassing []string
 	for {
 		q := &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
 		checks, meta, err := w.client.Health().State("any", q)
@@ -50,11 +52,23 @@ func (w *ServiceMonitor) Watch(updates chan<- string) {
 		// limit to services which have the required tag prefix
 		passing = matchingServices(w.config.TagPrefix, checks)
 
-		// build the config for the passing services
-		updates <- w.makeConfig(passing)
+		// greate a sorted list of unique passing ids
+		passingIds := make([]string, len(passing))
+		for i, p := range passing {
+			passingIds[i] = fmt.Sprintf("%s.%s.%s", p.Node, p.ServiceID, p.Status)
+		}
+		sort.Strings(passingIds)
+
+		if !reflect.DeepEqual(passingIds, lastPassing) {
+			// something relevant changed - build the config for the passing services
+			updates <- w.makeConfig(passing)
+
+			log.Printf("[DEBUG] At least one watched service changed status")
+		}
 
 		// remember the last state and wait for the next change
 		lastIndex = meta.LastIndex
+		lastPassing = passingIds
 	}
 }
 
@@ -110,6 +124,7 @@ func (w *ServiceMonitor) serviceConfig(name string, passing map[string]bool) (co
 	}
 
 	q := &api.QueryOptions{RequireConsistent: true}
+	log.Printf("[DEBUG] Checking catalog for service %s", name)
 	svcs, _, err := w.client.Catalog().Service(name, "", q)
 	if err != nil {
 		log.Printf("[WARN] consul: Error getting catalog service %s. %v", name, err)
