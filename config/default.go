@@ -66,7 +66,7 @@ var defaultConfig = &Config{
 			CheckDeregisterCriticalServiceAfter: "90m",
 			ChecksRequired:                      "one",
 		},
-		Custom: CustomBE{
+		Custom: Custom{
 			Host:               "",
 			Scheme:             "https",
 			CheckTLSSkipVerify: false,

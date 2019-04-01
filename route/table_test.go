@@ -640,7 +640,7 @@ func TestTableLookup(t *testing.T) {
 	}
 }
 
-func TestNewTableCustomBE(t *testing.T) {
+func TestNewTableCustom(t *testing.T) {
 
 	var routes []RouteDef
 	var tags = []string{"tag1", "tag2"}
@@ -680,10 +680,10 @@ func TestNewTableCustomBE(t *testing.T) {
 	routes = append(routes, route2)
 	routes = append(routes, route3)
 
-	table, err := NewTableCustomBE(&routes)
+	table, err := NewTableCustom(&routes)
 
 	if err != nil {
-		fmt.Printf("Got error from NewTableCustomBE - %s", err.Error())
+		fmt.Printf("Got error from NewTableCustom - %s", err.Error())
 		t.FailNow()
 	}
 

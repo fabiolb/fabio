@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func customRoutes(cfg *config.CustomBE, ch chan string) {
+func customRoutes(cfg *config.Custom, ch chan string) {
 
 	var Routes *[]route.RouteDef
 	var trans *http.Transport
@@ -67,7 +67,7 @@ func customRoutes(cfg *config.CustomBE, ch chan string) {
 		}
 
 		log.Printf("[DEBUG] Custom Registry building table %s \n", time.Now())
-		t, err := route.NewTableCustomBE(Routes)
+		t, err := route.NewTableCustom(Routes)
 		if err != nil {
 			ch <- fmt.Sprintf("Error generating new table - %s", err.Error())
 		}

@@ -118,7 +118,7 @@ type Registry struct {
 	Static  Static
 	File    File
 	Consul  Consul
-	Custom  CustomBE
+	Custom  Custom
 	Timeout time.Duration
 	Retry   time.Duration
 }
@@ -154,7 +154,7 @@ type Consul struct {
 	ServiceMonitors                     int
 }
 
-type CustomBE struct {
+type Custom struct {
 	Host               string
 	Path               string
 	QueryParams        string

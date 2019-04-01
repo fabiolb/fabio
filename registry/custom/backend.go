@@ -7,10 +7,10 @@ import (
 )
 
 type be struct {
-	cfg *config.CustomBE
+	cfg *config.Custom
 }
 
-func NewBackend(cfg *config.CustomBE) (registry.Backend, error) {
+func NewBackend(cfg *config.Custom) (registry.Backend, error) {
 	return &be{cfg}, nil
 }
 

@@ -13,7 +13,7 @@ import (
 func TestCustomRoutes(t *testing.T) {
 
 	var resp string
-	cfg := config.CustomBE{
+	cfg := config.Custom{
 		Host:               "localhost:8080",
 		Path:               "test",
 		Scheme:             "http",

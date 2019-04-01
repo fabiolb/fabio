@@ -134,7 +134,7 @@ func NewTable(s string) (t Table, err error) {
 	return t, nil
 }
 
-func NewTableCustomBE(defs *[]RouteDef) (t Table, err error) {
+func NewTableCustom(defs *[]RouteDef) (t Table, err error) {
 
 	t = make(Table)
 	for _, d := range *defs {
