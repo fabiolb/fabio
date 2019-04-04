@@ -5,15 +5,16 @@
 // by the programmer to support others. (See the sha.go source file as a guide.)
 //
 // You will want to use something like...
-//      myauth := htpasswd.New("My Realm", "./my-htpasswd-file", htpasswd.DefaultSystems, nil)
-//      m.Use(myauth.Handler)
-// ...to configure your authentication and then use the myauth.Handler as a middleware handler in your Martini stack.
+//      myauth := htpasswd.New("./my-htpasswd-file", htpasswd.DefaultSystems, nil)
+//      ok := myauth.Match(user, password)
+// ...to use in your handler code.
 // You should read about that nil, as well as Reread() too.
 package htpasswd
 
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"sync"
@@ -47,8 +48,8 @@ type passwdTable map[string]EncodedPasswd
 // will sometimes contain hashed passwords.
 type BadLineHandler func(err error)
 
-// An HtpasswdFile encompasses an Apache-style htpasswd file for HTTP Basic authentication
-type HtpasswdFile struct {
+// An File encompasses an Apache-style htpasswd file for HTTP Basic authentication
+type File struct {
 	filePath string
 	mutex    sync.Mutex
 	passwds  passwdTable
@@ -58,7 +59,7 @@ type HtpasswdFile struct {
 // DefaultSystems is an array of PasswdParser including all builtin parsers. Notice that Plain is last, since it accepts anything
 var DefaultSystems = []PasswdParser{AcceptMd5, AcceptSha, AcceptBcrypt, AcceptSsha, AcceptPlain}
 
-// New creates an HtpasswdFile from an Apache-style htpasswd file for HTTP Basic Authentication.
+// New creates an File from an Apache-style htpasswd file for HTTP Basic Authentication.
 //
 // The realm is presented to the user in the login dialog.
 //
@@ -70,8 +71,8 @@ var DefaultSystems = []PasswdParser{AcceptMd5, AcceptSha, AcceptBcrypt, AcceptSs
 //
 // bad is a function, which if not nil will be called for each malformed or rejected entry in
 // the password file.
-func New(filename string, parsers []PasswdParser, bad BadLineHandler) (*HtpasswdFile, error) {
-	bf := HtpasswdFile{
+func New(filename string, parsers []PasswdParser, bad BadLineHandler) (*File, error) {
+	bf := File{
 		filePath: filename,
 		parsers:  parsers,
 	}
@@ -83,9 +84,24 @@ func New(filename string, parsers []PasswdParser, bad BadLineHandler) (*Htpasswd
 	return &bf, nil
 }
 
+// NewFromReader is like new but reads from r instead of a named file. Calling
+// Reload on the returned File will result in an error; use
+// ReloadFromReader instead.
+func NewFromReader(r io.Reader, parsers []PasswdParser, bad BadLineHandler) (*File, error) {
+	bf := File{
+		parsers: parsers,
+	}
+
+	if err := bf.ReloadFromReader(r, bad); err != nil {
+		return nil, err
+	}
+
+	return &bf, nil
+}
+
 // Match checks the username and password combination to see if it represents
 // a valid account from the htpassword file.
-func (bf *HtpasswdFile) Match(username, password string) bool {
+func (bf *File) Match(username, password string) bool {
 	bf.mutex.Lock()
 	matcher, ok := bf.passwds[username]
 	bf.mutex.Unlock()
@@ -103,7 +119,7 @@ func (bf *HtpasswdFile) Match(username, password string) bool {
 // This function is thread safe. Someone versed in fsnotify might make it
 // happen automatically. Likewise you might also connect a SIGHUP handler to
 // this function.
-func (bf *HtpasswdFile) Reload(bad BadLineHandler) error {
+func (bf *File) Reload(bad BadLineHandler) error {
 	// with the file...
 	f, err := os.Open(bf.filePath)
 	if err != nil {
@@ -111,11 +127,18 @@ func (bf *HtpasswdFile) Reload(bad BadLineHandler) error {
 	}
 	defer f.Close()
 
+	return bf.ReloadFromReader(f, bad)
+}
+
+// ReloadFromReader is like Reload but reads credentials from r instead of a named
+// file. If File was created by New, it is okay to call Reload and
+// ReloadFromReader as desired.
+func (bf *File) ReloadFromReader(r io.Reader, bad BadLineHandler) error {
 	// ... and a new map ...
 	newPasswdMap := passwdTable{}
 
 	// ... for each line ...
-	scanner := bufio.NewScanner(f)
+	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -139,7 +162,7 @@ func (bf *HtpasswdFile) Reload(bad BadLineHandler) error {
 // addHtpasswdUser processes a line from an htpasswd file and add it to the user/password map. We may
 // encounter some malformed lines, this will not be an error, but we will log them if
 // the caller has given us a logger.
-func (bf *HtpasswdFile) addHtpasswdUser(pwmap *passwdTable, rawLine string) error {
+func (bf *File) addHtpasswdUser(pwmap *passwdTable, rawLine string) error {
 	// ignore white space lines
 	line := strings.TrimSpace(rawLine)
 	if line == "" {

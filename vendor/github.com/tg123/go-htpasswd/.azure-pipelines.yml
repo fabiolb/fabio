@@ -1,0 +1,68 @@
+pool:
+  vmImage: 'Ubuntu 16.04'
+
+variables:
+  GOBIN:  '$(GOPATH)/bin' # Go binaries path
+  GOROOT: '/usr/local/go1.11' # Go installation path
+  GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
+  modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
+
+steps:
+- script: |
+    mkdir -p '$(GOBIN)'
+    mkdir -p '$(GOPATH)/pkg'
+    mkdir -p '$(modulePath)'
+    shopt -s extglob dotglob
+    mv !(gopath) '$(modulePath)'
+    echo '##vso[task.prependpath]$(GOBIN)'
+    echo '##vso[task.prependpath]$(GOROOT)/bin'
+  displayName: 'Set up the Go workspace'
+
+- script: |
+    set -e
+    go version
+    go get -u golang.org/x/lint/golint
+    go get -u github.com/gordonklaus/ineffassign
+    go get -u github.com/jstemmer/go-junit-report
+    go get -u github.com/axw/gocov/gocov
+    go get -u github.com/AlekSi/gocov-xml
+    go get -u gopkg.in/matm/v1/gocov-html
+    sudo apt install -y libpam0g-dev
+  workingDirectory: '$(modulePath)'
+  displayName: 'Get dependencies'
+
+- script: |
+    set -e
+    ./lint.sh
+    ! ./lint.sh 2>&1 | read
+  workingDirectory: '$(modulePath)'
+  displayName: Lint
+  
+- script: |
+    set -e
+    go test -v -coverprofile=coverage.txt -covermode count ./... 2>&1 | go-junit-report > junit.xml
+    gocov convert coverage.txt > coverage.json    
+    gocov-xml < coverage.json > coverage.xml
+    gocov-html < coverage.json > index.html
+    mkdir reports
+    cp junit.xml ./reports/junit.xml
+    cp coverage.xml ./reports/coverage.xml
+    cp index.html ./reports/index.html
+  workingDirectory: '$(modulePath)'
+  displayName: 'Run unit tests'
+
+- task: PublishTestResults@2
+  inputs:
+    testRunner: JUnit
+    testResultsFiles: '$(modulePath)/reports/junit.xml'
+
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: 'cobertura'
+    summaryFileLocation: '$(modulePath)/reports/coverage.xml'
+    reportDirectory: '$(modulePath)/reports/'
+
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'Test Reports'
+    targetPath: '$(modulePath)/reports/'

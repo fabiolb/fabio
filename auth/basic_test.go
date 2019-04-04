@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/uuid"
@@ -166,6 +168,48 @@ func TestBasic_Authorised(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestBasic_Authorised_should_fail_without_htpasswd_file(t *testing.T) {
+	filename, err := createBasicAuthFile("foo:bar")
+	if err != nil {
+		t.Error(err)
+	}
+
+	a, err := newBasicAuth(config.BasicAuth{
+		File:    filename,
+		Refresh: time.Second,
+	})
+	if err != nil {
+		t.Error(err)
+	}
+
+	creds := []byte("foo:bar")
+	r := &http.Request{
+		Header: http.Header{
+			"Authorization": []string{fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString(creds))},
+		},
+	}
+
+	w := &responseWriter{}
+
+	t.Run("should authorize against supplied htpasswd file", func(t *testing.T) {
+		if got, want := a.Authorized(r, w), true; !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+
+	if err := os.Remove(filename); err != nil {
+		t.Fatalf("removing htpasswd file: %s", err)
+	}
+
+	time.Sleep(2 * time.Second) // ensure htpasswd file refresh happend
+
+	t.Run("should not authorize after removing htpasswd file", func(t *testing.T) {
+		if got, want := a.Authorized(r, w), false; !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
 }
 
 func TestBasic_Authorized_should_set_www_realm_header(t *testing.T) {

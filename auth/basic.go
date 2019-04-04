@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"bytes"
 	"log"
 	"net/http"
 	"os"
@@ -13,7 +14,7 @@ import (
 // basic is an implementation of AuthScheme
 type basic struct {
 	realm   string
-	secrets *htpasswd.HtpasswdFile
+	secrets *htpasswd.File
 }
 
 func newBasicAuth(cfg config.BasicAuth) (AuthScheme, error) {
@@ -34,12 +35,22 @@ func newBasicAuth(cfg config.BasicAuth) (AuthScheme, error) {
 		cfg.ModTime = stat.ModTime()
 
 		go func() {
+			cleared := false
 			ticker := time.NewTicker(cfg.Refresh).C
 			for range ticker {
 				stat, err := os.Stat(cfg.File)
 				if err != nil {
 					log.Println("[WARN] Error accessing htpasswd file:", err)
-					continue // to prevent nil pointer dereference below
+					if !cleared {
+						err = secrets.ReloadFromReader(&bytes.Buffer{}, bad)
+						if err != nil {
+							log.Println("[WARN] Error clearing the htpasswd credentials:", err)
+						} else {
+							log.Println("[INFO] The htpasswd credentials have been cleared")
+							cleared = true
+						}
+					}
+					continue
 				}
 
 				// refresh the htpasswd file only if its modification time has changed
@@ -48,6 +59,7 @@ func newBasicAuth(cfg config.BasicAuth) (AuthScheme, error) {
 					if err := secrets.Reload(bad); err == nil {
 						log.Println("[INFO] The htpasswd file has been successfully reloaded")
 						cfg.ModTime = stat.ModTime()
+						cleared = false
 					} else {
 						log.Println("[WARN] Error reloading htpasswd file:", err)
 					}

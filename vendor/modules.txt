@@ -34,7 +34,7 @@ github.com/gobwas/glob/syntax/ast
 github.com/gobwas/glob/util/runes
 github.com/gobwas/glob/syntax/lexer
 github.com/gobwas/glob/util/strings
-# github.com/gogo/protobuf v1.1.1
+# github.com/gogo/protobuf v1.2.1
 github.com/gogo/protobuf/proto
 # github.com/golang/protobuf v1.2.0
 github.com/golang/protobuf/proto
@@ -44,7 +44,7 @@ github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
 # github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db
 github.com/golang/snappy
-# github.com/hashicorp/consul v1.4.0
+# github.com/hashicorp/consul v1.4.2
 github.com/hashicorp/consul/api
 # github.com/hashicorp/errwrap v0.0.0-20141028054710-7554cd9344ce
 github.com/hashicorp/errwrap
@@ -111,13 +111,13 @@ github.com/rcrowley/go-metrics
 github.com/rogpeppe/fastuuid
 # github.com/sergi/go-diff v0.0.0-20170118131230-24e2351369ec
 github.com/sergi/go-diff/diffmatchpatch
-# github.com/tg123/go-htpasswd v0.0.0-20181019180120-0849ceac46bc
+# github.com/tg123/go-htpasswd v0.0.0-20190305225429-d38e564730bf
 github.com/tg123/go-htpasswd
+# github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926
+github.com/tv42/httpunix
 # golang.org/x/crypto v0.0.0-20181112202954-3d3f9f413869
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
-# github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926
-github.com/tv42/httpunix
 # golang.org/x/net v0.0.0-20181114220301-adae6a3d119a
 golang.org/x/net/websocket
 golang.org/x/net/context
@@ -136,18 +136,18 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
 golang.org/x/text/transform
-# google.golang.org/genproto v0.0.0-20181109154231-b5d43981345b
+# google.golang.org/genproto v0.0.0-20190219182410-082222b4a5c5
 google.golang.org/genproto/googleapis/rpc/status
 # google.golang.org/grpc v1.16.0
 google.golang.org/grpc
+google.golang.org/grpc/codes
+google.golang.org/grpc/connectivity
 google.golang.org/grpc/credentials
 google.golang.org/grpc/metadata
 google.golang.org/grpc/stats
 google.golang.org/grpc/status
-google.golang.org/grpc/codes
 google.golang.org/grpc/balancer
 google.golang.org/grpc/balancer/roundrobin
-google.golang.org/grpc/connectivity
 google.golang.org/grpc/encoding
 google.golang.org/grpc/encoding/proto
 google.golang.org/grpc/grpclog

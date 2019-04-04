@@ -13,7 +13,7 @@ type bcryptPassword struct {
 
 //AcceptBcrypt accepts any valid password encoded using bcrypt.
 func AcceptBcrypt(src string) (EncodedPasswd, error) {
-	if !strings.HasPrefix(src, "$2y$") && !strings.HasPrefix(src, "$2a$") {
+	if !strings.HasPrefix(src, "$2y$") && !strings.HasPrefix(src, "$2a$") && !strings.HasPrefix(src, "$2b$") && !strings.HasPrefix(src, "$2x$") {
 		return nil, nil
 	}
 
@@ -22,7 +22,7 @@ func AcceptBcrypt(src string) (EncodedPasswd, error) {
 
 //RejectBcrypt rejects any password encoded using bcrypt.
 func RejectBcrypt(src string) (EncodedPasswd, error) {
-	if strings.HasPrefix(src, "$2y$") || strings.HasPrefix(src, "$2a$") {
+	if strings.HasPrefix(src, "$2y$") || strings.HasPrefix(src, "$2a$") || strings.HasPrefix(src, "$2b$") || strings.HasPrefix(src, "$2x$") {
 		return nil, fmt.Errorf("bcrypt passwords are not accepted: %s", src)
 	}
 
