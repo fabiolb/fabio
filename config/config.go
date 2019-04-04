@@ -152,6 +152,7 @@ type Consul struct {
 	CheckDeregisterCriticalServiceAfter string
 	ChecksRequired                      string
 	ServiceMonitors                     int
+	TLS                                 ConsulTlS
 }
 
 type Custom struct {
@@ -186,4 +187,12 @@ type BasicAuth struct {
 	File    string
 	Refresh time.Duration
 	ModTime time.Time // the htpasswd file last modification time
+}
+
+type ConsulTlS struct {
+	KeyFile            string
+	CertFile           string
+	CAFile             string
+	CAPath             string
+	InsecureSkipVerify bool
 }

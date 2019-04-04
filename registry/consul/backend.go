@@ -19,8 +19,18 @@ type be struct {
 }
 
 func NewBackend(cfg *config.Consul) (registry.Backend, error) {
+
+	consulCfg := &api.Config{Address: cfg.Addr, Scheme: cfg.Scheme, Token: cfg.Token}
+	if cfg.Scheme == "https" {
+		consulCfg.TLSConfig.KeyFile = cfg.TLS.KeyFile
+		consulCfg.TLSConfig.CertFile = cfg.TLS.CertFile
+		consulCfg.TLSConfig.CAFile = cfg.TLS.CAFile
+		consulCfg.TLSConfig.CAPath = cfg.TLS.CAPath
+		consulCfg.TLSConfig.InsecureSkipVerify = cfg.TLS.InsecureSkipVerify
+	}
+
 	// create a reusable client
-	c, err := api.NewClient(&api.Config{Address: cfg.Addr, Scheme: cfg.Scheme, Token: cfg.Token})
+	c, err := api.NewClient(consulCfg)
 	if err != nil {
 		return nil, err
 	}
