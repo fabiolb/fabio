@@ -639,3 +639,67 @@ func TestTableLookup(t *testing.T) {
 		}
 	}
 }
+
+func TestNewTableCustom(t *testing.T) {
+
+	var routes []RouteDef
+	var tags = []string{"tag1", "tag2"}
+	var opts = make(map[string]string)
+	opts["tlsskipverify"] = "true"
+	opts["proto"] = "http"
+
+	var route1 = RouteDef{
+		Cmd:     "route add",
+		Service: "service1",
+		Src:     "app.com",
+		Dst:     "http://10.1.1.1:8080",
+		Weight:  0.50,
+		Tags:    tags,
+		Opts:    opts,
+	}
+	var route2 = RouteDef{
+		Cmd:     "route add",
+		Service: "service1",
+		Src:     "app.com",
+		Dst:     "http://10.1.1.2:8080",
+		Weight:  0.50,
+		Tags:    tags,
+		Opts:    opts,
+	}
+	var route3 = RouteDef{
+		Cmd:     "route add",
+		Service: "service2",
+		Src:     "app.com",
+		Dst:     "http://10.1.1.3:8080",
+		Weight:  0.25,
+		Tags:    tags,
+		Opts:    opts,
+	}
+
+	routes = append(routes, route1)
+	routes = append(routes, route2)
+	routes = append(routes, route3)
+
+	table, err := NewTableCustom(&routes)
+
+	if err != nil {
+		fmt.Printf("Got error from NewTableCustom - %s", err.Error())
+		t.FailNow()
+	}
+
+	tableString := table.String()
+	if !strings.Contains(tableString, route1.Dst) {
+		fmt.Printf("Table Missing Destination %s -- Table -- %s", route1.Dst, tableString)
+		t.FailNow()
+	}
+
+	if !strings.Contains(tableString, route2.Dst) {
+		fmt.Printf("Table Missing Destination %s -- Table -- %s", route1.Dst, tableString)
+		t.FailNow()
+	}
+
+	if !strings.Contains(tableString, route3.Dst) {
+		fmt.Printf("Table Missing Destination %s -- Table -- %s", route1.Dst, tableString)
+		t.FailNow()
+	}
+}

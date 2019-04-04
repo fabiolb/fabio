@@ -118,6 +118,7 @@ type Registry struct {
 	Static  Static
 	File    File
 	Consul  Consul
+	Custom  Custom
 	Timeout time.Duration
 	Retry   time.Duration
 }
@@ -151,6 +152,17 @@ type Consul struct {
 	CheckDeregisterCriticalServiceAfter string
 	ChecksRequired                      string
 	ServiceMonitors                     int
+}
+
+type Custom struct {
+	Host               string
+	Path               string
+	QueryParams        string
+	Scheme             string
+	CheckTLSSkipVerify bool
+	PollingInterval    time.Duration
+	NoRouteHTML        string
+	Timeout            time.Duration
 }
 
 type Tracing struct {

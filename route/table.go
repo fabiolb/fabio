@@ -109,6 +109,7 @@ func hostpath(prefix string) (host string, path string) {
 }
 
 func NewTable(s string) (t Table, err error) {
+
 	defs, err := Parse(s)
 	if err != nil {
 		return nil, err
@@ -123,6 +124,27 @@ func NewTable(s string) (t Table, err error) {
 			err = t.delRoute(d)
 		case RouteWeightCmd:
 			err = t.weighRoute(d)
+		default:
+			err = fmt.Errorf("route: invalid command: %s", d.Cmd)
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	return t, nil
+}
+
+func NewTableCustom(defs *[]RouteDef) (t Table, err error) {
+
+	t = make(Table)
+	for _, d := range *defs {
+		switch d.Cmd {
+		case RouteAddCmd:
+			err = t.addRoute(&d)
+		case RouteDelCmd:
+			err = t.delRoute(&d)
+		case RouteWeightCmd:
+			err = t.weighRoute(&d)
 		default:
 			err = fmt.Errorf("route: invalid command: %s", d.Cmd)
 		}

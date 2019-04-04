@@ -667,6 +667,55 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-registry.custom.host", "localhost:8080"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Custom.Host = "localhost:8080"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.custom.scheme", "https"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Custom.Scheme = "https"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.custom.checkTLSSkipVerify", "true"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Custom.CheckTLSSkipVerify = true
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.custom.timeout", "5s"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Custom.Timeout = 5 * time.Second
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.custom.pollinginterval", "5s"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Custom.PollingInterval = 5 * time.Second
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.custom.path", "test"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Custom.Path = "test"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.custom.queryparams", "test=1"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Custom.QueryParams = "test=1"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-log.access.format", "foobar"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Log.AccessFormat = "foobar"
