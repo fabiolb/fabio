@@ -416,7 +416,7 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 		return Listen{}, fmt.Errorf("need listening host:port")
 	}
 	if csName != "" && l.Proto != "https" && l.Proto != "tcp" && l.Proto != "tcp-dynamic" && l.Proto != "grpcs" {
-		return Listen{}, fmt.Errorf("cert source requires proto 'https', 'tcp' or 'grpcs'")
+		return Listen{}, fmt.Errorf("cert source requires proto 'https', 'tcp', 'tcp-dynamic' or 'grpcs'")
 	}
 	if csName == "" && l.Proto == "https" {
 		return Listen{}, fmt.Errorf("proto 'https' requires cert source")
