@@ -22,6 +22,14 @@
 
 ---
 
+#### Note
+
+If you are confused about the commit order for the v1.5.11 release please
+check the [Release Notes](https://github.com/fabiolb/fabio/releases/tag/v1.5.11)
+for an explanation.
+
+---
+
 fabio is a fast, modern, zero-conf load balancing HTTP(S) and TCP router
 for deploying applications managed by [consul](https://consul.io/).
 
