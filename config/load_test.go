@@ -107,7 +107,7 @@ func TestLoad(t *testing.T) {
 		},
 		{
 			desc: "-proxy.addr with tls configs",
-			args: []string{"-proxy.addr", `:5555;rt=1s;wt=2s;tlsmin=0x0300;tlsmax=0x305;tlsciphers="0x123,0x456"`},
+			args: []string{"-proxy.addr", `:5555;rt=1s;wt=2s;it=3s;tlsmin=0x0300;tlsmax=0x305;tlsciphers="0x123,0x456"`},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{
 					{
@@ -115,6 +115,7 @@ func TestLoad(t *testing.T) {
 						Proto:         "http",
 						ReadTimeout:   1 * time.Second,
 						WriteTimeout:  2 * time.Second,
+						IdleTimeout:   3 * time.Second,
 						TLSMinVersion: 0x300,
 						TLSMaxVersion: 0x305,
 						TLSCiphers:    []uint16{0x123, 0x456},
@@ -125,7 +126,7 @@ func TestLoad(t *testing.T) {
 		},
 		{
 			desc: "-proxy.addr with named tls configs",
-			args: []string{"-proxy.addr", `:5555;rt=1s;wt=2s;tlsmin=tls10;tlsmax=TLS11;tlsciphers="TLS_RSA_WITH_RC4_128_SHA,tls_ecdhe_ecdsa_with_aes_256_gcm_sha384"`},
+			args: []string{"-proxy.addr", `:5555;rt=1s;wt=2s;it=3s;tlsmin=tls10;tlsmax=TLS11;tlsciphers="TLS_RSA_WITH_RC4_128_SHA,tls_ecdhe_ecdsa_with_aes_256_gcm_sha384"`},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{
 					{
@@ -133,6 +134,7 @@ func TestLoad(t *testing.T) {
 						Proto:         "http",
 						ReadTimeout:   1 * time.Second,
 						WriteTimeout:  2 * time.Second,
+						IdleTimeout:   3 * time.Second,
 						TLSMinVersion: tls.VersionTLS10,
 						TLSMaxVersion: tls.VersionTLS11,
 						TLSCiphers:    []uint16{tls.TLS_RSA_WITH_RC4_128_SHA, tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384},
