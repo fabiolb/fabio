@@ -37,7 +37,7 @@ Register your services in consul, provide a health check and fabio will start
 routing traffic to them. No configuration required. Deployment, upgrading and
 refactoring has never been easier.
 
-fabio is developed and maintained by [Frank Schroeder](https://twitter.com/magiconair).
+fabio is developed and maintained by The Fabio Authors.
 
 It powers some of the largest websites in
 The Netherlands ([marktplaats.nl](http://www.marktplaats.nl/)),
@@ -157,7 +157,6 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://opencollective.com/fabio/sponsor/9/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/9/avatar.svg"></a>
 
 
-
 ## License
 
 * Contributions up to 14 Apr 2017 before [38f73da](https://github.com/fabiolb/fabio/commit/38f73da6413b68fed1631101ac1d0b79a2fac870)
@@ -168,7 +167,7 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 * Contributions after 14 Apr 2017 starting with  [38f73da](https://github.com/fabiolb/fabio/commit/38f73da6413b68fed1631101ac1d0b79a2fac870)
 
   MIT Licensed
-  Copyright (c) 2017 Frank Schroeder. All rights reserved.
+  Copyright (c) 2017-2019 Frank Schroeder. All rights reserved.
 
 See [LICENSE](https://github.com/fabiolb/fabio/blob/master/LICENSE) for details.
 
