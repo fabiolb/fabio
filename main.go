@@ -5,6 +5,18 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
+	"net"
+	"net/http"
+	"os"
+	"runtime"
+	"runtime/debug"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
+
 	"github.com/fabiolb/fabio/admin"
 	"github.com/fabiolb/fabio/auth"
 	"github.com/fabiolb/fabio/cert"
@@ -22,21 +34,11 @@ import (
 	"github.com/fabiolb/fabio/registry/static"
 	"github.com/fabiolb/fabio/route"
 	"github.com/fabiolb/fabio/trace"
+
 	grpc_proxy "github.com/mwitkow/grpc-proxy/proxy"
 	"github.com/pkg/profile"
 	dmp "github.com/sergi/go-diff/diffmatchpatch"
 	"google.golang.org/grpc"
-	"io"
-	"log"
-	"net"
-	"net/http"
-	"os"
-	"runtime"
-	"runtime/debug"
-	"strings"
-	"sync"
-	"sync/atomic"
-	"time"
 )
 
 // version contains the version number
@@ -120,7 +122,8 @@ func main() {
 	initMetrics(cfg)
 	initRuntime(cfg)
 	initBackend(cfg)
-	//Init OpenTracing if Enabled in the Properties File Tracing.TracingEnabled
+
+	// init OpenTracing, if enabled
 	trace.InitializeTracer(&cfg.Tracing)
 
 	startAdmin(cfg)
