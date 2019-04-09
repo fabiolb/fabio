@@ -39,6 +39,8 @@ to the destination without decrypting the traffic.
 
 * `wt`: Sets the write timeout as a duration value (e.g. `3s`)
 
+* `it`: Sets the idle timeout as a duration value (e.g. `3s`)
+
 * `strictmatch`: When set to `true` the certificate source must provide
   a certificate that matches the hostname for the connection
   to be established. Otherwise, the first certificate is used

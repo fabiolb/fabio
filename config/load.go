@@ -376,6 +376,12 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 				return Listen{}, err
 			}
 			l.WriteTimeout = d
+		case "it": // idle timeout
+			d, err := time.ParseDuration(v)
+			if err != nil {
+				return Listen{}, err
+			}
+			l.IdleTimeout = d
 		case "cs": // cert source
 			csName = v
 			c, ok := cs[v]

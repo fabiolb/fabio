@@ -67,6 +67,7 @@ func ListenAndServeHTTP(l config.Listen, h http.Handler, cfg *tls.Config) error 
 		Handler:      h,
 		ReadTimeout:  l.ReadTimeout,
 		WriteTimeout: l.WriteTimeout,
+		IdleTimeout:  l.IdleTimeout,
 		TLSConfig:    cfg,
 	}
 	return serve(ln, srv)

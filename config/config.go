@@ -37,6 +37,7 @@ type Listen struct {
 	Proto              string
 	ReadTimeout        time.Duration
 	WriteTimeout       time.Duration
+	IdleTimeout        time.Duration
 	CertSource         CertSource
 	StrictMatch        bool
 	TLSMinVersion      uint16
