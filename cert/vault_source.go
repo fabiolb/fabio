@@ -26,7 +26,6 @@ type VaultSource struct {
 	ClientCAPath       string
 	CAUpgradeCN        string
 	Refresh            time.Duration
-	VaultFetchToken string
 }
 
 func (s *VaultSource) LoadClientCAs() (*x509.CertPool, error) {
@@ -82,7 +81,7 @@ func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error)
 		pemBlocks[name+"-"+typ+".pem"] = b
 	}
 
-	c, err := s.Client.Get(s.VaultFetchToken)
+	c, err := s.Client.Get()
 	if err != nil {
 		return nil, fmt.Errorf("vault: client: %s", err)
 	}

@@ -32,7 +32,6 @@ type VaultPKISource struct {
 
 	mu                 sync.Mutex
 	certs              map[string]tls.Certificate // issued certs
-	VaultFetchToken     string
 }
 
 func NewVaultPKISource() *VaultPKISource {
@@ -55,7 +54,7 @@ func (s *VaultPKISource) Certificates() chan []tls.Certificate {
 }
 
 func (s *VaultPKISource) Issue(commonName string) (*tls.Certificate, error) {
-	c, err := s.Client.Get(s.VaultFetchToken)
+	c, err := s.Client.Get()
 	if err != nil {
 		return nil, fmt.Errorf("vault: client: %s", err)
 	}

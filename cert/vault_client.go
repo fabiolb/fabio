@@ -3,6 +3,7 @@ package cert
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -18,26 +19,41 @@ import (
 type vaultClient struct {
 	addr  string // overrides the default config
 	token string // overrides the VAULT_TOKEN environment variable
+	fetchVaultToken string
+	prevFetchedToken   string
+
 
 	client *api.Client
 	mu     sync.Mutex
 }
 
+func NewVaultClient(fetchVaultToken string) *vaultClient {
+	 return &vaultClient{
+		 fetchVaultToken: fetchVaultToken,
+		}
+	}
 var DefaultVaultClient = &vaultClient{}
 
-var prevFetchedToken string
-
-func (c *vaultClient) Get(fetchVaultToken string) (*api.Client, error) {
+func (c *vaultClient) Get() (*api.Client, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-
 	if c.client != nil {
-		if fetchVaultToken != "" {
-			token := strings.TrimSpace(getVaultToken(fetchVaultToken))
-			if token != prevFetchedToken {
-				log.Printf("[DEBUG] Vault: token has changed, setting new token")
-				c.client.SetToken(token)
-				prevFetchedToken = token
+		if c.fetchVaultToken != "" {
+			token := strings.TrimSpace(getVaultToken(c.fetchVaultToken))
+			if token != c.prevFetchedToken {
+				log.Printf("[DEBUG] vault: token has changed, setting new token")
+				// did we get a wrapped token?
+				resp, err := c.client.Logical().Unwrap(token)
+				switch {
+				case err == nil:
+					log.Printf("[INFO] vault: Unwrapped token %s", token)
+					c.client.SetToken(resp.Auth.ClientToken)
+				case strings.HasPrefix(err.Error(), "no value found at"):
+					// not a wrapped token
+				default:
+					return nil, err
+				}
+				c.prevFetchedToken = token
 			}
 		}
 		return c.client, nil
@@ -56,12 +72,12 @@ func (c *vaultClient) Get(fetchVaultToken string) (*api.Client, error) {
 		return nil, err
 	}
 
-	if fetchVaultToken != "" {
-		token := strings.TrimSpace(getVaultToken(fetchVaultToken))
-		log.Printf("[DEBUG] Vault: fetching initial token")
-		if token != prevFetchedToken {
+	if c.fetchVaultToken != "" {
+		token := strings.TrimSpace(getVaultToken(c.fetchVaultToken))
+		log.Printf("[DEBUG] vault: fetching initial token")
+		if token != c.prevFetchedToken {
 			c.token = token
-			prevFetchedToken = token
+			c.prevFetchedToken = token
 		}
 	}
 	if c.token != "" {
@@ -153,21 +169,24 @@ func (c *vaultClient) keepTokenAlive() {
 
 func getVaultToken(c string) string {
 	c = strings.TrimSpace(c)
-	cArray := strings.Split(c, ":")
+	fmt.Println(c)
+	cArray := strings.SplitN(c, ":",2)
 	var token string
 	if cArray[0] == "file" {
 		b, err := ioutil.ReadFile(cArray[1]) // just pass the file name
 		if err != nil {
-			log.Printf("[WARN] Vault: Failed to fetch token from  %s", c)
+			log.Printf("[WARN] vault: Failed to fetch token from  %s", c)
+		}else {
+			token = string(b)
+			log.Printf("[DEBUG] vault: Successfully fetched token from %s", c)
 		}
-		token = string(b)
-		log.Printf("[DEBUG] Vault: Successfully fetched token from %s", c)
 	}else if cArray[0] == "env" {
 		token = os.Getenv(cArray[1])
 		if len(token) == 0 {
-			log.Printf("[WARN] Vault: Failed to fetch token from  %s", c)
+			log.Printf("[WARN] vault: Failed to fetch token from  %s", c)
+		}else {
+			log.Printf("[DEBUG] vault: Successfully fetched token from %s", c)
 		}
-		log.Printf("[DEBUG] Vault: Successfully fetched token from %s", c)
 	}
 	return token
 }
