@@ -24,6 +24,10 @@ GORELEASER = $(shell which goreleaser)
 CI_CONSUL_VERSION=1.4.2
 CI_VAULT_VERSION=1.0.3
 
+# force go modules
+GO111MODULE = on
+export GO111MODULE
+
 # all is the default target
 all: test
 
@@ -44,7 +48,7 @@ build: gofmt
 
 # test runs the tests
 test: build
-	go test -mod=vendor -v -test.timeout 15s /...
+	go test -mod=vendor -v -test.timeout 15s ./...
 
 # gofmt runs gofmt on the code
 gofmt:
