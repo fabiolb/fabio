@@ -10,8 +10,8 @@ RUN cd /usr/local/bin && unzip vault_${vault_version}_linux_amd64.zip
 
 WORKDIR /go/src/github.com/fabiolb/fabio
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go test  -ldflags "-s -w" ./...
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w"
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go test -mod=vendor -ldflags "-s -w" ./...
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor -ldflags "-s -w"
 
 FROM alpine:3.8
 RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*

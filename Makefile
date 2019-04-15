@@ -40,11 +40,11 @@ help:
 
 # build compiles fabio and the test dependencies
 build: gofmt
-	go build
+	go build -mod=vendor
 
 # test runs the tests
 test: build
-	go test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
+	go test -mod=vendor -v -test.timeout 15s /...
 
 # gofmt runs gofmt on the code
 gofmt:
@@ -56,7 +56,7 @@ linux:
 
 # install runs go install
 install:
-	go install $(GOFLAGS)
+	go install -mod=vendor $(GOFLAGS)
 
 # pkg builds a fabio.tar.gz package with only fabio in it
 pkg: build test
@@ -119,7 +119,7 @@ codeship:
 
 # clean removes intermediate files
 clean:
-	go clean
+	go clean -mod=vendor
 	rm -rf pkg dist fabio
 	find . -name '*.test' -delete
 
