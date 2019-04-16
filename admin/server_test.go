@@ -55,7 +55,8 @@ func TestAdminServerAccess(t *testing.T) {
 		{"/manual", 403},
 		{"/routes", 200},
 		{"/health", 200},
-		{"/logo.svg", 200},
+		{"/assets/logo.svg", 200},
+		{"/assets/logo.bw.svg", 200},
 		{"/", 303},
 	}
 
@@ -68,7 +69,8 @@ func TestAdminServerAccess(t *testing.T) {
 		{"/manual", 200},
 		{"/routes", 200},
 		{"/health", 200},
-		{"/logo.svg", 200},
+		{"/assets/logo.svg", 200},
+		{"/assets/logo.bw.svg", 200},
 		{"/", 303},
 	}
 
