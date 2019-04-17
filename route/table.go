@@ -108,8 +108,7 @@ func hostpath(prefix string) (host string, path string) {
 	return p[0], "/" + p[1]
 }
 
-func NewTable(s string) (t Table, err error) {
-
+func NewTable(s bytes.Buffer) (t Table, err error) {
 	defs, err := Parse(s)
 	if err != nil {
 		return nil, err

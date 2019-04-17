@@ -432,6 +432,7 @@ func watchBackend(cfg *config.Config, first chan bool) {
 		svccfg   string
 		mancfg   string
 		customBE string
+		next     bytes.Buffer
 
 		once sync.Once
 	)
@@ -454,19 +455,21 @@ func watchBackend(cfg *config.Config, first chan bool) {
 		man := registry.Default.WatchManual()
 
 		for {
+
 			select {
 			case svccfg = <-svc:
 			case mancfg = <-man:
 			}
-
 			// manual config overrides service config
 			// order matters
-			next := svccfg + "\n" + mancfg
-			if next == last {
+			next.Reset()
+			next.WriteString(svccfg)
+			next.WriteString("\n")
+			next.WriteString(mancfg)
+			if next.String() == last {
 				continue
 			}
-
-			aliases, err := route.ParseAliases(next)
+			aliases, err := route.ParseAliases(next.String())
 			if err != nil {
 				log.Printf("[WARN]: %s", err)
 			}
@@ -478,14 +481,11 @@ func watchBackend(cfg *config.Config, first chan bool) {
 				continue
 			}
 			route.SetTable(t)
-			logRoutes(t, last, next, cfg.Log.RoutesFormat)
-			last = next
-
+			logRoutes(t, last, next.String(), cfg.Log.RoutesFormat)
+			last = next.String()
 			once.Do(func() { close(first) })
 		}
-
 	}
-
 }
 
 func watchNoRouteHTML(cfg *config.Config) {
