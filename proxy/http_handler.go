@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func newHTTPProxy(target *url.URL, tr http.RoundTripper, flush time.Duration) http.Handler {
+func newHTTPProxy(target *url.URL, tr http.RoundTripper, flush time.Duration, errorHandler func(http.ResponseWriter, *http.Request, error)) http.Handler {
 	return &httputil.ReverseProxy{
 		// this is a simplified director function based on the
 		// httputil.NewSingleHostReverseProxy() which does not
@@ -25,5 +25,6 @@ func newHTTPProxy(target *url.URL, tr http.RoundTripper, flush time.Duration) ht
 		},
 		FlushInterval: flush,
 		Transport:     tr,
+		ErrorHandler:  errorHandler,
 	}
 }

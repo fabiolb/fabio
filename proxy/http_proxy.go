@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -187,10 +188,10 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case accept == "text/event-stream":
 		// use the flush interval for SSE (server-sent events)
 		// must be > 0s to be effective
-		h = newHTTPProxy(targetURL, tr, p.Config.FlushInterval)
+		h = newHTTPProxy(targetURL, tr, p.Config.FlushInterval, httpProxyErrorHandler)
 
 	default:
-		h = newHTTPProxy(targetURL, tr, p.Config.GlobalFlushInterval)
+		h = newHTTPProxy(targetURL, tr, p.Config.GlobalFlushInterval, httpProxyErrorHandler)
 	}
 
 	if p.Config.GZIPContentTypes != nil {
@@ -236,6 +237,19 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			UpstreamURL:     targetURL,
 		})
 	}
+}
+
+func httpProxyErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
+	// According to https://golang.org/src/net/http/httputil/reverseproxy.go#L74, Go will return a 502 (Bad Gateway) StatusCode by default if no ErroHandler is provided
+	// If a "context canceled" error is returned by the http.Request handler this means the client closed the connection before getting a response
+	// So we are changing the StatusCode on these situations to the non-standard 499 (Client Closed Connection)
+	if rErr := r.Context().Err(); rErr != nil && rErr.Error() == "context canceled" {
+		w.WriteHeader(499)
+	} else if err != nil {
+		log.Printf("[ERROR] %s", err.Error())
+		w.WriteHeader(504)
+	}
+	return
 }
 
 func key(code int) string {
