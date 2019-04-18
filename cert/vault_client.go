@@ -3,7 +3,6 @@ package cert
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -169,7 +168,6 @@ func (c *vaultClient) keepTokenAlive() {
 
 func getVaultToken(c string) string {
 	c = strings.TrimSpace(c)
-	fmt.Println(c)
 	cArray := strings.SplitN(c, ":",2)
 	var token string
 	if cArray[0] == "file" {
