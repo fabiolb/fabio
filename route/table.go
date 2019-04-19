@@ -314,6 +314,16 @@ func normalizeHost(host string, tls bool) string {
 	return host
 }
 
+func normalizeHostNoLower(host string, tls bool) string {
+	if !tls && strings.HasSuffix(host, ":80") {
+		return host[:len(host)-len(":80")]
+	}
+	if tls && strings.HasSuffix(host, ":443") {
+		return host[:len(host)-len(":443")]
+	}
+	return host
+}
+
 // matchingHosts returns all keys (host name patterns) from the
 // routing table which match the normalized request hostname.
 func (t Table) matchingHosts(req *http.Request) (hosts []string) {
@@ -355,13 +365,13 @@ func (t Table) matchingHosts(req *http.Request) (hosts []string) {
 // matchingHostNoGlob returns the route from the
 // routing table which matches the normalized request hostname.
 func (t Table) matchingHostNoGlob(req *http.Request) (hosts []string) {
-	host := normalizeHost(req.Host, req.TLS != nil)
+	host := normalizeHostNoLower(req.Host, req.TLS != nil)
 
 	for pattern := range t {
-		normpat := normalizeHost(pattern, req.TLS != nil)
-		if normpat == host {
+		normpat := normalizeHostNoLower(pattern, req.TLS != nil)
+		if  strings.EqualFold(normpat,host) {
 			//log.Printf("DEBUG Matched %s and %s", normpat, host)
-			hosts = append(hosts, pattern)
+			hosts = append(hosts, strings.ToLower(pattern))
 			return
 		}
 	}
