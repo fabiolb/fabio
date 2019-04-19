@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -33,7 +34,7 @@ func TestGracefulShutdown(t *testing.T) {
 		h := &HTTPProxy{
 			Transport: http.DefaultTransport,
 			Lookup: func(r *http.Request) *route.Target {
-				tbl, _ := route.NewTable("route add svc / " + srv.URL)
+				tbl, _ := route.NewTable(bytes.NewBufferString("route add svc / " + srv.URL))
 				return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globDisabled)
 			},
 		}

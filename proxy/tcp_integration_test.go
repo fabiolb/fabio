@@ -43,7 +43,7 @@ func TestTCPProxy(t *testing.T) {
 	go func() {
 		h := &tcp.Proxy{
 			Lookup: func(h string) *route.Target {
-				tbl, _ := route.NewTable("route add srv :57778 tcp://" + srv.Addr)
+				tbl, _ := route.NewTable(bytes.NewBufferString("route add srv :57778 tcp://" + srv.Addr))
 				return tbl.LookupHost(h, route.Picker["rr"])
 			},
 		}
@@ -224,7 +224,7 @@ func TestTCPProxyWithProxyProto(t *testing.T) {
 	go func() {
 		h := &tcp.Proxy{
 			Lookup: func(h string) *route.Target {
-				tbl, _ := route.NewTable("route add srv :57778 tcp://" + srv.Addr + " opts \"pxyproto=true\"")
+				tbl, _ := route.NewTable(bytes.NewBufferString("route add srv :57778 tcp://" + srv.Addr + " opts \"pxyproto=true\""))
 				tgt := tbl.LookupHost(h, route.Picker["rr"])
 				return tgt
 			},

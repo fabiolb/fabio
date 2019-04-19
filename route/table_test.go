@@ -1,6 +1,7 @@
 package route
 
 import (
+	"bytes"
 	"crypto/tls"
 	"fmt"
 	"math"
@@ -380,7 +381,7 @@ func TestTableParse(t *testing.T) {
 		// actual lookup which it probably should.
 		t.Run(tt.desc, func(t *testing.T) {
 			// parse the routes
-			tbl, err := NewTable(strings.Join(tt.in, "\n"))
+			tbl, err := NewTable(bytes.NewBufferString(strings.Join(tt.in, "\n")))
 			if err != nil {
 				t.Fatalf("got %v want nil", err)
 			}
@@ -499,7 +500,7 @@ func TestTableLookupIssue448(t *testing.T) {
 	route add mock / http://foo.com/
 	`
 
-	tbl, err := NewTable(s)
+	tbl, err := NewTable(bytes.NewBufferString(s))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -581,7 +582,7 @@ func TestTableLookup(t *testing.T) {
 	route add svc xyz.com:80/ https://xyz.com
 	`
 
-	tbl, err := NewTable(s)
+	tbl, err := NewTable(bytes.NewBufferString(s))
 	if err != nil {
 		t.Fatal(err)
 	}

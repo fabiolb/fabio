@@ -67,12 +67,14 @@ route weight service host/path weight w tags "tag1,tag2"
 // The commands are parsed in order and order matters.
 // Deleting a route that has not been created yet yields
 // a different result than the other way around.
-func Parse(in bytes.Buffer) (defs []*RouteDef, err error) {
+func Parse(in *bytes.Buffer) (defs []*RouteDef, err error) {
 	var def *RouteDef
-	scanner := bufio.NewScanner(&in)
+	var i int
+	scanner := bufio.NewScanner(in)
 	for scanner.Scan() {
 		def, err = nil, nil
 		result := strings.TrimSpace(scanner.Text())
+		i++
 		switch {
 		case reComment.MatchString(result) || reBlankLine.MatchString(result):
 			continue
@@ -86,7 +88,7 @@ func Parse(in bytes.Buffer) (defs []*RouteDef, err error) {
 			err = errors.New("syntax error: 'route' expected")
 		}
 		if err != nil {
-			return nil, fmt.Errorf("line %d: %s", err)
+			return nil, fmt.Errorf("line %d: %s", i, err)
 		}
 		defs = append(defs, def)
 	}

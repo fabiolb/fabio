@@ -1,6 +1,7 @@
 package route
 
 import (
+	"bytes"
 	"net/url"
 	"testing"
 )
@@ -140,7 +141,7 @@ func TestTarget_BuildRedirectURL(t *testing.T) {
 		return nil
 	}
 	for _, tt := range tests {
-		tbl, _ := NewTable(tt.route)
+		tbl, _ := NewTable(bytes.NewBufferString(tt.route))
 		route := firstRoute(tbl)
 		target := route.Targets[0]
 		for _, rt := range tt.tests {

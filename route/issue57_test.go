@@ -1,6 +1,7 @@
 package route
 
 import (
+	"bytes"
 	"net/http"
 	"testing"
 )
@@ -28,7 +29,7 @@ func TestIssue57(t *testing.T) {
 	want := "http://foo.com:800"
 
 	for i, tt := range tests {
-		tbl, err := NewTable(tt)
+		tbl, err := NewTable(bytes.NewBufferString(tt))
 		if err != nil {
 			t.Fatalf("%d: got %v want nil", i, err)
 		}

@@ -108,8 +108,8 @@ func hostpath(prefix string) (host string, path string) {
 	return p[0], "/" + p[1]
 }
 
-func NewTable(s bytes.Buffer) (t Table, err error) {
-	defs, err := Parse(s)
+func NewTable(b *bytes.Buffer) (t Table, err error) {
+	defs, err := Parse(b)
 	if err != nil {
 		return nil, err
 	}
@@ -490,7 +490,7 @@ func (t Table) String() string {
 
 // Dump returns the routing table as a detailed
 func (t Table) Dump() string {
-	w := new(bytes.Buffer)
+	var w *bytes.Buffer
 
 	hosts := []string{}
 	for k := range t {

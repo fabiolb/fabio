@@ -45,7 +45,7 @@ func TestProxyWSUpstream(t *testing.T) {
 		Transport:         &http.Transport{TLSClientConfig: tlsClientConfig()},
 		InsecureTransport: &http.Transport{TLSClientConfig: tlsInsecureConfig()},
 		Lookup: func(r *http.Request) *route.Target {
-			tbl, _ := route.NewTable(routes)
+			tbl, _ := route.NewTable(bytes.NewBufferString(routes))
 			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globDisabled)
 		},
 	})
@@ -57,7 +57,7 @@ func TestProxyWSUpstream(t *testing.T) {
 		Transport:         &http.Transport{TLSClientConfig: tlsClientConfig()},
 		InsecureTransport: &http.Transport{TLSClientConfig: tlsInsecureConfig()},
 		Lookup: func(r *http.Request) *route.Target {
-			tbl, _ := route.NewTable(routes)
+			tbl, _ := route.NewTable(bytes.NewBufferString(routes))
 			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globDisabled)
 		},
 	})

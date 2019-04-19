@@ -432,7 +432,7 @@ func watchBackend(cfg *config.Config, first chan bool) {
 		svccfg   string
 		mancfg   string
 		customBE string
-		next     bytes.Buffer
+		next     *bytes.Buffer
 
 		once sync.Once
 	)

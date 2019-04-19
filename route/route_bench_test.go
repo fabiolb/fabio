@@ -1,6 +1,7 @@
 package route
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"sync"
@@ -98,7 +99,7 @@ func makeRoutes(domains, paths, depth, urls int) Table {
 		}
 	}
 
-	t, err := NewTable(s)
+	t, err := NewTable(bytes.NewBufferString(s))
 	if err != nil {
 		panic(err)
 	}
