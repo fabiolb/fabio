@@ -432,9 +432,8 @@ func watchBackend(cfg *config.Config, first chan bool) {
 		svccfg   string
 		mancfg   string
 		customBE string
-		next     *bytes.Buffer
-
-		once sync.Once
+		once     sync.Once
+		next     = new(bytes.Buffer) // fix crash on reset before used (#650)
 	)
 
 	switch cfg.Registry.Backend {
