@@ -151,7 +151,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if t.StripPath != "" && strings.HasPrefix(r.URL.Path, t.StripPath) {
 		targetURL.Path = targetURL.Path[len(t.StripPath):]
 		// ensure absolute path after stripping to maintain compliance with
-		// section 5.1.2 of RFC2616 (https://tools.ietf.org/html/rfc2616#section-5.1.2)
+		// section 5.3 of RFC7230 (https://tools.ietf.org/html/rfc7230#section-5.3)
 		if !strings.HasPrefix(targetURL.Path, "/") {
 			targetURL.Path = "/" + targetURL.Path
 		}
