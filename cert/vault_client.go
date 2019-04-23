@@ -167,9 +167,13 @@ func (c *vaultClient) keepTokenAlive() {
 }
 
 func getVaultToken(c string) string {
+	var token string
 	c = strings.TrimSpace(c)
 	cArray := strings.SplitN(c, ":",2)
-	var token string
+	if len(cArray) < 2{
+		log.Printf("[WARN] vault: vaultfetchtoken not properly set")
+		return token
+	}
 	if cArray[0] == "file" {
 		b, err := ioutil.ReadFile(cArray[1]) // just pass the file name
 		if err != nil {
@@ -186,5 +190,6 @@ func getVaultToken(c string) string {
 			log.Printf("[DEBUG] vault: Successfully fetched token from %s", c)
 		}
 	}
+	log.Printf("[WARN] vault: vaultfetchtoken not properly set")
 	return token
 }
