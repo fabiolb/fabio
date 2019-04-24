@@ -16,21 +16,21 @@ import (
 // vaultClient wraps an *api.Client and takes care of token renewal
 // automatically.
 type vaultClient struct {
-	addr  string // overrides the default config
-	token string // overrides the VAULT_TOKEN environment variable
-	fetchVaultToken string
-	prevFetchedToken   string
-
+	addr             string // overrides the default config
+	token            string // overrides the VAULT_TOKEN environment variable
+	fetchVaultToken  string
+	prevFetchedToken string
 
 	client *api.Client
 	mu     sync.Mutex
 }
 
 func NewVaultClient(fetchVaultToken string) *vaultClient {
-	 return &vaultClient{
-		 fetchVaultToken: fetchVaultToken,
-		}
+	return &vaultClient{
+		fetchVaultToken: fetchVaultToken,
 	}
+}
+
 var DefaultVaultClient = &vaultClient{}
 
 func (c *vaultClient) Get() (*api.Client, error) {
@@ -169,8 +169,8 @@ func (c *vaultClient) keepTokenAlive() {
 func getVaultToken(c string) string {
 	var token string
 	c = strings.TrimSpace(c)
-	cArray := strings.SplitN(c, ":",2)
-	if len(cArray) < 2{
+	cArray := strings.SplitN(c, ":", 2)
+	if len(cArray) < 2 {
 		log.Printf("[WARN] vault: vaultfetchtoken not properly set")
 		return token
 	}
@@ -178,19 +178,20 @@ func getVaultToken(c string) string {
 		b, err := ioutil.ReadFile(cArray[1]) // just pass the file name
 		if err != nil {
 			log.Printf("[WARN] vault: Failed to fetch token from  %s", c)
-		}else {
+		} else {
 			token = string(b)
+			return token
 			log.Printf("[DEBUG] vault: Successfully fetched token from %s", c)
 		}
-	}else if cArray[0] == "env" {
+	} else if cArray[0] == "env" {
 		token = os.Getenv(cArray[1])
 		if len(token) == 0 {
 			log.Printf("[WARN] vault: Failed to fetch token from  %s", c)
-		}else {
+		} else {
+			return token
 			log.Printf("[DEBUG] vault: Successfully fetched token from %s", c)
 		}
-	}else if cArray[0] != "file"  || cArray[0] != "env"{
-		log.Printf("[WARN] vault: vaultfetchtoken not properly set")
 	}
+	log.Printf("[WARN] vault: vaultfetchtoken not properly set")
 	return token
 }

@@ -66,11 +66,11 @@ func NewSource(cfg config.CertSource) (Source, error) {
 
 	case "vault":
 		return &VaultSource{
-			CertPath:           cfg.CertPath,
-			ClientCAPath:       cfg.ClientCAPath,
-			CAUpgradeCN:        cfg.CAUpgradeCN,
-			Refresh:            cfg.Refresh,
-			Client:             NewVaultClient(cfg.VaultFetchToken),
+			CertPath:     cfg.CertPath,
+			ClientCAPath: cfg.ClientCAPath,
+			CAUpgradeCN:  cfg.CAUpgradeCN,
+			Refresh:      cfg.Refresh,
+			Client:       NewVaultClient(cfg.VaultFetchToken),
 		}, nil
 	case "vault-pki":
 		src := NewVaultPKISource()

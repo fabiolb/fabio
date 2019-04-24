@@ -30,8 +30,8 @@ type VaultPKISource struct {
 
 	certsCh chan []tls.Certificate
 
-	mu                 sync.Mutex
-	certs              map[string]tls.Certificate // issued certs
+	mu    sync.Mutex
+	certs map[string]tls.Certificate // issued certs
 }
 
 func NewVaultPKISource() *VaultPKISource {
