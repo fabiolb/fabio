@@ -50,7 +50,7 @@ func (w *ServiceMonitor) Watch(updates chan<- string) {
 		passing := passingServices(checks, w.config.ServiceStatus, w.strict)
 
 		// limit to services which have the required tag prefix
-		passing = matchingServices(w.config.TagPrefix, checks)
+		passing = matchingServices(w.config.TagPrefix, passing)
 
 		// greate a sorted list of unique passing ids
 		passingIds := make([]string, len(passing))
