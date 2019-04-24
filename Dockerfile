@@ -10,6 +10,7 @@ RUN cd /usr/local/bin && unzip vault_${vault_version}_linux_amd64.zip
 
 WORKDIR /go/src/github.com/fabiolb/fabio
 COPY . .
+ENV GO111MODULE=on
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go test -mod=vendor -ldflags "-s -w" ./...
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor -ldflags "-s -w"
 
