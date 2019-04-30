@@ -56,6 +56,9 @@ github.com/hashicorp/go-multierror
 github.com/hashicorp/go-retryablehttp
 # github.com/hashicorp/go-rootcerts v0.0.0-20160503143440-6bb64b370b90
 github.com/hashicorp/go-rootcerts
+# github.com/hashicorp/go-sockaddr v0.0.0-20180320115054-6d291a969b86
+github.com/hashicorp/go-sockaddr/template
+github.com/hashicorp/go-sockaddr
 # github.com/hashicorp/hcl v0.0.0-20160607001940-d7400db7143f
 github.com/hashicorp/hcl
 github.com/hashicorp/hcl/hcl/ast
