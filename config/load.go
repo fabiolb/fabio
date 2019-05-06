@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	gs "github.com/hashicorp/go-sockaddr/template"
 	"github.com/magiconair/properties"
 )
 
@@ -265,6 +266,18 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 		return nil, err
 	}
 
+	if cfg.Proxy.LocalIP != "" {
+		if cfg.Proxy.LocalIP, err = gs.Parse(cfg.Proxy.LocalIP); err != nil {
+			return nil, fmt.Errorf("failed to parse local ip: %s", err)
+		}
+	}
+
+	if cfg.Registry.Consul.ServiceAddr != "" {
+		if cfg.Registry.Consul.ServiceAddr, err = gs.Parse(cfg.Registry.Consul.ServiceAddr); err != nil {
+			return nil, fmt.Errorf("failed to consul service address: %s", err)
+		}
+	}
+
 	cfg.Registry.Consul.CheckScheme = defaultConfig.Registry.Consul.CheckScheme
 	if cfg.UI.Listen.CertSource.Name != "" {
 		cfg.Registry.Consul.CheckScheme = "https"
@@ -355,7 +368,9 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 	for k, v := range cfg {
 		switch k {
 		case "", "addr":
-			l.Addr = v
+			if l.Addr, err = gs.Parse(v); err != nil {
+				return Listen{}, err
+			}
 		case "proto":
 			l.Proto = v
 			switch l.Proto {
