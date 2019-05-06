@@ -273,6 +273,12 @@ func (rw *responseWriter) WriteHeader(statusCode int) {
 	rw.code = statusCode
 }
 
+func (rw *responseWriter) Flush() {
+	if fl, ok := rw.w.(http.Flusher); ok {
+		fl.Flush()
+	}
+}
+
 var errNoHijacker = errors.New("not a hijacker")
 
 func (rw *responseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
