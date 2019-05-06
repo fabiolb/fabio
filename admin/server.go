@@ -8,8 +8,10 @@ import (
 
 	"github.com/fabiolb/fabio/admin/api"
 	"github.com/fabiolb/fabio/admin/ui"
+	_ "github.com/fabiolb/fabio/admin/ui/statik"
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/proxy"
+	"github.com/rakyll/statik/fs"
 )
 
 // Server provides the HTTP server for the admin UI and API.
@@ -64,8 +66,18 @@ func (s *Server) handler() http.Handler {
 	mux.Handle("/api/routes", &api.RoutesHandler{})
 	mux.Handle("/api/version", &api.VersionHandler{Version: s.Version})
 	mux.Handle("/routes", &ui.RoutesHandler{Color: s.Color, Title: s.Title, Version: s.Version})
-	mux.HandleFunc("/logo.svg", ui.HandleLogo)
 	mux.HandleFunc("/health", handleHealth)
+
+	statikFS, err := fs.New()
+	if err != nil {
+		// This error is always a result of invalid, generated zip data. That
+		// should never happen and would let TestAdminServerAccess fail before
+		// fabio is released.
+		panic(err)
+	}
+	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(statikFS)))
+	mux.HandleFunc("/favicon.ico", http.NotFound)
+
 	mux.Handle("/", http.RedirectHandler("/routes", http.StatusSeeOther))
 	return mux
 }
