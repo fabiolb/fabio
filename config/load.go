@@ -179,7 +179,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Registry.Consul.TLS.CAPath, "registry.consul.tls.capath", defaultConfig.Registry.Consul.TLS.CAPath, "path to consul CA directory")
 	f.BoolVar(&cfg.Registry.Consul.TLS.InsecureSkipVerify, "registry.consul.tls.insecureskipverify", defaultConfig.Registry.Consul.TLS.InsecureSkipVerify, "is tls check enabled")
 	f.BoolVar(&cfg.Registry.Consul.Register, "registry.consul.register.enabled", defaultConfig.Registry.Consul.Register, "register fabio in consul")
-	f.StringVar(&cfg.Registry.Consul.ServiceAddr, "registry.consul.register.addr", defaultConfig.Registry.Consul.ServiceAddr, "service registration address")
+	f.StringVar(&cfg.Registry.Consul.ServiceAddr, "registry.consul.register.addr", "<ui.addr>", "service registration address")
 	f.StringVar(&cfg.Registry.Consul.ServiceName, "registry.consul.register.name", defaultConfig.Registry.Consul.ServiceName, "service registration name")
 	f.StringSliceVar(&cfg.Registry.Consul.ServiceTags, "registry.consul.register.tags", defaultConfig.Registry.Consul.ServiceTags, "service registration tags")
 	f.StringSliceVar(&cfg.Registry.Consul.ServiceStatus, "registry.consul.service.status", defaultConfig.Registry.Consul.ServiceStatus, "valid service status values")
@@ -272,6 +272,11 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 		}
 	}
 
+	// Unless registry.consul.register.addr has been set explicitly it should
+	// be the same as ui.addr. See issue 657.
+	if !f.IsSet("registry.consul.register.addr") {
+		cfg.Registry.Consul.ServiceAddr = cfg.UI.Listen.Addr
+	}
 	if cfg.Registry.Consul.ServiceAddr != "" {
 		if cfg.Registry.Consul.ServiceAddr, err = gs.Parse(cfg.Registry.Consul.ServiceAddr); err != nil {
 			return nil, fmt.Errorf("failed to consul service address: %s", err)
