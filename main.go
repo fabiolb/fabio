@@ -346,16 +346,18 @@ func startServers(cfg *config.Config) {
 					table := route.GetTable()
 					ports := []string{}
 					for target, rts := range table {
-						buffer.WriteString(":")
-						buffer.WriteString(strings.Split(target, ":")[1])
+						if strings.Split(target, ":")[1] != "" {
+							buffer.WriteString(":")
+							buffer.WriteString(strings.Split(target, ":")[1])
 
-						schemes := tableSchemes(rts)
-						if len(schemes) == 1 && schemes[0] == "tcp" {
-							ports = append(ports, buffer.String())
+							schemes := tableSchemes(rts)
+							if len(schemes) == 1 && schemes[0] == "tcp" {
+								ports = append(ports, buffer.String())
+							}
+							buffer.Reset()
 						}
-						buffer.Reset()
+						ports = unique(ports)
 					}
-					ports = unique(ports)
 					for _, port := range ports {
 						l := l
 						port := port
