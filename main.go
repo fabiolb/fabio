@@ -346,7 +346,7 @@ func startServers(cfg *config.Config) {
 					table := route.GetTable()
 					ports := []string{}
 					for target, rts := range table {
-						if strings.Split(target, ":")[1] != "" {
+						if strings.Contains(target, ":") {
 							buffer.WriteString(":")
 							buffer.WriteString(strings.Split(target, ":")[1])
 
