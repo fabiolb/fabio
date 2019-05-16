@@ -180,16 +180,16 @@ func getVaultToken(c string) string {
 			log.Printf("[WARN] vault: Failed to fetch token from  %s", c)
 		} else {
 			token = string(b)
-			return token
 			log.Printf("[DEBUG] vault: Successfully fetched token from %s", c)
+			return token
 		}
 	} else if cArray[0] == "env" {
 		token = os.Getenv(cArray[1])
 		if len(token) == 0 {
 			log.Printf("[WARN] vault: Failed to fetch token from  %s", c)
 		} else {
-			return token
 			log.Printf("[DEBUG] vault: Successfully fetched token from %s", c)
+			return token
 		}
 	}
 	log.Printf("[WARN] vault: vaultfetchtoken not properly set")
