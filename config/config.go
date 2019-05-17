@@ -22,14 +22,15 @@ type Config struct {
 }
 
 type CertSource struct {
-	Name         string
-	Type         string
-	CertPath     string
-	KeyPath      string
-	ClientCAPath string
-	CAUpgradeCN  string
-	Refresh      time.Duration
-	Header       http.Header
+	Name            string
+	Type            string
+	CertPath        string
+	KeyPath         string
+	ClientCAPath    string
+	CAUpgradeCN     string
+	Refresh         time.Duration
+	Header          http.Header
+	VaultFetchToken string
 }
 
 type Listen struct {
