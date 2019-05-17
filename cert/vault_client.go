@@ -191,7 +191,7 @@ func getVaultToken(c string) string {
 			log.Printf("[DEBUG] vault: Successfully fetched token from %s", c)
 			return token
 		}
-	} else if cArray[0] != "file" || cArray[0] != "env" {
+	} else {
 		log.Printf("[WARN] vault: vaultfetchtoken not properly set")
 	}
 	return token
