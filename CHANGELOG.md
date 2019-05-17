@@ -1,5 +1,21 @@
 ## Changelog
 
+### Unreleased
+
+#### Improvements
+
+* [PR #620](https://github.com/fabiolb/fabio/pull/620): Read Vault token from file
+
+  The new `vaultfetchtoken` option for the vault and vault-pki certificate
+  sources can be used to load Vault tokens from environment variables other
+  than `VAULT_TOKEN` and from files on disk. fabio will automatically notice
+  when file contents change and start using new tokens.
+
+  This improves integration with [Nomad](https://www.nomadproject.io/docs/job-specification/vault.html)
+  and the [Vault Agent](https://www.vaultproject.io/docs/agent/).
+
+  Thanks to [@murphymj25](https://github.com/murphymj25) for the patch.
+
 ### [v1.5.11](https://github.com/fabiolb/fabio/releases/tag/v1.5.11) - 25 Feb 2019
 
 #### Breaking Changes

@@ -572,6 +572,8 @@ func parseCertSource(cfg map[string]string) (c CertSource, err error) {
 				return CertSource{}, err
 			}
 			c.Refresh = d
+		case "vaultfetchtoken":
+			c.VaultFetchToken = v
 		case "hdr":
 			p := strings.SplitN(v, ": ", 2)
 			if len(p) != 2 {
