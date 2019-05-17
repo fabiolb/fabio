@@ -2,6 +2,22 @@
 
 ### Unreleased
 
+#### Breaking Changes
+
+* [Issue #657](https://github.com/fabiolb/fabio/issues/657): Fix default registration address
+
+  fabio used to register its UI in Consul with address `:9998`, even if
+  `-ui.addr` was set to a different value. That made it necessary to specify
+  both `-ui.addr` and `-registry.consul.register.addr` in most cases. Now
+  `-registry.consul.register.addr` defaults to the value of `-ui.addr`.
+
+  If you set `-ui.addr` to something other than `:9998` and intentionally
+  omitted the `-registry.consul.register.addr` flag (because the UI is behind a
+  proxy, for instance), you will now have to set `-registry.consul.register.addr=:9998`
+  to get the previous behavior.
+
+  Thanks to [@ttais2017](https://github.com/ttais2017) for the report.
+
 #### Improvements
 
 * [PR #620](https://github.com/fabiolb/fabio/pull/620): Read Vault token from file

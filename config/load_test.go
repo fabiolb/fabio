@@ -874,6 +874,7 @@ func TestLoad(t *testing.T) {
 			cfg: func(cfg *Config) *Config {
 				cfg.UI.Listen.Addr = "1.2.3.4:5555"
 				cfg.UI.Listen.Proto = "http"
+				cfg.Registry.Consul.ServiceAddr = "1.2.3.4:5555"
 				return cfg
 			},
 		},
@@ -886,6 +887,7 @@ func TestLoad(t *testing.T) {
 				cfg.UI.Listen.CertSource.Type = "file"
 				cfg.UI.Listen.CertSource.CertPath = "value"
 				cfg.Registry.Consul.CheckScheme = "https"
+				cfg.Registry.Consul.ServiceAddr = ":9998"
 				return cfg
 			},
 		},
