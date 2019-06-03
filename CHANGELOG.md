@@ -80,11 +80,11 @@
 
   Thanks to [@stack72](https://github.com/stack72) for the patch.
 
-* [PR #583](https://github.com/fabiolb/fabio/pull/583): Make dest column clickable
+* [PR #583](https://github.com/fabiolb/fabio/pull/583): Update PROXY protocol docs
 
   This patch updates the documentation around the PROXY protocol.
 
-  Thanks to [@pschultz](https://github.com/pschultz).
+  Thanks to [@leprechau](https://github.com/leprechau).
 
 * [PR #587](https://github.com/fabiolb/fabio/pull/587): Make dest column clickable
 
