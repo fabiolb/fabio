@@ -52,7 +52,7 @@ func register(c *api.Client, service *api.AgentServiceRegistration) chan bool {
 	}
 
 	deregister := func(serviceID string) {
-		log.Printf("[INFO] consul: Deregistering %s", service.Name)
+		log.Printf("[INFO] consul: Deregistering %q", service.Name)
 		c.Agent().ServiceDeregister(serviceID)
 	}
 

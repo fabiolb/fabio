@@ -29,7 +29,7 @@ func NewServiceMonitor(client *api.Client, config *config.Consul, dc string) *Se
 }
 
 // Watch monitors the consul health checks and sends a new
-// configuration to the updates channnel on every change.
+// configuration to the updates channel on every change.
 func (w *ServiceMonitor) Watch(updates chan string) {
 	var lastIndex uint64
 	for {

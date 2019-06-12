@@ -99,11 +99,10 @@ func (b *be) Deregister(service string) error {
 
 func (b *be) DeregisterAll() error {
 	log.Printf("[DEBUG]: consul: Deregistering all registered aliases.")
-	for name, dereg := range b.dereg {
+	for _, dereg := range b.dereg {
 		if dereg == nil {
 			continue
 		}
-		log.Printf("[INFO] consul: Deregistering %q", name)
 		dereg <- true // trigger deregistration
 		<-dereg       // wait for completion
 	}
