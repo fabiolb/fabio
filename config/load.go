@@ -239,6 +239,21 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 		return nil, err
 	}
 
+	for name, c := range certSources {
+		if c.Type != "mux" {
+			continue
+		}
+		deps := strings.Split(c.CertPath, "+")
+		for _, d := range deps {
+			s, ok := certSources[d]
+			if !ok {
+				return nil, fmt.Errorf("%s (%s): unknown cert source %q", c.Name, c.Type, d)
+			}
+			c.Deps = append(c.Deps, s)
+		}
+		certSources[name] = c
+	}
+
 	authSchemes, err := parseAuthSchemes(authSchemesValue)
 
 	if err != nil {
@@ -599,7 +614,7 @@ func parseCertSource(cfg map[string]string) (c CertSource, err error) {
 	switch c.Type {
 	case "":
 		return CertSource{}, fmt.Errorf("missing 'type' in %s", cfg)
-	case "file", "consul":
+	case "file", "consul", "mux":
 		c.Refresh = 0
 	case "path", "http", "vault", "vault-pki":
 		// no-op

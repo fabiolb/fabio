@@ -31,6 +31,8 @@ type CertSource struct {
 	Refresh         time.Duration
 	Header          http.Header
 	VaultFetchToken string
+
+	Deps []CertSource
 }
 
 type Listen struct {

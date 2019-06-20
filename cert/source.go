@@ -80,6 +80,16 @@ func NewSource(cfg config.CertSource) (Source, error) {
 		src.Refresh = cfg.Refresh
 		src.Client = NewVaultClient(cfg.VaultFetchToken)
 		return src, nil
+	case "mux":
+		var deps []Source
+		for _, c := range cfg.Deps {
+			dep, err := NewSource(c)
+			if err != nil {
+				return nil, err
+			}
+			deps = append(deps, dep)
+		}
+		return NewMux(deps), nil
 
 	default:
 		return nil, fmt.Errorf("invalid certificate source %q", cfg.Type)
