@@ -175,6 +175,7 @@ type Tracing struct {
 	Topic          string
 	SamplerRate    float64
 	SpanHost       string
+	TraceID128Bit  bool
 }
 
 type AuthScheme struct {

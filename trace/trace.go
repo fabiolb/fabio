@@ -47,12 +47,12 @@ func CreateCollector(collectorType, connectString, topic string) zipkin.Collecto
 	return collector
 }
 
-func CreateTracer(recorder zipkin.SpanRecorder, samplerRate float64) opentracing.Tracer {
+func CreateTracer(recorder zipkin.SpanRecorder, samplerRate float64, traceID128Bit bool) opentracing.Tracer {
 	tracer, err := zipkin.NewTracer(
 		recorder,
 		zipkin.WithSampler(zipkin.NewBoundarySampler(samplerRate, 1)),
 		zipkin.ClientServerSameSpan(false),
-		zipkin.TraceID128Bit(true),
+		zipkin.TraceID128Bit(traceID128Bit),
 	)
 
 	if err != nil {
@@ -93,7 +93,7 @@ func InitializeTracer(traceConfig *config.Tracing) {
 	// Create a new Zipkin Collector, Recorder, and Tracer
 	collector := CreateCollector(traceConfig.CollectorType, traceConfig.ConnectString, traceConfig.Topic)
 	recorder := zipkin.NewRecorder(collector, false, traceConfig.SpanHost, traceConfig.ServiceName)
-	tracer := CreateTracer(recorder, traceConfig.SamplerRate)
+	tracer := CreateTracer(recorder, traceConfig.SamplerRate, traceConfig.TraceID128Bit)
 
 	// Set the Zipkin Tracer created above to the GlobalTracer
 	opentracing.SetGlobalTracer(tracer)
