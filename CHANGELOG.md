@@ -32,6 +32,15 @@
 
   Thanks to [@murphymj25](https://github.com/murphymj25) for the patch.
 
+* [PR #664](https://github.com/fabiolb/fabio/issues/664): Clean-up fabio service entries in Consul on dirty exit
+
+  In the case fabio dies abruptly, the steps to deregister any fabio-related services in Consul will not take place.
+  In certain cases this could result in duplicate service and check entries after fabio restarts, especially if fabio runs in a Docker container.
+
+  This PR addresses this issue by registering an additional TTL check that acts as a deadman switch and removes abandoned service registrations eventually.
+
+  Thanks to [@pires](https://github.com/pires) for the [report](https://github.com/fabiolb/fabio/issues/663) and the fix.
+
 * [PR #669](https://github.com/fabiolb/fabio/pull/669): Add option for downgrading tracing IDs to 64 bit
 
   When tracing is enabled, fabio injected 128 bit root span IDs if necessary.
