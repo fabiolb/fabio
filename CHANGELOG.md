@@ -41,6 +41,17 @@
 
   Thanks to [@pires](https://github.com/pires) for the [report](https://github.com/fabiolb/fabio/issues/663) and the fix.
 
+* [PR #669](https://github.com/fabiolb/fabio/pull/669): Add option for downgrading tracing IDs to 64 bit
+
+  When tracing is enabled, fabio injected 128 bit root span IDs if necessary.
+  This can now be downgraded to 64 bit IDs by setting the new
+  `tracing.TraceID128Bit` option to false.
+
+  Existing 128 bit trace IDs in incoming requests are not affected by this
+  option and forwarded unchanged.
+
+  Thanks to [@gfloyd](https://github.com/gfloyd) for the patch.
+
 ### [v1.5.11](https://github.com/fabiolb/fabio/releases/tag/v1.5.11) - 25 Feb 2019
 
 #### Breaking Changes
