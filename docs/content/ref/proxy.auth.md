@@ -6,8 +6,7 @@ title: "proxy.auth"
 
 Each authorization scheme is configured with a list of
 key/value options. Each scheme must have a unique
-name which can then be referred to in a listener
-configuration.
+name which can then be referred to in a routing rule.
 
     name=<name>;type=<type>;opt=arg;opt[=arg];...
 
