@@ -162,6 +162,10 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if t.Opts["path"] != ""  && strings.HasPrefix(t.Opts["path"], "/") {
+		targetURL.Path = t.Opts["path"] + targetURL.Path
+	}
+
 	//Add OpenTrace Headers to response
 	trace.InjectHeaders(span, r)
 
