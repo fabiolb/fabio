@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"sort"
@@ -341,11 +342,11 @@ func (t Table) matchingHosts(req *http.Request) (hosts []string) {
 	// the correct result we need to reverse the strings, sort them and then
 	// reverse them again.
 	for i, h := range hosts {
-		hosts[i] = Reverse(h)
+		hosts[i] = ReverseHostPort(h)
 	}
 	sort.Sort(sort.Reverse(sort.StringSlice(hosts)))
 	for i, h := range hosts {
-		hosts[i] = Reverse(h)
+		hosts[i] = ReverseHostPort(h)
 	}
 	return
 }
@@ -368,15 +369,25 @@ func (t Table) matchingHostNoGlob(req *http.Request) (hosts []string) {
 	return
 }
 
-// Reverse returns its argument string reversed rune-wise left to right.
-//
-// taken from https://github.com/golang/example/blob/master/stringutil/reverse.go
-func Reverse(s string) string {
-	r := []rune(s)
+// ReverseHostPort returns its argument string reversed rune-wise left to
+// right. If s includes a port, only the host part is reversed.
+func ReverseHostPort(s string) string {
+	h, p, _ := net.SplitHostPort(s)
+	if h == "" {
+		h = s
+	}
+
+	// Taken from https://github.com/golang/example/blob/master/stringutil/reverse.go
+	r := []rune(h)
 	for i, j := 0, len(r)-1; i < len(r)/2; i, j = i+1, j-1 {
 		r[i], r[j] = r[j], r[i]
 	}
-	return string(r)
+
+	if p == "" {
+		return string(r)
+	} else {
+		return net.JoinHostPort(string(r), p)
+	}
 }
 
 // Lookup finds a target url based on the current matcher and picker
