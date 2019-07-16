@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"strconv"
 	"strings"
@@ -638,6 +639,32 @@ func TestTableLookup(t *testing.T) {
 		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher, tt.globEnabled).URL.String(), tt.dst; got != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
+	}
+}
+
+func TestTableLookup_656(t *testing.T) {
+	// A typical HTTPS redirect
+	s := `
+	route add my-service example.com:80/ https://example.com$path opts "redirect=301"
+	route add my-service example.com/ http://127.0.0.1:3000/
+	`
+
+	tbl, err := NewTable(bytes.NewBufferString(s))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest("GET", "http://example.com/foo", nil)
+	target := tbl.Lookup(req, "redirect", rrPicker, prefixMatcher, false)
+
+	if target == nil {
+		t.Fatal("No route match")
+	}
+	if got, want := target.RedirectCode, 301; got != want {
+		t.Errorf("target.RedirectCode = %d, want %d", got, want)
+	}
+	if got, want := fmt.Sprint(target.RedirectURL), "https://example.com/foo"; got != want {
+		t.Errorf("target.RedirectURL = %s, want %s", got, want)
 	}
 }
 
