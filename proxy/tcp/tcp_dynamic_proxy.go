@@ -52,7 +52,6 @@ func (p *DynamicProxy) ServeTCP(in net.Conn) error {
 	}
 
 	out, err := net.DialTimeout("tcp", addr, p.DialTimeout)
-	defer out.Close()
 	if err != nil {
 		log.Print("[WARN] tcp: cannot connect to upstream ", addr)
 		if p.ConnFail != nil {
@@ -60,6 +59,7 @@ func (p *DynamicProxy) ServeTCP(in net.Conn) error {
 		}
 		return err
 	}
+	defer out.Close()
 
 	errc := make(chan error, 2)
 	cp := func(dst io.Writer, src io.Reader, c metrics.Counter) {
