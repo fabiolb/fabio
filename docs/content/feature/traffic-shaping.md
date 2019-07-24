@@ -19,3 +19,12 @@ publishing the same prefix.
 route weight service-b www.kjca.dev/auth/ weight 0.05 tags "version-15,dc-fra"
 ```
 
+### Vault Example
+
+[Vault](https://www.vaultproject.io) is a tool by [HashiCorp](https://www.hashicorp.com/) for managing secrets and protecting sensitive data. When running in HA mode, Vault will have a single active node which is responsible for responding the API requests. Fabio can be used to ensure traffic is routed to the correct server via traffic shaping.
+
+The following command will allocate 100% of traffic to `vault.company.com` to the instance of `vault` which is registered with the tag `active`.
+
+```
+route weight vault vault.company.com weight 1.00 tags "active"
+```
