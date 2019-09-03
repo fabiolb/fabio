@@ -26,6 +26,7 @@ route add <svc> <src> <dst>[ weight <w>][ tags "<t1>,<t2>,..."][ opts "k1=v1 k2=
     Valid options are:
 
 	  strip=/path        : forward '/path/to/file' as '/to/file'
+	  prepend=/prefix    : forward '/path/to/file' as '/prefix/path/to/file'
 	  proto=tcp          : upstream service is TCP, dst is ':port'
 	  proto=https        : upstream service is HTTPS
 	  tlsskipverify=true : disable TLS cert validation for HTTPS upstream

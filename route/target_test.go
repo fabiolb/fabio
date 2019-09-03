@@ -153,6 +153,26 @@ func TestTarget_BuildRedirectURL(t *testing.T) {
 				{req: "/stripme/abc/?aaa=1", want: "https://bar.com/bbb/abc/?aaa=1"},
 			},
 		},
+		{ // prepend prefix
+			route: "route add svc / http://bar.com/$path opts \"prepend=/prefix\"",
+			tests: []routeTest{
+				{req: "/", want: "http://bar.com/prefix/"},
+				{req: "/abc", want: "http://bar.com/prefix/abc"},
+				{req: "/a/b/c", want: "http://bar.com/prefix/a/b/c"},
+				{req: "/?aaa=1", want: "http://bar.com/prefix/?aaa=1"},
+				{req: "/abc/?aaa=1", want: "http://bar.com/prefix/abc/?aaa=1"},
+			},
+		},
+		{ // strip & prepend prefix
+			route: "route add svc / http://bar.com/$path opts \"prepend=/prefix strip=/stripme\"",
+			tests: []routeTest{
+				{req: "/stripme/", want: "http://bar.com/prefix/"},
+				{req: "/stripme/abc", want: "http://bar.com/prefix/abc"},
+				{req: "/stripme/a/b/c", want: "http://bar.com/prefix/a/b/c"},
+				{req: "/stripme/?aaa=1", want: "http://bar.com/prefix/?aaa=1"},
+				{req: "/stripme/abc/?aaa=1", want: "http://bar.com/prefix/abc/?aaa=1"},
+			},
+		},
 	}
 	firstRoute := func(tbl Table) *Route {
 		for _, routes := range tbl {

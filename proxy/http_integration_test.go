@@ -211,6 +211,34 @@ func TestProxyStripsPath(t *testing.T) {
 	}
 }
 
+func TestProxyPrependsPath(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.RequestURI {
+		case "/foo/bar":
+			w.Write([]byte("OK"))
+		default:
+			w.WriteHeader(404)
+		}
+	}))
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Transport: http.DefaultTransport,
+		Lookup: func(r *http.Request) *route.Target {
+			tbl, _ := route.NewTable(bytes.NewBufferString("route add mock /bar " + server.URL + ` opts "prepend=/foo"`))
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
+		},
+	})
+	defer proxy.Close()
+
+	resp, body := mustGet(proxy.URL + "/bar")
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
+		t.Fatalf("got status %d want %d", got, want)
+	}
+	if got, want := string(body), "OK"; got != want {
+		t.Fatalf("got body %q want %q", got, want)
+	}
+}
+
 func TestProxyHost(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, r.Host)

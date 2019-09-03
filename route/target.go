@@ -21,6 +21,10 @@ type Target struct {
 	// request path
 	StripPath string
 
+	// PrependPath will be added to the front of the outgoing
+	// request path (after StripPath has been removed)
+	PrependPath string
+
 	// TLSSkipVerify disables certificate validation for upstream
 	// TLS connections.
 	TLSSkipVerify bool
@@ -101,6 +105,11 @@ func (t *Target) BuildRedirectURL(requestURL *url.URL) {
 			if strings.HasPrefix(replaceRawPath, t.StripPath) {
 				replaceRawPath = replaceRawPath[len(t.StripPath):]
 			}
+		}
+		// add prepend path
+		if t.PrependPath != "" {
+			replacePath = t.PrependPath + replacePath
+			replaceRawPath = t.PrependPath + replaceRawPath
 		}
 		// do path replacement
 		t.RedirectURL.Path = strings.Replace(t.RedirectURL.Path, "$path", replacePath, 1)

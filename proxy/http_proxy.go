@@ -157,6 +157,15 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if t.PrependPath != "" {
+		targetURL.Path = t.PrependPath + targetURL.Path
+		// ensure absolute path after stripping to maintain compliance with
+		// section 5.3 of RFC7230 (https://tools.ietf.org/html/rfc7230#section-5.3)
+		if !strings.HasPrefix(targetURL.Path, "/") {
+			targetURL.Path = "/" + targetURL.Path
+		}
+	}
+
 	if err := addHeaders(r, p.Config, t.StripPath); err != nil {
 		http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
 		return

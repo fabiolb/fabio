@@ -72,6 +72,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 
 	if opts != nil {
 		t.StripPath = opts["strip"]
+		t.PrependPath = opts["prepend"]
 		t.TLSSkipVerify = opts["tlsskipverify"] == "true"
 		t.Host = opts["host"]
 		t.ProxyProto = opts["pxyproto"] == "true"
