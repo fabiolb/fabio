@@ -173,6 +173,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Registry.Consul.KVPath, "registry.consul.kvpath", defaultConfig.Registry.Consul.KVPath, "consul KV path for manual overrides")
 	f.StringVar(&cfg.Registry.Consul.NoRouteHTMLPath, "registry.consul.noroutehtmlpath", defaultConfig.Registry.Consul.NoRouteHTMLPath, "consul KV path for HTML returned when no route is found")
 	f.StringVar(&cfg.Registry.Consul.TagPrefix, "registry.consul.tagprefix", defaultConfig.Registry.Consul.TagPrefix, "prefix for consul tags")
+	f.BoolVar(&cfg.Registry.Consul.UseConsulServiceAddr, "registry.consul.useconsulserviceaddr", defaultConfig.Registry.Consul.UseConsulServiceAddr, "Use consul address instead of service address")
 	f.StringVar(&cfg.Registry.Consul.TLS.KeyFile, "registry.consul.tls.keyfile", defaultConfig.Registry.Consul.TLS.KeyFile, "path to consul key file")
 	f.StringVar(&cfg.Registry.Consul.TLS.CertFile, "registry.consul.tls.certfile", defaultConfig.Registry.Consul.TLS.CertFile, "path to consul cert file")
 	f.StringVar(&cfg.Registry.Consul.TLS.CAFile, "registry.consul.tls.cafile", defaultConfig.Registry.Consul.TLS.CAFile, "path to consul CA file")

@@ -21,6 +21,8 @@ type routecmd struct {
 	prefix string
 
 	env map[string]string
+
+	useConsulAddress bool
 }
 
 func (r routecmd) build() []string {
@@ -40,7 +42,7 @@ func (r routecmd) build() []string {
 			name, addr, port := r.svc.ServiceName, r.svc.ServiceAddress, r.svc.ServicePort
 
 			// use consul node address if service address is not set
-			if addr == "" {
+			if r.useConsulAddress || addr == "" {
 				addr = r.svc.Address
 			}
 

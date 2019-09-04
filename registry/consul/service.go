@@ -126,6 +126,7 @@ func (w *ServiceMonitor) serviceConfig(name string, passing map[string]bool) (co
 			svc:    svc,
 			env:    env,
 			prefix: w.config.TagPrefix,
+			useConsulAddress: w.config.UseConsulServiceAddr,
 		}
 		cmds := r.build()
 
