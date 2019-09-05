@@ -19,5 +19,8 @@ RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
 COPY --from=build /go/src/github.com/fabiolb/fabio/fabio /usr/bin
 ADD fabio.properties /etc/fabio/fabio.properties
 EXPOSE 9998 9999
-ENTRYPOINT ["/usr/bin/fabio"]
-CMD ["-cfg", "/etc/fabio/fabio.properties"]
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["fabio"]
