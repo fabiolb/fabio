@@ -403,7 +403,7 @@ func (t Table) Lookup(req *http.Request, trace string, pick picker, match matche
 	}
 
 	if target != nil && trace != "" {
-		log.Printf("[TRACE] %s Routing to service %s on %s", trace, target.Service, target.URL)
+		log.Printf("[INFO] %s Routing to service %s on %s", trace, target.Service, target.URL)
 	}
 
 	return target
