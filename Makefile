@@ -56,11 +56,11 @@ gofmt:
 
 # linux builds a linux binary
 linux:
-	GOOS=linux GOARCH=amd64 go build -tags netgo $(GOFLAGS)
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags netgo $(GOFLAGS)
 
 # install runs go install
 install:
-	go install -mod=vendor $(GOFLAGS)
+	CGO_ENABLED=0 go install -trimpath -mod=vendor $(GOFLAGS)
 
 # pkg builds a fabio.tar.gz package with only fabio in it
 pkg: build test
