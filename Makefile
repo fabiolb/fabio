@@ -43,12 +43,16 @@ help:
 	@echo "clean     - remove temp files"
 
 # build compiles fabio and the test dependencies
-build: gofmt
+build: gofmt mod
 	go build -mod=vendor
 
 # test runs the tests
 test: build
 	go test -mod=vendor -v -test.timeout 15s ./...
+
+mod:
+	go mod tidy
+	go mod vendor
 
 # gofmt runs gofmt on the code
 gofmt:
