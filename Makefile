@@ -24,10 +24,6 @@ GORELEASER = $(shell which goreleaser)
 CI_CONSUL_VERSION=1.6.1
 CI_VAULT_VERSION=1.2.3
 
-# force go modules
-GO111MODULE = on
-export GO111MODULE
-
 # all is the default target
 all: test
 
