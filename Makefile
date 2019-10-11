@@ -21,8 +21,8 @@ GOVERSION = $(shell go version | awk '{print $$3;}')
 GORELEASER = $(shell which goreleaser)
 
 # pin versions for CI builds
-CI_CONSUL_VERSION=1.4.2
-CI_VAULT_VERSION=1.0.3
+CI_CONSUL_VERSION=1.6.1
+CI_VAULT_VERSION=1.2.3
 
 # force go modules
 GO111MODULE = on
