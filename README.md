@@ -22,11 +22,16 @@
 
 ---
 
-#### Note
+#### Notes
 
-If you are confused about the commit order for the v1.5.11 release please
-check the [Release Notes](https://github.com/fabiolb/fabio/releases/tag/v1.5.11)
-for an explanation.
+1. If you are confused about the commit order for the v1.5.11 release please
+   check the [Release Notes](https://github.com/fabiolb/fabio/releases/tag/v1.5.11)
+   for an explanation.
+
+1. The 1.5.11 tag was wrongly pointing to commit 0297494e9a00f87d3e387b8c6ff0408c2f5db6a0
+   instead of commit 446fbba59da42ed73df67c3d738b9945dbf0790a. I have updated the v1.5.11
+   tag to point to the correct version and created v1.5.11-wrong tag to point to the
+   old (wrong) version.
 
 ---
 
