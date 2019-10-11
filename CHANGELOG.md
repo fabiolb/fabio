@@ -1,10 +1,10 @@
 ## Changelog
 
-### Unreleased
+### [v1.5.12](https://github.com/fabiolb/fabio/releases/tag/v1.5.12) - 11 Oct 2019
 
 #### Breaking Changes
 
-* [Issue #657](https://github.com/fabiolb/fabio/issues/657): Fix default registration address
+ * [Issue #657](https://github.com/fabiolb/fabio/issues/657): Fix default registration address
 
   fabio used to register its UI in Consul with address `:9998`, even if
   `-ui.addr` was set to a different value. That made it necessary to specify
@@ -20,7 +20,37 @@
 
 #### Improvements
 
-* [PR #620](https://github.com/fabiolb/fabio/pull/620): Read Vault token from file
+ * [PR #677](https://github.com/fabiolb/fabio/pull/677): Add Vault example to the traffic shaping section. (@jrasell)
+
+ * [PR #675](https://github.com/fabiolb/fabio/pull/675): Fix matching priority for host:port tuples (@pschultz)
+
+ * [PR #664](https://github.com/fabiolb/fabio/issues/664): Clean-up fabio service entries in Consul on dirty exit
+
+  In the case fabio dies abruptly, the steps to deregister any fabio-related services in Consul will not take place.
+  In certain cases this could result in duplicate service and check entries after fabio restarts, especially if fabio runs in a Docker container.
+
+  This PR addresses this issue by registering an additional TTL check that acts as a deadman switch and removes abandoned service registrations eventually.
+
+  Thanks to [@pires](https://github.com/pires) for the [report](https://github.com/fabiolb/fabio/issues/663) and the fix.
+
+ * [PR #669](https://github.com/fabiolb/fabio/pull/669): Add option for downgrading tracing IDs to 64 bit
+
+  When tracing is enabled, fabio injected 128 bit root span IDs if necessary.
+  This can now be downgraded to 64 bit IDs by setting the new
+  `tracing.TraceID128Bit` option to false.
+
+  Existing 128 bit trace IDs in incoming requests are not affected by this
+  option and forwarded unchanged.
+
+  Thanks to [@gfloyd](https://github.com/gfloyd) for the patch.
+
+ * [PR #624](https://github.com/fabiolb/fabio/pull/624): added support for profile/tracing (@galen0624)
+
+ * [PR #641](https://github.com/fabiolb/fabio/pull/641): ui: Remove duplicate destination column (@pschultz)
+
+ * [PR #658](https://github.com/fabiolb/fabio/pull/658): config: let registry.consul.register.addr default to ui.addr  enhancement (@pschultz)
+
+ * [PR #620](https://github.com/fabiolb/fabio/pull/620): Read Vault token from file
 
   The new `vaultfetchtoken` option for the vault and vault-pki certificate
   sources can be used to load Vault tokens from environment variables other
@@ -32,25 +62,35 @@
 
   Thanks to [@murphymj25](https://github.com/murphymj25) for the patch.
 
-* [PR #664](https://github.com/fabiolb/fabio/issues/664): Clean-up fabio service entries in Consul on dirty exit
+ * [PR #643](https://github.com/fabiolb/fabio/pull/643): Bundle UI assets (@pschultz)
 
-  In the case fabio dies abruptly, the steps to deregister any fabio-related services in Consul will not take place.
-  In certain cases this could result in duplicate service and check entries after fabio restarts, especially if fabio runs in a Docker container.
+ * [PR #653](https://github.com/fabiolb/fabio/pull/653): Use go-sockaddr to parse address strings (@leprechau)
 
-  This PR addresses this issue by registering an additional TTL check that acts as a deadman switch and removes abandoned service registrations eventually.
+ * [PR #655](https://github.com/fabiolb/fabio/pull/655): Fix SSE by implementing Flusher in responseWriter wrapper (@gfloyd)
 
-  Thanks to [@pires](https://github.com/pires) for the [report](https://github.com/fabiolb/fabio/issues/663) and the fix.
+ * [PR #645](https://github.com/fabiolb/fabio/pull/645): ensure absolute path after strip to maintain rfc complaince (@leprechau)
 
-* [PR #669](https://github.com/fabiolb/fabio/pull/669): Add option for downgrading tracing IDs to 64 bit
+ * [PR #629](https://github.com/fabiolb/fabio/pull/629): Issue 595 watchbackend (@murphymj25)
 
-  When tracing is enabled, fabio injected 128 bit root span IDs if necessary.
-  This can now be downgraded to 64 bit IDs by setting the new
-  `tracing.TraceID128Bit` option to false.
+ * [PR #639](https://github.com/fabiolb/fabio/pull/639): use vendor directory when building - fixes #638 (@leprechau)
 
-  Existing 128 bit trace IDs in incoming requests are not affected by this
-  option and forwarded unchanged.
+ * [PR #637](https://github.com/fabiolb/fabio/pull/637): fix exit status code  enhancement (@ianic)
 
-  Thanks to [@gfloyd](https://github.com/gfloyd) for the patch.
+ * [PR #602](https://github.com/fabiolb/fabio/pull/602): added support for Consul TLS transport (@sev3ryn)
+
+ * [PR #610](https://github.com/fabiolb/fabio/pull/610): Improved basic auth htpasswd file refresh #604 (@mfuterko)
+
+ * [PR #614](https://github.com/fabiolb/fabio/pull/614): Issue 611 Added Custom API Driven Back end (@galen0624)
+
+ * [PR #617](https://github.com/fabiolb/fabio/pull/617): Fix newBasicAuth function to pass the test (@mfuterko)
+
+ * [PR #607](https://github.com/fabiolb/fabio/pull/607): Address #545 - wrong use function strings.HasPrefix (@mfuterko)
+
+ * [PR #604](https://github.com/fabiolb/fabio/pull/604): Implement basic auth htpasswd file refresh (@mfuterko)
+
+ * [PR #606](https://github.com/fabiolb/fabio/pull/606): docs: fix layout without JS enabled (@pschultz)
+
+ * [PR #598](https://github.com/fabiolb/fabio/pull/598): Proxy protocol on outbound tcp, tcp+sni and tcp with tls connection (@mfuterko)
 
 ### [v1.5.11](https://github.com/fabiolb/fabio/releases/tag/v1.5.11) - 25 Feb 2019
 
