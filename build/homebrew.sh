@@ -4,6 +4,7 @@
 
 set -o nounset
 set -o errexit
+set -o pipefail
 
 readonly prgdir=$(cd $(dirname $0); pwd)
 readonly brewdir=$(brew --prefix)/Homebrew/Library/Taps/homebrew/homebrew-core
@@ -26,6 +27,10 @@ brew update
 	cd $brewdir
 	git checkout -b fabio-$v origin/master
 	vim -u NONE -s $prgdir/homebrew.vim $brewdir/Formula/fabio.rb
+	brew install --build-from-source fabio
+	brew test fabio
+	brew install fabio
+	brew audit --strict fabio
 	git add Formula/fabio.rb
 	git commit -m "fabio $v"
 	git push --set-upstream magiconair fabio-$v
