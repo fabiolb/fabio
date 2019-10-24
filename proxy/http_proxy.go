@@ -80,7 +80,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Create Span
-	span := trace.CreateSpan(r, p.TracerCfg.ServiceName)
+	span := trace.CreateSpan(r)
 	defer span.Finish()
 
 	t := p.Lookup(r)

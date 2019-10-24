@@ -24,7 +24,7 @@ func TestCreateSpanNoGlobalTracer(t *testing.T) {
 	opentracing.SetGlobalTracer(nil)
 	req, _ := http.NewRequest("GET", "http://example.com", nil)
 
-	if CreateSpan(req, testServiceName) != nil {
+	if CreateSpan(req) != nil {
 		t.Error("CreateSpan returned a non-nil result using a nil global tracer.")
 		t.Fail()
 	}
@@ -35,7 +35,7 @@ func TestCreateSpanWithNoParent(t *testing.T) {
 	opentracing.SetGlobalTracer(tracer)
 
 	req, _ := http.NewRequest("GET", "http://example.com", nil)
-	if CreateSpan(req, testServiceName) == nil {
+	if CreateSpan(req) == nil {
 		t.Error("Received nil span while a global tracer was set.")
 		t.FailNow()
 	}
@@ -53,7 +53,7 @@ func TestCreateSpanWithParent(t *testing.T) {
 		opentracing.HTTPHeadersCarrier(requestIn.Header),
 	)
 
-	if CreateSpan(requestIn, testServiceName+"-child") == nil {
+	if CreateSpan(requestIn) == nil {
 		t.Error("Received a nil span while a global tracer was set.")
 		t.FailNow()
 	}

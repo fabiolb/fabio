@@ -63,18 +63,22 @@ func CreateTracer(recorder zipkin.SpanRecorder, samplerRate float64, traceID128B
 	return tracer
 }
 
-func CreateSpan(r *http.Request, serviceName string) opentracing.Span {
+func CreateSpan(r *http.Request) opentracing.Span {
 	globalTracer := opentracing.GlobalTracer()
+
+	operationName := fmt.Sprintf("HTTP %v %v", r.Method, r.URL.Path)
 
 	// If headers contain trace data, create child span from parent; else, create root span
 	var span opentracing.Span
 	if globalTracer != nil {
 		spanCtx, err := globalTracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(r.Header))
 		if err != nil {
-			span = globalTracer.StartSpan(serviceName)
+			span = globalTracer.StartSpan(operationName)
 		} else {
-			span = globalTracer.StartSpan(serviceName, ext.RPCServerOption(spanCtx))
+			span = globalTracer.StartSpan(operationName, ext.RPCServerOption(spanCtx))
 		}
+		ext.HTTPMethod.Set(span, r.Method)
+		ext.HTTPUrl.Set(span, r.URL.String())
 	}
 
 	return span // caller must defer span.finish()
