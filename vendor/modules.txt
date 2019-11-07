@@ -2,7 +2,7 @@
 github.com/Shopify/sarama
 # github.com/apache/thrift v0.0.0-20181028152738-da1169d75b15
 github.com/apache/thrift/lib/go/thrift
-# github.com/armon/go-proxyproto v0.0.0-20180202201750-5b7edb60ff5f
+# github.com/armon/go-proxyproto v0.0.0-20180202201750-5b7edb60ff5f => github.com/vxcontrol/go-proxyproto v0.0.0-20180617143344-42968e5a25cc
 github.com/armon/go-proxyproto
 # github.com/circonus-labs/circonus-gometrics v2.2.4+incompatible
 github.com/circonus-labs/circonus-gometrics
@@ -73,6 +73,8 @@ github.com/hashicorp/hcl/json/token
 github.com/hashicorp/serf/coordinate
 # github.com/hashicorp/vault v0.6.0
 github.com/hashicorp/vault/api
+# github.com/konsorten/go-windows-terminal-sequences v1.0.1
+github.com/konsorten/go-windows-terminal-sequences
 # github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515
 github.com/kr/logfmt
 # github.com/magiconair/properties v0.0.0-20171031211101-49d762b9817b
@@ -117,6 +119,8 @@ github.com/rcrowley/go-metrics
 github.com/rogpeppe/fastuuid
 # github.com/sergi/go-diff v0.0.0-20170118131230-24e2351369ec
 github.com/sergi/go-diff/diffmatchpatch
+# github.com/sirupsen/logrus v1.2.0
+github.com/sirupsen/logrus
 # github.com/tg123/go-htpasswd v0.0.0-20190305225429-d38e564730bf
 github.com/tg123/go-htpasswd
 # github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926
@@ -124,6 +128,7 @@ github.com/tv42/httpunix
 # golang.org/x/crypto v0.0.0-20181112202954-3d3f9f413869
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
+golang.org/x/crypto/ssh/terminal
 # golang.org/x/net v0.0.0-20181114220301-adae6a3d119a
 golang.org/x/net/context
 golang.org/x/net/http/httpguts
@@ -137,6 +142,7 @@ golang.org/x/net/websocket
 golang.org/x/sync/singleflight
 # golang.org/x/sys v0.0.0-20181122145206-62eef0e2fa9b
 golang.org/x/sys/unix
+golang.org/x/sys/windows
 # golang.org/x/text v0.3.0
 golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
