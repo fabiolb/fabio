@@ -731,3 +731,32 @@ func TestNewTableCustom(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+func TestTable_Dump(t *testing.T) {
+	s := `
+	route add svc / http://foo.com:800
+	route add svc /foo http://foo.com:900
+	route add svc abc.com/ http://foo.com:1000
+	`
+
+	tbl, err := NewTable(bytes.NewBufferString(s))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := `+-- host=
+|   |-- path=/foo
+|   |    +-- addr=foo.com:900 weight 1.00 slots 1/1
+|   +-- path=/
+|       +-- addr=foo.com:800 weight 1.00 slots 1/1
++-- host=abc.com
+    +-- path=/
+        +-- addr=foo.com:1000 weight 1.00 slots 1/1
+`
+
+	got := tbl.Dump()
+
+	if want != got {
+		t.Errorf("Unexpected Dump() output:\nwant:\n%s\ngot:\n%s\n", want, got)
+	}
+}

@@ -1,5 +1,11 @@
 ## Changelog
 
+### Unreleased
+
+#### Bug Fixes
+
+* [Issue #719](https://github.com/fabiolb/fabio/issues/719): Fix detailed config log
+
 ### [v1.5.12](https://github.com/fabiolb/fabio/releases/tag/v1.5.12) - 11 Oct 2019
 
 #### Breaking Changes
