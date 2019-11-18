@@ -501,7 +501,7 @@ func (t Table) String() string {
 
 // Dump returns the routing table as a detailed
 func (t Table) Dump() string {
-	var w *bytes.Buffer
+	w := new(bytes.Buffer)
 
 	hosts := []string{}
 	for k := range t {
