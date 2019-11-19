@@ -1,6 +1,6 @@
 ## Changelog
 
-### Unreleased
+### [v1.5.13](https://github.com/fabiolb/fabio/releases/tag/v1.5.13) - 18 Nov 2019
 
 #### Bug Fixes
 
