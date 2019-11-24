@@ -108,3 +108,5 @@ require (
 )
 
 go 1.13
+
+replace go.uber.org/atomic => github.com/uber-go/atomic v1.4.0

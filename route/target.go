@@ -21,6 +21,10 @@ type Target struct {
 	// request path
 	StripPath string
 
+	//AddPath will be add to the front of the outgoing request path,
+	//who's priority is lower than StripPath
+	AddPath string
+
 	// TLSSkipVerify disables certificate validation for upstream
 	// TLS connections.
 	TLSSkipVerify bool

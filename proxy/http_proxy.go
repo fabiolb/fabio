@@ -157,6 +157,13 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if t.AddPath != "" {
+		targetURL.Path = t.AddPath + targetURL.Path
+		if !strings.HasPrefix(targetURL.Path, "/") {
+			targetURL.Path = "/" + targetURL.Path
+		}
+	}
+
 	if err := addHeaders(r, p.Config, t.StripPath); err != nil {
 		http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
 		return
