@@ -343,6 +343,52 @@ func startServers(cfg *config.Config) {
 					exit.Fatal("[FATAL] ", err)
 				}
 			}()
+		case "tcp-dynamic":
+			go func() {
+				var buffer strings.Builder
+				for {
+					time.Sleep(l.Refresh)
+					table := route.GetTable()
+					ports := []string{}
+					for target, rts := range table {
+						if strings.Contains(target, ":") {
+							buffer.WriteString(":")
+							buffer.WriteString(strings.Split(target, ":")[1])
+
+							schemes := tableSchemes(rts)
+							if len(schemes) == 1 && schemes[0] == "tcp" {
+								ports = append(ports, buffer.String())
+							}
+							buffer.Reset()
+						}
+						ports = unique(ports)
+					}
+					for _, port := range ports {
+						l := l
+						port := port
+						conn, err := net.Listen("tcp", port)
+						if err != nil {
+							log.Printf("[DEBUG] Dynamic TCP port %s in use", port)
+							continue
+						}
+						conn.Close()
+						log.Printf("[INFO] Starting dynamic TCP listener on port %s ", port)
+						go func() {
+							h := &tcp.DynamicProxy{
+								DialTimeout: cfg.Proxy.DialTimeout,
+								Lookup:      lookupHostFn(cfg),
+								Conn:        metrics.DefaultRegistry.GetCounter("tcp.conn"),
+								ConnFail:    metrics.DefaultRegistry.GetCounter("tcp.connfail"),
+								Noroute:     metrics.DefaultRegistry.GetCounter("tcp.noroute"),
+							}
+							l.Addr = port
+							if err := proxy.ListenAndServeTCP(l, h, tlscfg); err != nil {
+								exit.Fatal("[FATAL] ", err)
+							}
+						}()
+					}
+				}
+			}()
 		default:
 			exit.Fatal("[FATAL] Invalid protocol ", l.Proto)
 		}
@@ -550,4 +596,26 @@ func toJSON(v interface{}) string {
 		panic("json: " + err.Error())
 	}
 	return string(data)
+}
+
+func unique(strSlice []string) []string {
+	keys := make(map[string]bool)
+	list := []string{}
+	for _, entry := range strSlice {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+	return list
+}
+
+func tableSchemes(r route.Routes) []string {
+	schemes := []string{}
+	for _, rt := range r {
+		for _, target := range rt.Targets {
+			schemes = append(schemes, target.URL.Scheme)
+		}
+	}
+	return unique(schemes)
 }

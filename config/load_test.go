@@ -106,6 +106,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-proxy.addr", ":5555;proto=tcp-dynamic"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "tcp-dynamic"}}
+				return cfg
+			},
+		},
+		{
 			desc: "-proxy.addr with tls configs",
 			args: []string{"-proxy.addr", `:5555;rt=1s;wt=2s;tlsmin=0x0300;tlsmax=0x305;tlsciphers="0x123,0x456"`},
 			cfg: func(cfg *Config) *Config {

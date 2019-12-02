@@ -380,7 +380,7 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 		case "proto":
 			l.Proto = v
 			switch l.Proto {
-			case "tcp", "tcp+sni", "http", "https", "grpc", "grpcs":
+			case "tcp", "tcp+sni", "tcp-dynamic", "http", "https", "grpc", "grpcs":
 				// ok
 			default:
 				return Listen{}, fmt.Errorf("unknown protocol %q", v)
@@ -435,6 +435,12 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 				return Listen{}, err
 			}
 			l.ProxyHeaderTimeout = d
+		case "refresh":
+			d, err := time.ParseDuration(v)
+			if err != nil {
+				return Listen{}, err
+			}
+			l.Refresh = d
 		}
 	}
 
@@ -444,8 +450,8 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 	if l.Addr == "" {
 		return Listen{}, fmt.Errorf("need listening host:port")
 	}
-	if csName != "" && l.Proto != "https" && l.Proto != "tcp" && l.Proto != "grpcs" {
-		return Listen{}, fmt.Errorf("cert source requires proto 'https', 'tcp' or 'grpcs'")
+	if csName != "" && l.Proto != "https" && l.Proto != "tcp" && l.Proto != "tcp-dynamic" && l.Proto != "grpcs" {
+		return Listen{}, fmt.Errorf("cert source requires proto 'https', 'tcp', 'tcp-dynamic' or 'grpcs'")
 	}
 	if csName == "" && l.Proto == "https" {
 		return Listen{}, fmt.Errorf("proto 'https' requires cert source")

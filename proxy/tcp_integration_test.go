@@ -32,6 +32,38 @@ var echoHandler tcp.HandlerFunc = func(c net.Conn) error {
 	return err
 }
 
+// TestTCPDynamicProxy tests proxying an unencrypted TCP connection
+// to a TCP upstream server.
+func TestTCPDyanmicProxy(t *testing.T) {
+	srv := tcptest.NewServer(echoHandler)
+	defer srv.Close()
+
+	// start proxy
+	proxyAddr := "127.0.0.1:57778"
+	go func() {
+		h := &tcp.DynamicProxy{
+			Lookup: func(h string) *route.Target {
+				tbl, _ := route.NewTable("route add srv 127.0.0.1:57778 tcp://" + srv.Addr)
+				return tbl.LookupHost(h, route.Picker["rr"])
+			},
+		}
+		l := config.Listen{Addr: proxyAddr}
+		if err := ListenAndServeTCP(l, h, nil); err != nil {
+			t.Log("ListenAndServeTCP: ", err)
+		}
+	}()
+	defer Close()
+
+	// connect to proxy
+	out, err := tcptest.NewRetryDialer().Dial("tcp", proxyAddr)
+	if err != nil {
+		t.Fatalf("net.Dial: %#v", err)
+	}
+	defer out.Close()
+
+	testRoundtrip(t, out)
+}
+
 // TestTCPProxy tests proxying an unencrypted TCP connection
 // to a TCP upstream server.
 func TestTCPProxy(t *testing.T) {
