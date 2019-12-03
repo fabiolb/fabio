@@ -43,7 +43,7 @@ func TestTCPDyanmicProxy(t *testing.T) {
 	go func() {
 		h := &tcp.DynamicProxy{
 			Lookup: func(h string) *route.Target {
-				tbl, _ := route.NewTable("route add srv 127.0.0.1:57778 tcp://" + srv.Addr)
+				tbl, _ := route.NewTable(bytes.NewBufferString("route add srv 127.0.0.1:57778 tcp://" + srv.Addr))
 				return tbl.LookupHost(h, route.Picker["rr"])
 			},
 		}
