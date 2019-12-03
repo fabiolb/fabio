@@ -1,28 +1,27 @@
 # CUR_TAG is the last git tag plus the delta from the current commit to the tag
 # e.g. v1.5.5-<nr of commits since>-g<current git sha>
-CUR_TAG = $(shell git describe)
+CUR_TAG ?= $(shell git describe)
 
 # LAST_TAG is the last git tag
 # e.g. v1.5.5
-LAST_TAG = $(shell git describe --abbrev=0)
+LAST_TAG ?= $(shell git describe --abbrev=0)
 
 # VERSION is the last git tag without the 'v'
 # e.g. 1.5.5
-VERSION = $(shell git describe --abbrev=0 | cut -c 2-)
+VERSION ?= $(shell git describe --abbrev=0 | cut -c 2-)
 
-# GOFLAGS is the flags for the go compiler. Currently, only the version number is
-# passed to the linker via the -ldflags.
-GOFLAGS = -ldflags "-X main.version=$(CUR_TAG)"
+# GOFLAGS is the flags for the go compiler.
+GOFLAGS ?= -mod=vendor -ldflags "-X main.version=$(CUR_TAG)"
 
 # GOVERSION is the current go version, e.g. go1.9.2
-GOVERSION = $(shell go version | awk '{print $$3;}')
+GOVERSION ?= $(shell go version | awk '{print $$3;}')
 
 # GORELEASER is the path to the goreleaser binary.
-GORELEASER = $(shell which goreleaser)
+GORELEASER ?= $(shell which goreleaser)
 
 # pin versions for CI builds
-CI_CONSUL_VERSION=1.6.1
-CI_VAULT_VERSION=1.2.3
+CI_CONSUL_VERSION ?= 1.6.1
+CI_VAULT_VERSION ?= 1.2.3
 
 # all is the default target
 all: test
@@ -40,11 +39,11 @@ help:
 
 # build compiles fabio and the test dependencies
 build: gofmt mod
-	go build -mod=vendor
+	go build
 
 # test runs the tests
 test: build
-	go test -mod=vendor -v -test.timeout 15s ./...
+	go test -v -test.timeout 15s ./...
 
 mod:
 	go mod tidy
@@ -60,7 +59,7 @@ linux:
 
 # install runs go install
 install:
-	CGO_ENABLED=0 go install -trimpath -mod=vendor $(GOFLAGS)
+	CGO_ENABLED=0 go install -trimpath $(GOFLAGS)
 
 # pkg builds a fabio.tar.gz package with only fabio in it
 pkg: build test
@@ -123,7 +122,7 @@ codeship:
 
 # clean removes intermediate files
 clean:
-	go clean -mod=vendor
+	go clean
 	rm -rf pkg dist fabio
 	find . -name '*.test' -delete
 
