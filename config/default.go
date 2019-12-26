@@ -100,6 +100,7 @@ var defaultConfig = &Config{
 		Topic:          "Fabiolb-Kafka-Topic",
 		SamplerRate:    -1,
 		SpanHost:       "localhost:9998",
+		SpanName:       "",
 		TraceID128Bit:  true,
 	},
 }

@@ -55,7 +55,7 @@ type HTTPProxy struct {
 	// Logger is the access logger for the requests.
 	Logger logger.Logger
 
-	// TracerCfg is the Open Tracing  configuration as provided during startup
+	// TracerCfg is the Open Tracing configuration as provided during startup
 	TracerCfg config.Tracing
 
 	// UUID returns a unique id in uuid format.
@@ -80,7 +80,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Create Span
-	span := trace.CreateSpan(r)
+	span := trace.CreateSpan(r, &p.TracerCfg)
 	defer span.Finish()
 
 	t := p.Lookup(r)
