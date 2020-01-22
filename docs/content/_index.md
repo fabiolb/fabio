@@ -21,6 +21,8 @@ announces the paths the upstream service accepts, e.g. `urlprefix-/user` or
 
 ### Maintainer
 
-Fabio was developed and is maintained by Frank Schröder and the great community.
+Fabio was developed and maintained by Frank Schröder through January, 2020.  Since that date primary maintenance
+has been the responsibility of [ENA](https://github.com/myENA) and the great community of users.
 
-It was originally developed at the [eBay Classifieds Group](https://www.ebayclassifiedsgroup.com/) in Amsterdam, The Netherlands.
+It was originally developed at the [eBay Classifieds Group](https://www.ebayclassifiedsgroup.com/)
+in Amsterdam, The Netherlands.

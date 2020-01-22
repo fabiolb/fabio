@@ -2,8 +2,10 @@
 
 This is the source code for the https://fabiolb.net website.
 
-It is built with [Hugo](https://gohugo.io/) and deployed automatically
-to [Netlify](https://netlify.com/).
+It is built with [Hugo](https://gohugo.io/) and automatically deployed
+via [Bamboo](https://www.atlassian.com/software/bamboo) and
+[Nomad](https://www.nomadproject.io/) to [ENA](https://github.com/myENA)'s Docker infrastructure
+and exposed through [Consul](https://consul.io/) and [Fabio](https://fabiolb.net/).
 
 The theme is [TheDocs](http://thetheme.io/thedocs/) from [TheTheme.io](http://thetheme.io/).
 

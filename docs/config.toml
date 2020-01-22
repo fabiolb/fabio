@@ -1,6 +1,7 @@
 baseURL      = "https://fabiolb.net/"
 languageCode = "en-us"
 title        = "fabio - The Consul Load-Balancer"
+disableKinds = ["taxonomy", "taxonomyTerm"]
 
 [params]
   googleAnalytics = "UA-2812942-5"

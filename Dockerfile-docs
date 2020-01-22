@@ -1,0 +1,28 @@
+FROM alpine:latest
+MAINTAINER Aaron Hurt <ahurt@ena.com>
+
+ARG hugo_version=0.62.2
+EXPOSE 1313
+
+## install hugo and other needed packages
+RUN apk update && \
+    apk add --no-cache ca-certificates && \
+    wget -q -O - \
+    https://github.com/gohugoio/hugo/releases/download/v${hugo_version}/hugo_${hugo_version}_Linux-64bit.tar.gz \
+    | tar -zxf - hugo && \
+    mv hugo /usr/local/bin/hugo && \
+    chmod 0755 /usr/local/bin/hugo
+
+## populate hugo source
+COPY docs /srv
+
+## setup hugo resource cache
+RUN mkdir -p /srv/resources && \
+chown nobody:nobody /srv/resources
+
+## do not run as root
+USER nobody
+
+## launch hugo and serve docs
+ENTRYPOINT ["/usr/local/bin/hugo"]
+CMD ["serve", "--disableFastRender", "--bind", "0.0.0.0", "--source", "/srv"]
