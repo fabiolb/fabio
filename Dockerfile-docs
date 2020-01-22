@@ -16,6 +16,10 @@ RUN apk update && \
 ## populate hugo source
 COPY docs /srv
 
+## setup hugo resource cache
+RUN mkdir -p /srv/resources && \
+chown nobody:nobody /srv/resources
+
 ## do not run as root
 USER nobody
 
