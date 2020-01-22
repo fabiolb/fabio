@@ -1,28 +1,33 @@
-FROM alpine:latest
-MAINTAINER Aaron Hurt <ahurt@ena.com>
+FROM alpine:latest AS build
 
 ARG hugo_version=0.62.2
 EXPOSE 1313
 
-## install hugo and other needed packages
-RUN apk update && \
-    apk add --no-cache ca-certificates && \
-    wget -q -O - \
+## fetch and install hugo
+RUN wget -q -O - \
     https://github.com/gohugoio/hugo/releases/download/v${hugo_version}/hugo_${hugo_version}_Linux-64bit.tar.gz \
     | tar -zxf - hugo && \
     mv hugo /usr/local/bin/hugo && \
     chmod 0755 /usr/local/bin/hugo
 
-## populate hugo source
-COPY docs /srv
+## generate static content
+COPY docs /opt/docs
+WORKDIR /opt/docs
+RUN /usr/local/bin/hugo --buildDrafts --cleanDestinationDir --destination /opt/output
 
-## setup hugo resource cache
-RUN mkdir -p /srv/resources && \
-chown nobody:nobody /srv/resources
+FROM alpine:latest
 
-## do not run as root
-USER nobody
+## install thttpd (http://acme.com/software/thttpd/)
+RUN apk add --no-cache thttpd
 
-## launch hugo and serve docs
-ENTRYPOINT ["/usr/local/bin/hugo"]
-CMD ["serve", "--disableFastRender", "--bind", "0.0.0.0", "--source", "/srv"]
+## copy static assets form build
+COPY --from=build /opt/output /var/www/http
+
+## use package user
+USER thttpd
+
+EXPOSE 1180
+
+## launch thttpd to serve static content
+ENTRYPOINT ["/usr/sbin/thttpd"]
+CMD ["-p", "1180", "-d", "/var/www/http", "-l", "/dev/stdout", "-D"]
