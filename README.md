@@ -129,9 +129,14 @@ urlprefix-:3306 proto=tcp                          # route external port 3306
 
 7. Done
 
-## Maintainers
+## Author and Founder
 
 * Frank Schroeder [@magiconair](https://twitter.com/magiconair)
+
+## Maintainers
+
+* [Education Networks of America](https://github.com/myENA/)
+* [Fabio Members](https://github.com/orgs/fabiolb/people)
 
 ### Contributors
 
