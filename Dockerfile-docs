@@ -1,7 +1,6 @@
 FROM alpine:latest AS build
 
 ARG hugo_version=0.62.2
-EXPOSE 1313
 
 ## fetch and install hugo
 RUN wget -q -O - \

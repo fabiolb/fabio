@@ -35,10 +35,10 @@ job "fabiolb-docs" {
           "urlprefix-fabiolb.net/",
         ]
         address_mode = "driver"
-        port = 1313
+        port = 1180
         check {
           address_mode = "driver"
-          port = 1313
+          port = 1180
           type = "http"
           path = "/check/ok"
           interval = "20s"
