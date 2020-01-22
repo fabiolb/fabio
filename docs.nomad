@@ -32,7 +32,7 @@ job "fabiolb-docs" {
       service {
         name = "fabiolb-docs"
         tags = [
-          "urlprefix-fabiolb.net/",
+          "urlprefix-fabiolb.net/", "urlprefix-www.fabiolb.net/"
         ]
         address_mode = "driver"
         port = 1180
