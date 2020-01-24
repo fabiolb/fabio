@@ -1,0 +1,10 @@
+dist: bioinic
+sudo: false
+language: go
+
+go:
+  - "1.13"
+  - master
+
+script:
+  - make travis

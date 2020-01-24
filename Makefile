@@ -20,8 +20,8 @@ GOVERSION ?= $(shell go version | awk '{print $$3;}')
 GORELEASER ?= $(shell which goreleaser)
 
 # pin versions for CI builds
-CI_CONSUL_VERSION ?= 1.6.1
-CI_VAULT_VERSION ?= 1.2.3
+CI_CONSUL_VERSION ?= 1.6.2
+CI_VAULT_VERSION ?= 1.3.1
 
 # all is the default target
 all: test
@@ -108,8 +108,8 @@ docker-test:
 		-f Dockerfile \
 		.
 
-# codeship runs the CI on codeship
-codeship:
+# travis runs the CI on travis
+travis:
 	go version
 	go env
 	wget -O ~/consul.zip https://releases.hashicorp.com/consul/$(CI_CONSUL_VERSION)/consul_$(CI_CONSUL_VERSION)_linux_amd64.zip
@@ -118,7 +118,7 @@ codeship:
 	unzip -o -d ~/bin ~/vault.zip
 	vault --version
 	consul --version
-	cd ~/src/github.com/fabiolb/fabio && make test
+	make test
 
 # clean removes intermediate files
 clean:
