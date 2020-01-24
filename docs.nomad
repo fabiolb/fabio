@@ -28,6 +28,7 @@ job "fabiolb-docs" {
       driver = "docker"
       config {
         image = "fabiolb/fabio-docs"
+        force_pull = true
       }
       service {
         name = "fabiolb-docs"
