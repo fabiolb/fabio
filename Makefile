@@ -22,6 +22,7 @@ GORELEASER ?= $(shell which goreleaser)
 # pin versions for CI builds
 CI_CONSUL_VERSION ?= 1.6.2
 CI_VAULT_VERSION ?= 1.3.1
+CI_HUGO_VERSION ?= 0.62.2
 
 # all is the default target
 all: test
@@ -38,12 +39,12 @@ help:
 	@echo "clean     - remove temp files"
 
 # build compiles fabio and the test dependencies
-build: gofmt mod
-	go build
+build: gofmt
+	go build $(GOFLAGS)
 
 # test runs the tests
 test: build
-	go test -v -test.timeout 15s ./...
+	go test $(GOFLAGS) -v -test.timeout 15s ./...
 
 mod:
 	go mod tidy
@@ -114,11 +115,16 @@ travis:
 	go env
 	wget -O ~/consul.zip https://releases.hashicorp.com/consul/$(CI_CONSUL_VERSION)/consul_$(CI_CONSUL_VERSION)_linux_amd64.zip
 	wget -O ~/vault.zip https://releases.hashicorp.com/vault/$(CI_VAULT_VERSION)/vault_$(CI_VAULT_VERSION)_linux_amd64.zip
+	wget -O ~/hugo.tgz https://github.com/gohugoio/hugo/releases/download/v$(CI_HUGO_VERSION)/hugo_$(CI_HUGO_VERSION)_Linux-64bit.tar.gz
 	unzip -o -d ~/bin ~/consul.zip
 	unzip -o -d ~/bin ~/vault.zip
+	tar -C ~/bin -zxf ~/hugo.tgz hugo
 	vault --version
 	consul --version
+	hugo version
 	make test
+	(cd docs && hugo --verbose --renderToMemory)
+
 
 # clean removes intermediate files
 clean:
@@ -126,4 +132,4 @@ clean:
 	rm -rf pkg dist fabio
 	find . -name '*.test' -delete
 
-.PHONY: all build clean codeship gofmt gorelease help homebrew install linux pkg preflight release tag test
+.PHONY: all build clean travis gofmt gorelease help homebrew install linux pkg preflight release tag test

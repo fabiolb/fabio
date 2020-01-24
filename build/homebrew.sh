@@ -19,7 +19,9 @@ v=${v/v/}
 
 srcurl=https://github.com/fabiolb/fabio/archive/v${v}.tar.gz
 shasum=$(wget -O- -q "$srcurl" | shasum -a 256 | awk '{ print $1; }')
-echo -e "/urlDAurl \"$srcurl\"/sha256DAsha256 \"$shasum\":wq" > $prgdir/homebrew.vim
+echo -e "/url
+DAurl \"$srcurl\"/sha256
+DAsha256 \"$shasum\":wq" > $prgdir/homebrew.vim
 
 brew update
 brew update
@@ -33,10 +35,10 @@ brew update
 	brew audit --strict fabio
 	git add Formula/fabio.rb
 	git commit -m "fabio $v"
-	git push --set-upstream magiconair fabio-$v
+	git push --set-upstream fabiolb fabio-$v
 )
 
-echo "Goto https://github.com/magiconair/homebrew-core to create pull request"
-open https://github.com/magiconair/homebrew-core
+echo "Goto https://github.com/fabiolb/homebrew-core to create pull request"
+open https://github.com/fabiolb/homebrew-core
 
 exit 0
