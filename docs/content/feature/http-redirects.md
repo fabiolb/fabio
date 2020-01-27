@@ -21,4 +21,4 @@ to the target URL.
 
 To redirect from HTTP to HTTPS you must include the `host:port` of the HTTP endpoint:
 
-	route add example.com:80/ https://example.com/ opts "redirect=301"
+	route add svc example.com:80/ https://example.com/ opts "redirect=301"
