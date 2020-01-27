@@ -305,7 +305,10 @@ func (t Table) route(host, path string) *Route {
 // normalizeHost returns the hostname from the request
 // and removes the default port if present.
 func normalizeHost(host string, tls bool) string {
-	host = strings.ToLower(host)
+	return strings.ToLower(normalizeHostNoLower(host, tls))
+}
+
+func normalizeHostNoLower(host string, tls bool) string {
 	if !tls && strings.HasSuffix(host, ":80") {
 		return host[:len(host)-len(":80")]
 	}
@@ -356,13 +359,12 @@ func (t Table) matchingHosts(req *http.Request) (hosts []string) {
 // matchingHostNoGlob returns the route from the
 // routing table which matches the normalized request hostname.
 func (t Table) matchingHostNoGlob(req *http.Request) (hosts []string) {
-	host := normalizeHost(req.Host, req.TLS != nil)
+	host := normalizeHostNoLower(req.Host, req.TLS != nil)
 
 	for pattern := range t {
 		normpat := normalizeHost(pattern, req.TLS != nil)
-		if normpat == host {
-			//log.Printf("DEBUG Matched %s and %s", normpat, host)
-			hosts = append(hosts, pattern)
+		if  normpat == host {
+			hosts = append(hosts, strings.ToLower(pattern))
 			return
 		}
 	}
