@@ -65,6 +65,7 @@ var defaultConfig = &Config{
 			CheckScheme:                         "http",
 			CheckDeregisterCriticalServiceAfter: "90m",
 			ChecksRequired:                      "one",
+			UseConsulServiceAddr:				 false,
 		},
 		Custom: Custom{
 			Host:               "",

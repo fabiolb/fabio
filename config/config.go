@@ -155,6 +155,7 @@ type Consul struct {
 	ChecksRequired                      string
 	ServiceMonitors                     int
 	TLS                                 ConsulTlS
+	UseConsulServiceAddr				bool
 }
 
 type Custom struct {
