@@ -12,6 +12,7 @@ var defaultValues = struct {
 	AuthSchemesValue      string
 	ReadTimeout           time.Duration
 	WriteTimeout          time.Duration
+	IdleTimeout           time.Duration
 	UIListenerValue       string
 	GZIPContentTypesValue string
 }{
