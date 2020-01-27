@@ -137,28 +137,31 @@ func serviceRegistration(cfg *config.Consul, serviceName string) (*api.AgentServ
 		//
 		// Both checks must pass for Consul to consider the service healthy and therefore serve the fabio instance to clients.
 		Checks: []*api.AgentServiceCheck{
-			// If fabio doesn't exit cleanly, it doesn't auto-deregister itself from Consul.
-			// In order to address this, we introduce a TTL check to prove the fabio instance is alive and able to route this service.
-			// The TTL check must be refreshed before its timeout is crossed.
-			// If the timeout is crossed, the check fails.
-			// If the check fails, Consul considers this service to have become unhealthy.
-			// If the check is failing (critical) after DeregisterCriticalServiceAfter is elapsed, the Consul reaper will remove it from Consul.
+			// If fabio doesn't exit cleanly, it doesn't auto-deregister itself
+			// from Consul. In order to address this, we introduce a TTL check
+			// to confirm that the fabio instance is alive and able to route
+			// this service.
+			//
+			// The TTL check must be refreshed before its timeout is crossed,
+			// otherwise the check fails. If the check fails, Consul considers
+			// this service to have become unhealthy. If the check is failing
+			// (critical) for the DeregisterCriticalServiceAfter duration, the
+			// Consul reaper will remove it from Consul.
+			//
 			// For more info, read https://www.consul.io/api/agent/check.html#deregistercriticalserviceafter.
 			{
 				CheckID:                        computeServiceTTLCheckId(serviceID),
 				TTL:                            TTLInterval.String(),
 				DeregisterCriticalServiceAfter: TTLDeregisterCriticalServiceAfter.String(),
 			},
-			// HTTP check is meant to confirm fabio health endpoint is reachable from the Consul agent.
-			// If the check fails, Consul considers this service to have become unhealthy.
-			// If the check fails and registry.consul.register.deregisterCriticalServiceAfter is set, the service will be deregistered from Consul.
-			// For more info, read https://www.consul.io/api/agent/check.html#deregistercriticalserviceafter.
+			// HTTP check is meant to confirm fabio health endpoint is
+			// reachable from the Consul agent. If the check fails, Consul
+			// considers this service to have become unhealthy.
 			{
-				HTTP:                           checkURL,
-				Interval:                       cfg.CheckInterval.String(),
-				Timeout:                        cfg.CheckTimeout.String(),
-				TLSSkipVerify:                  cfg.CheckTLSSkipVerify,
-				DeregisterCriticalServiceAfter: cfg.CheckDeregisterCriticalServiceAfter,
+				HTTP:          checkURL,
+				Interval:      cfg.CheckInterval.String(),
+				Timeout:       cfg.CheckTimeout.String(),
+				TLSSkipVerify: cfg.CheckTLSSkipVerify,
 			},
 		},
 	}
@@ -167,5 +170,5 @@ func serviceRegistration(cfg *config.Consul, serviceName string) (*api.AgentServ
 }
 
 func computeServiceTTLCheckId(serviceID string) string {
-	return strings.Join([]string{serviceID, "ttl"}, "-")
+	return serviceID + "-ttl"
 }
