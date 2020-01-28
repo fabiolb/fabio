@@ -123,7 +123,7 @@ travis:
 	consul --version
 	hugo version
 	make test
-	(cd docs && hugo --verbose --renderToMemory)
+	(cd docs && hugo --verbose)
 
 
 # clean removes intermediate files
