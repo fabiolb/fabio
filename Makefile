@@ -21,8 +21,8 @@ GORELEASER ?= $(shell which goreleaser)
 
 # pin versions for CI builds
 CI_CONSUL_VERSION ?= 1.6.2
-CI_VAULT_VERSION ?= 1.3.1
-CI_HUGO_VERSION ?= 0.62.2
+CI_VAULT_VERSION ?= 1.3.2
+CI_HUGO_VERSION ?= 0.63.2
 
 # all is the default target
 all: test
@@ -42,10 +42,11 @@ help:
 build: gofmt
 	go build $(GOFLAGS)
 
-# test runs the tests
+# test builds and runs the tests
 test: build
 	go test $(GOFLAGS) -v -test.timeout 15s ./...
 
+# mod performs go module maintenance
 mod:
 	go mod tidy
 	go mod vendor
@@ -109,22 +110,22 @@ docker-test:
 		-f Dockerfile \
 		.
 
-# travis runs the CI on travis
+# travis runs tests on Travis CI
 travis:
-	go version
-	go env
-	wget -O ~/consul.zip https://releases.hashicorp.com/consul/$(CI_CONSUL_VERSION)/consul_$(CI_CONSUL_VERSION)_linux_amd64.zip
-	wget -O ~/vault.zip https://releases.hashicorp.com/vault/$(CI_VAULT_VERSION)/vault_$(CI_VAULT_VERSION)_linux_amd64.zip
-	wget -O ~/hugo.tgz https://github.com/gohugoio/hugo/releases/download/v$(CI_HUGO_VERSION)/hugo_$(CI_HUGO_VERSION)_Linux-64bit.tar.gz
+	wget -q -O ~/consul.zip https://releases.hashicorp.com/consul/$(CI_CONSUL_VERSION)/consul_$(CI_CONSUL_VERSION)_linux_amd64.zip
+	wget -q -O ~/vault.zip https://releases.hashicorp.com/vault/$(CI_VAULT_VERSION)/vault_$(CI_VAULT_VERSION)_linux_amd64.zip
 	unzip -o -d ~/bin ~/consul.zip
 	unzip -o -d ~/bin ~/vault.zip
-	tar -C ~/bin -zxf ~/hugo.tgz hugo
 	vault --version
 	consul --version
-	hugo version
 	make test
-	(cd docs && hugo --verbose)
 
+# travis-pages runs the GitHub pages (https://fabiolb.net/) deploy on Travis CI
+travis-pages:
+	wget -q -O ~/hugo.tgz https://github.com/gohugoio/hugo/releases/download/v$(CI_HUGO_VERSION)/hugo_$(CI_HUGO_VERSION)_Linux-64bit.tar.gz
+	tar -C ~/bin -zxf ~/hugo.tgz hugo
+	hugo version
+	(cd docs && hugo --verbose)
 
 # clean removes intermediate files
 clean:
@@ -132,4 +133,4 @@ clean:
 	rm -rf pkg dist fabio
 	find . -name '*.test' -delete
 
-.PHONY: all build clean travis gofmt gorelease help homebrew install linux pkg preflight release tag test
+.PHONY: all help build test mod gofmt linux install pkg release preflight tag gorelease homebrew docker-test travis travis-pages clean
