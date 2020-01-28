@@ -3,19 +3,21 @@ sudo: false
 language: go
 
 go:
-  - "1.13"
+  - 1.13
   - master
 
-script:
-  - make travis
+script: make travis
 
-deploy:
-  provider: pages
-  skip_cleanup: true
-  github_token: $GITHUB_TOKEN
-  keep_history: true
-  local_dir: docs/public
-  target_branch: gh-pages
-  fqdn: fabiolb.net
-  on:
-    branch: master
+jobs:
+  include:
+    - stage: deploy pages
+      script: make travis-pages
+      deploy:
+        provider: pages
+        skip_cleanup: true
+        github_token: $GITHUB_TOKEN
+        local_dir: docs/public
+        target_branch: gh-pages
+        fqdn: fabiolb.net
+        on:
+          branch: master
