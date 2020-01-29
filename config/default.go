@@ -12,6 +12,7 @@ var defaultValues = struct {
 	AuthSchemesValue      string
 	ReadTimeout           time.Duration
 	WriteTimeout          time.Duration
+	IdleTimeout           time.Duration
 	UIListenerValue       string
 	GZIPContentTypesValue string
 }{
@@ -50,22 +51,30 @@ var defaultConfig = &Config{
 	Registry: Registry{
 		Backend: "consul",
 		Consul: Consul{
-			Addr:                                "localhost:8500",
-			Scheme:                              "http",
-			KVPath:                              "/fabio/config",
-			NoRouteHTMLPath:                     "/fabio/noroute.html",
-			TagPrefix:                           "urlprefix-",
-			Register:                            true,
-			ServiceAddr:                         ":9998",
-			ServiceName:                         "fabio",
-			ServiceStatus:                       []string{"passing"},
-			ServiceMonitors:                     1,
-			CheckInterval:                       time.Second,
-			CheckTimeout:                        3 * time.Second,
-			CheckScheme:                         "http",
-			CheckDeregisterCriticalServiceAfter: "90m",
-			ChecksRequired:                      "one",
-			PollInterval:                        0,
+			Addr:            "localhost:8500",
+			Scheme:          "http",
+			KVPath:          "/fabio/config",
+			NoRouteHTMLPath: "/fabio/noroute.html",
+			TagPrefix:       "urlprefix-",
+			Register:        true,
+			ServiceAddr:     ":9998",
+			ServiceName:     "fabio",
+			ServiceStatus:   []string{"passing"},
+			ServiceMonitors: 1,
+			CheckInterval:   time.Second,
+			CheckTimeout:    3 * time.Second,
+			CheckScheme:     "http",
+			ChecksRequired:  "one",
+		},
+		Custom: Custom{
+			Host:               "",
+			Scheme:             "https",
+			CheckTLSSkipVerify: false,
+			PollingInterval:    5,
+			NoRouteHTML:        "",
+			Timeout:            10,
+			Path:               "",
+			QueryParams:        "",
 		},
 		Timeout: 10 * time.Second,
 		Retry:   500 * time.Millisecond,
@@ -91,6 +100,7 @@ var defaultConfig = &Config{
 		Topic:          "Fabiolb-Kafka-Topic",
 		SamplerRate:    -1,
 		SpanHost:       "localhost:9998",
+		TraceID128Bit:  true,
 	},
 
 	GlobCacheSize: 1000,

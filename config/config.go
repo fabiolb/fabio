@@ -23,14 +23,15 @@ type Config struct {
 }
 
 type CertSource struct {
-	Name         string
-	Type         string
-	CertPath     string
-	KeyPath      string
-	ClientCAPath string
-	CAUpgradeCN  string
-	Refresh      time.Duration
-	Header       http.Header
+	Name            string
+	Type            string
+	CertPath        string
+	KeyPath         string
+	ClientCAPath    string
+	CAUpgradeCN     string
+	Refresh         time.Duration
+	Header          http.Header
+	VaultFetchToken string
 }
 
 type Listen struct {
@@ -38,6 +39,7 @@ type Listen struct {
 	Proto              string
 	ReadTimeout        time.Duration
 	WriteTimeout       time.Duration
+	IdleTimeout        time.Duration
 	CertSource         CertSource
 	StrictMatch        bool
 	TLSMinVersion      uint16
@@ -45,6 +47,7 @@ type Listen struct {
 	TLSCiphers         []uint16
 	ProxyProto         bool
 	ProxyHeaderTimeout time.Duration
+	Refresh            time.Duration
 }
 
 type UI struct {
@@ -119,6 +122,7 @@ type Registry struct {
 	Static  Static
 	File    File
 	Consul  Consul
+	Custom  Custom
 	Timeout time.Duration
 	Retry   time.Duration
 }
@@ -134,25 +138,35 @@ type File struct {
 }
 
 type Consul struct {
-	Addr                                string
-	Scheme                              string
-	Token                               string
-	KVPath                              string
-	NoRouteHTMLPath                     string
-	TagPrefix                           string
-	Register                            bool
-	ServiceAddr                         string
-	ServiceName                         string
-	ServiceTags                         []string
-	ServiceStatus                       []string
-	CheckInterval                       time.Duration
-	CheckTimeout                        time.Duration
-	CheckScheme                         string
-	CheckTLSSkipVerify                  bool
-	CheckDeregisterCriticalServiceAfter string
-	ChecksRequired                      string
-	ServiceMonitors                     int
-	PollInterval                        time.Duration
+	Addr               string
+	Scheme             string
+	Token              string
+	KVPath             string
+	NoRouteHTMLPath    string
+	TagPrefix          string
+	Register           bool
+	ServiceAddr        string
+	ServiceName        string
+	ServiceTags        []string
+	ServiceStatus      []string
+	CheckInterval      time.Duration
+	CheckTimeout       time.Duration
+	CheckScheme        string
+	CheckTLSSkipVerify bool
+	ChecksRequired     string
+	ServiceMonitors    int
+	TLS                ConsulTlS
+}
+
+type Custom struct {
+	Host               string
+	Path               string
+	QueryParams        string
+	Scheme             string
+	CheckTLSSkipVerify bool
+	PollingInterval    time.Duration
+	NoRouteHTML        string
+	Timeout            time.Duration
 }
 
 type Tracing struct {
@@ -163,6 +177,7 @@ type Tracing struct {
 	Topic          string
 	SamplerRate    float64
 	SpanHost       string
+	TraceID128Bit  bool
 }
 
 type AuthScheme struct {
@@ -176,4 +191,12 @@ type BasicAuth struct {
 	File    string
 	Refresh time.Duration
 	ModTime time.Time // the htpasswd file last modification time
+}
+
+type ConsulTlS struct {
+	KeyFile            string
+	CertFile           string
+	CAFile             string
+	CAPath             string
+	InsecureSkipVerify bool
 }

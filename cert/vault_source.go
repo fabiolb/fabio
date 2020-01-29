@@ -117,6 +117,10 @@ func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error)
 			log.Printf("[WARN] cert: Failed to read %s from Vault: %s", p, err)
 			continue
 		}
+		if secret == nil {
+			log.Printf("[WARN] cert: Failed to find %s in Vault: %s", p, err)
+			continue
+		}
 		get(name, "cert", secret, v2)
 		get(name, "key", secret, v2)
 	}

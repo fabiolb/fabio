@@ -1,6 +1,7 @@
 package route
 
 import (
+	"bytes"
 	"reflect"
 	"regexp"
 	"testing"
@@ -162,8 +163,8 @@ func TestParse(t *testing.T) {
 		return
 	}
 
-	run := func(in string, def []*RouteDef, fail bool, parseFn func(string) ([]*RouteDef, error)) {
-		out, err := parseFn(in)
+	run := func(in string, def []*RouteDef, fail bool, parseFn func(*bytes.Buffer) ([]*RouteDef, error)) {
+		out, err := parseFn(bytes.NewBufferString(in))
 		switch {
 		case err == nil && fail:
 			t.Errorf("got error nil want fail")

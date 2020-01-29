@@ -11,14 +11,24 @@
   <p align="center" style="margin-top: 16px">
     <a href="https://github.com/fabiolb/fabio/releases/latest"><img alt="Release" src="https://img.shields.io/github/release/fabiolb/fabio.svg?style=flat-square"></a>
     <a href="https://raw.githubusercontent.com/fabiolb/fabio/master/LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
-    <a href="https://app.codeship.com/projects/222209"><img alt="Codeship CI Status" src="https://img.shields.io/codeship/3e8307d0-2426-0135-1183-6e6f38f65fc4/master.svg?label=codeship&style=flat-square"></a>
+    <a href="https://travis-ci.org/fabiolb/fabio"><img alt="Travis CI Status" src="https://travis-ci.org/fabiolb/fabio.svg?branch=master"></a>
     <a href="https://github.com/fabiolb/fabio/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/fabiolb/fabio/total.svg?style=flat-square"></a>
-    <a href="https://hub.docker.com/r/magiconair/fabio/"><img alt="Docker Pulls magiconair" src="https://img.shields.io/docker/pulls/magiconair/fabio.svg?style=flat-square&label=docker+pulls+magiconair"></a>
     <a href="https://hub.docker.com/r/fabiolb/fabio/"><img alt="Docker Pulls fabiolb" src="https://img.shields.io/docker/pulls/fabiolb/fabio.svg?style=flat-square&label=docker+pulls+fabiolb"></a>
-    <a href="#backers"><img alt="Backers on Open Collective" src="https://opencollective.com/fabio/backers/badge.svg"></a>
-    <a href="#sponsors"><img alt="Sponsors on Open Collective" src="https://opencollective.com/fabio/sponsors/badge.svg"></a>
   </p>
 </p>
+
+---
+
+#### Notes
+
+1. If you are confused about the commit order for the v1.5.11 release please
+   check the [Release Notes](https://github.com/fabiolb/fabio/releases/tag/v1.5.11)
+   for an explanation.
+
+1. The 1.5.11 tag was wrongly pointing to commit 0297494e9a00f87d3e387b8c6ff0408c2f5db6a0
+   instead of commit 446fbba59da42ed73df67c3d738b9945dbf0790a. I have updated the v1.5.11
+   tag to point to the correct version and created v1.5.11-wrong tag to point to the
+   old (wrong) version.
 
 ---
 
@@ -29,7 +39,7 @@ Register your services in consul, provide a health check and fabio will start
 routing traffic to them. No configuration required. Deployment, upgrading and
 refactoring has never been easier.
 
-fabio is developed and maintained by [Frank Schroeder](https://twitter.com/magiconair).
+fabio is developed and maintained by The Fabio Authors.
 
 It powers some of the largest websites in
 The Netherlands ([marktplaats.nl](http://www.marktplaats.nl/)),
@@ -116,39 +126,18 @@ urlprefix-:3306 proto=tcp                          # route external port 3306
 
 7. Done
 
-## Maintainers
+## Author and Founder
 
 * Frank Schroeder [@magiconair](https://twitter.com/magiconair)
+
+## Maintainers
+
+* [Education Networks of America](https://github.com/myENA/)
+* [Fabio Members](https://github.com/orgs/fabiolb/people)
 
 ### Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-<a href="https://github.com/fabiolb/fabio/graphs/contributors"><img src="https://opencollective.com/fabio/contributors.svg?width=890" /></a>
-
-
-### Backers
-
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/fabio#backer)]
-
-<a href="https://opencollective.com/fabio#backers" target="_blank"><img src="https://opencollective.com/fabio/backers.svg?width=890"></a>
-
-
-### Sponsors
-
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/fabio#sponsor)]
-
-<a href="https://opencollective.com/fabio/sponsor/0/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/fabio/sponsor/1/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/fabio/sponsor/2/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/fabio/sponsor/3/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/fabio/sponsor/4/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/fabio/sponsor/5/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/fabio/sponsor/6/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/fabio/sponsor/7/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/fabio/sponsor/8/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/fabio/sponsor/9/website" target="_blank"><img src="https://opencollective.com/fabio/sponsor/9/avatar.svg"></a>
-
-
 
 ## License
 
@@ -160,7 +149,7 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 * Contributions after 14 Apr 2017 starting with  [38f73da](https://github.com/fabiolb/fabio/commit/38f73da6413b68fed1631101ac1d0b79a2fac870)
 
   MIT Licensed
-  Copyright (c) 2017 Frank Schroeder. All rights reserved.
+  Copyright (c) 2017-2019 Frank Schroeder. All rights reserved.
 
 See [LICENSE](https://github.com/fabiolb/fabio/blob/master/LICENSE) for details.
 

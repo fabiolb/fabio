@@ -1,10 +1,12 @@
 package route
 
 import (
+	"bytes"
 	"crypto/tls"
 	"fmt"
 	"math"
 	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"strconv"
 	"strings"
@@ -383,7 +385,7 @@ func TestTableParse(t *testing.T) {
 		// actual lookup which it probably should.
 		t.Run(tt.desc, func(t *testing.T) {
 			// parse the routes
-			tbl, err := NewTable(strings.Join(tt.in, "\n"))
+			tbl, err := NewTable(bytes.NewBufferString(strings.Join(tt.in, "\n")))
 			if err != nil {
 				t.Fatalf("got %v want nil", err)
 			}
@@ -502,7 +504,7 @@ func TestTableLookupIssue448(t *testing.T) {
 	route add mock / http://foo.com/
 	`
 
-	tbl, err := NewTable(s)
+	tbl, err := NewTable(bytes.NewBufferString(s))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -584,7 +586,7 @@ func TestTableLookup(t *testing.T) {
 	route add svc xyz.com:80/ https://xyz.com
 	`
 
-	tbl, err := NewTable(s)
+	tbl, err := NewTable(bytes.NewBufferString(s))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -640,5 +642,124 @@ func TestTableLookup(t *testing.T) {
 		if got, want := tbl.Lookup(tt.req, "", rndPicker, prefixMatcher, globCache, globEnabled).URL.String(), tt.dst; got != want {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
+	}
+}
+
+func TestTableLookup_656(t *testing.T) {
+	// A typical HTTPS redirect
+	s := `
+	route add my-service example.com:80/ https://example.com$path opts "redirect=301"
+	route add my-service example.com/ http://127.0.0.1:3000/
+	`
+
+	tbl, err := NewTable(bytes.NewBufferString(s))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest("GET", "http://example.com/foo", nil)
+	target := tbl.Lookup(req, "redirect", rrPicker, prefixMatcher, false)
+
+	if target == nil {
+		t.Fatal("No route match")
+	}
+	if got, want := target.RedirectCode, 301; got != want {
+		t.Errorf("target.RedirectCode = %d, want %d", got, want)
+	}
+	if got, want := fmt.Sprint(target.RedirectURL), "https://example.com/foo"; got != want {
+		t.Errorf("target.RedirectURL = %s, want %s", got, want)
+	}
+}
+
+func TestNewTableCustom(t *testing.T) {
+
+	var routes []RouteDef
+	var tags = []string{"tag1", "tag2"}
+	var opts = make(map[string]string)
+	opts["tlsskipverify"] = "true"
+	opts["proto"] = "http"
+
+	var route1 = RouteDef{
+		Cmd:     "route add",
+		Service: "service1",
+		Src:     "app.com",
+		Dst:     "http://10.1.1.1:8080",
+		Weight:  0.50,
+		Tags:    tags,
+		Opts:    opts,
+	}
+	var route2 = RouteDef{
+		Cmd:     "route add",
+		Service: "service1",
+		Src:     "app.com",
+		Dst:     "http://10.1.1.2:8080",
+		Weight:  0.50,
+		Tags:    tags,
+		Opts:    opts,
+	}
+	var route3 = RouteDef{
+		Cmd:     "route add",
+		Service: "service2",
+		Src:     "app.com",
+		Dst:     "http://10.1.1.3:8080",
+		Weight:  0.25,
+		Tags:    tags,
+		Opts:    opts,
+	}
+
+	routes = append(routes, route1)
+	routes = append(routes, route2)
+	routes = append(routes, route3)
+
+	table, err := NewTableCustom(&routes)
+
+	if err != nil {
+		fmt.Printf("Got error from NewTableCustom - %s", err.Error())
+		t.FailNow()
+	}
+
+	tableString := table.String()
+	if !strings.Contains(tableString, route1.Dst) {
+		fmt.Printf("Table Missing Destination %s -- Table -- %s", route1.Dst, tableString)
+		t.FailNow()
+	}
+
+	if !strings.Contains(tableString, route2.Dst) {
+		fmt.Printf("Table Missing Destination %s -- Table -- %s", route1.Dst, tableString)
+		t.FailNow()
+	}
+
+	if !strings.Contains(tableString, route3.Dst) {
+		fmt.Printf("Table Missing Destination %s -- Table -- %s", route1.Dst, tableString)
+		t.FailNow()
+	}
+}
+
+func TestTable_Dump(t *testing.T) {
+	s := `
+	route add svc / http://foo.com:800
+	route add svc /foo http://foo.com:900
+	route add svc abc.com/ http://foo.com:1000
+	`
+
+	tbl, err := NewTable(bytes.NewBufferString(s))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := `+-- host=
+|   |-- path=/foo
+|   |    +-- addr=foo.com:900 weight 1.00 slots 1/1
+|   +-- path=/
+|       +-- addr=foo.com:800 weight 1.00 slots 1/1
++-- host=abc.com
+    +-- path=/
+        +-- addr=foo.com:1000 weight 1.00 slots 1/1
+`
+
+	got := tbl.Dump()
+
+	if want != got {
+		t.Errorf("Unexpected Dump() output:\nwant:\n%s\ngot:\n%s\n", want, got)
 	}
 }

@@ -20,13 +20,18 @@ type be struct {
 }
 
 func NewBackend(cfg *config.Consul) (registry.Backend, error) {
+
+	consulCfg := &api.Config{Address: cfg.Addr, Scheme: cfg.Scheme, Token: cfg.Token}
+	if cfg.Scheme == "https" {
+		consulCfg.TLSConfig.KeyFile = cfg.TLS.KeyFile
+		consulCfg.TLSConfig.CertFile = cfg.TLS.CertFile
+		consulCfg.TLSConfig.CAFile = cfg.TLS.CAFile
+		consulCfg.TLSConfig.CAPath = cfg.TLS.CAPath
+		consulCfg.TLSConfig.InsecureSkipVerify = cfg.TLS.InsecureSkipVerify
+	}
+
 	// create a reusable client
-
-	// Updated default Idle Connections setting to avoid TIME_WAIT issues
-	var httpTrans = &http.Transport{MaxIdleConnsPerHost: cfg.ServiceMonitors * 2, MaxIdleConns: cfg.ServiceMonitors * 2}
-	var httpClient = &http.Client{Transport: httpTrans}
-	c, err := api.NewClient(&api.Config{Address: cfg.Addr, Scheme: cfg.Scheme, Token: cfg.Token, HttpClient: httpClient})
-
+	c, err := api.NewClient(consulCfg)
 	if err != nil {
 		return nil, err
 	}
@@ -95,11 +100,10 @@ func (b *be) Deregister(service string) error {
 
 func (b *be) DeregisterAll() error {
 	log.Printf("[DEBUG]: consul: Deregistering all registered aliases.")
-	for name, dereg := range b.dereg {
+	for _, dereg := range b.dereg {
 		if dereg == nil {
 			continue
 		}
-		log.Printf("[INFO] consul: Deregistering %q", name)
 		dereg <- true // trigger deregistration
 		<-dereg       // wait for completion
 	}

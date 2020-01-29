@@ -106,8 +106,15 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-proxy.addr", ":5555;proto=tcp-dynamic"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{{Addr: ":5555", Proto: "tcp-dynamic"}}
+				return cfg
+			},
+		},
+		{
 			desc: "-proxy.addr with tls configs",
-			args: []string{"-proxy.addr", `:5555;rt=1s;wt=2s;tlsmin=0x0300;tlsmax=0x305;tlsciphers="0x123,0x456"`},
+			args: []string{"-proxy.addr", `:5555;rt=1s;wt=2s;it=3s;tlsmin=0x0300;tlsmax=0x305;tlsciphers="0x123,0x456"`},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{
 					{
@@ -115,6 +122,7 @@ func TestLoad(t *testing.T) {
 						Proto:         "http",
 						ReadTimeout:   1 * time.Second,
 						WriteTimeout:  2 * time.Second,
+						IdleTimeout:   3 * time.Second,
 						TLSMinVersion: 0x300,
 						TLSMaxVersion: 0x305,
 						TLSCiphers:    []uint16{0x123, 0x456},
@@ -125,7 +133,7 @@ func TestLoad(t *testing.T) {
 		},
 		{
 			desc: "-proxy.addr with named tls configs",
-			args: []string{"-proxy.addr", `:5555;rt=1s;wt=2s;tlsmin=tls10;tlsmax=TLS11;tlsciphers="TLS_RSA_WITH_RC4_128_SHA,tls_ecdhe_ecdsa_with_aes_256_gcm_sha384"`},
+			args: []string{"-proxy.addr", `:5555;rt=1s;wt=2s;it=3s;tlsmin=tls10;tlsmax=TLS11;tlsciphers="TLS_RSA_WITH_RC4_128_SHA,tls_ecdhe_ecdsa_with_aes_256_gcm_sha384"`},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{
 					{
@@ -133,6 +141,7 @@ func TestLoad(t *testing.T) {
 						Proto:         "http",
 						ReadTimeout:   1 * time.Second,
 						WriteTimeout:  2 * time.Second,
+						IdleTimeout:   3 * time.Second,
 						TLSMinVersion: tls.VersionTLS10,
 						TLSMaxVersion: tls.VersionTLS11,
 						TLSCiphers:    []uint16{tls.TLS_RSA_WITH_RC4_128_SHA, tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384},
@@ -667,9 +676,51 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
-			args: []string{"-registry.consul.pollInterval", "5s"},
+			args: []string{"-registry.custom.host", "localhost:8080"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Registry.Consul.PollInterval = 5 * time.Second
+				cfg.Registry.Custom.Host = "localhost:8080"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.custom.scheme", "https"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Custom.Scheme = "https"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.custom.checkTLSSkipVerify", "true"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Custom.CheckTLSSkipVerify = true
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.custom.timeout", "5s"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Custom.Timeout = 5 * time.Second
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.custom.pollinginterval", "5s"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Custom.PollingInterval = 5 * time.Second
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.custom.path", "test"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Custom.Path = "test"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.custom.queryparams", "test=1"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Custom.QueryParams = "test=1"
 				return cfg
 			},
 		},
@@ -832,6 +883,7 @@ func TestLoad(t *testing.T) {
 			cfg: func(cfg *Config) *Config {
 				cfg.UI.Listen.Addr = "1.2.3.4:5555"
 				cfg.UI.Listen.Proto = "http"
+				cfg.Registry.Consul.ServiceAddr = "1.2.3.4:5555"
 				return cfg
 			},
 		},
@@ -844,6 +896,7 @@ func TestLoad(t *testing.T) {
 				cfg.UI.Listen.CertSource.Type = "file"
 				cfg.UI.Listen.CertSource.CertPath = "value"
 				cfg.Registry.Consul.CheckScheme = "https"
+				cfg.Registry.Consul.ServiceAddr = ":9998"
 				return cfg
 			},
 		},
@@ -998,13 +1051,13 @@ func TestLoad(t *testing.T) {
 			desc: "-proxy.addr with cert source and proto 'http' requires proto 'https', 'tcp', or 'grpcs'",
 			args: []string{"-proxy.addr", ":5555;cs=name;proto=http", "-proxy.cs", "cs=name;type=path;cert=value"},
 			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("cert source requires proto 'https', 'tcp' or 'grpcs'"),
+			err:  errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic' or 'grpcs'"),
 		},
 		{
 			desc: "-proxy.addr with cert source and proto 'tcp+sni' requires proto 'https', 'tcp' or 'grpcs'",
 			args: []string{"-proxy.addr", ":5555;cs=name;proto=tcp+sni", "-proxy.cs", "cs=name;type=path;cert=value"},
 			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("cert source requires proto 'https', 'tcp' or 'grpcs'"),
+			err:  errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic' or 'grpcs'"),
 		},
 		{
 			desc: "-proxy.noroutestatus too small",

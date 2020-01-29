@@ -3,7 +3,9 @@ package cert
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -14,11 +16,19 @@ import (
 // vaultClient wraps an *api.Client and takes care of token renewal
 // automatically.
 type vaultClient struct {
-	addr  string // overrides the default config
-	token string // overrides the VAULT_TOKEN environment variable
+	addr             string // overrides the default config
+	token            string // overrides the VAULT_TOKEN environment variable
+	fetchVaultToken  string
+	prevFetchedToken string
 
 	client *api.Client
 	mu     sync.Mutex
+}
+
+func NewVaultClient(fetchVaultToken string) *vaultClient {
+	return &vaultClient{
+		fetchVaultToken: fetchVaultToken,
+	}
 }
 
 var DefaultVaultClient = &vaultClient{}
@@ -26,8 +36,25 @@ var DefaultVaultClient = &vaultClient{}
 func (c *vaultClient) Get() (*api.Client, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-
 	if c.client != nil {
+		if c.fetchVaultToken != "" {
+			token := strings.TrimSpace(getVaultToken(c.fetchVaultToken))
+			if token != c.prevFetchedToken {
+				log.Printf("[DEBUG] vault: token has changed, setting new token")
+				// did we get a wrapped token?
+				resp, err := c.client.Logical().Unwrap(token)
+				switch {
+				case err == nil:
+					log.Printf("[INFO] vault: Unwrapped token %s", token)
+					c.client.SetToken(resp.Auth.ClientToken)
+				case strings.HasPrefix(err.Error(), "no value found at"):
+					// not a wrapped token
+				default:
+					return nil, err
+				}
+				c.prevFetchedToken = token
+			}
+		}
 		return c.client, nil
 	}
 
@@ -39,16 +66,22 @@ func (c *vaultClient) Get() (*api.Client, error) {
 	if c.addr != "" {
 		conf.Address = c.addr
 	}
-
 	client, err := api.NewClient(conf)
 	if err != nil {
 		return nil, err
 	}
 
+	if c.fetchVaultToken != "" {
+		token := strings.TrimSpace(getVaultToken(c.fetchVaultToken))
+		log.Printf("[DEBUG] vault: fetching initial token")
+		if token != c.prevFetchedToken {
+			c.token = token
+			c.prevFetchedToken = token
+		}
+	}
 	if c.token != "" {
 		client.SetToken(c.token)
 	}
-
 	token := client.Token()
 	if token == "" {
 		return nil, errors.New("vault: no token")
@@ -131,4 +164,35 @@ func (c *vaultClient) keepTokenAlive() {
 		ttl = time.Duration(resp.Auth.LeaseDuration) * time.Second
 		timer.Reset(ttl / 2)
 	}
+}
+
+func getVaultToken(c string) string {
+	var token string
+	c = strings.TrimSpace(c)
+	cArray := strings.SplitN(c, ":", 2)
+	if len(cArray) < 2 {
+		log.Printf("[WARN] vault: vaultfetchtoken not properly set")
+		return token
+	}
+	if cArray[0] == "file" {
+		b, err := ioutil.ReadFile(cArray[1]) // just pass the file name
+		if err != nil {
+			log.Printf("[WARN] vault: Failed to fetch token from  %s", c)
+		} else {
+			token = string(b)
+			log.Printf("[DEBUG] vault: Successfully fetched token from %s", c)
+			return token
+		}
+	} else if cArray[0] == "env" {
+		token = os.Getenv(cArray[1])
+		if len(token) == 0 {
+			log.Printf("[WARN] vault: Failed to fetch token from  %s", c)
+		} else {
+			log.Printf("[DEBUG] vault: Successfully fetched token from %s", c)
+			return token
+		}
+	} else {
+		log.Printf("[WARN] vault: vaultfetchtoken not properly set")
+	}
+	return token
 }

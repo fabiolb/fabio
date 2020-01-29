@@ -1,28 +1,28 @@
 # CUR_TAG is the last git tag plus the delta from the current commit to the tag
 # e.g. v1.5.5-<nr of commits since>-g<current git sha>
-CUR_TAG = $(shell git describe)
+CUR_TAG ?= $(shell git describe)
 
 # LAST_TAG is the last git tag
 # e.g. v1.5.5
-LAST_TAG = $(shell git describe --abbrev=0)
+LAST_TAG ?= $(shell git describe --abbrev=0)
 
 # VERSION is the last git tag without the 'v'
 # e.g. 1.5.5
-VERSION = $(shell git describe --abbrev=0 | cut -c 2-)
+VERSION ?= $(shell git describe --abbrev=0 | cut -c 2-)
 
-# GOFLAGS is the flags for the go compiler. Currently, only the version number is
-# passed to the linker via the -ldflags.
-GOFLAGS = -ldflags "-X main.version=$(CUR_TAG)"
+# GOFLAGS is the flags for the go compiler.
+GOFLAGS ?= -mod=vendor -ldflags "-X main.version=$(CUR_TAG)"
 
 # GOVERSION is the current go version, e.g. go1.9.2
-GOVERSION = $(shell go version | awk '{print $$3;}')
+GOVERSION ?= $(shell go version | awk '{print $$3;}')
 
 # GORELEASER is the path to the goreleaser binary.
-GORELEASER = $(shell which goreleaser)
+GORELEASER ?= $(shell which goreleaser)
 
 # pin versions for CI builds
-CI_CONSUL_VERSION=1.3.0
-CI_VAULT_VERSION=0.11.4
+CI_CONSUL_VERSION ?= 1.6.2
+CI_VAULT_VERSION ?= 1.3.2
+CI_HUGO_VERSION ?= 0.63.2
 
 # all is the default target
 all: test
@@ -40,11 +40,16 @@ help:
 
 # build compiles fabio and the test dependencies
 build: gofmt
-	go build
+	go build $(GOFLAGS)
 
-# test runs the tests
+# test builds and runs the tests
 test: build
-	go test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
+	go test $(GOFLAGS) -v -test.timeout 15s ./...
+
+# mod performs go module maintenance
+mod:
+	go mod tidy
+	go mod vendor
 
 # gofmt runs gofmt on the code
 gofmt:
@@ -52,11 +57,11 @@ gofmt:
 
 # linux builds a linux binary
 linux:
-	GOOS=linux GOARCH=amd64 go build -tags netgo $(GOFLAGS)
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags netgo $(GOFLAGS)
 
 # install runs go install
 install:
-	go install $(GOFLAGS)
+	CGO_ENABLED=0 go install -trimpath $(GOFLAGS)
 
 # pkg builds a fabio.tar.gz package with only fabio in it
 pkg: build test
@@ -105,17 +110,22 @@ docker-test:
 		-f Dockerfile \
 		.
 
-# codeship runs the CI on codeship
-codeship:
-	go version
-	go env
-	wget -O ~/consul.zip https://releases.hashicorp.com/consul/$(CI_CONSUL_VERSION)/consul_$(CI_CONSUL_VERSION)_linux_amd64.zip
-	wget -O ~/vault.zip https://releases.hashicorp.com/vault/$(CI_VAULT_VERSION)/vault_$(CI_VAULT_VERSION)_linux_amd64.zip
+# travis runs tests on Travis CI
+travis:
+	wget -q -O ~/consul.zip https://releases.hashicorp.com/consul/$(CI_CONSUL_VERSION)/consul_$(CI_CONSUL_VERSION)_linux_amd64.zip
+	wget -q -O ~/vault.zip https://releases.hashicorp.com/vault/$(CI_VAULT_VERSION)/vault_$(CI_VAULT_VERSION)_linux_amd64.zip
 	unzip -o -d ~/bin ~/consul.zip
 	unzip -o -d ~/bin ~/vault.zip
 	vault --version
 	consul --version
-	cd ~/src/github.com/fabiolb/fabio && make test
+	make test
+
+# travis-pages runs the GitHub pages (https://fabiolb.net/) deploy on Travis CI
+travis-pages:
+	wget -q -O ~/hugo.tgz https://github.com/gohugoio/hugo/releases/download/v$(CI_HUGO_VERSION)/hugo_$(CI_HUGO_VERSION)_Linux-64bit.tar.gz
+	tar -C ~/bin -zxf ~/hugo.tgz hugo
+	hugo version
+	(cd docs && hugo --verbose)
 
 # clean removes intermediate files
 clean:
@@ -123,4 +133,4 @@ clean:
 	rm -rf pkg dist fabio
 	find . -name '*.test' -delete
 
-.PHONY: all build clean codeship gofmt gorelease help homebrew install linux pkg preflight release tag test
+.PHONY: all help build test mod gofmt linux install pkg release preflight tag gorelease homebrew docker-test travis travis-pages clean

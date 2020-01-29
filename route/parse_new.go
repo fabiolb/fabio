@@ -1,6 +1,8 @@
 package route
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"regexp"
@@ -65,25 +67,28 @@ route weight service host/path weight w tags "tag1,tag2"
 // The commands are parsed in order and order matters.
 // Deleting a route that has not been created yet yields
 // a different result than the other way around.
-func Parse(in string) (defs []*RouteDef, err error) {
+func Parse(in *bytes.Buffer) (defs []*RouteDef, err error) {
 	var def *RouteDef
-	for i, s := range strings.Split(in, "\n") {
+	var i int
+	scanner := bufio.NewScanner(in)
+	for scanner.Scan() {
 		def, err = nil, nil
-		s = strings.TrimSpace(s)
+		result := strings.TrimSpace(scanner.Text())
+		i++
 		switch {
-		case reComment.MatchString(s) || reBlankLine.MatchString(s):
+		case reComment.MatchString(result) || reBlankLine.MatchString(result):
 			continue
-		case reRouteAdd.MatchString(s):
-			def, err = parseRouteAdd(s)
-		case reRouteDel.MatchString(s):
-			def, err = parseRouteDel(s)
-		case reRouteWeight.MatchString(s):
-			def, err = parseRouteWeight(s)
+		case reRouteAdd.MatchString(result):
+			def, err = parseRouteAdd(result)
+		case reRouteDel.MatchString(result):
+			def, err = parseRouteDel(result)
+		case reRouteWeight.MatchString(result):
+			def, err = parseRouteWeight(result)
 		default:
 			err = errors.New("syntax error: 'route' expected")
 		}
 		if err != nil {
-			return nil, fmt.Errorf("line %d: %s", i+1, err)
+			return nil, fmt.Errorf("line %d: %s", i, err)
 		}
 		defs = append(defs, def)
 	}

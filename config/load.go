@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	gs "github.com/hashicorp/go-sockaddr/template"
 	"github.com/magiconair/properties"
 )
 
@@ -117,6 +118,8 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	var readTimeout, writeTimeout time.Duration
 	var gzipContentTypesValue string
 
+	var obsoleteStr string
+
 	f.BoolVar(&cfg.Insecure, "insecure", defaultConfig.Insecure, "allow fabio to run as root when set to true")
 	f.IntVar(&cfg.Proxy.MaxConn, "proxy.maxconn", defaultConfig.Proxy.MaxConn, "maximum number of cached connections")
 	f.StringVar(&cfg.Proxy.Strategy, "proxy.strategy", defaultConfig.Proxy.Strategy, "load balancing strategy")
@@ -172,15 +175,20 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Registry.Consul.KVPath, "registry.consul.kvpath", defaultConfig.Registry.Consul.KVPath, "consul KV path for manual overrides")
 	f.StringVar(&cfg.Registry.Consul.NoRouteHTMLPath, "registry.consul.noroutehtmlpath", defaultConfig.Registry.Consul.NoRouteHTMLPath, "consul KV path for HTML returned when no route is found")
 	f.StringVar(&cfg.Registry.Consul.TagPrefix, "registry.consul.tagprefix", defaultConfig.Registry.Consul.TagPrefix, "prefix for consul tags")
+	f.StringVar(&cfg.Registry.Consul.TLS.KeyFile, "registry.consul.tls.keyfile", defaultConfig.Registry.Consul.TLS.KeyFile, "path to consul key file")
+	f.StringVar(&cfg.Registry.Consul.TLS.CertFile, "registry.consul.tls.certfile", defaultConfig.Registry.Consul.TLS.CertFile, "path to consul cert file")
+	f.StringVar(&cfg.Registry.Consul.TLS.CAFile, "registry.consul.tls.cafile", defaultConfig.Registry.Consul.TLS.CAFile, "path to consul CA file")
+	f.StringVar(&cfg.Registry.Consul.TLS.CAPath, "registry.consul.tls.capath", defaultConfig.Registry.Consul.TLS.CAPath, "path to consul CA directory")
+	f.BoolVar(&cfg.Registry.Consul.TLS.InsecureSkipVerify, "registry.consul.tls.insecureskipverify", defaultConfig.Registry.Consul.TLS.InsecureSkipVerify, "is tls check enabled")
 	f.BoolVar(&cfg.Registry.Consul.Register, "registry.consul.register.enabled", defaultConfig.Registry.Consul.Register, "register fabio in consul")
-	f.StringVar(&cfg.Registry.Consul.ServiceAddr, "registry.consul.register.addr", defaultConfig.Registry.Consul.ServiceAddr, "service registration address")
+	f.StringVar(&cfg.Registry.Consul.ServiceAddr, "registry.consul.register.addr", "<ui.addr>", "service registration address")
 	f.StringVar(&cfg.Registry.Consul.ServiceName, "registry.consul.register.name", defaultConfig.Registry.Consul.ServiceName, "service registration name")
 	f.StringSliceVar(&cfg.Registry.Consul.ServiceTags, "registry.consul.register.tags", defaultConfig.Registry.Consul.ServiceTags, "service registration tags")
 	f.StringSliceVar(&cfg.Registry.Consul.ServiceStatus, "registry.consul.service.status", defaultConfig.Registry.Consul.ServiceStatus, "valid service status values")
 	f.DurationVar(&cfg.Registry.Consul.CheckInterval, "registry.consul.register.checkInterval", defaultConfig.Registry.Consul.CheckInterval, "service check interval")
 	f.DurationVar(&cfg.Registry.Consul.CheckTimeout, "registry.consul.register.checkTimeout", defaultConfig.Registry.Consul.CheckTimeout, "service check timeout")
 	f.BoolVar(&cfg.Registry.Consul.CheckTLSSkipVerify, "registry.consul.register.checkTLSSkipVerify", defaultConfig.Registry.Consul.CheckTLSSkipVerify, "service check TLS verification")
-	f.StringVar(&cfg.Registry.Consul.CheckDeregisterCriticalServiceAfter, "registry.consul.register.checkDeregisterCriticalServiceAfter", defaultConfig.Registry.Consul.CheckDeregisterCriticalServiceAfter, "critical service deregistration timeout")
+	f.StringVar(&obsoleteStr, "registry.consul.register.checkDeregisterCriticalServiceAfter", "", "This option is deprecated and has no effect.")
 	f.StringVar(&cfg.Registry.Consul.ChecksRequired, "registry.consul.checksRequired", defaultConfig.Registry.Consul.ChecksRequired, "number of checks which must pass: one or all")
 	f.IntVar(&cfg.Registry.Consul.ServiceMonitors, "registry.consul.serviceMonitors", defaultConfig.Registry.Consul.ServiceMonitors, "concurrency for route updates")
 	f.DurationVar(&cfg.Registry.Consul.PollInterval, "registry.consul.pollInterval", defaultConfig.Registry.Consul.PollInterval, "poll interval for route updates")
@@ -190,7 +198,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&uiListenerValue, "ui.addr", defaultValues.UIListenerValue, "Address the UI/API is listening on")
 	f.StringVar(&cfg.UI.Color, "ui.color", defaultConfig.UI.Color, "background color of the UI")
 	f.StringVar(&cfg.UI.Title, "ui.title", defaultConfig.UI.Title, "optional title for the UI")
-	f.StringVar(&cfg.ProfileMode, "profile.mode", defaultConfig.ProfileMode, "enable profiling mode, one of [cpu, mem, mutex, block]")
+	f.StringVar(&cfg.ProfileMode, "profile.mode", defaultConfig.ProfileMode, "enable profiling mode, one of [cpu, mem, mutex, block, trace]")
 	f.StringVar(&cfg.ProfilePath, "profile.path", defaultConfig.ProfilePath, "path to profile dump file")
 	f.BoolVar(&cfg.Tracing.TracingEnabled, "tracing.TracingEnabled", defaultConfig.Tracing.TracingEnabled, "Enable/Disable OpenTrace, one of [true, false]")
 	f.StringVar(&cfg.Tracing.CollectorType, "tracing.CollectorType", defaultConfig.Tracing.CollectorType, "OpenTrace Collector Type, one of [http, kafka]")
@@ -199,8 +207,18 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Tracing.Topic, "tracing.Topic", defaultConfig.Tracing.Topic, "OpenTrace Collector Kafka Topic")
 	f.Float64Var(&cfg.Tracing.SamplerRate, "tracing.SamplerRate", defaultConfig.Tracing.SamplerRate, "OpenTrace sample rate percentage in decimal form")
 	f.StringVar(&cfg.Tracing.SpanHost, "tracing.SpanHost", defaultConfig.Tracing.SpanHost, "Host:Port info to add to spans")
+	f.BoolVar(&cfg.Tracing.TraceID128Bit, "tracing.TraceID128Bit", defaultConfig.Tracing.TraceID128Bit, "Generate 128 bit trace IDs")
 	f.BoolVar(&cfg.GlobMatchingDisabled, "glob.matching.disabled", defaultConfig.GlobMatchingDisabled, "Disable Glob Matching on routes, one of [true, false]")
 	f.IntVar(&cfg.GlobCacheSize, "glob.cache.size", defaultConfig.GlobCacheSize, "sets the size of the glob cache")
+
+	f.StringVar(&cfg.Registry.Custom.Host, "registry.custom.host", defaultConfig.Registry.Custom.Host, "custom back end hostname/port")
+	f.StringVar(&cfg.Registry.Custom.Scheme, "registry.custom.scheme", defaultConfig.Registry.Custom.Scheme, "custom back end scheme - http/https")
+	f.StringVar(&cfg.Registry.Custom.NoRouteHTML, "registry.custom.noroutehtml", defaultConfig.Registry.Custom.NoRouteHTML, "path to file for HTML returned when no route is found")
+	f.BoolVar(&cfg.Registry.Custom.CheckTLSSkipVerify, "registry.custom.checkTLSSkipVerify", defaultConfig.Registry.Custom.CheckTLSSkipVerify, "custom back end check TLS verification")
+	f.DurationVar(&cfg.Registry.Custom.Timeout, "registry.custom.timeout", defaultConfig.Registry.Custom.Timeout, "timeout for API request to custom back end")
+	f.DurationVar(&cfg.Registry.Custom.PollingInterval, "registry.custom.pollinginterval", defaultConfig.Registry.Custom.PollingInterval, "polling interval for API request to custom back end")
+	f.StringVar(&cfg.Registry.Custom.Path, "registry.custom.path", defaultConfig.Registry.Custom.Path, "custom back end path in the URL")
+	f.StringVar(&cfg.Registry.Custom.QueryParams, "registry.custom.queryparams", defaultConfig.Registry.Custom.QueryParams, "custom back end query parameters in the URL")
 
 	// deprecated flags
 	var proxyLogRoutes string
@@ -251,6 +269,23 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	cfg.Listen, err = parseListeners(listenerValue, certSources, readTimeout, writeTimeout)
 	if err != nil {
 		return nil, err
+	}
+
+	if cfg.Proxy.LocalIP != "" {
+		if cfg.Proxy.LocalIP, err = gs.Parse(cfg.Proxy.LocalIP); err != nil {
+			return nil, fmt.Errorf("failed to parse local ip: %s", err)
+		}
+	}
+
+	// Unless registry.consul.register.addr has been set explicitly it should
+	// be the same as ui.addr. See issue 657.
+	if !f.IsSet("registry.consul.register.addr") {
+		cfg.Registry.Consul.ServiceAddr = cfg.UI.Listen.Addr
+	}
+	if cfg.Registry.Consul.ServiceAddr != "" {
+		if cfg.Registry.Consul.ServiceAddr, err = gs.Parse(cfg.Registry.Consul.ServiceAddr); err != nil {
+			return nil, fmt.Errorf("failed to consul service address: %s", err)
+		}
 	}
 
 	cfg.Registry.Consul.CheckScheme = defaultConfig.Registry.Consul.CheckScheme
@@ -343,11 +378,13 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 	for k, v := range cfg {
 		switch k {
 		case "", "addr":
-			l.Addr = v
+			if l.Addr, err = gs.Parse(v); err != nil {
+				return Listen{}, err
+			}
 		case "proto":
 			l.Proto = v
 			switch l.Proto {
-			case "tcp", "tcp+sni", "http", "https", "grpc", "grpcs":
+			case "tcp", "tcp+sni", "tcp-dynamic", "http", "https", "grpc", "grpcs":
 				// ok
 			default:
 				return Listen{}, fmt.Errorf("unknown protocol %q", v)
@@ -364,6 +401,12 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 				return Listen{}, err
 			}
 			l.WriteTimeout = d
+		case "it": // idle timeout
+			d, err := time.ParseDuration(v)
+			if err != nil {
+				return Listen{}, err
+			}
+			l.IdleTimeout = d
 		case "cs": // cert source
 			csName = v
 			c, ok := cs[v]
@@ -402,6 +445,12 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 				return Listen{}, err
 			}
 			l.ProxyHeaderTimeout = d
+		case "refresh":
+			d, err := time.ParseDuration(v)
+			if err != nil {
+				return Listen{}, err
+			}
+			l.Refresh = d
 		}
 	}
 
@@ -411,8 +460,8 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 	if l.Addr == "" {
 		return Listen{}, fmt.Errorf("need listening host:port")
 	}
-	if csName != "" && l.Proto != "https" && l.Proto != "tcp" && l.Proto != "grpcs" {
-		return Listen{}, fmt.Errorf("cert source requires proto 'https', 'tcp' or 'grpcs'")
+	if csName != "" && l.Proto != "https" && l.Proto != "tcp" && l.Proto != "tcp-dynamic" && l.Proto != "grpcs" {
+		return Listen{}, fmt.Errorf("cert source requires proto 'https', 'tcp', 'tcp-dynamic' or 'grpcs'")
 	}
 	if csName == "" && l.Proto == "https" {
 		return Listen{}, fmt.Errorf("proto 'https' requires cert source")
@@ -545,6 +594,8 @@ func parseCertSource(cfg map[string]string) (c CertSource, err error) {
 				return CertSource{}, err
 			}
 			c.Refresh = d
+		case "vaultfetchtoken":
+			c.VaultFetchToken = v
 		case "hdr":
 			p := strings.SplitN(v, ": ", 2)
 			if len(p) != 2 {

@@ -67,6 +67,7 @@ func ListenAndServeHTTP(l config.Listen, h http.Handler, cfg *tls.Config) error 
 		Handler:      h,
 		ReadTimeout:  l.ReadTimeout,
 		WriteTimeout: l.WriteTimeout,
+		IdleTimeout:  l.IdleTimeout,
 		TLSConfig:    cfg,
 	}
 	return serve(ln, srv)
@@ -103,5 +104,8 @@ func serve(ln net.Listener, srv Server) error {
 	mu.Lock()
 	servers = append(servers, srv)
 	mu.Unlock()
-	return srv.Serve(ln)
+	if err := srv.Serve(ln); err != http.ErrServerClosed {
+		return err
+	}
+	return nil
 }

@@ -2,8 +2,8 @@
 
 This is the source code for the https://fabiolb.net website.
 
-It is built with [Hugo](https://gohugo.io/) and deployed automatically
-to [Netlify](https://netlify.com/).
+It is built with [Hugo](https://gohugo.io/) and automatically deployed to GitHub pages via
+[Travis](https://travis-ci.org/).
 
 The theme is [TheDocs](http://thetheme.io/thedocs/) from [TheTheme.io](http://thetheme.io/).
 
@@ -15,4 +15,3 @@ To render the page locally run the following command in the `fabio` root directo
     $ hugo serve -s docs --disableFastRender
 
 To view the site open http://localhost:1313/ in your browser.
-

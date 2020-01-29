@@ -5,11 +5,11 @@
     {{range .Site.Sections}}
     {{$section := .}}
     <li>
-      <a class="{{if eq $currentPage.URL .URL}} active{{end}}" href="{{.URL}}">{{.Title}}</a>
-      {{if and .Pages (hasPrefix $currentPage.URL $section.URL)}}
+      <a class="{{if eq $currentPage.Permalink .Permalink}} active{{end}}" href="{{.Permalink}}">{{.Title}}</a>
+      {{if and .Pages (hasPrefix $currentPage.Permalink $section.Permalink)}}
       <ul class="open">
       {{range .Pages}}
-        <li><a{{if eq $currentPage.URL .URL}} class="active"{{end}} href="{{.URL}}">{{.Title}}</a></li>
+        <li><a{{if eq $currentPage.Permalink .Permalink}} class="active"{{end}} href="{{.Permalink}}">{{.Title}}</a></li>
       {{end}}
       </ul>
       {{end}}

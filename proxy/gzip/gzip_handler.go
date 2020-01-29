@@ -21,12 +21,15 @@ import (
 
 const (
 	headerVary            = "Vary"
+	headerAccept          = "Accept"
 	headerAcceptEncoding  = "Accept-Encoding"
 	headerContentEncoding = "Content-Encoding"
 	headerContentType     = "Content-Type"
 	headerContentLength   = "Content-Length"
 	encodingGzip          = "gzip"
 )
+
+var blacklistedAcceptContentTypes = []string{"text/event-stream"}
 
 var gzipWriterPool = sync.Pool{
 	New: func() interface{} { return gzip.NewWriter(nil) },
@@ -110,5 +113,11 @@ func isCompressable(header http.Header, contentTypes *regexp.Regexp) bool {
 }
 
 func acceptsGzip(r *http.Request) bool {
+	accept := r.Header.Get(headerAccept)
+	for _, contentType := range blacklistedAcceptContentTypes {
+		if strings.Contains(accept, contentType) {
+			return false
+		}
+	}
 	return strings.Contains(r.Header.Get(headerAcceptEncoding), encodingGzip)
 }

@@ -150,6 +150,11 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// TODO(fs): a defensive approach.
 	if t.StripPath != "" && strings.HasPrefix(r.URL.Path, t.StripPath) {
 		targetURL.Path = targetURL.Path[len(t.StripPath):]
+		// ensure absolute path after stripping to maintain compliance with
+		// section 5.3 of RFC7230 (https://tools.ietf.org/html/rfc7230#section-5.3)
+		if !strings.HasPrefix(targetURL.Path, "/") {
+			targetURL.Path = "/" + targetURL.Path
+		}
 	}
 
 	if err := addHeaders(r, p.Config, t.StripPath); err != nil {
@@ -266,6 +271,12 @@ func (rw *responseWriter) Write(b []byte) (int, error) {
 func (rw *responseWriter) WriteHeader(statusCode int) {
 	rw.w.WriteHeader(statusCode)
 	rw.code = statusCode
+}
+
+func (rw *responseWriter) Flush() {
+	if fl, ok := rw.w.(http.Flusher); ok {
+		fl.Flush()
+	}
 }
 
 var errNoHijacker = errors.New("not a hijacker")

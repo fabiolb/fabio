@@ -20,10 +20,10 @@ var tmplRoutes = template.Must(template.New("routes").Parse(`
 <head>
 	<meta charset="utf-8">
 	<title>fabio{{if .Title}} - {{.Title}}{{end}}</title>
-	<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+	<script type="text/javascript" src="/assets/code.jquery.com/jquery-3.3.1.min.js"></script>
+    <link href="/assets/fonts/material-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <script src="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 	<style type="text/css">
@@ -64,7 +64,7 @@ var tmplRoutes = template.Must(template.New("routes").Parse(`
 	</div>
 
 	<div class="section footer">
-		<img class="logo" src="/logo.svg">
+		<img class="logo" src="/assets/logo.svg">
 	</div>
 
 </div>
@@ -95,7 +95,6 @@ $(function(){
 			$tr.append($('<td />').text(i+1));
 			$tr.append($('<td />').text(r.service));
 			$tr.append($('<td />').text(r.src));
-			$tr.append($('<td />').text(r.dst));
 			$tr.append($('<td />').append($('<a />').attr('href', r.dst).text(r.dst)));
 			$tr.append($('<td />').text(r.opts));
 			$tr.append($('<td />').text((r.weight * 100).toFixed(2) + '%'));

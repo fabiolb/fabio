@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"sort"
@@ -108,8 +109,8 @@ func hostpath(prefix string) (host string, path string) {
 	return p[0], "/" + p[1]
 }
 
-func NewTable(s string) (t Table, err error) {
-	defs, err := Parse(s)
+func NewTable(b *bytes.Buffer) (t Table, err error) {
+	defs, err := Parse(b)
 	if err != nil {
 		return nil, err
 	}
@@ -123,6 +124,27 @@ func NewTable(s string) (t Table, err error) {
 			err = t.delRoute(d)
 		case RouteWeightCmd:
 			err = t.weighRoute(d)
+		default:
+			err = fmt.Errorf("route: invalid command: %s", d.Cmd)
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	return t, nil
+}
+
+func NewTableCustom(defs *[]RouteDef) (t Table, err error) {
+
+	t = make(Table)
+	for _, d := range *defs {
+		switch d.Cmd {
+		case RouteAddCmd:
+			err = t.addRoute(&d)
+		case RouteDelCmd:
+			err = t.delRoute(&d)
+		case RouteWeightCmd:
+			err = t.weighRoute(&d)
 		default:
 			err = fmt.Errorf("route: invalid command: %s", d.Cmd)
 		}
@@ -283,7 +305,10 @@ func (t Table) route(host, path string) *Route {
 // normalizeHost returns the hostname from the request
 // and removes the default port if present.
 func normalizeHost(host string, tls bool) string {
-	host = strings.ToLower(host)
+	return strings.ToLower(normalizeHostNoLower(host, tls))
+}
+
+func normalizeHostNoLower(host string, tls bool) string {
 	if !tls && strings.HasSuffix(host, ":80") {
 		return host[:len(host)-len(":80")]
 	}
@@ -327,11 +352,11 @@ func (t Table) matchingHosts(req *http.Request, globCache *GlobCache) (hosts []s
 	// the correct result we need to reverse the strings, sort them and then
 	// reverse them again.
 	for i, h := range hosts {
-		hosts[i] = Reverse(h)
+		hosts[i] = ReverseHostPort(h)
 	}
 	sort.Sort(sort.Reverse(sort.StringSlice(hosts)))
 	for i, h := range hosts {
-		hosts[i] = Reverse(h)
+		hosts[i] = ReverseHostPort(h)
 	}
 	return
 }
@@ -341,28 +366,37 @@ func (t Table) matchingHosts(req *http.Request, globCache *GlobCache) (hosts []s
 // matchingHostNoGlob returns the route from the
 // routing table which matches the normalized request hostname.
 func (t Table) matchingHostNoGlob(req *http.Request) (hosts []string) {
-	host := normalizeHost(req.Host, req.TLS != nil)
+	host := normalizeHostNoLower(req.Host, req.TLS != nil)
 
 	for pattern := range t {
 		normpat := normalizeHost(pattern, req.TLS != nil)
-		if normpat == host {
-			//log.Printf("DEBUG Matched %s and %s", normpat, host)
-			hosts = append(hosts, pattern)
+		if  normpat == host {
+			hosts = append(hosts, strings.ToLower(pattern))
 			return
 		}
 	}
 	return
 }
 
-// Reverse returns its argument string reversed rune-wise left to right.
-//
-// taken from https://github.com/golang/example/blob/master/stringutil/reverse.go
-func Reverse(s string) string {
-	r := []rune(s)
+// ReverseHostPort returns its argument string reversed rune-wise left to
+// right. If s includes a port, only the host part is reversed.
+func ReverseHostPort(s string) string {
+	h, p, _ := net.SplitHostPort(s)
+	if h == "" {
+		h = s
+	}
+
+	// Taken from https://github.com/golang/example/blob/master/stringutil/reverse.go
+	r := []rune(h)
 	for i, j := 0, len(r)-1; i < len(r)/2; i, j = i+1, j-1 {
 		r[i], r[j] = r[j], r[i]
 	}
-	return string(r)
+
+	if p == "" {
+		return string(r)
+	} else {
+		return net.JoinHostPort(string(r), p)
+	}
 }
 
 // Lookup finds a target url based on the current matcher and picker

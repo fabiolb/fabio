@@ -134,6 +134,9 @@ func parseURLPrefixTag(s, prefix string, env map[string]string) (route, opts str
 		return s, opts, true
 	}
 
+	if !strings.Contains(s, "/") {
+		return s, opts, true
+	}
 	// prefix is "host/path"
 	p = strings.SplitN(s, "/", 2)
 	if len(p) == 1 {

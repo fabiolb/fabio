@@ -3,9 +3,9 @@
 Please respect others and treat them the way you want to
 be treated yourself.
 
-If you feel someone overstepped please send a mail to
-fabiolb@magiconair.net and I will follow up.
+If you feel someone overstepped please reach out to one of the
+[project owners](https://github.com/orgs/fabiolb/teams/owners) and someone will follow up.
 
 Thank you
 
-Frank Schroeder
+The Fabio Team
