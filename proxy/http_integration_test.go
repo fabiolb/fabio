@@ -197,7 +197,7 @@ func TestProxyStripsPath(t *testing.T) {
 		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable(bytes.NewBufferString("route add mock /foo/bar " + server.URL + ` opts "strip=/foo"`))
-      return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
 		},
 	})
 	defer proxy.Close()
@@ -487,7 +487,7 @@ func TestProxyHTTPSUpstream(t *testing.T) {
 		Transport: &http.Transport{TLSClientConfig: tlsClientConfig()},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable(bytes.NewBufferString("route add srv / " + server.URL + ` opts "proto=https"`))
-      return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
 		},
 	})
 	defer proxy.Close()
@@ -514,7 +514,7 @@ func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
 		},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable(bytes.NewBufferString("route add srv / " + server.URL + ` opts "proto=https tlsskipverify=true"`))
-      return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
 		},
 	})
 	defer proxy.Close()

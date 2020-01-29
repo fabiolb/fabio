@@ -8,7 +8,6 @@ import (
 	"github.com/fabiolb/fabio/registry"
 
 	"github.com/hashicorp/consul/api"
-	"net/http"
 )
 
 // be is an implementation of a registry backend for consul.

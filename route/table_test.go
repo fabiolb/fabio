@@ -658,7 +658,7 @@ func TestTableLookup_656(t *testing.T) {
 	}
 
 	req := httptest.NewRequest("GET", "http://example.com/foo", nil)
-	target := tbl.Lookup(req, "redirect", rrPicker, prefixMatcher, false)
+	target := tbl.Lookup(req, "redirect", rrPicker, prefixMatcher, globCache, globDisabled)
 
 	if target == nil {
 		t.Fatal("No route match")

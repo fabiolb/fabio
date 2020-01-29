@@ -370,7 +370,7 @@ func (t Table) matchingHostNoGlob(req *http.Request) (hosts []string) {
 
 	for pattern := range t {
 		normpat := normalizeHost(pattern, req.TLS != nil)
-		if  normpat == host {
+		if normpat == host {
 			hosts = append(hosts, strings.ToLower(pattern))
 			return
 		}
