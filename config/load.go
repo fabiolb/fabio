@@ -209,6 +209,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Tracing.SpanHost, "tracing.SpanHost", defaultConfig.Tracing.SpanHost, "Host:Port info to add to spans")
 	f.BoolVar(&cfg.Tracing.TraceID128Bit, "tracing.TraceID128Bit", defaultConfig.Tracing.TraceID128Bit, "Generate 128 bit trace IDs")
 	f.BoolVar(&cfg.GlobMatchingDisabled, "glob.matching.disabled", defaultConfig.GlobMatchingDisabled, "Disable Glob Matching on routes, one of [true, false]")
+	f.IntVar(&cfg.GlobCacheSize, "glob.cache.size", defaultConfig.GlobCacheSize, "sets the size of the glob cache")
 
 	f.StringVar(&cfg.Registry.Custom.Host, "registry.custom.host", defaultConfig.Registry.Custom.Host, "custom back end hostname/port")
 	f.StringVar(&cfg.Registry.Custom.Scheme, "registry.custom.scheme", defaultConfig.Registry.Custom.Scheme, "custom back end scheme - http/https")

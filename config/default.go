@@ -103,4 +103,6 @@ var defaultConfig = &Config{
 		SpanHost:       "localhost:9998",
 		TraceID128Bit:  true,
 	},
+
+	GlobCacheSize: 1000,
 }

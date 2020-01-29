@@ -148,6 +148,10 @@ func main() {
 }
 
 func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config) []grpc.ServerOption {
+
+	//Init Glob Cache
+	globCache := route.NewGlobCache(cfg.GlobCacheSize)
+
 	statsHandler := &proxy.GrpcStatsHandler{
 		Connect: metrics.DefaultRegistry.GetCounter("grpc.conn"),
 		Request: metrics.DefaultRegistry.GetTimer("grpc.requests"),
@@ -157,6 +161,7 @@ func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config) []grpc.ServerOption {
 	proxyInterceptor := proxy.GrpcProxyInterceptor{
 		Config:       cfg,
 		StatsHandler: statsHandler,
+		GlobCache:    globCache,
 	}
 
 	handler := grpc_proxy.TransparentHandler(proxy.GetGRPCDirector(tlscfg))
@@ -171,6 +176,10 @@ func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config) []grpc.ServerOption {
 
 func newHTTPProxy(cfg *config.Config) http.Handler {
 	var w io.Writer
+
+	//Init Glob Cache
+	globCache := route.NewGlobCache(cfg.GlobCacheSize)
+
 	switch cfg.Log.AccessTarget {
 	case "":
 		log.Printf("[INFO] Access logging disabled")
@@ -223,7 +232,7 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 		Transport:         newTransport(nil),
 		InsecureTransport: newTransport(&tls.Config{InsecureSkipVerify: true}),
 		Lookup: func(r *http.Request) *route.Target {
-			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match, cfg.GlobMatchingDisabled)
+			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match, globCache, cfg.GlobMatchingDisabled)
 			if t == nil {
 				notFound.Inc(1)
 				log.Print("[WARN] No route for ", r.Host, r.URL)
