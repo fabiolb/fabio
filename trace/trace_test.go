@@ -24,7 +24,7 @@ func TestCreateSpanNoGlobalTracer(t *testing.T) {
 	opentracing.SetGlobalTracer(nil)
 	req, _ := http.NewRequest("GET", "http://example.com", nil)
 
-	if CreateSpan(req, testServiceName) != nil {
+	if CreateSpan(req, &config.Tracing{ServiceName: "fabiolb-test", SpanName: "{{.Method}} {{.Path}}"}) != nil {
 		t.Error("CreateSpan returned a non-nil result using a nil global tracer.")
 		t.Fail()
 	}
@@ -35,7 +35,7 @@ func TestCreateSpanWithNoParent(t *testing.T) {
 	opentracing.SetGlobalTracer(tracer)
 
 	req, _ := http.NewRequest("GET", "http://example.com", nil)
-	if CreateSpan(req, testServiceName) == nil {
+	if CreateSpan(req, &config.Tracing{ServiceName: "fabiolb-test", SpanName: "{{.Method}} {{.Path}}"}) == nil {
 		t.Error("Received nil span while a global tracer was set.")
 		t.FailNow()
 	}
@@ -53,7 +53,7 @@ func TestCreateSpanWithParent(t *testing.T) {
 		opentracing.HTTPHeadersCarrier(requestIn.Header),
 	)
 
-	if CreateSpan(requestIn, testServiceName+"-child") == nil {
+	if CreateSpan(requestIn, &config.Tracing{ServiceName: "fabiolb-test", SpanName: "{{.Method}} {{.Path}}"}) == nil {
 		t.Error("Received a nil span while a global tracer was set.")
 		t.FailNow()
 	}
@@ -125,6 +125,25 @@ func TestInjectHeadersWithParentSpan(t *testing.T) {
 	}
 	if req.Header.Get("x-B3-Traceid") != "00000000000004d200000000000010e1" {
 		t.Error("Inject did not reuse the Traceid from the parent span")
+		t.Fail()
+	}
+}
+
+func TestSpanName(t *testing.T) {
+	req, _ := http.NewRequest("GET", "http://example.com/demo", nil)
+
+	if spanName("{{.Method}} {{.Host}} {{.Path}}", req) != "GET example.com /demo" {
+		t.Error("spanName did not properly render the supported template")
+		t.Fail()
+	}
+
+	if spanName("{{.Invalid", req) != "{{.Invalid" {
+		t.Error("spanName did not return the unrendered string of the invalid template")
+		t.Fail()
+	}
+
+	if spanName("{{.Unsupported}}", req) != "{{.Unsupported}}" {
+		t.Error("spanName did not return the unrendered string of the unsupported template")
 		t.Fail()
 	}
 }

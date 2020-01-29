@@ -1,11 +1,13 @@
 package trace
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strings"
+	"text/template"
 
 	"github.com/fabiolb/fabio/config"
 	opentracing "github.com/opentracing/opentracing-go"
@@ -63,18 +65,25 @@ func CreateTracer(recorder zipkin.SpanRecorder, samplerRate float64, traceID128B
 	return tracer
 }
 
-func CreateSpan(r *http.Request, serviceName string) opentracing.Span {
+func CreateSpan(r *http.Request, cfg *config.Tracing) opentracing.Span {
 	globalTracer := opentracing.GlobalTracer()
+
+	name := cfg.ServiceName
+	if cfg.SpanName != "" {
+		name = spanName(cfg.SpanName, r)
+	}
 
 	// If headers contain trace data, create child span from parent; else, create root span
 	var span opentracing.Span
 	if globalTracer != nil {
 		spanCtx, err := globalTracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(r.Header))
 		if err != nil {
-			span = globalTracer.StartSpan(serviceName)
+			span = globalTracer.StartSpan(name)
 		} else {
-			span = globalTracer.StartSpan(serviceName, ext.RPCServerOption(spanCtx))
+			span = globalTracer.StartSpan(name, ext.RPCServerOption(spanCtx))
 		}
+		ext.HTTPMethod.Set(span, r.Method)
+		ext.HTTPUrl.Set(span, r.URL.String())
 	}
 
 	return span // caller must defer span.finish()
@@ -97,4 +106,25 @@ func InitializeTracer(traceConfig *config.Tracing) {
 
 	// Set the Zipkin Tracer created above to the GlobalTracer
 	opentracing.SetGlobalTracer(tracer)
+}
+
+// spanName returns the rendered span name from the configured template.
+// If an error is encountered, it returns the unrendered template.
+func spanName(tmplStr string, r *http.Request) string {
+	tmpl, err := template.New("name").Parse(tmplStr)
+	if err != nil {
+		return tmplStr
+	}
+
+	var name bytes.Buffer
+
+	data := struct {
+		Proto, Method, Host, Scheme, Path, RawQuery string
+	}{r.Proto, r.Method, r.Host, r.URL.Scheme, r.URL.Path, r.URL.RawQuery}
+
+	if err = tmpl.Execute(&name, data); err != nil {
+		return tmplStr
+	}
+
+	return name.String()
 }

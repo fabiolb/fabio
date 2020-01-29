@@ -178,6 +178,7 @@ type Tracing struct {
 	Topic          string
 	SamplerRate    float64
 	SpanHost       string
+	SpanName       string
 	TraceID128Bit  bool
 }
 
