@@ -215,7 +215,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Registry.Custom.NoRouteHTML, "registry.custom.noroutehtml", defaultConfig.Registry.Custom.NoRouteHTML, "path to file for HTML returned when no route is found")
 	f.BoolVar(&cfg.Registry.Custom.CheckTLSSkipVerify, "registry.custom.checkTLSSkipVerify", defaultConfig.Registry.Custom.CheckTLSSkipVerify, "custom back end check TLS verification")
 	f.DurationVar(&cfg.Registry.Custom.Timeout, "registry.custom.timeout", defaultConfig.Registry.Custom.Timeout, "timeout for API request to custom back end")
-	f.DurationVar(&cfg.Registry.Custom.PollingInterval, "registry.custom.pollinginterval", defaultConfig.Registry.Custom.PollingInterval, "polling interval for API request to custom back end")
+	f.DurationVar(&cfg.Registry.Custom.PollInterval, "registry.custom.pollinginterval", defaultConfig.Registry.Custom.PollInterval, "polling interval for API request to custom back end")
 	f.StringVar(&cfg.Registry.Custom.Path, "registry.custom.path", defaultConfig.Registry.Custom.Path, "custom back end path in the URL")
 	f.StringVar(&cfg.Registry.Custom.QueryParams, "registry.custom.queryparams", defaultConfig.Registry.Custom.QueryParams, "custom back end query parameters in the URL")
 
