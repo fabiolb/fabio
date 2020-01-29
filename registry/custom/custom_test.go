@@ -18,7 +18,7 @@ func TestCustomRoutes(t *testing.T) {
 		Path:               "test",
 		Scheme:             "http",
 		CheckTLSSkipVerify: false,
-		PollingInterval:    3 * time.Second,
+		PollInterval:       3 * time.Second,
 		Timeout:            3 * time.Second,
 	}
 

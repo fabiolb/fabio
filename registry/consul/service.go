@@ -34,7 +34,12 @@ func (w *ServiceMonitor) Watch(updates chan string) {
 	var lastIndex uint64
 	var q *api.QueryOptions
 	for {
-		q = &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
+		if w.config.PollInterval != 0 {
+			q = &api.QueryOptions{RequireConsistent: true}
+			time.Sleep(w.config.PollInterval)
+		} else {
+			q = &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
+		}
 		checks, meta, err := w.client.Health().State("any", q)
 		if err != nil {
 			log.Printf("[WARN] consul: Error fetching health state. %v", err)

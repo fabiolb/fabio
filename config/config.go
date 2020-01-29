@@ -156,6 +156,7 @@ type Consul struct {
 	ChecksRequired     string
 	ServiceMonitors    int
 	TLS                ConsulTlS
+	PollInterval       time.Duration
 }
 
 type Custom struct {
@@ -164,7 +165,7 @@ type Custom struct {
 	QueryParams        string
 	Scheme             string
 	CheckTLSSkipVerify bool
-	PollingInterval    time.Duration
+	PollInterval       time.Duration
 	NoRouteHTML        string
 	Timeout            time.Duration
 }

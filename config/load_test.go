@@ -704,9 +704,9 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
-			args: []string{"-registry.custom.pollinginterval", "5s"},
+			args: []string{"-registry.custom.pollinterval", "5s"},
 			cfg: func(cfg *Config) *Config {
-				cfg.Registry.Custom.PollingInterval = 5 * time.Second
+				cfg.Registry.Custom.PollInterval = 5 * time.Second
 				return cfg
 			},
 		},
@@ -721,6 +721,13 @@ func TestLoad(t *testing.T) {
 			args: []string{"-registry.custom.queryparams", "test=1"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Registry.Custom.QueryParams = "test=1"
+				return cfg
+			},
+		},
+		{
+			args: []string{"-registry.consul.pollinterval", "5s"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Registry.Consul.PollInterval = 5 * time.Second
 				return cfg
 			},
 		},

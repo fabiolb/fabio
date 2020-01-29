@@ -48,13 +48,13 @@ func customRoutes(cfg *config.Custom, ch chan string) {
 		resp, err := client.Do(req)
 		if err != nil {
 			ch <- fmt.Sprintf("Error Sending HTTPs Request To Custom be - %s -%s", URL, err.Error())
-			time.Sleep(cfg.PollingInterval)
+			time.Sleep(cfg.PollInterval)
 			continue
 		}
 
 		if resp.StatusCode != 200 {
 			ch <- fmt.Sprintf("Error Non-200 return (%v) from  -%s", resp.StatusCode, URL)
-			time.Sleep(cfg.PollingInterval)
+			time.Sleep(cfg.PollInterval)
 			continue
 		}
 		log.Printf("[DEBUG] Custom Registry begin decoding json %s \n", time.Now())
@@ -62,7 +62,7 @@ func customRoutes(cfg *config.Custom, ch chan string) {
 		err = decoder.Decode(&Routes)
 		if err != nil {
 			ch <- fmt.Sprintf("Error decoding request - %s -%s", URL, err.Error())
-			time.Sleep(cfg.PollingInterval)
+			time.Sleep(cfg.PollInterval)
 			continue
 		}
 
@@ -75,7 +75,7 @@ func customRoutes(cfg *config.Custom, ch chan string) {
 		route.SetTable(t)
 		log.Printf("[DEBUG] Custom Registry table set complete %s \n", time.Now())
 		ch <- "OK"
-		time.Sleep(cfg.PollingInterval)
+		time.Sleep(cfg.PollInterval)
 
 	}
 
