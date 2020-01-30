@@ -449,7 +449,6 @@ func initRuntime(cfg *config.Config) {
 
 func initBackend(cfg *config.Config) {
 	var deadline = time.Now().Add(cfg.Registry.Timeout)
-
 	var err error
 	for {
 		switch cfg.Registry.Backend {
@@ -485,17 +484,18 @@ func initBackend(cfg *config.Config) {
 
 func watchBackend(cfg *config.Config, first chan bool) {
 	var (
-		last     string
-		svccfg   string
-		mancfg   string
-		customBE string
-		once     sync.Once
-		next     = new(bytes.Buffer) // fix crash on reset before used (#650)
+		nextTable   string
+		lastTable   string
+		svccfg      string
+		mancfg      string
+		customBE    string
+		once        sync.Once
+		tableBuffer = new(bytes.Buffer) // fix crash on reset before used (#650)
 	)
 
 	switch cfg.Registry.Backend {
-	//Custom Back End.  Gets JSON from Remote Backend that contains a slice of route.RouteDef.  It loads the route table
-	//Directly from that input
+	// custom back end receives JSON from a remote source that contains a slice of route.RouteDef
+	// the route table is created directly from that input
 	case "custom":
 		svc := registry.Default.WatchServices()
 		for {
@@ -505,40 +505,39 @@ func watchBackend(cfg *config.Config, first chan bool) {
 			}
 			once.Do(func() { close(first) })
 		}
-	//All other back ends
+	// all other backend types
 	default:
 		svc := registry.Default.WatchServices()
 		man := registry.Default.WatchManual()
 
 		for {
-
 			select {
 			case svccfg = <-svc:
 			case mancfg = <-man:
 			}
-			// manual config overrides service config
-			// order matters
-			next.Reset()
-			next.WriteString(svccfg)
-			next.WriteString("\n")
-			next.WriteString(mancfg)
-			if next.String() == last {
+			// manual config overrides service config - order matters
+			tableBuffer.Reset()
+			tableBuffer.WriteString(svccfg)
+			tableBuffer.WriteString("\n")
+			tableBuffer.WriteString(mancfg)
+			// set nextTable here to preserve the state.  The buffer is altered
+			// when calling route.NewTable and we lose change logging (#737)
+			if nextTable = tableBuffer.String(); nextTable == lastTable {
 				continue
 			}
-			aliases, err := route.ParseAliases(next.String())
+			aliases, err := route.ParseAliases(nextTable)
 			if err != nil {
 				log.Printf("[WARN]: %s", err)
 			}
 			registry.Default.Register(aliases)
-
-			t, err := route.NewTable(next)
+			t, err := route.NewTable(tableBuffer)
 			if err != nil {
 				log.Printf("[WARN] %s", err)
 				continue
 			}
 			route.SetTable(t)
-			logRoutes(t, last, next.String(), cfg.Log.RoutesFormat)
-			last = next.String()
+			logRoutes(t, lastTable, nextTable, cfg.Log.RoutesFormat)
+			lastTable = nextTable
 			once.Do(func() { close(first) })
 		}
 	}
