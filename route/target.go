@@ -70,20 +70,37 @@ func (t *Target) BuildRedirectURL(requestURL *url.URL) {
 		Scheme:   t.URL.Scheme,
 		Host:     t.URL.Host,
 		Path:     t.URL.Path,
+		RawPath:  t.URL.Path,
 		RawQuery: t.URL.RawQuery,
 	}
+	// treat case of $path not separated with a / from host
 	if strings.HasSuffix(t.RedirectURL.Host, "$path") {
 		t.RedirectURL.Host = t.RedirectURL.Host[:len(t.RedirectURL.Host)-len("$path")]
 		t.RedirectURL.Path = "$path"
 	}
+	// remove / before $path in redirect url
 	if strings.Contains(t.RedirectURL.Path, "/$path") {
 		t.RedirectURL.Path = strings.Replace(t.RedirectURL.Path, "/$path", "$path", 1)
+		t.RedirectURL.RawPath = strings.Replace(t.RedirectURL.RawPath, "/$path", "$path", 1)
 	}
+	// insert passed request path, remove strip path, set quer
 	if strings.Contains(t.RedirectURL.Path, "$path") {
+		// replace in not raw path
 		t.RedirectURL.Path = strings.Replace(t.RedirectURL.Path, "$path", requestURL.Path, 1)
+		// replace in raw path - determine replacement first
+		var replaceRawPath string
+		if requestURL.RawPath == "" {
+			replaceRawPath = requestURL.Path
+		} else {
+			replaceRawPath = requestURL.RawPath
+		}
+		t.RedirectURL.RawPath = strings.Replace(t.RedirectURL.RawPath, "$path", replaceRawPath, 1)
+		// remove stip path
 		if t.StripPath != "" && strings.HasPrefix(t.RedirectURL.Path, t.StripPath) {
 			t.RedirectURL.Path = t.RedirectURL.Path[len(t.StripPath):]
+			t.RedirectURL.RawPath = t.RedirectURL.RawPath[len(t.StripPath):]
 		}
+		// set query
 		if t.RedirectURL.RawQuery == "" && requestURL.RawQuery != "" {
 			t.RedirectURL.RawQuery = requestURL.RawQuery
 		}
