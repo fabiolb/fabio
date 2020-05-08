@@ -41,6 +41,7 @@ and you need to add a separate `urlprefix-` tag for every `host/path` prefix the
 	urlprefix-i.com/static                             # host specific path route
 	urlprefix-mysite.com/                              # host specific catch all route
 	urlprefix-/foo/bar strip=/foo                      # path stripping (forward '/bar' to upstream)
+	urlprefix-/bar prepend=/foo                        # path prepending (forward '/foo/bar' to upstream)
 	urlprefix-/foo/bar proto=https                     # HTTPS upstream
 	urlprefix-/foo/bar proto=https tlsskipverify=true  # HTTPS upstream and self-signed cert
 
