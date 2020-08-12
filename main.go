@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -49,7 +50,7 @@ import (
 // It is also set by the linker when fabio
 // is built via the Makefile or the build/docker.sh
 // script to ensure the correct version number
-var version = "1.5.12"
+var version = "1.5.14"
 
 var shuttingDown int32
 
@@ -260,6 +261,28 @@ func lookupHostFn(cfg *config.Config) func(string) *route.Target {
 	}
 }
 
+// Returns a matcher function compatible with tcpproxy Matcher from github.com/inetaf/tcpproxy
+func lookupHostMatcher(cfg *config.Config) func(context.Context, string) bool {
+	pick := route.Picker[cfg.Proxy.Strategy]
+	return func(ctx context.Context, host string) bool {
+		t := route.GetTable().LookupHost(host, pick)
+		if t == nil {
+			return false
+		}
+
+		// Make sure this is supposed to be a tcp proxy.
+		// opts proto= overrides scheme if present.
+		var (
+			ok    bool
+			proto string
+		)
+		if proto, ok = t.Opts["proto"]; !ok && t.URL != nil {
+			proto = t.URL.Scheme
+		}
+		return "tcp" == proto
+	}
+}
+
 func makeTLSConfig(l config.Listen) (*tls.Config, error) {
 	if l.CertSource.Name == "" {
 		return nil, nil
@@ -396,6 +419,20 @@ func startServers(cfg *config.Config) {
 							}
 						}()
 					}
+				}
+			}()
+		case "https+tcp+sni":
+			go func() {
+				hp := newHTTPProxy(cfg)
+				tp := &tcp.SNIProxy{
+					DialTimeout: cfg.Proxy.DialTimeout,
+					Lookup:      lookupHostFn(cfg),
+					Conn:        metrics.DefaultRegistry.GetCounter("tcp_sni.conn"),
+					ConnFail:    metrics.DefaultRegistry.GetCounter("tcp_sni.connfail"),
+					Noroute:     metrics.DefaultRegistry.GetCounter("tcp_sni.noroute"),
+				}
+				if err := proxy.ListenAndServeHTTPSTCPSNI(l, hp, tp, tlscfg, lookupHostMatcher(cfg)); err != nil {
+					exit.Fatal("[FATAL] ", err)
 				}
 			}()
 		default:

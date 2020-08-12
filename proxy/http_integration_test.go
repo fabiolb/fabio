@@ -644,11 +644,22 @@ func tlsClientConfig() *tls.Config {
 	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
 		panic("could not parse cert")
 	}
+	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert2); !ok {
+		panic("could not parse cert")
+	}
 	return &tls.Config{RootCAs: rootCAs}
 }
 
 func tlsServerConfig() *tls.Config {
 	cert, err := tls.X509KeyPair(internal.LocalhostCert, internal.LocalhostKey)
+	if err != nil {
+		panic("failed to set cert")
+	}
+	return &tls.Config{Certificates: []tls.Certificate{cert}}
+}
+
+func tlsServerConfig2() *tls.Config {
+	cert, err := tls.X509KeyPair(internal.LocalhostCert2, internal.LocalhostKey2)
 	if err != nil {
 		panic("failed to set cert")
 	}

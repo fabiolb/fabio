@@ -1,14 +1,14 @@
 # CUR_TAG is the last git tag plus the delta from the current commit to the tag
 # e.g. v1.5.5-<nr of commits since>-g<current git sha>
-CUR_TAG ?= $(shell git describe)
+CUR_TAG ?= $(shell git describe --tags --first-parent)
 
 # LAST_TAG is the last git tag
 # e.g. v1.5.5
-LAST_TAG ?= $(shell git describe --abbrev=0)
+LAST_TAG ?= $(shell git describe --tags --first-parent --abbrev=0)
 
 # VERSION is the last git tag without the 'v'
 # e.g. 1.5.5
-VERSION ?= $(shell git describe --abbrev=0 | cut -c 2-)
+VERSION ?= $(shell git describe --tags --first-parent --abbrev=0 | cut -c 2-)
 
 # GOFLAGS is the flags for the go compiler.
 GOFLAGS ?= -mod=vendor -ldflags "-X main.version=$(CUR_TAG)"

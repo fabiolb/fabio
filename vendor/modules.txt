@@ -73,6 +73,8 @@ github.com/hashicorp/hcl/json/token
 github.com/hashicorp/serf/coordinate
 # github.com/hashicorp/vault v0.6.0
 github.com/hashicorp/vault/api
+# github.com/inetaf/tcpproxy v0.0.0-20200125044825-b6bb9b5b8252
+github.com/inetaf/tcpproxy
 # github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515
 github.com/kr/logfmt
 # github.com/magiconair/properties v0.0.0-20171031211101-49d762b9817b

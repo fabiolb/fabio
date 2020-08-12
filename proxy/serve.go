@@ -3,6 +3,7 @@ package proxy
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"net"
 	"net/http"
 	"sync"
@@ -12,6 +13,9 @@ import (
 
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/proxy/tcp"
+
+	"github.com/armon/go-proxyproto"
+	"github.com/inetaf/tcpproxy"
 )
 
 type Server interface {
@@ -73,6 +77,62 @@ func ListenAndServeHTTP(l config.Listen, h http.Handler, cfg *tls.Config) error 
 	return serve(ln, srv)
 }
 
+func ListenAndServeHTTPSTCPSNI(l config.Listen, h http.Handler, p tcp.Handler, cfg *tls.Config, m tcpproxy.Matcher) error {
+	// we only want proxy proto enabled on tcp proxies
+	pxyProto := l.ProxyProto
+	l.ProxyProto = false
+	tp := &tcpproxy.Proxy{
+		ListenFunc: func(net, laddr string) (net.Listener, error) {
+			// cfg is nil here so it's not terminating TLS (yet)
+			return ListenTCP(l, nil)
+		},
+	}
+
+	// This inspects SNI for matches.  If this succeeds then we Proxy tcp.
+	tcpSNIListener := &tcpproxy.TargetListener{Address: l.Addr}
+	tp.AddSNIMatchRoute(l.Addr, m, tcpSNIListener)
+
+	// Fallthrough to https
+	httpsListener := &tcpproxy.TargetListener{Address: l.Addr}
+	tp.AddRoute(l.Addr, httpsListener)
+
+	// Start the listener
+	err := tp.Start()
+	if err != nil {
+		return err
+	}
+
+	tps := &InetAfTCPProxyServer{Proxy: tp}
+	var tln net.Listener = tcpSNIListener
+	// enable proxy protocol on the tcp side if configured to do so
+	if pxyProto {
+		tln = &proxyproto.Listener{
+			Listener:           tln,
+			ProxyHeaderTimeout: l.ProxyHeaderTimeout,
+		}
+	}
+	tps.ServeLater(tln, &tcp.Server{
+		Addr:         l.Addr,
+		Handler:      p,
+		ReadTimeout:  l.ReadTimeout,
+		WriteTimeout: l.WriteTimeout,
+	})
+
+	// wrap TargetListener in a tls terminating version for HTTPS
+	tps.ServeLater(tls.NewListener(httpsListener, cfg), &http.Server{
+		Addr:         l.Addr,
+		Handler:      h,
+		ReadTimeout:  l.ReadTimeout,
+		WriteTimeout: l.WriteTimeout,
+		IdleTimeout:  l.IdleTimeout,
+		TLSConfig:    cfg,
+	})
+
+	// tcpproxy creates its own listener from the configuration above so we can
+	// safely pass nil here.
+	return serve(nil, tps)
+}
+
 func ListenAndServeGRPC(l config.Listen, opts []grpc.ServerOption, cfg *tls.Config) error {
 	ln, err := ListenTCP(l, cfg)
 	if err != nil {
@@ -104,8 +164,16 @@ func serve(ln net.Listener, srv Server) error {
 	mu.Lock()
 	servers = append(servers, srv)
 	mu.Unlock()
-	if err := srv.Serve(ln); err != http.ErrServerClosed {
-		return err
+	err := srv.Serve(ln)
+	if err != nil {
+		var opErr *net.OpError
+		if errors.Is(err, http.ErrServerClosed) {
+			err = nil
+		} else if errors.As(err, &opErr) {
+			if opErr.Err != nil && opErr.Err.Error() == "use of closed network connection" {
+				err = nil
+			}
+		}
 	}
-	return nil
+	return err
 }
