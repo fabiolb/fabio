@@ -37,7 +37,7 @@ func newHTTPProxy(target *url.URL, tr http.RoundTripper, flush time.Duration) ht
 }
 
 func httpProxyErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
-	// According to https://golang.org/src/net/http/httputil/reverseproxy.go#L74, Go will return a 502 (Bad Gateway) StatusCode by default if no ErroHandler is provided
+	// According to https://golang.org/src/net/http/httputil/reverseproxy.go#L74, Go will return a 502 (Bad Gateway) StatusCode by default if no ErrorHandler is provided
 	// If a "context canceled" error is returned by the http.Request handler this means the client closed the connection before getting a response
 	// So we are changing the StatusCode on these situations to the non-standard 499 (Client Closed Request)
 
