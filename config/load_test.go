@@ -1058,13 +1058,13 @@ func TestLoad(t *testing.T) {
 			desc: "-proxy.addr with cert source and proto 'http' requires proto 'https', 'tcp', or 'grpcs'",
 			args: []string{"-proxy.addr", ":5555;cs=name;proto=http", "-proxy.cs", "cs=name;type=path;cert=value"},
 			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic' or 'grpcs'"),
+			err:  errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', or 'grpcs'"),
 		},
 		{
 			desc: "-proxy.addr with cert source and proto 'tcp+sni' requires proto 'https', 'tcp' or 'grpcs'",
 			args: []string{"-proxy.addr", ":5555;cs=name;proto=tcp+sni", "-proxy.cs", "cs=name;type=path;cert=value"},
 			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic' or 'grpcs'"),
+			err:  errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', or 'grpcs'"),
 		},
 		{
 			desc: "-proxy.noroutestatus too small",

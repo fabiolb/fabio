@@ -51,6 +51,7 @@ require (
 	github.com/hashicorp/serf v0.7.0 // indirect
 	github.com/hashicorp/vault v0.6.0
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d // indirect
+	github.com/inetaf/tcpproxy v0.0.0-20200125044825-b6bb9b5b8252
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
