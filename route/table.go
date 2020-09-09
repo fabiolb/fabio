@@ -339,7 +339,7 @@ func (t Table) matchingHosts(req *http.Request, globCache *GlobCache) (hosts []s
 		}
 	}
 
-	hosts = sortHostsReverHostPort(hosts)
+	hosts = sortHostsReverseHostPort(hosts)
 	return
 }
 
@@ -356,11 +356,11 @@ func (t Table) matchingHostNoGlob(req *http.Request) (hosts []string) {
 			hosts = append(hosts, strings.ToLower(pattern))
 		}
 	}
-	hosts = sortHostsReverHostPort(hosts)
+	hosts = sortHostsReverseHostPort(hosts)
 	return
 }
 
-func sortHostsReverHostPort(hosts []string) []string {
+func sortHostsReverseHostPort(hosts []string) []string {
 	// Issue 506: multiple glob patterns hosts in wrong order
 	//
 	// DNS names have their most specific part at the front. In order to sort
