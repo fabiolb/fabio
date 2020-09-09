@@ -339,25 +339,7 @@ func (t Table) matchingHosts(req *http.Request, globCache *GlobCache) (hosts []s
 		}
 	}
 
-	if len(hosts) < 2 {
-		return
-	}
-
-	// Issue 506: multiple glob patterns hosts in wrong order
-	//
-	// DNS names have their most specific part at the front. In order to sort
-	// them from most specific to least specific a lexicographic sort will
-	// return the wrong result since it sorts by host name. *.foo.com will come
-	// before *.a.foo.com even though the latter is more specific. To achieve
-	// the correct result we need to reverse the strings, sort them and then
-	// reverse them again.
-	for i, h := range hosts {
-		hosts[i] = ReverseHostPort(h)
-	}
-	sort.Sort(sort.Reverse(sort.StringSlice(hosts)))
-	for i, h := range hosts {
-		hosts[i] = ReverseHostPort(h)
-	}
+	hosts = sortHostsReverHostPort(hosts)
 	return
 }
 
@@ -372,10 +354,32 @@ func (t Table) matchingHostNoGlob(req *http.Request) (hosts []string) {
 		normpat := normalizeHost(pattern, req.TLS != nil)
 		if normpat == host {
 			hosts = append(hosts, strings.ToLower(pattern))
-			return
 		}
 	}
+	hosts = sortHostsReverHostPort(hosts)
 	return
+}
+
+func sortHostsReverHostPort(hosts []string) []string {
+	// Issue 506: multiple glob patterns hosts in wrong order
+	//
+	// DNS names have their most specific part at the front. In order to sort
+	// them from most specific to least specific a lexicographic sort will
+	// return the wrong result since it sorts by host name. *.foo.com will come
+	// before *.a.foo.com even though the latter is more specific. To achieve
+	// the correct result we need to reverse the strings, sort them and then
+	// reverse them again.
+	if len(hosts) < 2 {
+		return hosts
+	}
+	for i, h := range hosts {
+		hosts[i] = ReverseHostPort(h)
+	}
+	sort.Sort(sort.Reverse(sort.StringSlice(hosts)))
+	for i, h := range hosts {
+		hosts[i] = ReverseHostPort(h)
+	}
+	return hosts
 }
 
 // ReverseHostPort returns its argument string reversed rune-wise left to
