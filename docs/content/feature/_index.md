@@ -20,6 +20,7 @@ The following list provides a list of features supported by fabio.
  * [Server-Sent Events/SSE](/feature/sse/) - support for Server-Sent Events/SSE
  * [TCP Proxy Support](/feature/tcp-proxy/) - raw TCP proxy support
  * [TCP-SNI Proxy Support](/feature/tcp-sni-proxy/) - forward TLS connections based on hostname without re-encryption
+ * [HTTPS TCP-SNI Proxy Support](/feature/https-tcp-sni-proxy/) - forward TLS connections based on hostname without re-encryption, or fallback to fabio terminating TLS and path routing as a fallback
  * [Traffic Shaping](/feature/traffic-shaping/) - forward N% of traffic upstream without knowing the number of instances
  * [Web UI](/feature/web-ui/) - web ui to examine the current routing table
  * [Websocket Support](/feature/websockets/) - websocket support

@@ -1,5 +1,44 @@
 ## Changelog
 
+### [v1.6.14](https://github.com/fabiolb/fabio/releases/tag/v1.5.14) - 9 Sep 2020
+
+
+#### Bug Fixes
+
+* [PR #644](https://github.com/fabiolb/fabio/pull/644) - Better error handling (@danlsgiga)
+
+* [PR #739](https://github.com/fabiolb/fabio/pull/739) - Fix infinite buffering of SSE responses when gzip is enabled (@ctlajoie)
+
+* [PR #733](https://github.com/fabiolb/fabio/pull/733) - Add missing <svc> entry to example route (@BenjaminHerbert)
+
+* [PR #674](https://github.com/fabiolb/fabio/pull/674) - Deprecate deregisterCriticalServiceAfter option (@pschultz)
+
+* [PR #648](https://github.com/fabiolb/fabio/pull/648) - Issue #647 NormalizeHost (@murphymj25)
+
+* [Issue #737](https://github.com/fabiolb/fabio/issues/737) - Preserve table state by storing buffer table in fixed strings (@leprechau)
+
+* [PR #774](https://github.com/fabiolb/fabio/pull/774) - Documentation fixes (@Oxflotus)
+
+* [PR #775](https://github.com/fabiolb/fabio/pull/775) - fix typo in comments (@josgraha)
+
+* [PR #787](https://github.com/fabiolb/fabio/pull/787) - fix matchingHostNoGlob sometimes returns incorrect host (@nathanejohnson @leprechau)
+
+#### Improvements
+
+* [PR #626](https://github.com/fabiolb/fabio/pull/626): Add TCP Dynamic support (@murphymj25)
+
+* [PR #635](https://github.com/fabiolb/fabio/pull/635): Add idleTimeout to config and to serve.go HTTP server (@galen0624)
+
+* [PR #572](https://github.com/fabiolb/fabio/pull/572): Issue #558 - Add Polling Interval from Fabio to Consul to Fabio Config (@galen0624)
+
+* [PR #615](https://github.com/fabiolb/fabio/pull/615): Issue #554 - Added compiled glob matching using LRU Cache (@galen0624 @magiconair @leprechau)
+
+* [PR #715](https://github.com/fabiolb/fabio/pull/715): Add HTTP method and path to trace span operation name (@hobochili)
+
+* [PR #489](https://github.com/fabiolb/fabio/pull/489): Pass encoded characters in path unchanged (@valentin-krasontovitsch)
+
+* [PR #784](https://github.com/fabiolb/fabio/pull/784): Add https+tcp+sni listener support (@nathanejohnson)
+
 ### [v1.5.13](https://github.com/fabiolb/fabio/releases/tag/v1.5.13) - 18 Nov 2019
 
 #### Bug Fixes

@@ -1,4 +1,4 @@
-FROM alpine:3.10
+FROM alpine:3.12
 RUN apk update && apk add --no-cache ca-certificates
 COPY fabio /usr/bin
 ADD fabio.properties /etc/fabio/fabio.properties

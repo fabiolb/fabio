@@ -22,6 +22,8 @@ The supported protocols are:
 * `grpcs` for GRPC+TLS based protocols
 * `tcp` for a raw TCP proxy with or witout TLS support
 * `tcp+sni` for an SNI aware TCP proxy
+* `tcp-dynamic` for a consul driven TCP proxy
+* `https+tcp+sni` for an SNI aware TCP proxy with https fallthrough
 
 If no `proto` option is specified then the protocol
 is either `http` or `https` depending on whether a
@@ -56,8 +58,8 @@ to the destination without decrypting the traffic.
   http://www.haproxy.org/download/1.5/doc/proxy-protocol.txt
 
 * `pxytimeout`: Sets PROXY protocol header read timeout as a duration (e.g. '250ms').
-  This defaults to 250ms if not set when 'pxyproto' is enabled.
-
+  This defaults to 250ms if not set when `pxyproto` is enabled.
+* `refresh`: Sets the refresh interval to check the route table for updates. Used when `tcp-dynamic` is enabled.
 #### TLS options
 
 * `tlsmin`: Sets the minimum TLS version for the handshake. This value
@@ -103,6 +105,12 @@ to the destination without decrypting the traffic.
 
     # TCP listener on port 443 with SNI routing
     proxy.addr = :443;proto=tcp+sni
+
+    # TCP listener on port 443 with SNI routing with HTTPS fallthrough
+    proxy.addr = :443;proto=https+tcp+sni;cs=some-name
+
+    # TCP listeners using consul for config with 5 second refresh interval
+    proxy.addr = 0.0.0.0:0;proto=tcp-dynamic;refresh=5s
 
 The default is
 
