@@ -7,6 +7,67 @@ and by verifying the checksums with a GPG key.
 
 You can verify the SHA256 checksums with the GPG key below.
 You can also download it from most key servers using the ID
+
+For fabio release 5.14 and newer:
+
+[`76462AB9B0C185ABC66FD98F59861FC4870361CA`](http://pgp.key-server.io/search/0x76462AB9B0C185ABC66FD98F59861FC4870361CA)
+
+    -----BEGIN PGP PUBLIC KEY BLOCK-----
+
+    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
+    5xVKlvTztaHhtaWHkg==
+    =b3Un
+    -----END PGP PUBLIC KEY BLOCK-----
+
+
+For release 5.13 and older:
+
 [`D8B19A29317E92E470D7CD67021E03CADDA53977`](http://pgp.key-server.io/search/0xD8B19A29317E92E470D7CD67021E03CADDA53977)
 
 
@@ -78,18 +139,18 @@ For example:
 
 ```
 # This is the public key from above - one-time step.
-gpg --import magiconair.asc
+gpg --import fabiolb.asc
 
 # Download the binary and signature files.
-curl -OsL https://github.com/eBay/fabio/releases/download/v1.3.2/fabio-1.3.2-go1.7.1_linux-amd64
-curl -OsL https://github.com/eBay/fabio/releases/download/v1.3.2/fabio-1.3.2.sha256
-curl -OsL https://github.com/eBay/fabio/releases/download/v1.3.2/fabio-1.3.2.sha256.sig
+curl -OsL https://github.com/fabiolb/fabio/releases/download/v1.5.14/fabio-1.5.14-go1.7.1_linux-amd64
+curl -OsL https://github.com/fabiolb/fabio/releases/download/v1.5.14/fabio-1.5.14.sha256
+curl -OsL https://github.com/fabiolb/fabio/releases/download/v1.5.14/fabio-1.5.14.sha256.sig
 
 # Verify the signature file is untampered.
-gpg --verify fabio-1.3.2.sha256.sig fabio-1.3.2.sha256
+gpg --verify fabio-1.5.14.sha256.sig fabio-1.5.14.sha256
 
 # Verify the SHASUM matches the binary.
-shasum -a 256 -c fabio-1.3.2.sha256
+shasum -a 256 -c fabio-1.5.14.sha256
 ```
 
 ## Note
