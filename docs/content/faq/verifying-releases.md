@@ -142,15 +142,14 @@ For example:
 gpg --import fabiolb.asc
 
 # Download the binary and signature files.
-curl -OsL https://github.com/fabiolb/fabio/releases/download/v1.5.14/fabio-1.5.14-go1.7.1_linux-amd64
-curl -OsL https://github.com/fabiolb/fabio/releases/download/v1.5.14/fabio-1.5.14.sha256
-curl -OsL https://github.com/fabiolb/fabio/releases/download/v1.5.14/fabio-1.5.14.sha256.sig
+curl -OsL https://github.com/fabiolb/fabio/releases/download/v1.5.14/fabio-1.5.14-go1.15-linux_amd64
+curl -OsL https://github.com/fabiolb/fabio/releases/download/v1.5.14/fabio-1.5.14-go1.15.sha256
+curl -OsL https://github.com/fabiolb/fabio/releases/download/v1.5.14/fabio-1.5.14-go1.15.sha256.sig
 
 # Verify the signature file is untampered.
-gpg --verify fabio-1.5.14.sha256.sig fabio-1.5.14.sha256
-
+gpg --verify fabio-1.5.14-go1.15.sha256.sig fabio-1.5.14-go1.15.sha256
 # Verify the SHASUM matches the binary.
-shasum -a 256 -c fabio-1.5.14.sha256
+grep linux_amd64 fabio-1.5.14-go1.15.sha256 | shasum -a 256 -c -
 ```
 
 ## Note
