@@ -20,8 +20,10 @@
 ---
 
 #### Notes
+1) From release 1.5.14, release hashes are signed with a new PGP key.
+See details [here](https://fabiolb.net/faq/verifying-releases/).
 
-From release 1.5.14 onward, fabio is compiled with golang 1.15+
+2) From release 1.5.14 onward, fabio is compiled with golang 1.15+
 .  This means that the http client will no longer validate
 https certificates that do not have SAN extensions matching the
 server name.  This may be a concern if fabio is communicating with
