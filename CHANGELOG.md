@@ -1,6 +1,6 @@
 ## Changelog
 
-### [v1.6.14](https://github.com/fabiolb/fabio/releases/tag/v1.5.14) - 9 Sep 2020
+### [v1.5.14](https://github.com/fabiolb/fabio/releases/tag/v1.5.14) - 9 Sep 2020
 
 
 #### Bug Fixes
