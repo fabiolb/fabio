@@ -3,6 +3,7 @@ package metrics
 import (
 	"errors"
 	"fmt"
+	"github.com/fabiolb/fabio/config"
 	"log"
 	"net"
 	"os"
@@ -10,9 +11,21 @@ import (
 	"time"
 
 	graphite "github.com/cyberdelia/go-metrics-graphite"
+	"github.com/deathowl/go-metrics-prometheus"
+	"github.com/prometheus/client_golang/prometheus"
 	statsd "github.com/pubnub/go-metrics-statsd"
 	gm "github.com/rcrowley/go-metrics"
 )
+
+func gmPrometheusRegistry(cfg *config.Prometheus, interval time.Duration) (Registry, error) {
+
+	r := gm.NewRegistry()
+	promClient := prometheusmetrics.NewPrometheusProvider(r, cfg.Namespace, cfg.Subsystem, prometheus.DefaultRegisterer, interval)
+
+	go promClient.UpdatePrometheusMetrics()
+
+	return &gmRegistry{r}, nil
+}
 
 // gmStdoutRegistry returns a go-metrics registry that reports to stdout.
 func gmStdoutRegistry(interval time.Duration) (Registry, error) {

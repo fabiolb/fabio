@@ -163,6 +163,9 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Metrics.Circonus.BrokerID, "metrics.circonus.brokerid", defaultConfig.Metrics.Circonus.BrokerID, "Circonus Broker ID")
 	f.StringVar(&cfg.Metrics.Circonus.CheckID, "metrics.circonus.checkid", defaultConfig.Metrics.Circonus.CheckID, "Circonus Check ID")
 	f.StringVar(&cfg.Metrics.Circonus.SubmissionURL, "metrics.circonus.submissionurl", defaultConfig.Metrics.Circonus.SubmissionURL, "Circonus Check SubmissionURL")
+	f.StringVar(&cfg.Metrics.Prometheus.Namespace, "metrics.prometheus.namespace", defaultConfig.Metrics.Prometheus.Namespace, "Prometheus namespace")
+	f.StringVar(&cfg.Metrics.Prometheus.Subsystem, "metrics.prometheus.subsystem", defaultConfig.Metrics.Prometheus.Subsystem, "Prometheus subsystem")
+	f.StringVar(&cfg.Metrics.Prometheus.Path, "metrics.prometheus.path", defaultConfig.Metrics.Prometheus.Path, "Prometheus handler path")
 	f.StringVar(&cfg.Registry.Backend, "registry.backend", defaultConfig.Registry.Backend, "registry backend")
 	f.DurationVar(&cfg.Registry.Timeout, "registry.timeout", defaultConfig.Registry.Timeout, "timeout for registry to become available")
 	f.DurationVar(&cfg.Registry.Retry, "registry.retry", defaultConfig.Registry.Retry, "retry interval during startup")
@@ -300,6 +303,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 
 	if gzipContentTypesValue != "" {
 		cfg.Proxy.GZIPContentTypes, err = regexp.Compile(gzipContentTypesValue)
+
 		if err != nil {
 			return nil, fmt.Errorf("invalid expression for content types: %s", err)
 		}
@@ -385,7 +389,7 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 		case "proto":
 			l.Proto = v
 			switch l.Proto {
-			case "tcp", "tcp+sni", "tcp-dynamic", "http", "https", "grpc", "grpcs", "https+tcp+sni":
+			case "tcp", "tcp+sni", "tcp-dynamic", "http", "https", "grpc", "grpcs", "https+tcp+sni", "prom-http", "prom-https":
 				// ok
 			default:
 				return Listen{}, fmt.Errorf("unknown protocol %q", v)
@@ -461,8 +465,11 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 	if l.Addr == "" {
 		return Listen{}, fmt.Errorf("need listening host:port")
 	}
-	if csName != "" && l.Proto != "https" && l.Proto != "tcp" && l.Proto != "tcp-dynamic" && l.Proto != "grpcs" && l.Proto != "https+tcp+sni" {
-		return Listen{}, fmt.Errorf("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', or 'grpcs'")
+	if csName != "" && l.Proto != "https" && l.Proto != "tcp" &&
+		l.Proto != "tcp-dynamic" && l.Proto != "grpcs" &&
+		l.Proto != "https+tcp+sni" && l.Proto != "prom-http" &&
+		l.Proto != "prom-https" {
+		return Listen{}, fmt.Errorf("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', 'prom-http', 'prom-https' or 'grpcs'")
 	}
 	if csName == "" && l.Proto == "https" {
 		return Listen{}, fmt.Errorf("proto 'https' requires cert source")

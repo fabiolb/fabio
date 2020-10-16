@@ -98,6 +98,12 @@ type Circonus struct {
 	SubmissionURL string
 }
 
+type Prometheus struct {
+	Namespace string
+	Subsystem string
+	Path      string
+}
+
 type Log struct {
 	AccessFormat string
 	AccessTarget string
@@ -115,6 +121,7 @@ type Metrics struct {
 	GraphiteAddr string
 	StatsDAddr   string
 	Circonus     Circonus
+	Prometheus   Prometheus
 }
 
 type Registry struct {

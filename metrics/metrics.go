@@ -31,9 +31,6 @@ const DefaultPrefix = "{{clean .Hostname}}.{{clean .Exec}}"
 // names stores the template for the route metric names.
 var names *template.Template
 
-// prefix stores the final prefix string to use it with metric collectors where applicable, i.e. Graphite/StatsD
-var prefix string
-
 func init() {
 	// make sure names is initialized to something
 	var err error
@@ -44,7 +41,7 @@ func init() {
 
 // NewRegistry creates a new metrics registry.
 func NewRegistry(cfg config.Metrics) (r Registry, err error) {
-
+	var prefix string
 	if prefix, err = parsePrefix(cfg.Prefix); err != nil {
 		return nil, fmt.Errorf("metrics: invalid Prefix template. %s", err)
 	}
@@ -68,6 +65,17 @@ func NewRegistry(cfg config.Metrics) (r Registry, err error) {
 
 	case "circonus":
 		return circonusRegistry(prefix, cfg.Circonus, cfg.Interval)
+
+	case "prometheus":
+
+		if cfg.Prometheus.Namespace, err = parsePromTemplate(cfg.Prometheus.Namespace, "namespace"); err != nil {
+			return nil, fmt.Errorf("metrics: invalid prometheus namespace template: %w", err)
+		}
+		if cfg.Prometheus.Subsystem, err = parsePromTemplate(cfg.Prometheus.Subsystem, "subsystem"); err != nil {
+			return nil, fmt.Errorf("metrics: invalid prometheus subsystem template: %w", err)
+		}
+
+		return gmPrometheusRegistry(&cfg.Prometheus, cfg.Interval)
 
 	default:
 		exit.Fatal("[FATAL] Invalid metrics target ", cfg.Target)
@@ -102,6 +110,33 @@ func parsePrefix(tmpl string) (string, error) {
 	return b.String(), nil
 }
 
+func parsePromTemplate(tmpl, name string) (string, error) {
+	funcMap := template.FuncMap{
+		"clean": func(s string) string {
+			if len(s) == 0 {
+				return ""
+			}
+			return clean(s)
+		},
+	}
+	t, err := template.New(name).Funcs(funcMap).Parse(tmpl)
+	if err != nil {
+		return "", err
+	}
+	host, err := hostname()
+	if err != nil {
+		return "", err
+	}
+	exe := filepath.Base(os.Args[0])
+	b := new(bytes.Buffer)
+	data := struct{ Hostname, Exec string }{host, exe}
+	if err := t.Execute(b, &data); err != nil {
+		return "", err
+	}
+	return b.String(), nil
+
+}
+
 // parseNames parses the route metric name template.
 func parseNames(tmpl string) (*template.Template, error) {
 	funcMap := template.FuncMap{
@@ -111,6 +146,8 @@ func parseNames(tmpl string) (*template.Template, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// TODO - figure out why this is here -- NJ
 	testURL, err := url.Parse("http://127.0.0.1:12345/")
 	if err != nil {
 		return nil, err

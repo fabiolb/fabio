@@ -36,6 +36,10 @@ var defaultConfig = &Config{
 		Circonus: Circonus{
 			APIApp: "fabio",
 		},
+		Prometheus: Prometheus{
+			Namespace: "fabio",
+			Path:      "/metrics",
+		},
 	},
 	Proxy: Proxy{
 		MaxConn:             10000,

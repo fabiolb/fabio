@@ -435,6 +435,12 @@ func startServers(cfg *config.Config) {
 					exit.Fatal("[FATAL] ", err)
 				}
 			}()
+		case "prom-http", "prom-https":
+			go func() {
+				if err := proxy.ListenAndServePrometheus(l, cfg.Metrics.Prometheus, tlscfg); err != nil {
+					exit.Fatal("[FATAL] ", err)
+				}
+			}()
 		default:
 			exit.Fatal("[FATAL] Invalid protocol ", l.Proto)
 		}
