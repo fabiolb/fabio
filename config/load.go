@@ -389,7 +389,7 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 		case "proto":
 			l.Proto = v
 			switch l.Proto {
-			case "tcp", "tcp+sni", "tcp-dynamic", "http", "https", "grpc", "grpcs", "https+tcp+sni", "prom-http", "prom-https":
+			case "tcp", "tcp+sni", "tcp-dynamic", "http", "https", "grpc", "grpcs", "https+tcp+sni", "prometheus":
 				// ok
 			default:
 				return Listen{}, fmt.Errorf("unknown protocol %q", v)
@@ -467,9 +467,8 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 	}
 	if csName != "" && l.Proto != "https" && l.Proto != "tcp" &&
 		l.Proto != "tcp-dynamic" && l.Proto != "grpcs" &&
-		l.Proto != "https+tcp+sni" && l.Proto != "prom-http" &&
-		l.Proto != "prom-https" {
-		return Listen{}, fmt.Errorf("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', 'prom-http', 'prom-https' or 'grpcs'")
+		l.Proto != "https+tcp+sni" && l.Proto != "prometheus" {
+		return Listen{}, fmt.Errorf("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', 'prometheus' or 'grpcs'")
 	}
 	if csName == "" && l.Proto == "https" {
 		return Listen{}, fmt.Errorf("proto 'https' requires cert source")

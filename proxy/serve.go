@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net"
 	"net/http"
 	"sync"
@@ -17,6 +16,7 @@ import (
 
 	"github.com/armon/go-proxyproto"
 	"github.com/inetaf/tcpproxy"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Server interface {
