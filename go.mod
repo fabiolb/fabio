@@ -5,7 +5,7 @@ require (
 	github.com/Shopify/toxiproxy v2.1.4+incompatible // indirect
 	github.com/apache/thrift v0.13.0 // indirect
 	github.com/armon/go-metrics v0.3.4 // indirect
-	github.com/armon/go-proxyproto v0.0.0-20200108142055-f0b8253b1507
+	github.com/armon/go-proxyproto v0.0.0-20180202201750-5b7edb60ff5f
 	github.com/circonus-labs/circonus-gometrics/v3 v3.2.0
 	github.com/circonus-labs/go-apiclient v0.7.9 // indirect
 	github.com/cyberdelia/go-metrics-graphite v0.0.0-20161219230853-39f87cc3b432

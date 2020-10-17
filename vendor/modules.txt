@@ -4,7 +4,7 @@ github.com/Shopify/sarama
 github.com/apache/thrift/lib/go/thrift
 # github.com/armon/go-metrics v0.3.4
 github.com/armon/go-metrics
-# github.com/armon/go-proxyproto v0.0.0-20200108142055-f0b8253b1507
+# github.com/armon/go-proxyproto v0.0.0-20180202201750-5b7edb60ff5f
 github.com/armon/go-proxyproto
 # github.com/beorn7/perks v1.0.1
 github.com/beorn7/perks/quantile
