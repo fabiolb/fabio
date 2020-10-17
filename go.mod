@@ -5,9 +5,10 @@ require (
 	github.com/Shopify/toxiproxy v2.1.4+incompatible // indirect
 	github.com/apache/thrift v0.13.0 // indirect
 	github.com/armon/go-metrics v0.3.4 // indirect
-	github.com/armon/go-proxyproto v0.0.0-20180202201750-5b7edb60ff5f
-	github.com/circonus-labs/circonus-gometrics v2.3.1+incompatible
-	github.com/cyberdelia/go-metrics-graphite v0.0.0-20150826032200-b8345b7f01d5
+	github.com/armon/go-proxyproto v0.0.0-20200108142055-f0b8253b1507
+	github.com/circonus-labs/circonus-gometrics/v3 v3.2.0
+	github.com/circonus-labs/go-apiclient v0.7.9 // indirect
+	github.com/cyberdelia/go-metrics-graphite v0.0.0-20161219230853-39f87cc3b432
 	github.com/deathowl/go-metrics-prometheus v0.0.0-20200518174047-74482eab5bfb
 	github.com/eapache/go-resiliency v1.1.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
@@ -40,7 +41,6 @@ require (
 	github.com/openzipkin-contrib/zipkin-go-opentracing v0.3.5
 	github.com/pascaldekloe/goe v0.1.0
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/profile v1.5.0
 	github.com/prometheus/client_golang v1.7.1
 	github.com/prometheus/procfs v0.2.0 // indirect
