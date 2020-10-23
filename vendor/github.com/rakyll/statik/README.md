@@ -18,6 +18,10 @@ The command below will walk on the public path and generate a package called `st
 
     $ statik -src=/path/to/your/project/public
 
+The command below will filter only files on listed extensions.
+
+    $ statik -include=*.jpg,*.txt,*.html,*.css,*.js
+
 In your program, all your need to do is to import the generated package, initialize a new statik file system and serve.
 
 ~~~ go
@@ -27,18 +31,49 @@ import (
   _ "./statik" // TODO: Replace with the absolute import path
 )
 
-// ...
+  // ...
 
   statikFS, err := fs.New()
   if err != nil {
     log.Fatal(err)
   }
-
+  
+  // Serve the contents over HTTP.
   http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(statikFS)))
   http.ListenAndServe(":8080", nil)
 ~~~
 
 Visit http://localhost:8080/public/path/to/file to see your file.
+
+You can also read the content of a single file:
+
+~~~ go
+import (
+  "github.com/rakyll/statik/fs"
+
+  _ "./statik" // TODO: Replace with the absolute import path
+)
+
+  // ...
+
+  statikFS, err := fs.New()
+  if err != nil {
+    log.Fatal(err)
+  }
+  
+  // Access individual files by their paths.
+  r, err := statikFS.Open("/hello.txt")
+  if err != nil {
+    log.Fatal(err)
+  }    
+  defer r.Close()
+  contents, err := ioutil.ReadAll(r)
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  fmt.Println(string(contents))
+~~~
 
 There is also a working example under [example](https://github.com/rakyll/statik/tree/master/example) directory, follow the instructions to build and run it.
 

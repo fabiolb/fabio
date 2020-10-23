@@ -1,8 +1,13 @@
 package api
 
+import "context"
+
 func (c *Sys) InitStatus() (bool, error) {
 	r := c.c.NewRequest("GET", "/v1/sys/init")
-	resp, err := c.c.RawRequest(r)
+
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	defer cancelFunc()
+	resp, err := c.c.RawRequestWithContext(ctx, r)
 	if err != nil {
 		return false, err
 	}
@@ -19,7 +24,9 @@ func (c *Sys) Init(opts *InitRequest) (*InitResponse, error) {
 		return nil, err
 	}
 
-	resp, err := c.c.RawRequest(r)
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	defer cancelFunc()
+	resp, err := c.c.RawRequestWithContext(ctx, r)
 	if err != nil {
 		return nil, err
 	}
@@ -38,6 +45,7 @@ type InitRequest struct {
 	RecoveryShares    int      `json:"recovery_shares"`
 	RecoveryThreshold int      `json:"recovery_threshold"`
 	RecoveryPGPKeys   []string `json:"recovery_pgp_keys"`
+	RootTokenPGPKey   string   `json:"root_token_pgp_key"`
 }
 
 type InitStatusResponse struct {
@@ -45,7 +53,9 @@ type InitStatusResponse struct {
 }
 
 type InitResponse struct {
-	Keys         []string
-	RecoveryKeys []string `json:"recovery_keys"`
-	RootToken    string   `json:"root_token"`
+	Keys            []string `json:"keys"`
+	KeysB64         []string `json:"keys_base64"`
+	RecoveryKeys    []string `json:"recovery_keys"`
+	RecoveryKeysB64 []string `json:"recovery_keys_base64"`
+	RootToken       string   `json:"root_token"`
 }

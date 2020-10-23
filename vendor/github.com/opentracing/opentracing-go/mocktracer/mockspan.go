@@ -135,6 +135,8 @@ func (s *MockSpan) Logs() []MockLogRecord {
 
 // Context belongs to the Span interface
 func (s *MockSpan) Context() opentracing.SpanContext {
+	s.Lock()
+	defer s.Unlock()
 	return s.SpanContext
 }
 
