@@ -7,8 +7,8 @@ import (
 	"github.com/fabiolb/fabio/config"
 	opentracing "github.com/opentracing/opentracing-go"
 	mocktracer "github.com/opentracing/opentracing-go/mocktracer"
-	zipkin "github.com/openzipkin/zipkin-go-opentracing"
-	zipkintypes "github.com/openzipkin/zipkin-go-opentracing/types"
+	zipkin "github.com/openzipkin-contrib/zipkin-go-opentracing"
+	zipkintypes "github.com/openzipkin-contrib/zipkin-go-opentracing/types"
 )
 
 const testServiceName = "TEST-SERVICE"

@@ -20,8 +20,8 @@ GOVERSION ?= $(shell go version | awk '{print $$3;}')
 GORELEASER ?= $(shell which goreleaser)
 
 # pin versions for CI builds
-CI_CONSUL_VERSION ?= 1.6.2
-CI_VAULT_VERSION ?= 1.3.2
+CI_CONSUL_VERSION ?= 1.8.4
+CI_VAULT_VERSION ?= 1.5.2
 CI_HUGO_VERSION ?= 0.63.2
 
 # all is the default target

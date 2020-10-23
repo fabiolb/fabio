@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/vault/api"
+	"github.com/hashicorp/vault/sdk/helper/consts"
 )
 
 // vaultClient wraps an *api.Client and takes care of token renewal
@@ -89,12 +90,22 @@ func (c *vaultClient) Get() (*api.Client, error) {
 
 	// did we get a wrapped token?
 	resp, err := client.Logical().Unwrap(token)
+	var respErr *api.ResponseError
+	contains := func(haystack []string, needle string) bool {
+		for _, h := range haystack {
+			if h == needle {
+				return true
+			}
+		}
+		return false
+	}
 	switch {
 	case err == nil:
 		log.Printf("[INFO] vault: Unwrapped token %s", token)
 		client.SetToken(resp.Auth.ClientToken)
-	case strings.HasPrefix(err.Error(), "no value found at"):
-		// not a wrapped token
+	case errors.As(err, &respErr) &&
+		contains(respErr.Errors, consts.ErrInvalidWrappingToken.Error()):
+		// not wrapped
 	default:
 		return nil, err
 	}

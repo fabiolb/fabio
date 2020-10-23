@@ -123,7 +123,7 @@ route add tcproute example2.com/ tcp://%s opts "proto=tcp"`
 		u    string
 		h    string
 		body []byte
-	}{ {
+	}{{
 		name: "https proxy for example.com",
 		u:    "https://example.com:" + port,
 		h:    "example.com",

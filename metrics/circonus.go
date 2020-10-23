@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	cgm "github.com/circonus-labs/circonus-gometrics"
+	cgm "github.com/circonus-labs/circonus-gometrics/v3"
 	"github.com/fabiolb/fabio/config"
 )
 

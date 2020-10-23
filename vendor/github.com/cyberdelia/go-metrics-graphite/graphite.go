@@ -12,9 +12,9 @@ import (
 	"github.com/rcrowley/go-metrics"
 )
 
-// GraphiteConfig provides a container with configuration parameters for
+// Config provides a container with configuration parameters for
 // the Graphite exporter
-type GraphiteConfig struct {
+type Config struct {
 	Addr          *net.TCPAddr     // Network address to connect to
 	Registry      metrics.Registry // Registry to be exported
 	FlushInterval time.Duration    // Flush interval
@@ -27,7 +27,7 @@ type GraphiteConfig struct {
 // to a graphite server located at addr, flushing them every d duration
 // and prepending metric names with prefix.
 func Graphite(r metrics.Registry, d time.Duration, prefix string, addr *net.TCPAddr) {
-	GraphiteWithConfig(GraphiteConfig{
+	WithConfig(Config{
 		Addr:          addr,
 		Registry:      r,
 		FlushInterval: d,
@@ -37,9 +37,9 @@ func Graphite(r metrics.Registry, d time.Duration, prefix string, addr *net.TCPA
 	})
 }
 
-// GraphiteWithConfig is a blocking exporter function just like Graphite,
+// WithConfig is a blocking exporter function just like Graphite,
 // but it takes a GraphiteConfig instead.
-func GraphiteWithConfig(c GraphiteConfig) {
+func WithConfig(c Config) {
 	for _ = range time.Tick(c.FlushInterval) {
 		if err := graphite(&c); nil != err {
 			log.Println(err)
@@ -47,16 +47,17 @@ func GraphiteWithConfig(c GraphiteConfig) {
 	}
 }
 
-// GraphiteOnce performs a single submission to Graphite, returning a
+// Once performs a single submission to Graphite, returning a
 // non-nil error on failed connections. This can be used in a loop
 // similar to GraphiteWithConfig for custom error handling.
-func GraphiteOnce(c GraphiteConfig) error {
+func Once(c Config) error {
 	return graphite(&c)
 }
 
-func graphite(c *GraphiteConfig) error {
+func graphite(c *Config) error {
 	now := time.Now().Unix()
 	du := float64(c.DurationUnit)
+	flushSeconds := float64(c.FlushInterval) / float64(time.Second)
 	conn, err := net.DialTCP("tcp", nil, c.Addr)
 	if nil != err {
 		return err
@@ -66,7 +67,9 @@ func graphite(c *GraphiteConfig) error {
 	c.Registry.Each(func(name string, i interface{}) {
 		switch metric := i.(type) {
 		case metrics.Counter:
-			fmt.Fprintf(w, "%s.%s.count %d %d\n", c.Prefix, name, metric.Count(), now)
+			count := metric.Count()
+			fmt.Fprintf(w, "%s.%s.count %d %d\n", c.Prefix, name, count, now)
+			fmt.Fprintf(w, "%s.%s.count_ps %.2f %d\n", c.Prefix, name, float64(count)/flushSeconds, now)
 		case metrics.Gauge:
 			fmt.Fprintf(w, "%s.%s.value %d %d\n", c.Prefix, name, metric.Value(), now)
 		case metrics.GaugeFloat64:
@@ -93,7 +96,9 @@ func graphite(c *GraphiteConfig) error {
 		case metrics.Timer:
 			t := metric.Snapshot()
 			ps := t.Percentiles(c.Percentiles)
-			fmt.Fprintf(w, "%s.%s.count %d %d\n", c.Prefix, name, t.Count(), now)
+			count := t.Count()
+			fmt.Fprintf(w, "%s.%s.count %d %d\n", c.Prefix, name, count, now)
+			fmt.Fprintf(w, "%s.%s.count_ps %.2f %d\n", c.Prefix, name, float64(count)/flushSeconds, now)
 			fmt.Fprintf(w, "%s.%s.min %d %d\n", c.Prefix, name, t.Min()/int64(du), now)
 			fmt.Fprintf(w, "%s.%s.max %d %d\n", c.Prefix, name, t.Max()/int64(du), now)
 			fmt.Fprintf(w, "%s.%s.mean %.2f %d\n", c.Prefix, name, t.Mean()/du, now)
@@ -106,6 +111,8 @@ func graphite(c *GraphiteConfig) error {
 			fmt.Fprintf(w, "%s.%s.five-minute %.2f %d\n", c.Prefix, name, t.Rate5(), now)
 			fmt.Fprintf(w, "%s.%s.fifteen-minute %.2f %d\n", c.Prefix, name, t.Rate15(), now)
 			fmt.Fprintf(w, "%s.%s.mean-rate %.2f %d\n", c.Prefix, name, t.RateMean(), now)
+		default:
+			log.Printf("unable to record metric of type %T\n", i)
 		}
 		w.Flush()
 	})
