@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"log"
 	"net"
 	"net/http"
 	"sync"
@@ -27,9 +28,25 @@ type Server interface {
 var (
 	// mu guards servers which contains the list
 	// of running proxy servers.
-	mu      sync.Mutex
-	servers []Server
+	mu                sync.Mutex
+	servers           []Server
+	dynamicProxyPorts = make(map[string]Server)
 )
+
+func CloseDynamicProxy(port string) error {
+	if srv, ok := dynamicProxyPorts[port]; ok {
+		err := srv.Close()
+		if err != nil {
+			return err
+		}
+		log.Printf("[INFO] Dynamic TCP listener on port %s has been terminated", port)
+		mu.Lock()
+		servers = removeServer(servers, srv)
+		delete(dynamicProxyPorts, port)
+		mu.Unlock()
+	}
+	return nil
+}
 
 func Close() {
 	mu.Lock()
@@ -157,6 +174,9 @@ func ListenAndServeTCP(l config.Listen, h tcp.Handler, cfg *tls.Config) error {
 		ReadTimeout:  l.ReadTimeout,
 		WriteTimeout: l.WriteTimeout,
 	}
+	if _, ok := h.(*tcp.DynamicProxy); ok {
+		dynamicProxyPorts[l.Addr] = srv
+	}
 	return serve(ln, srv)
 }
 
@@ -176,4 +196,15 @@ func serve(ln net.Listener, srv Server) error {
 		}
 	}
 	return err
+}
+
+func removeServer(srvs []Server, s Server) []Server {
+	for i, srv := range srvs {
+		if s == srv {
+			log.Printf("[DEBUG] Removing server from the list")
+			srvs[i] = srvs[len(servers)-1]
+			return srvs[:len(srvs)-1]
+		}
+	}
+	return srvs
 }

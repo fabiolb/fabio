@@ -378,6 +378,7 @@ func startServers(cfg *config.Config) {
 		case "tcp-dynamic":
 			go func() {
 				var buffer strings.Builder
+				lastPorts := []string{}
 				for {
 					time.Sleep(l.Refresh)
 					table := route.GetTable()
@@ -394,6 +395,10 @@ func startServers(cfg *config.Config) {
 							buffer.Reset()
 						}
 						ports = unique(ports)
+					}
+					for _, port := range difference(lastPorts, ports) {
+						log.Printf("[DEBUG] Dynamic TCP listener on port %s eligable for termination", port)
+						proxy.CloseDynamicProxy(port)
 					}
 					for _, port := range ports {
 						l := l
@@ -419,6 +424,7 @@ func startServers(cfg *config.Config) {
 							}
 						}()
 					}
+					lastPorts = ports
 				}
 			}()
 		case "https+tcp+sni":
@@ -653,6 +659,21 @@ func unique(strSlice []string) []string {
 		}
 	}
 	return list
+}
+
+// difference returns elements in `a` that aren't in `b`
+func difference(a, b []string) []string {
+	mb := make(map[string]struct{}, len(b))
+	for _, x := range b {
+		mb[x] = struct{}{}
+	}
+	var diff []string
+	for _, x := range a {
+		if _, found := mb[x]; !found {
+			diff = append(diff, x)
+		}
+	}
+	return diff
 }
 
 func tableSchemes(r route.Routes) []string {
