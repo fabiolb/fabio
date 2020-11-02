@@ -36,6 +36,10 @@ var defaultConfig = &Config{
 		Circonus: Circonus{
 			APIApp: "fabio",
 		},
+		Prometheus: Prometheus{
+			Buckets: []float64{.005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10},
+			Path:    "/metrics",
+		},
 	},
 	Proxy: Proxy{
 		MaxConn:             10000,

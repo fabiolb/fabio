@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	gkm "github.com/go-kit/kit/metrics"
 	"log"
 	"net"
 	"net/http"
@@ -13,6 +14,8 @@ import (
 	"sync/atomic"
 
 	"github.com/gobwas/glob"
+
+	"github.com/fabiolb/fabio/metrics"
 )
 
 var errInvalidPrefix = errors.New("route: prefix must not be empty")
@@ -22,9 +25,39 @@ var errNoMatch = errors.New("route: no target match")
 // table stores the active routing table. Must never be nil.
 var table atomic.Value
 
+// package global metrics bits
+
 // init initializes the routing table.
 func init() {
 	table.Store(make(Table))
+	np := metrics.DiscardProvider{}
+	SetMetricsProvider(np)
+}
+
+type metrix struct {
+	histogram gkm.Histogram
+	rxCounter gkm.Counter
+	txCounter gkm.Counter
+}
+
+var counters metrix
+
+func SetMetricsProvider(p metrics.Provider) {
+	counters.histogram = p.NewHistogram("route", "service", "host", "path", "target")
+	counters.rxCounter = p.NewCounter("route.rx", "service", "host", "path", "target")
+	counters.txCounter = p.NewCounter("route.tx", "host", "path", "target")
+}
+
+func newHistogram(service, host, path, target string) gkm.Histogram {
+	return counters.histogram.With("service", service, "host", host, "path", path, "target", target)
+}
+
+func newRxCounter(service, host, path, target string) gkm.Counter {
+	return counters.rxCounter.With("service", service, "host", host, "path", path, "target", target)
+}
+
+func newTxCounter(service, host, path, target string) gkm.Counter {
+	return counters.txCounter.With("service", service, "host", host, "path", path, "target", target)
 }
 
 // GetTable returns the active routing table. The function

@@ -1,11 +1,9 @@
 package route
 
 import (
+	gkm "github.com/go-kit/kit/metrics"
 	"net/url"
 	"strings"
-
-	"github.com/fabiolb/fabio/metrics4"
-	"github.com/fabiolb/fabio/metrics4/names"
 )
 
 type Target struct {
@@ -50,11 +48,12 @@ type Target struct {
 	// Weight is the actual weight for this service in percent.
 	Weight float64
 
-	// Timer measures throughput and latency of this target
-	Timer metrics4.Timer
+	// Histogram measures throughput and latency of this target
+	Timer gkm.Histogram
 
-	// TimerName is the name of the timer in the metrics registry
-	TimerName names.Service
+	// Counters for rx and tx
+	RxCounter gkm.Counter
+	TxCounter gkm.Counter
 
 	// accessRules is map of access information for the target.
 	accessRules map[string][]interface{}

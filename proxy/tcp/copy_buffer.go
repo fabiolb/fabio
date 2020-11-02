@@ -3,12 +3,12 @@ package tcp
 import (
 	"io"
 
-	"github.com/fabiolb/fabio/metrics4"
+	gkm "github.com/go-kit/kit/metrics"
 )
 
 // copyBuffer is an adapted version of io.copyBuffer which updates a
 // counter instead of returning the total bytes written.
-func copyBuffer(dst io.Writer, src io.Reader, c metrics4.Counter) (err error) {
+func copyBuffer(dst io.Writer, src io.Reader, c gkm.Counter) (err error) {
 	buf := make([]byte, 32*1024)
 	for {
 		nr, er := src.Read(buf)
@@ -16,7 +16,7 @@ func copyBuffer(dst io.Writer, src io.Reader, c metrics4.Counter) (err error) {
 			nw, ew := dst.Write(buf[0:nr])
 			if nw > 0 {
 				if c != nil {
-					c.Count(nw)
+					c.Add(float64(nw))
 				}
 			}
 			if ew != nil {

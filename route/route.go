@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fabiolb/fabio/metrics4/names"
 	"github.com/gobwas/glob"
 )
 
@@ -60,12 +59,7 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		Opts:        opts,
 		URL:         targetURL,
 		FixedWeight: fixedWeight,
-		TimerName: names.Service{
-			Service:   service,
-			Host:      r.Host,
-			Path:      r.Path,
-			TargetURL: targetURL,
-		},
+		Timer:       counters.histogram.With("service", service, "host", r.Host, "path", r.Path, "target", targetURL.String()),
 	}
 
 	var err error
