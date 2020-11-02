@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"bytes"
+	gkm "github.com/go-kit/kit/metrics"
 	"io"
 	"log"
 	"net"
@@ -9,8 +10,6 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
-
-	"github.com/fabiolb/fabio/metrics4"
 )
 
 // conns keeps track of the number of open ws connections
@@ -22,12 +21,12 @@ type dialFunc func(network, address string) (net.Conn, error)
 // an incoming and outgoing websocket connection. It checks whether
 // the handshake was completed successfully before forwarding data
 // between the client and server.
-func newWSHandler(host string, dial dialFunc, conn metrics4.Gauge) http.Handler {
+func newWSHandler(host string, dial dialFunc, conn gkm.Gauge) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if conn != nil {
-			conn.Update(int(atomic.AddInt64(&conns, 1)))
+			conn.Set(float64(atomic.AddInt64(&conns, 1)))
 			defer func() {
-				conn.Update(int(atomic.AddInt64(&conns, -1)))
+				conn.Set(float64(atomic.AddInt64(&conns, -1)))
 			}()
 		}
 

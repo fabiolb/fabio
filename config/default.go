@@ -36,6 +36,10 @@ var defaultConfig = &Config{
 		Circonus: Circonus{
 			APIApp: "fabio",
 		},
+		Prometheus: Prometheus{
+			Buckets: []float64{.005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10},
+			Path:    "/metrics",
+		},
 	},
 	Proxy: Proxy{
 		MaxConn:             10000,
@@ -81,7 +85,7 @@ var defaultConfig = &Config{
 		Retry:   500 * time.Millisecond,
 	},
 	Runtime: Runtime{
-		GOGC:       800,
+		GOGC:       100,
 		GOMAXPROCS: runtime.NumCPU(),
 	},
 	UI: UI{

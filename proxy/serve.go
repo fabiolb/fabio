@@ -16,6 +16,7 @@ import (
 
 	"github.com/armon/go-proxyproto"
 	"github.com/inetaf/tcpproxy"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Server interface {
@@ -69,6 +70,31 @@ func ListenAndServeHTTP(l config.Listen, h http.Handler, cfg *tls.Config) error 
 	srv := &http.Server{
 		Addr:         l.Addr,
 		Handler:      h,
+		ReadTimeout:  l.ReadTimeout,
+		WriteTimeout: l.WriteTimeout,
+		IdleTimeout:  l.IdleTimeout,
+		TLSConfig:    cfg,
+	}
+	return serve(ln, srv)
+}
+
+func ListenAndServePrometheus(l config.Listen, pcfg config.Prometheus, cfg *tls.Config) error {
+	ln, err := ListenTCP(l, cfg)
+	if err != nil {
+		return err
+	}
+	mux := http.NewServeMux()
+	if pcfg.Path != "/" {
+		mux.HandleFunc("/", func(rw http.ResponseWriter, _ *http.Request) {
+			rw.Header().Set("Location", pcfg.Path)
+			rw.WriteHeader(http.StatusPermanentRedirect)
+		})
+	}
+	mux.Handle(pcfg.Path, promhttp.Handler())
+
+	srv := &http.Server{
+		Addr:         l.Addr,
+		Handler:      mux,
 		ReadTimeout:  l.ReadTimeout,
 		WriteTimeout: l.WriteTimeout,
 		IdleTimeout:  l.IdleTimeout,

@@ -12,9 +12,11 @@ import (
 	"time"
 
 	"github.com/fabiolb/fabio/config"
-	"github.com/fabiolb/fabio/metrics4"
 	"github.com/fabiolb/fabio/route"
+
+	gkm "github.com/go-kit/kit/metrics"
 	grpc_proxy "github.com/mwitkow/grpc-proxy/proxy"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/connectivity"
@@ -98,7 +100,7 @@ func (g GrpcProxyInterceptor) Stream(srv interface{}, stream grpc.ServerStream, 
 	}
 
 	if target == nil {
-		g.StatsHandler.NoRoute.Count(1)
+		g.StatsHandler.NoRoute.Add(1)
 		log.Println("[WARN] grpc: no route found for", info.FullMethod)
 		return status.Error(codes.NotFound, "no route found")
 	}
@@ -117,7 +119,7 @@ func (g GrpcProxyInterceptor) Stream(srv interface{}, stream grpc.ServerStream, 
 	end := time.Now()
 	dur := end.Sub(start)
 
-	target.Timer.Update(dur)
+	target.Timer.Observe(dur.Seconds())
 
 	return err
 }
@@ -157,10 +159,10 @@ func (g GrpcProxyInterceptor) lookup(ctx context.Context, fullMethodName string)
 }
 
 type GrpcStatsHandler struct {
-	Connect metrics4.Counter
-	Request metrics4.Timer
-	NoRoute metrics4.Counter
-	Metrics metrics4.Provider
+	Connect gkm.Counter
+	Request gkm.Histogram
+	NoRoute gkm.Counter
+	Status  gkm.Histogram
 }
 
 type connCtxKey struct{}
@@ -175,10 +177,6 @@ func (h *GrpcStatsHandler) TagRPC(ctx context.Context, info *stats.RPCTagInfo) c
 }
 
 func (h *GrpcStatsHandler) HandleRPC(ctx context.Context, rpc stats.RPCStats) {
-	metrics := h.Metrics
-	if metrics == nil {
-		metrics = &metrics4.MultiProvider{}
-	}
 
 	rpcStats, _ := rpc.(*stats.End)
 
@@ -188,10 +186,11 @@ func (h *GrpcStatsHandler) HandleRPC(ctx context.Context, rpc stats.RPCStats) {
 
 	dur := rpcStats.EndTime.Sub(rpcStats.BeginTime)
 
-	h.Request.Update(dur)
+	h.Request.Observe(dur.Seconds())
 
 	s, _ := status.FromError(rpcStats.Error)
-	metrics.NewTimer("grpc.status", "code", s.Code().String()).Update(dur)
+
+	h.Status.With("code", s.Code().String()).Observe(dur.Seconds())
 }
 
 // HandleConn processes the Conn stats.
@@ -199,7 +198,7 @@ func (h *GrpcStatsHandler) HandleConn(ctx context.Context, conn stats.ConnStats)
 	connBegin, _ := conn.(*stats.ConnBegin)
 
 	if connBegin != nil {
-		h.Connect.Count(1)
+		h.Connect.Add(1)
 	}
 }
 

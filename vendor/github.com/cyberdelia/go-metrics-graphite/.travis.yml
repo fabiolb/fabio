@@ -1,3 +1,0 @@
-language: go
-sudo: false
-script:  go vet ./... && go test -cover ./...

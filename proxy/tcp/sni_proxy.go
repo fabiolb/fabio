@@ -2,12 +2,12 @@ package tcp
 
 import (
 	"bufio"
+	gkm "github.com/go-kit/kit/metrics"
 	"io"
 	"log"
 	"net"
 	"time"
 
-	"github.com/fabiolb/fabio/metrics4"
 	"github.com/fabiolb/fabio/route"
 )
 
@@ -26,28 +26,20 @@ type SNIProxy struct {
 	Lookup func(host string) *route.Target
 
 	// Conn counts the number of connections.
-	Conn metrics4.Counter
+	Conn gkm.Counter
 
 	// ConnFail counts the failed upstream connection attempts.
-	ConnFail metrics4.Counter
+	ConnFail gkm.Counter
 
 	// Noroute counts the failed Lookup() calls.
-	Noroute metrics4.Counter
-
-	// Metrics is the configured metrics backend provider.
-	Metrics metrics4.Provider
+	Noroute gkm.Counter
 }
 
 func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	defer in.Close()
 
-	metrics := p.Metrics
-	if metrics == nil {
-		metrics = &metrics4.MultiProvider{}
-	}
-
 	if p.Conn != nil {
-		p.Conn.Count(1)
+		p.Conn.Add(1)
 	}
 
 	tlsReader := bufio.NewReader(in)
@@ -55,7 +47,7 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	if err != nil {
 		log.Print("[DEBUG] tcp+sni: TLS handshake failed (failed to peek data)")
 		if p.ConnFail != nil {
-			p.ConnFail.Count(1)
+			p.ConnFail.Add(1)
 		}
 		return err
 	}
@@ -64,7 +56,7 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	if err != nil {
 		log.Printf("[DEBUG] tcp+sni: TLS handshake failed (%s)", err)
 		if p.ConnFail != nil {
-			p.ConnFail.Count(1)
+			p.ConnFail.Add(1)
 		}
 		return err
 	}
@@ -74,7 +66,7 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	if err != nil {
 		log.Printf("[DEBUG] tcp+sni: TLS handshake failed (%s)", err)
 		if p.ConnFail != nil {
-			p.ConnFail.Count(1)
+			p.ConnFail.Add(1)
 		}
 		return err
 	}
@@ -85,7 +77,7 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	if !ok {
 		log.Print("[DEBUG] tcp+sni: TLS handshake failed (unable to parse client hello)")
 		if p.ConnFail != nil {
-			p.ConnFail.Count(1)
+			p.ConnFail.Add(1)
 		}
 		return nil
 	}
@@ -93,7 +85,7 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	if host == "" {
 		log.Print("[DEBUG] tcp+sni: server_name missing")
 		if p.ConnFail != nil {
-			p.ConnFail.Count(1)
+			p.ConnFail.Add(1)
 		}
 		return nil
 	}
@@ -101,7 +93,7 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	t := p.Lookup(host)
 	if t == nil {
 		if p.Noroute != nil {
-			p.Noroute.Count(1)
+			p.Noroute.Add(1)
 		}
 		return nil
 	}
@@ -115,7 +107,7 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	if err != nil {
 		log.Print("[WARN] tcp+sni: cannot connect to upstream ", addr)
 		if p.ConnFail != nil {
-			p.ConnFail.Count(1)
+			p.ConnFail.Add(1)
 		}
 		return err
 	}
@@ -127,7 +119,7 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 		if err != nil {
 			log.Print("[WARN] tcp+sni: write proxy protocol header failed. ", err)
 			if p.ConnFail != nil {
-				p.ConnFail.Count(1)
+				p.ConnFail.Add(1)
 			}
 			return err
 		}
@@ -138,26 +130,23 @@ func (p *SNIProxy) ServeTCP(in net.Conn) error {
 	if err != nil {
 		log.Print("[WARN] tcp+sni: copy client hello failed. ", err)
 		if p.ConnFail != nil {
-			p.ConnFail.Count(1)
+			p.ConnFail.Add(1)
 		}
 		return err
 	}
 
 	errc := make(chan error, 2)
-	cp := func(dst io.Writer, src io.Reader, c metrics4.Counter) {
+	cp := func(dst io.Writer, src io.Reader, c gkm.Counter) {
 		errc <- copyBuffer(dst, src, c)
 	}
 
-	// rx measures the traffic to the upstream server (in <- out)
-	// tx measures the traffic from the upstream server (out <- in)
-	rx := metrics.NewCounter(t.TimerName.String() + ".rx")
-	tx := metrics.NewCounter(t.TimerName.String() + ".tx")
-
 	// we've received the ClientHello already
-	rx.Count(n)
+	if t.RxCounter != nil {
+		t.RxCounter.Add(float64(n))
+	}
 
-	go cp(in, out, rx)
-	go cp(out, in, tx)
+	go cp(in, out, t.RxCounter)
+	go cp(out, in, t.TxCounter)
 	err = <-errc
 	if err != nil && err != io.EOF {
 		log.Print("[WARN]: tcp+sni:  ", err)
