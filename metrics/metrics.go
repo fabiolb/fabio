@@ -30,7 +30,7 @@ func Initialize(cfg *config.Metrics) (Provider, error) {
 	for _, x := range strings.Split(cfg.Target, ",") {
 		x = strings.TrimSpace(x)
 		switch x {
-		case "flat":
+		case "flat","stdout":
 			p = append(p, &flatProvider{prefix})
 		case "label":
 			p = append(p, &labelProvider{prefix})
@@ -44,6 +44,18 @@ func Initialize(cfg *config.Metrics) (Provider, error) {
 			return nil, fmt.Errorf("statsd support has been removed in favor of statsd_raw")
 		case "prometheus":
 			p = append(p, NewPromProvider(prefix, cfg.Prometheus.Subsystem, cfg.Prometheus.Buckets))
+		case "circonus":
+			pp, err := NewCirconusProvider(prefix, cfg.Circonus, cfg.Interval)
+			if err != nil {
+				return nil, err
+			}
+			p = append(p, pp)
+		case "graphite":
+			pp, err := NewGraphiteProvider(prefix, cfg.GraphiteAddr, 50, cfg.Interval)
+			if err != nil {
+				return nil, err
+			}
+			p = append(p, pp)
 		default:
 			return nil, fmt.Errorf("invalid metrics backend %s", x)
 		}
