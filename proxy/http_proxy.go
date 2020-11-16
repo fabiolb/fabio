@@ -34,11 +34,11 @@ type HttpStatsHandler struct {
 	// WSConn counts the number of open web socket connections.
 	WSConn gkm.Gauge
 
-	// Status is a counter for the given status codes
-	StatusCounter gkm.Counter
-
 	// StatusTimer is a histogram for given status codes
 	StatusTimer gkm.Histogram
+
+	// RedirectCounter - counts redirects
+	RedirectCounter gkm.Counter
 }
 
 // HTTPProxy is a dynamic reverse proxy for HTTP and HTTPS protocols.
@@ -133,8 +133,8 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if t.RedirectCode != 0 && t.RedirectURL != nil {
 		http.Redirect(w, r, t.RedirectURL.String(), t.RedirectCode)
-		if p.Stats.StatusCounter != nil {
-			p.Stats.StatusCounter.With("code", strconv.Itoa(t.RedirectCode)).Add(1)
+		if p.Stats.RedirectCounter != nil {
+			p.Stats.RedirectCounter.With("code", strconv.Itoa(t.RedirectCode)).Add(1)
 		}
 		return
 	}

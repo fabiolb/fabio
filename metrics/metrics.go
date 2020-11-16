@@ -30,7 +30,7 @@ func Initialize(cfg *config.Metrics) (Provider, error) {
 	for _, x := range strings.Split(cfg.Target, ",") {
 		x = strings.TrimSpace(x)
 		switch x {
-		case "flat","stdout":
+		case "flat", "stdout":
 			p = append(p, &flatProvider{prefix})
 		case "label":
 			p = append(p, &labelProvider{prefix})
