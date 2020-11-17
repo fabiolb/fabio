@@ -45,19 +45,7 @@ var counters metrix
 func SetMetricsProvider(p metrics.Provider) {
 	counters.histogram = p.NewHistogram("route", "service", "host", "path", "target")
 	counters.rxCounter = p.NewCounter("route.rx", "service", "host", "path", "target")
-	counters.txCounter = p.NewCounter("route.tx", "host", "path", "target")
-}
-
-func newHistogram(service, host, path, target string) gkm.Histogram {
-	return counters.histogram.With("service", service, "host", host, "path", path, "target", target)
-}
-
-func newRxCounter(service, host, path, target string) gkm.Counter {
-	return counters.rxCounter.With("service", service, "host", host, "path", path, "target", target)
-}
-
-func newTxCounter(service, host, path, target string) gkm.Counter {
-	return counters.txCounter.With("service", service, "host", host, "path", path, "target", target)
+	counters.txCounter = p.NewCounter("route.tx", "service", "host", "path", "target")
 }
 
 // GetTable returns the active routing table. The function

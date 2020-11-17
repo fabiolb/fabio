@@ -60,6 +60,8 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		URL:         targetURL,
 		FixedWeight: fixedWeight,
 		Timer:       counters.histogram.With("service", service, "host", r.Host, "path", r.Path, "target", targetURL.String()),
+		RxCounter:   counters.rxCounter.With("service", service, "host", r.Host, "path", r.Path, "target", targetURL.String()),
+		TxCounter:   counters.rxCounter.With("service", service, "host", r.Host, "path", r.Path, "target", targetURL.String()),
 	}
 
 	var err error
