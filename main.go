@@ -397,8 +397,8 @@ func startServers(cfg *config.Config) {
 						ports = unique(ports)
 					}
 					for _, port := range difference(lastPorts, ports) {
-						log.Printf("[DEBUG] Dynamic TCP listener on port %s eligable for termination", port)
-						proxy.CloseDynamicProxy(port)
+						log.Printf("[DEBUG] Dynamic TCP listener on %s eligable for termination", port)
+						proxy.CloseProxy(port)
 					}
 					for _, port := range ports {
 						l := l
