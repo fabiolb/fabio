@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"log"
 	"net"
 	"net/http"
 	"sync"
@@ -28,23 +29,39 @@ var (
 	// mu guards servers which contains the list
 	// of running proxy servers.
 	mu      sync.Mutex
-	servers []Server
+	servers = make(map[string]Server)
 )
+
+func CloseProxy(address string) error {
+	mu.Lock()
+	if srv, ok := servers[address]; ok {
+		err := srv.Close()
+		if err != nil {
+			return err
+		}
+		log.Printf("[INFO] Dynamic TCP listener on %s has been terminated", address)
+		delete(servers, address)
+	}
+	mu.Unlock()
+	return nil
+}
 
 func Close() {
 	mu.Lock()
 	for _, srv := range servers {
 		srv.Close()
 	}
-	servers = []Server{}
+	servers = make(map[string]Server)
 	mu.Unlock()
 }
 
 func Shutdown(timeout time.Duration) {
 	mu.Lock()
-	srvs := make([]Server, len(servers))
-	copy(srvs, servers)
-	servers = []Server{}
+	srvs := make(map[string]Server, len(servers))
+	for k, v := range servers {
+		srvs[k] = v
+	}
+	servers = make(map[string]Server)
 	mu.Unlock()
 
 	var wg sync.WaitGroup
@@ -129,8 +146,9 @@ func ListenAndServeHTTPSTCPSNI(l config.Listen, h http.Handler, p tcp.Handler, c
 	})
 
 	// tcpproxy creates its own listener from the configuration above so we can
-	// safely pass nil here.
-	return serve(nil, tps)
+	// safely pass nil here, nonetheless we are passing `httpsListener` to
+	// extract it's address and save server in the `servers` map.
+	return serve(httpsListener, tps)
 }
 
 func ListenAndServeGRPC(l config.Listen, opts []grpc.ServerOption, cfg *tls.Config) error {
@@ -162,7 +180,7 @@ func ListenAndServeTCP(l config.Listen, h tcp.Handler, cfg *tls.Config) error {
 
 func serve(ln net.Listener, srv Server) error {
 	mu.Lock()
-	servers = append(servers, srv)
+	servers[ln.Addr().String()] = srv
 	mu.Unlock()
 	err := srv.Serve(ln)
 	if err != nil {
