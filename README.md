@@ -30,7 +30,7 @@ This is still configurable, as always, but the new default should make the most 
 See details [here](https://fabiolb.net/faq/verifying-releases/).
 
 3) From release 1.5.14 onward, fabio binary releases are compiled with golang 1.15+.  
-This means that the fabio will no longer validate upstreamhttps certificates that do 
+This means that the fabio will no longer validate upstream https certificates that do 
 not have SAN extensions matching the server name.  This may be a concern if fabio is 
 communicating with https backends with misconfigured certificates.  If this is a problem,
 you can specify `tlsskipverify=true` on the route.
@@ -66,6 +66,8 @@ It supports ([Full feature list](https://fabiolb.net/feature/))
 * [TLS termination with dynamic certificate stores](https://fabiolb.net/feature/certificate-stores/)
 * [Raw TCP proxy](https://fabiolb.net/feature/tcp-proxy/)
 * [TCP+SNI proxy for full end-to-end TLS](https://fabiolb.net/feature/tcp-sni-proxy/) without decryption
+* [HTTPS+TCP+SNI proxy for TCP+SNI with HTTPS fallback](https://fabiolb.net/feature/https-tcp-sni-proxy/)
+* [TCP dyanamic proxy](https://fabiolb.net/feature/tcp-dynamic-proxy/)
 * [HTTPS upstream support](https://fabiolb.net/feature/https-upstream/)
 * [Websockets](https://fabiolb.net/feature/websockets/) and
   [SSE](https://fabiolb.net/feature/sse/)
