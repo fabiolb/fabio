@@ -81,7 +81,7 @@ var defaultConfig = &Config{
 		Retry:   500 * time.Millisecond,
 	},
 	Runtime: Runtime{
-		GOGC:       800,
+		GOGC:       100,
 		GOMAXPROCS: runtime.NumCPU(),
 	},
 	UI: UI{
