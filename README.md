@@ -20,15 +20,22 @@
 ---
 
 #### Notes
-1) From release 1.5.14, release hashes are signed with a new PGP key.
+
+1) From release 1.5.15 onward, fabio changes the default GOGC from 800 back to
+the golang default of 100.  Apparently this made some sense back in the golang 1.5 days, but with
+changes introduced with golang 1.12 and others, this is probably no longer a very good default.
+This is still configurable, as always, but the new default should make the most sense for most users.
+
+2) From release 1.5.14, release hashes are signed with a new PGP key.
 See details [here](https://fabiolb.net/faq/verifying-releases/).
 
-2) From release 1.5.14 onward, fabio binary releases are compiled with golang 1.15+
-.  This means that the fabio will no longer validate upstream
-https certificates that do not have SAN extensions matching the
-server name.  This may be a concern if fabio is communicating with
-  https backends with misconfigured certificates.  If this is a problem, you can specify `tlsskipverify=true`
-on the route.
+3) From release 1.5.14 onward, fabio binary releases are compiled with golang 1.15+.  
+This means that the fabio will no longer validate upstreamhttps certificates that do 
+not have SAN extensions matching the server name.  This may be a concern if fabio is 
+communicating with https backends with misconfigured certificates.  If this is a problem,
+you can specify `tlsskipverify=true` on the route.
+
+
 
 ---
 
@@ -79,8 +86,8 @@ The full documentation is on [fabiolb.net](https://fabiolb.net/)
 1. Install from source, [binary](https://github.com/fabiolb/fabio/releases),
    [Docker](https://hub.docker.com/r/fabiolb/fabio/) or [Homebrew](http://brew.sh).
     ```shell
-	# go 1.13 or higher is required
-    go get github.com/fabiolb/fabio                     (>= go1.13)
+	# go 1.15 or higher is required
+    go get github.com/fabiolb/fabio                     (>= go1.15)
 
     brew install fabio                                  (OSX/macOS stable)
     brew install --devel fabio                          (OSX/macOS devel)

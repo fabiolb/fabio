@@ -1,5 +1,16 @@
 ## Changelog
 
+### [v1.5.15](https://github.com/fabiolb/fabio/releases/tag/v1.5.15) - 1 Dec 2020
+
+#### Bug Fixes
+
+* [PR #790](https://github.com/fabiolb/fabio/pull/790) - Fix typo in CHANGELOG.md (@stevenscg)
+* [PR #798](https://github.com/fabiolb/fabio/pull/798) - Stop dynamic TCP listener when upstream is no longer available (@fwkz)
+
+#### Improvements
+* [PR #794](https://github.com/fabiolb/fabio/pull/794) - update vendor dependencies
+* [PR #803](https://github.com/fabiolb/fabio/pull/803) - change GOGC default to 100
+
 ### [v1.5.14](https://github.com/fabiolb/fabio/releases/tag/v1.5.14) - 9 Sep 2020
 
 
