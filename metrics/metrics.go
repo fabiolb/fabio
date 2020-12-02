@@ -42,6 +42,12 @@ func Initialize(cfg *config.Metrics) (Provider, error) {
 			p = append(p, pp)
 		case "statsd":
 			return nil, fmt.Errorf("statsd support has been removed in favor of statsd_raw")
+		case "dogstatsd":
+			pp, err := NewDogstatsdProvider(prefix, cfg.DogstatsdAddr, cfg.Interval)
+			if err != nil {
+				return nil, err
+			}
+			p = append(p, pp)
 		case "prometheus":
 			p = append(p, NewPromProvider(prefix, cfg.Prometheus.Subsystem, cfg.Prometheus.Buckets))
 		case "circonus":

@@ -73,7 +73,7 @@ func TestStatsdProvider(t *testing.T) {
 			histo.Observe(tst.histoval)
 			var buff bytes.Buffer
 			_, _ = provider.S.WriteTo(&buff)
-			m := parseMetrics(&buff, prefix)
+			m := parseStatsdMetrics(&buff, prefix)
 			// t.Logf("parsed metrics: %#v", m)
 
 			for _, v := range []struct {
@@ -109,11 +109,12 @@ type statsdEntry struct {
 	value  float64
 	t      string
 	sample float64
+	tags   []string
 }
 
-var re = regexp.MustCompile(`^([^:]+):([0-9\.]+)\|(ms|c|g)(?:\|@([0-9\.]+))?$`)
+var re = regexp.MustCompile(`^([^:]+):([0-9\.]+)\|(ms|c|g|h)(?:\|@([0-9\.]+))?(?:\|#(.*))?$`)
 
-func parseMetrics(data io.Reader, prefix string) map[string]statsdEntry {
+func parseStatsdMetrics(data io.Reader, prefix string) map[string]statsdEntry {
 	reader := bufio.NewScanner(data)
 	m := make(map[string]statsdEntry)
 	for reader.Scan() {
@@ -134,11 +135,18 @@ func parseMetrics(data io.Reader, prefix string) map[string]statsdEntry {
 				panic(err.Error)
 			}
 		}
-
+		var tags []string
+		if len(matches[5]) > 0 {
+			kvs := strings.Split(matches[5], ",")
+			for _, kv := range kvs {
+				tags = append(tags, strings.SplitN(kv, ":", 2)...)
+			}
+		}
 		m[name] = statsdEntry{
 			value:  value,
 			t:      matches[3],
 			sample: sample,
+			tags:   tags,
 		}
 	}
 	return m

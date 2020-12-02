@@ -112,16 +112,17 @@ type Log struct {
 }
 
 type Metrics struct {
-	Target       string
-	Prefix       string
-	Names        string
-	Interval     time.Duration
-	Timeout      time.Duration
-	Retry        time.Duration
-	GraphiteAddr string
-	StatsDAddr   string
-	Circonus     Circonus
-	Prometheus   Prometheus
+	Target        string
+	Prefix        string
+	Names         string
+	Interval      time.Duration
+	Timeout       time.Duration
+	Retry         time.Duration
+	GraphiteAddr  string
+	StatsDAddr    string
+	DogstatsdAddr string
+	Circonus      Circonus
+	Prometheus    Prometheus
 }
 
 type Registry struct {

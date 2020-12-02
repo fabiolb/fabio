@@ -34,6 +34,7 @@ github.com/fatih/color
 github.com/go-kit/kit/log
 github.com/go-kit/kit/metrics
 github.com/go-kit/kit/metrics/discard
+github.com/go-kit/kit/metrics/dogstatsd
 github.com/go-kit/kit/metrics/generic
 github.com/go-kit/kit/metrics/graphite
 github.com/go-kit/kit/metrics/internal/lv
