@@ -160,6 +160,11 @@ This project exists thanks to all the people who contribute. [[Contribute](CONTR
   MIT Licensed
   Copyright (c) 2017-2019 Frank Schroeder. All rights reserved.
 
+* Contributions after 22 Jan 2020 starting with [9da7b1b](https://github.com/fabiolb/fabio/commit/9da7b1b6ce0f631f7974e8663b34022c3496dca7#diff-b335630551682c19a781afebcf4d07bf978fb1f8ac04c6bf87428ed5106870f5)
+
+  MIT Licensed
+  Copyright (c) 2020 Education Networks of America.  All rights reserved.
+
 See [LICENSE](https://github.com/fabiolb/fabio/blob/master/LICENSE) for details.
 
 ## Stargazers over Time
