@@ -36,8 +36,13 @@ func (p *DynamicProxy) ServeTCP(in net.Conn) error {
 	if p.Conn != nil {
 		p.Conn.Inc(1)
 	}
+
 	target := in.LocalAddr().String()
 	t := p.Lookup(target)
+	if t == nil {
+		_, port, _ := net.SplitHostPort(target)
+		t = p.Lookup(":" + port)
+	}
 	if t == nil {
 		if p.Noroute != nil {
 			p.Noroute.Inc(1)
