@@ -7,7 +7,7 @@ weight: 100
 1. Install from source, binary, Docker or Homebrew.
 
 	```
-	go get github.com/fabiolb/fabio                     (>= go1.8)
+	go get github.com/fabiolb/fabio                     (>= go1.15)
 
 	brew install fabio                                  (OSX/macOS stable)
 
