@@ -11,7 +11,7 @@
   <p align="center" style="margin-top: 16px">
     <a href="https://github.com/fabiolb/fabio/releases/latest"><img alt="Release" src="https://img.shields.io/github/release/fabiolb/fabio.svg?style=flat-square"></a>
     <a href="https://raw.githubusercontent.com/fabiolb/fabio/master/LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
-    <a href="https://travis-ci.org/fabiolb/fabio"><img alt="Travis CI Status" src="https://travis-ci.org/fabiolb/fabio.svg?branch=master"></a>
+    <a href="https://travis-ci.com/github/fabiolb/fabio"><img alt="Travis CI Status" src="https://travis-ci.com/fabiolb/fabio.svg?branch=master"></a>
     <a href="https://github.com/fabiolb/fabio/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/fabiolb/fabio/total.svg?style=flat-square"></a>
     <a href="https://hub.docker.com/r/fabiolb/fabio/"><img alt="Docker Pulls fabiolb" src="https://img.shields.io/docker/pulls/fabiolb/fabio.svg?style=flat-square&label=docker+pulls+fabiolb"></a>
   </p>
