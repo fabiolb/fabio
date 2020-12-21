@@ -275,9 +275,11 @@ func (p *grpcConnectionPool) cleanup() {
 			}
 
 			if !hasTarget(target, table) {
-				log.Println("[DEBUG] grpc: cleaning up connection to", target.URL.Host)
-				cs.Close()
-				delete(p.connections, target)
+				if cs.GetState() != connectivity.Ready {
+					log.Println("[DEBUG] grpc: cleaning up connection to", target.URL.Host)
+					cs.Close()
+					delete(p.connections, target)
+				}
 			}
 		}
 		p.lock.Unlock()
@@ -289,7 +291,7 @@ func hasTarget(target *route.Target, table route.Table) bool {
 	for _, routes := range table {
 		for _, r := range routes {
 			for _, t := range r.Targets {
-				if target == t {
+				if target.URL.Host == t.URL.Host {
 					return true
 				}
 			}
