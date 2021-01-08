@@ -192,6 +192,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Registry.Consul.ChecksRequired, "registry.consul.checksRequired", defaultConfig.Registry.Consul.ChecksRequired, "number of checks which must pass: one or all")
 	f.IntVar(&cfg.Registry.Consul.ServiceMonitors, "registry.consul.serviceMonitors", defaultConfig.Registry.Consul.ServiceMonitors, "concurrency for route updates")
 	f.DurationVar(&cfg.Registry.Consul.PollInterval, "registry.consul.pollinterval", defaultConfig.Registry.Consul.PollInterval, "poll interval for route updates")
+	f.BoolVar(&cfg.Registry.Consul.RequireConsistent, "registry.consul.requireConsistent", defaultConfig.Registry.Consul.RequireConsistent, "is consistent read mode on consul queries required")
 	f.IntVar(&cfg.Runtime.GOGC, "runtime.gogc", defaultConfig.Runtime.GOGC, "sets runtime.GOGC")
 	f.IntVar(&cfg.Runtime.GOMAXPROCS, "runtime.gomaxprocs", defaultConfig.Runtime.GOMAXPROCS, "sets runtime.GOMAXPROCS")
 	f.StringVar(&cfg.UI.Access, "ui.access", defaultConfig.UI.Access, "access mode, one of [ro, rw]")

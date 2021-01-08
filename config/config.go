@@ -157,6 +157,7 @@ type Consul struct {
 	ServiceMonitors    int
 	TLS                ConsulTlS
 	PollInterval       time.Duration
+	RequireConsistent  bool
 }
 
 type Custom struct {
