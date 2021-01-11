@@ -57,6 +57,7 @@ var defaultConfig = &Config{
 			NoRouteHTMLPath: "/fabio/noroute.html",
 			TagPrefix:       "urlprefix-",
 			Register:        true,
+			Namespace:       "",
 			ServiceAddr:     ":9998",
 			ServiceName:     "fabio",
 			ServiceStatus:   []string{"passing"},
