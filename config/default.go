@@ -67,6 +67,7 @@ var defaultConfig = &Config{
 			ChecksRequired:    "one",
 			PollInterval:      0,
 			RequireConsistent: true,
+			AllowStale:        false,
 		},
 		Custom: Custom{
 			Host:               "",
