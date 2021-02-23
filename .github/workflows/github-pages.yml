@@ -1,0 +1,21 @@
+name: github pages
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@master
+      with:
+        submodules: true
+    - name: build
+      uses: mattbailey/actions-hugo@v0.57.2
+      if: github.event.deleted == false
+      with:
+        args: --gc --minify
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_ACTIONS_TOKEN }}

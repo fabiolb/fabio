@@ -22,9 +22,11 @@ import (
 // 127.0.0.1	example.com
 // 127.0.0.1	example2.com
 // and then set the environment FABIO_IHAVEHOSTENTRIES=true
-// This also runs in TRAVIS by default, since .travis.yml adds these aliases.
+// This also runs in Github Actions by default, since the workflow adds these aliases.
 func TestProxyTCPAndHTTPS(t *testing.T) {
-	if os.Getenv("TRAVIS") != "true" && os.Getenv("FABIO_IHAVEHOSTENTRIES") != "true" {
+	if os.Getenv("TRAVIS") != "true" &&
+		os.Getenv("GITHUB") != "true" &&
+		os.Getenv("FABIO_IHAVEHOSTENTRIES") != "true" {
 		t.Skip("skipping because env FABIO_IHAVEHOSTENTRIES is not set to true")
 	}
 
