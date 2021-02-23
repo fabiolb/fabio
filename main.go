@@ -63,7 +63,7 @@ func main() {
 		exit.Fatalf("[FATAL] %s. %s", version, err)
 	}
 	if cfg == nil {
-		fmt.Println(version)
+		fmt.Printf("%s %s\n", version, runtime.Version())
 		return
 	}
 

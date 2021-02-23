@@ -23,11 +23,11 @@ builds:
 
 archives:
   - id: bin
-    name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Env.GOVERSION }}-{{ .Os }}_{{ .Arch }}'
+    name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Os }}_{{ .Arch }}'
     format: binary
 
 checksum:
-  name_template: '{{.ProjectName}}-{{.Version}}-{{ .Env.GOVERSION }}.sha256'
+  name_template: '{{.ProjectName}}-{{.Version}}.sha256'
 
 signs:
   -
@@ -38,6 +38,6 @@ dockers:
     dockerfile: Dockerfile-goreleaser
     image_templates:
       - 'fabiolb/fabio:latest'
-      - 'fabiolb/fabio:{{ .Version }}-{{ .Env.GOVERSION }}'
+      - 'fabiolb/fabio:{{ .Version }}'
     extra_files:
       - fabio.properties
