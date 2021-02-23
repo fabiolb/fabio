@@ -13,9 +13,12 @@ jobs:
       with:
         submodules: true
     - name: build
-      uses: mattbailey/actions-hugo@v0.57.2
-      if: github.event.deleted == false
+      run: |
+        export PATH=${PATH}:${HOME}/bin
+        make github-pages
+    - name: deploy
+      uses: peaceiris/actions-gh-pages@v3
       with:
-        args: --gc --minify
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_ACTIONS_TOKEN }}
+        github_token: ${{ secrets.GH_ACTIONS_TOKEN }}
+        publish_dir: ./docs/public
+        cname: fabiolb.net

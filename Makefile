@@ -137,6 +137,14 @@ github:
 	consul --version
 	make test
 
+# github-pages runs the GitHub pages (https://fabiolb.net/) deploy on github actions
+github-pages:
+	wget -q -O ~/hugo.tgz https://github.com/gohugoio/hugo/releases/download/v$(CI_HUGO_VERSION)/hugo_$(CI_HUGO_VERSION)_Linux-64bit.tar.gz
+	mkdir -p ~/bin
+	tar -C ~/bin -zxf ~/hugo.tgz hugo
+	hugo version
+	(cd docs && hugo --verbose)
+
 # clean removes intermediate files
 clean:
 	go clean
