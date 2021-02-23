@@ -127,6 +127,16 @@ travis-pages:
 	hugo version
 	(cd docs && hugo --verbose)
 
+# github runs tests on github actions
+github:
+	wget -q -O ~/consul.zip https://releases.hashicorp.com/consul/$(CI_CONSUL_VERSION)/consul_$(CI_CONSUL_VERSION)_linux_amd64.zip
+	wget -q -O ~/vault.zip https://releases.hashicorp.com/vault/$(CI_VAULT_VERSION)/vault_$(CI_VAULT_VERSION)_linux_amd64.zip
+	unzip -o -d ~/bin ~/consul.zip
+	unzip -o -d ~/bin ~/vault.zip
+	vault --version
+	consul --version
+	make test
+
 # clean removes intermediate files
 clean:
 	go clean
