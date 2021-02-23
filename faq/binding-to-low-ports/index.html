@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+
+    <title>Binding to Low Ports</title>
+
+    
+    <link href="/css/theDocs.all.min.css" rel="stylesheet">
+    <link href="/css/skin/skin-blue.min.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    
+    
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+    <link rel="manifest" href="/img/manifest.json">
+    <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+  </head>
+
+  <body data-spy="scroll" data-target=".sidebar" data-offset="400">
+    
+    <a id="top" href="#"></a>
+
+    <header class="site-header sticky">
+      <nav class="navbar navbar-default">
+        <div class="container">
+
+          
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar" aria-expanded="true" aria-controls="navbar">
+              <span class="glyphicon glyphicon-option-vertical"></span>
+            </button>
+
+            <button type="button" class="navbar-toggle for-sidebar" data-toggle="offcanvas">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="/"><img src="/img/logo-bw.svg" alt="logo"></a>
+          </div>
+          
+
+          
+          <div id="navbar" class="navbar-collapse collapse" aria-expanded="true" role="banner">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="/quickstart/">Quickstart</a></li>
+              <li><a href="/deploy/">Deployment</a></li>
+              <li><a href="/feature/">Features</a></li>
+              <li><a href="/ref/">Reference</a></li>
+              <li><a href="/faq/">FAQ</a></li>
+              <li><a target="_blank" href="https://twitter.com/search?q=%23fabiolb"><i class="fa fa-twitter fa-2x" aria-hidden="true"></i></a></li>
+              <li><a target="_blank" href="https://github.com/fabiolb/fabio"><i class="fa fa-github fa-2x" aria-hidden="true"></i></a></li>
+            </ul>
+          </div>
+          
+
+        </div>
+      </nav>
+
+    </header>
+
+
+
+<main class="container">
+  <div class="row">
+    
+<aside class="col-sm-3 sidebar sidebar-line">
+
+  <ul class="nav sidenav dropable ">
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/quickstart/">Quickstart</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/feature/">Features</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/deploy/">Deployment</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/cfg/">Config Language</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/ref/">Reference</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/faq/">FAQ</a>
+      
+      <ul class="open">
+      
+        <li><a class="active" href="https://fabiolb.net/faq/binding-to-low-ports/">Binding to Low Ports</a></li>
+      
+        <li><a href="https://fabiolb.net/faq/multiple-protocol-listeners/">Handling Multiple Protocols</a></li>
+      
+        <li><a href="https://fabiolb.net/faq/request-tracing/">Request Tracing</a></li>
+      
+        <li><a href="https://fabiolb.net/faq/request-debugging/">Test fabio with curl</a></li>
+      
+        <li><a href="https://fabiolb.net/faq/verifying-releases/">Verifying Releases</a></li>
+      
+        <li><a href="https://fabiolb.net/faq/why-fabio/">Why &#39;Fabio&#39;?</a></li>
+      
+      </ul>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contrib/">Contributing</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/code-of-conduct/">Code of Conduct</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contact/">Contact</a>
+      
+    </li>
+    
+  </ul>
+
+</aside>
+
+
+    
+    <article class="col-sm-9 main-content" role="main">
+
+      
+      <section>
+        <h2>Binding to Low Ports</h2>
+        <p>If you want to bind fabio to ports below 1024 - so called privileged ports -
+without running fabio as <code>root</code> you can use an operating system approach as
+described below.</p>
+<p>These best practices are taken from <a href="https://github.com/fabiolb/fabio/issues/195">https://github.com/fabiolb/fabio/issues/195</a>.</p>
+<h4 id="linux">Linux</h4>
+<p>Provide <code>net_bind_service</code> capability to fabio binary</p>
+<pre><code>$ setcap 'cap_net_bind_service=+ep' $(which fabio)
+</code></pre><p>When using <code>systemd</code> you can use the following service definition:</p>
+<pre><code>$ cat /etc/systemd/system/fabio.service
+
+[Unit]
+Description=Fabio proxy
+After=syslog.target
+After=network.target
+
+[Service]
+LimitMEMLOCK=infinity
+LimitNOFILE=65535
+Type=simple
+# unprivileged uid and gid
+User=fabio_user
+Group=fabio_group
+WorkingDirectory=/
+ExecStart=/path/to/fabio -cfg /path/to/fabio.conf
+Restart=always
+# no need that fabio messes with /dev
+PrivateDevices=yes
+# dedicated /tmp
+PrivateTmp=yes
+# make /usr, /boot, /etc read only
+ProtectSystem=full
+# /home is not accessible at all
+ProtectHome=yes
+# to be able to bind port &lt; 1024
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+NoNewPrivileges=yes
+# only ipv4, ipv6, unix socket and netlink networking is possible
+# netlink is necessary so that fabio can list available IPs on startup
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+</code></pre><h4 id="solarisillumossmartos">Solaris/Illumos/SmartOS</h4>
+<p>Provide <code>net_privaddr</code> privileges to fabio user</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ /usr/sbin/usermod -K defaultpriv<span style="color:#f92672">=</span>basic,net_privaddr fabio_user
+
+$ grep fabio_user /etc/user_attr
+fabio_user::::type<span style="color:#f92672">=</span>normal;defaultpriv<span style="color:#f92672">=</span>basic,net_privaddr
+</code></pre></div><h4 id="provide-privilege-to-fabio-process-syntax-needs-review">Provide privilege to fabio process (syntax needs review)</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ /usr/sbin/ppriv -s PELI+NET_PRIVADDR -e fabio
+</code></pre></div><h4 id="openbsdfreebsdnetbsd">OpenBSD/FreeBSD/NetBSD</h4>
+<p>Use <code>PF</code> to forward from low port to high port.</p>
+<pre><code>/etc/pf.conf
+
+EXT_IF = &quot;eth0&quot;
+HTTPS_PORT = 443
+HTTPS_PORT_BACKEND = 4343
+LOCAL_IP = &quot;127.0.0.1&quot;
+
+...
+
+pass in quick on $EXT_IF inet proto tcp from any to $LOCAL_IP port $HTTPS_PORT rdr-to $LOCAL_IP port $HTTPS_PORT_BACKEND
+
+</code></pre><h4 id="freebsd-change-the-range-of-reserved-ports-this-looks-dangerous">FreeBSD: Change the range of reserved ports (this looks dangerous)</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sysctl net.inet.ip.portrange.reservedhigh<span style="color:#f92672">=</span><span style="color:#ae81ff">79</span>
+
+<span style="color:#75715e"># add to /etc/sysctl.conf to make this permament</span>
+</code></pre></div><h4 id="macos-needs-review-by-sme">macOS (needs review by SME)</h4>
+<p>Use <code>launchd</code> to launch fabio by creating a service plist and using launchctl to run it:</p>
+<p><code>$sudo launchctl load -w /path/to/fabio.plist</code></p>
+<p>Example plist XML (needs reviewing):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+<span style="color:#75715e">&lt;!DOCTYPE plist
+</span><span style="color:#75715e">  PUBLIC &#39;-//Apple//DTD PLIST 1.0//EN&#39;
+</span><span style="color:#75715e">  &#39;http://www.apple.com/DTDs/PropertyList-1.0.dtd&#39;&gt;</span>
+<span style="color:#f92672">&lt;plist</span> <span style="color:#a6e22e">version=</span><span style="color:#e6db74">&#34;1.0&#34;</span><span style="color:#f92672">&gt;</span>
+	<span style="color:#f92672">&lt;dict</span><span style="color:#f92672">&gt;</span>
+		<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>Label<span style="color:#f92672">&lt;/key&gt;</span>
+		<span style="color:#f92672">&lt;string</span><span style="color:#f92672">&gt;</span>com.github.fabiolb.fabio<span style="color:#f92672">&lt;/string&gt;</span>
+		<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>Program<span style="color:#f92672">&lt;/key&gt;</span>
+		<span style="color:#f92672">&lt;string</span><span style="color:#f92672">&gt;</span>fabio<span style="color:#f92672">&lt;/string&gt;</span>
+		<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>Sockets<span style="color:#f92672">&lt;/key&gt;</span>
+		<span style="color:#f92672">&lt;dict</span><span style="color:#f92672">&gt;</span>
+			<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>Listeners<span style="color:#f92672">&lt;/key&gt;</span>
+			<span style="color:#f92672">&lt;dict</span><span style="color:#f92672">&gt;</span>
+				<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>SockServiceName<span style="color:#f92672">&lt;/key&gt;</span>
+				<span style="color:#f92672">&lt;string</span><span style="color:#f92672">&gt;</span>80<span style="color:#f92672">&lt;/string&gt;</span>
+				<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>SockType<span style="color:#f92672">&lt;/key&gt;</span>
+				<span style="color:#f92672">&lt;string</span><span style="color:#f92672">&gt;</span>stream<span style="color:#f92672">&lt;/string&gt;</span>
+				<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>SockFamily<span style="color:#f92672">&lt;/key&gt;</span>
+				<span style="color:#f92672">&lt;string</span><span style="color:#f92672">&gt;</span>IPv4<span style="color:#f92672">&lt;/string&gt;</span>
+			<span style="color:#f92672">&lt;/dict&gt;</span>
+		<span style="color:#f92672">&lt;/dict&gt;</span>
+	<span style="color:#f92672">&lt;/dict&gt;</span>
+<span style="color:#f92672">&lt;/plist&gt;</span>
+</code></pre></div><h4 id="windows">Windows</h4>
+<p>???</p>
+
+        
+      </section>
+
+    </article>
+    
+
+  </div>
+</main>
+
+    
+    <footer class="site-footer">
+      <div class="container">
+        <a id="scroll-up" href="#"><i class="fa fa-angle-up"></i></a>
+
+        <div class="row">
+          <div class="col-md-6 col-sm-6">
+            <p style="line-height: 26px;">
+                Copyright &copy; 2020-2021 Education Networks of America. All rights reserved.</br>
+                Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
+                Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
+                Last updated on 23 Feb 2021 20:52
+            </p>
+          </div>
+          <div class="col-md-6 col-sm-6">
+            <ul class="footer-menu">
+              <li><a href="https://github.com/fabiolb/fabio/commits/master">Changelog</a></li>
+              <li><a href="/contact/">Contact</a></li>
+              <li>
+                <a href="https://gohugo.io"><img src="/img/made-with-hugo.png" height="51px"></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-2812942-5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+    gtag('config', 'UA-2812942-5');
+    </script>
+
+    
+    <script src="/js/theDocs.all.min.js"></script>
+    <script src="/js/custom.js"></script>
+
+  </body>
+</html>
+

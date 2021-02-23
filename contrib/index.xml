@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Contributing on fabio - The Consul Load-Balancer</title>
+    <link>https://fabiolb.net/contrib/</link>
+    <description>Recent content in Contributing on fabio - The Consul Load-Balancer</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="https://fabiolb.net/contrib/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Guidelines</title>
+      <link>https://fabiolb.net/contrib/guidelines/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/contrib/guidelines/</guid>
+      <description>Your contribution is welcome! To make merging code as seamless as possible we ask for the following:
+ For small changes and bug fixes go ahead, fork the project, make your changes and send a pull request. Check out the Development page for some useful tips. Larger changes should start with a proposal in an issue. This should ensure that the requested change is in line with the project and similar work is not already underway.</description>
+    </item>
+    
+    <item>
+      <title>Development</title>
+      <link>https://fabiolb.net/contrib/development/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/contrib/development/</guid>
+      <description>For newcomers to Go, you can&amp;rsquo;t just git clone your forked repo and work from there, due to how Go&amp;rsquo;s GOPATH works. You can follow the steps below to get started:
+ Fork this repository to your own account (named myfork below) Make sure you have Consul and Vault installed in your $PATH go get github.com/fabiolb/fabio, change to the directory where the code was cloned ($GOPATH/src/github.com/fabiolb/fabio) and add your fork as remote: git remote add myfork git@github.</description>
+    </item>
+    
+  </channel>
+</rss>

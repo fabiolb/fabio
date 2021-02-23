@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+
+    <title>Access Logging</title>
+
+    
+    <link href="/css/theDocs.all.min.css" rel="stylesheet">
+    <link href="/css/skin/skin-blue.min.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    
+    
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+    <link rel="manifest" href="/img/manifest.json">
+    <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+  </head>
+
+  <body data-spy="scroll" data-target=".sidebar" data-offset="400">
+    
+    <a id="top" href="#"></a>
+
+    <header class="site-header sticky">
+      <nav class="navbar navbar-default">
+        <div class="container">
+
+          
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar" aria-expanded="true" aria-controls="navbar">
+              <span class="glyphicon glyphicon-option-vertical"></span>
+            </button>
+
+            <button type="button" class="navbar-toggle for-sidebar" data-toggle="offcanvas">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="/"><img src="/img/logo-bw.svg" alt="logo"></a>
+          </div>
+          
+
+          
+          <div id="navbar" class="navbar-collapse collapse" aria-expanded="true" role="banner">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="/quickstart/">Quickstart</a></li>
+              <li><a href="/deploy/">Deployment</a></li>
+              <li><a href="/feature/">Features</a></li>
+              <li><a href="/ref/">Reference</a></li>
+              <li><a href="/faq/">FAQ</a></li>
+              <li><a target="_blank" href="https://twitter.com/search?q=%23fabiolb"><i class="fa fa-twitter fa-2x" aria-hidden="true"></i></a></li>
+              <li><a target="_blank" href="https://github.com/fabiolb/fabio"><i class="fa fa-github fa-2x" aria-hidden="true"></i></a></li>
+            </ul>
+          </div>
+          
+
+        </div>
+      </nav>
+
+    </header>
+
+
+
+<main class="container">
+  <div class="row">
+    
+<aside class="col-sm-3 sidebar sidebar-line">
+
+  <ul class="nav sidenav dropable ">
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/quickstart/">Quickstart</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/feature/">Features</a>
+      
+      <ul class="open">
+      
+        <li><a href="https://fabiolb.net/feature/access-control/">Access Control</a></li>
+      
+        <li><a class="active" href="https://fabiolb.net/feature/access-logging/">Access Logging</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/authorization/">Authorization</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/certificate-stores/">Certificate Stores</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/docker/">Docker Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/dynamic-reloading/">Dynamic Reloading</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/graceful-shutdown/">Graceful Shutdown</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/grpc-proxy/">GRPC Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-compression/">HTTP Compression</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-headers/">HTTP Header Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-path-stripping/">HTTP Path Stripping</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-redirects/">HTTP Redirects</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/https-tcp-sni-proxy/">HTTPS TCP-SNI Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/https-upstream/">HTTPS Upstream</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/metrics/">Metrics</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/proxy-protocol/">PROXY Protocol Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/sse/">Server Sent Events (SSE)</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/tcp-dynamic-proxy/">TCP Dynamic Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/tcp-proxy/">TCP Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/tcp-sni-proxy/">TCP-SNI Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/traffic-shaping/">Traffic Shaping</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/vault/">Vault Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/web-ui/">Web UI</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/websockets/">Websockets</a></li>
+      
+      </ul>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/deploy/">Deployment</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/cfg/">Config Language</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/ref/">Reference</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/faq/">FAQ</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contrib/">Contributing</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/code-of-conduct/">Code of Conduct</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contact/">Contact</a>
+      
+    </li>
+    
+  </ul>
+
+</aside>
+
+
+    
+    <article class="col-sm-9 main-content" role="main">
+
+      
+      <section>
+        <h2>Access Logging</h2>
+        <p>Support for writing access logs for HTTP requests
+in the <a href="https://en.wikipedia.org/wiki/Common_Log_Format">Common Log Format</a>
+or the <a href="https://httpd.apache.org/docs/1.3/logs.html#combined">Combined Log Format</a>
+or a custom format to stdout.</p>
+<p>By default, access logs are disabled. To enable them set <code>log.access.target=stdout</code>. This will
+write access logs in the <a href="https://en.wikipedia.org/wiki/Common_Log_Format">Common Log Format</a> to stdout. The
+standard fabio logs are still written to stderr.</p>
+<p>The log format can be controlled with the <code>log.access.format</code> parameter which
+is either <code>common</code>, <code>combined</code> - which outputs the <a href="https://httpd.apache.org/docs/1.3/logs.html#combined">Combined Log Format</a> - or a custom
+format string which is fully described in
+<a href="https://github.com/eBay/fabio/blob/master/fabio.properties#L374-L421">fabio.properties</a>.</p>
+<pre><code># log.access.format configures the format of the access log.
+#
+# If the value is either 'common' or 'combined' then the logs are written in
+# the Common Log Format or the Combined Log Format as defined below:
+#
+# 'common':   $remote_host - - [$time_common] &quot;$request&quot; $response_status $response_body_size
+# 'combined': $remote_host - - [$time_common] &quot;$request&quot; $response_status $response_body_size &quot;$header.Referer&quot; &quot;$header.User-Agent&quot;
+#
+# Otherwise, the value is interpreted as a custom log format which is defined
+# with the following parameters. Providing an empty format when logging is
+# enabled is an error. To disable access logging leave the log.access.target
+# value empty.
+#
+#   $header.&lt;name&gt;           - request http header (name: [a-zA-Z0-9-]+)
+#   $remote_addr             - host:port of remote client
+#   $remote_host             - host of remote client
+#   $remote_port             - port of remote client
+#   $request                 - request &lt;method&gt; &lt;uri&gt; &lt;proto&gt;
+#   $request_args            - request query parameters
+#   $request_host            - request host header (aka server name)
+#   $request_method          - request method
+#   $request_scheme          - request scheme
+#   $request_uri             - request URI
+#   $request_url             - request URL
+#   $request_proto           - request protocol
+#   $response_body_size      - response body size in bytes
+#   $response_status         - response status code
+#   $response_time_ms        - response time in S.sss format
+#   $response_time_us        - response time in S.ssssss format
+#   $response_time_ns        - response time in S.sssssssss format
+#   $time_rfc3339            - log timestamp in YYYY-MM-DDTHH:MM:SSZ format
+#   $time_rfc3339_ms         - log timestamp in YYYY-MM-DDTHH:MM:SS.sssZ format
+#   $time_rfc3339_us         - log timestamp in YYYY-MM-DDTHH:MM:SS.ssssssZ format
+#   $time_rfc3339_ns         - log timestamp in YYYY-MM-DDTHH:MM:SS.sssssssssZ format
+#   $time_unix_ms            - log timestamp in unix epoch ms
+#   $time_unix_us            - log timestamp in unix epoch us
+#   $time_unix_ns            - log timestamp in unix epoch ns
+#   $time_common             - log timestamp in DD/MMM/YYYY:HH:MM:SS -ZZZZ
+#   $upstream_addr           - host:port of upstream server
+#   $upstream_host           - host of upstream server
+#   $upstream_port           - port of upstream server
+#   $upstream_request_scheme - upstream request scheme
+#   $upstream_request_uri    - upstream request URI
+#   $upstream_request_url    - upstream request URL
+#   $upstream_service        - name of the upstream service
+#
+# The default is
+#
+# log.access.format = common
+</code></pre>
+        
+      </section>
+
+    </article>
+    
+
+  </div>
+</main>
+
+    
+    <footer class="site-footer">
+      <div class="container">
+        <a id="scroll-up" href="#"><i class="fa fa-angle-up"></i></a>
+
+        <div class="row">
+          <div class="col-md-6 col-sm-6">
+            <p style="line-height: 26px;">
+                Copyright &copy; 2020-2021 Education Networks of America. All rights reserved.</br>
+                Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
+                Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
+                Last updated on 23 Feb 2021 20:52
+            </p>
+          </div>
+          <div class="col-md-6 col-sm-6">
+            <ul class="footer-menu">
+              <li><a href="https://github.com/fabiolb/fabio/commits/master">Changelog</a></li>
+              <li><a href="/contact/">Contact</a></li>
+              <li>
+                <a href="https://gohugo.io"><img src="/img/made-with-hugo.png" height="51px"></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-2812942-5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+    gtag('config', 'UA-2812942-5');
+    </script>
+
+    
+    <script src="/js/theDocs.all.min.js"></script>
+    <script src="/js/custom.js"></script>
+
+  </body>
+</html>
+

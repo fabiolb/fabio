@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+
+    <title>registry.file.path</title>
+
+    
+    <link href="/css/theDocs.all.min.css" rel="stylesheet">
+    <link href="/css/skin/skin-blue.min.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    
+    
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+    <link rel="manifest" href="/img/manifest.json">
+    <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+  </head>
+
+  <body data-spy="scroll" data-target=".sidebar" data-offset="400">
+    
+    <a id="top" href="#"></a>
+
+    <header class="site-header sticky">
+      <nav class="navbar navbar-default">
+        <div class="container">
+
+          
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar" aria-expanded="true" aria-controls="navbar">
+              <span class="glyphicon glyphicon-option-vertical"></span>
+            </button>
+
+            <button type="button" class="navbar-toggle for-sidebar" data-toggle="offcanvas">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="/"><img src="/img/logo-bw.svg" alt="logo"></a>
+          </div>
+          
+
+          
+          <div id="navbar" class="navbar-collapse collapse" aria-expanded="true" role="banner">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="/quickstart/">Quickstart</a></li>
+              <li><a href="/deploy/">Deployment</a></li>
+              <li><a href="/feature/">Features</a></li>
+              <li><a href="/ref/">Reference</a></li>
+              <li><a href="/faq/">FAQ</a></li>
+              <li><a target="_blank" href="https://twitter.com/search?q=%23fabiolb"><i class="fa fa-twitter fa-2x" aria-hidden="true"></i></a></li>
+              <li><a target="_blank" href="https://github.com/fabiolb/fabio"><i class="fa fa-github fa-2x" aria-hidden="true"></i></a></li>
+            </ul>
+          </div>
+          
+
+        </div>
+      </nav>
+
+    </header>
+
+
+
+<main class="container">
+  <div class="row">
+    
+<aside class="col-sm-3 sidebar sidebar-line">
+
+  <ul class="nav sidenav dropable ">
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/quickstart/">Quickstart</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/feature/">Features</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/deploy/">Deployment</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/cfg/">Config Language</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/ref/">Reference</a>
+      
+      <ul class="open">
+      
+        <li><a href="https://fabiolb.net/ref/proxy.keepalivetimeout/"></a></li>
+      
+        <li><a href="https://fabiolb.net/ref/glob.cache.size/">glob.cache.size</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/glob.matching.disabled/">glob.matching.disabled</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/log.access.format/">log.access.format</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/log.access.target/">log.access.target</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/log.level/">log.level</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/log.routes.format/">log.routes.format</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.circonus.apiapp/">metrics.circonus.apiapp</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.circonus.apikey/">metrics.circonus.apikey</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.circonus.apiurl/">metrics.circonus.apiurl</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.circonus.brokerid/">metrics.circonus.brokerid</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.circonus.checkid/">metrics.circonus.checkid</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.circonus.submissionurl/">metrics.circonus.submissionurl</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.graphite.addr/">metrics.graphite.addr</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.interval/">metrics.interval</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.names/">metrics.names</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.prefix/">metrics.prefix</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.retry/">metrics.retry</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.statsd.addr/">metrics.statsd.addr</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.target/">metrics.target</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.timeout/">metrics.timeout</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.addr/">proxy.addr</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.auth/">proxy.auth</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.cs/">proxy.cs</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.dialtimeout/">proxy.dialtimeout</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.flushinterval/">proxy.flushinterval</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.globalflushinterval/">proxy.globalflushinterval</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.gzip.contenttype/">proxy.gzip.contenttype</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.header.clientip/">proxy.header.clientip</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.header.requestid/">proxy.header.requestid</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.header.sts.maxage/">proxy.header.sts.maxage</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.header.sts.preload/">proxy.header.sts.preload</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.header.sts.subdomains/">proxy.header.sts.subdomains</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.header.tls/">proxy.header.tls</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.header.tls.value/">proxy.header.tls.value</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.localip/">proxy.localip</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.matcher/">proxy.matcher</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.maxconn/">proxy.maxconn</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.noroutestatus/">proxy.noroutestatus</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.responseheadertimeout/">proxy.responseheadertimeout</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.shutdownwait/">proxy.shutdownwait</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/proxy.strategy/">proxy.strategy</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.backend/">registry.backend</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.addr/">registry.consul.addr</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.checksrequired/">registry.consul.checksRequired</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.kvpath/">registry.consul.kvpath</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.noroutehtmlpath/">registry.consul.noroutehtmlpath</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.pollinterval/">registry.consul.pollInterval</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.register.addr/">registry.consul.register.addr</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.register.checkinterval/">registry.consul.register.checkInterval</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.register.checktimeout/">registry.consul.register.checkTimeout</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.register.checktlsskipverify/">registry.consul.register.checkTLSSkipVerify</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.register.deregistercriticalserviceafter/">registry.consul.register.deregisterCriticalServiceAfter</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.register.enabled/">registry.consul.register.enabled</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.register.name/">registry.consul.register.name</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.register.tags/">registry.consul.register.tags</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.service.status/">registry.consul.service.status</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.servicemonitors/">registry.consul.serviceMonitors</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.tagprefix/">registry.consul.tagprefix</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.consul.token/">registry.consul.token</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.custom.checktlsskipverify/">registry.custom.checkTLSSkipVerify</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.custom.host/">registry.custom.host</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.custom.path/">registry.custom.path</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.custom.pollinginterval/">registry.custom.pollinterval</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.custom.queryparams/">registry.custom.queryparams</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.custom.scheme/">registry.custom.scheme</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.custom.timeout/">registry.custom.timeout</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.file.noroutehtmlpath/">registry.file.noroutehtmlpath</a></li>
+      
+        <li><a class="active" href="https://fabiolb.net/ref/registry.file.path/">registry.file.path</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.retry/">registry.retry</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.static.noroutehtmlpath/">registry.static.noroutehtml</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.static.routes/">registry.static.routes</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/registry.timeout/">registry.timeout</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/runtime.gogc/">runtime.gogc</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/runtime.gomaxprocs/">runtime.gomaxprocs</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/ui.access/">ui.access</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/ui.addr/">ui.addr</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/ui.color/">ui.color</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/ui.title/">ui.title</a></li>
+      
+      </ul>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/faq/">FAQ</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contrib/">Contributing</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/code-of-conduct/">Code of Conduct</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contact/">Contact</a>
+      
+    </li>
+    
+  </ul>
+
+</aside>
+
+
+    
+    <article class="col-sm-9 main-content" role="main">
+
+      
+      <section>
+        <h2>registry.file.path</h2>
+        <p><code>registry.file.path</code> configures a file based routing table.
+The value configures the path to the file with the routing table.</p>
+<p>The default is</p>
+<pre><code>registry.file.path =
+</code></pre>
+
+        
+      </section>
+
+    </article>
+    
+
+  </div>
+</main>
+
+    
+    <footer class="site-footer">
+      <div class="container">
+        <a id="scroll-up" href="#"><i class="fa fa-angle-up"></i></a>
+
+        <div class="row">
+          <div class="col-md-6 col-sm-6">
+            <p style="line-height: 26px;">
+                Copyright &copy; 2020-2021 Education Networks of America. All rights reserved.</br>
+                Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
+                Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
+                Last updated on 23 Feb 2021 20:52
+            </p>
+          </div>
+          <div class="col-md-6 col-sm-6">
+            <ul class="footer-menu">
+              <li><a href="https://github.com/fabiolb/fabio/commits/master">Changelog</a></li>
+              <li><a href="/contact/">Contact</a></li>
+              <li>
+                <a href="https://gohugo.io"><img src="/img/made-with-hugo.png" height="51px"></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-2812942-5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+    gtag('config', 'UA-2812942-5');
+    </script>
+
+    
+    <script src="/js/theDocs.all.min.js"></script>
+    <script src="/js/custom.js"></script>
+
+  </body>
+</html>
+

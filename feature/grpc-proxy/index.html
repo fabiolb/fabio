@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+
+    <title>GRPC Proxy</title>
+
+    
+    <link href="/css/theDocs.all.min.css" rel="stylesheet">
+    <link href="/css/skin/skin-blue.min.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    
+    
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+    <link rel="manifest" href="/img/manifest.json">
+    <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+  </head>
+
+  <body data-spy="scroll" data-target=".sidebar" data-offset="400">
+    
+    <a id="top" href="#"></a>
+
+    <header class="site-header sticky">
+      <nav class="navbar navbar-default">
+        <div class="container">
+
+          
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar" aria-expanded="true" aria-controls="navbar">
+              <span class="glyphicon glyphicon-option-vertical"></span>
+            </button>
+
+            <button type="button" class="navbar-toggle for-sidebar" data-toggle="offcanvas">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="/"><img src="/img/logo-bw.svg" alt="logo"></a>
+          </div>
+          
+
+          
+          <div id="navbar" class="navbar-collapse collapse" aria-expanded="true" role="banner">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="/quickstart/">Quickstart</a></li>
+              <li><a href="/deploy/">Deployment</a></li>
+              <li><a href="/feature/">Features</a></li>
+              <li><a href="/ref/">Reference</a></li>
+              <li><a href="/faq/">FAQ</a></li>
+              <li><a target="_blank" href="https://twitter.com/search?q=%23fabiolb"><i class="fa fa-twitter fa-2x" aria-hidden="true"></i></a></li>
+              <li><a target="_blank" href="https://github.com/fabiolb/fabio"><i class="fa fa-github fa-2x" aria-hidden="true"></i></a></li>
+            </ul>
+          </div>
+          
+
+        </div>
+      </nav>
+
+    </header>
+
+
+
+<main class="container">
+  <div class="row">
+    
+<aside class="col-sm-3 sidebar sidebar-line">
+
+  <ul class="nav sidenav dropable ">
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/quickstart/">Quickstart</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/feature/">Features</a>
+      
+      <ul class="open">
+      
+        <li><a href="https://fabiolb.net/feature/access-control/">Access Control</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/access-logging/">Access Logging</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/authorization/">Authorization</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/certificate-stores/">Certificate Stores</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/docker/">Docker Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/dynamic-reloading/">Dynamic Reloading</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/graceful-shutdown/">Graceful Shutdown</a></li>
+      
+        <li><a class="active" href="https://fabiolb.net/feature/grpc-proxy/">GRPC Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-compression/">HTTP Compression</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-headers/">HTTP Header Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-path-stripping/">HTTP Path Stripping</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-redirects/">HTTP Redirects</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/https-tcp-sni-proxy/">HTTPS TCP-SNI Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/https-upstream/">HTTPS Upstream</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/metrics/">Metrics</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/proxy-protocol/">PROXY Protocol Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/sse/">Server Sent Events (SSE)</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/tcp-dynamic-proxy/">TCP Dynamic Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/tcp-proxy/">TCP Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/tcp-sni-proxy/">TCP-SNI Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/traffic-shaping/">Traffic Shaping</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/vault/">Vault Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/web-ui/">Web UI</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/websockets/">Websockets</a></li>
+      
+      </ul>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/deploy/">Deployment</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/cfg/">Config Language</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/ref/">Reference</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/faq/">FAQ</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contrib/">Contributing</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/code-of-conduct/">Code of Conduct</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contact/">Contact</a>
+      
+    </li>
+    
+  </ul>
+
+</aside>
+
+
+    
+    <article class="col-sm-9 main-content" role="main">
+
+      
+      <section>
+        <h2>GRPC Proxy</h2>
+        <p>fabio can run a transparent GRPC proxy which dynamically forwards an incoming
+RPC on a given port to services which advertise rpc service or method. To use GRPC
+proxy support the service needs to advertise <code>urlprefix-/my.service/Method proto=grpc</code> in
+Consul. In addition, fabio needs to be configured with a grpc listener:</p>
+<pre><code>fabio -proxy.addr ':1234;proto=grpc'
+</code></pre><p>As per the HTTP/2 spec, the host header is not required, so host matching is not supported for GRPC proxying.</p>
+<p>GRPC proxy support can be combined with <a href="/feature/certificate-stores/">Certificate Stores</a> to provide TLS termination on fabio. Configure <code>proxy.addr</code> with <code>proto=grpcs</code>.</p>
+<pre><code>fabio -proxy.cs 'cs=ssl;type=path;path=/etc/ssl' -proxy.addr ':1234;proto=grpcs;cs=ssl'
+</code></pre><p>To support TLS upstream servers add the <code>proto=grpcs</code> option to the
+<code>urlprefix-</code> tag. The current implementation uses the clientca specified in the <a href="/feature/certificate-stores/">Certificate Store</a> for the listener. To disable certificate
+validation for a target set the <code>tlsskipverify=true</code> option.</p>
+<pre><code>urlprefix-/foo proto=grpcs
+urlprefix-/foo proto=grpcs tlsskipverify=true
+</code></pre><p>For TLS upstream servers (when using the consul registry) fabio will direct your traffic to an advertised service IP. If your service certificate does not contain an IP SAN, the certificate verification will fail. You can set the override the server name in the tls config by setting <code>grpcservername=&lt;servername&gt;</code> in the <code>urlprefix-</code> tag.</p>
+<pre><code>urlprefix-/ proto=grpcs grpcservername=my.service.hostname
+</code></pre>
+        
+      </section>
+
+    </article>
+    
+
+  </div>
+</main>
+
+    
+    <footer class="site-footer">
+      <div class="container">
+        <a id="scroll-up" href="#"><i class="fa fa-angle-up"></i></a>
+
+        <div class="row">
+          <div class="col-md-6 col-sm-6">
+            <p style="line-height: 26px;">
+                Copyright &copy; 2020-2021 Education Networks of America. All rights reserved.</br>
+                Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
+                Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
+                Last updated on 23 Feb 2021 20:52
+            </p>
+          </div>
+          <div class="col-md-6 col-sm-6">
+            <ul class="footer-menu">
+              <li><a href="https://github.com/fabiolb/fabio/commits/master">Changelog</a></li>
+              <li><a href="/contact/">Contact</a></li>
+              <li>
+                <a href="https://gohugo.io"><img src="/img/made-with-hugo.png" height="51px"></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-2812942-5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+    gtag('config', 'UA-2812942-5');
+    </script>
+
+    
+    <script src="/js/theDocs.all.min.js"></script>
+    <script src="/js/custom.js"></script>
+
+  </body>
+</html>
+

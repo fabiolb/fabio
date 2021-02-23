@@ -1,0 +1,34 @@
+/* workaround for firefox to display the logo */
+.site-header .navbar-brand > img {
+	height: 100%;
+}
+
+/* set navbar to static for now. If JS is enabled, we will revert to fixed in
+ * custom.js, but if JS isn't enabled a fixed header overlaps the content. */
+.site-header.sticky .navbar {
+    position: static;
+}
+
+article.main-content {
+	padding-top: 0;
+}
+
+body, h1,h2,h3,h4,h5,h6 {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+h2 a:after {
+	background-color: transparent;
+}
+
+.banner.auto-size {
+	background-color: #62a8ea;
+	padding-top: 40px;
+}
+
+p.since::before {
+	content: "Since ";
+}
+p.since {
+	font-size: 16px;
+}

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Deployment on fabio - The Consul Load-Balancer</title>
+    <link>https://fabiolb.net/deploy/</link>
+    <description>Recent content in Deployment on fabio - The Consul Load-Balancer</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="https://fabiolb.net/deploy/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Direct</title>
+      <link>https://fabiolb.net/deploy/direct/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/deploy/direct/</guid>
+      <description>In the following setup fabio is configured to listen on the public ip(s) where it can optionally terminate SSL traffic for one or more domains - one ip per domain.
+To scale fabio you can deploy it together with the frontend services which provides high-availability and distributes the network bandwidth.</description>
+    </item>
+    
+    <item>
+      <title>Behind existing Gateway</title>
+      <link>https://fabiolb.net/deploy/existing-lb/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/deploy/existing-lb/</guid>
+      <description>In the following setup fabio is configured receive all incoming traffic from an existing gateway which also terminates SSL for one or more domains.
+Again, to scale fabio you can deploy it together with the frontend services which provides high-availability and distributes the network bandwidth.</description>
+    </item>
+    
+    <item>
+      <title>Amazon ELB</title>
+      <link>https://fabiolb.net/deploy/amazon-elb/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/deploy/amazon-elb/</guid>
+      <description>You can deploy fabio behind an Amazon ELB and enable PROXY protocol support to get the remote address and port of the client.</description>
+    </item>
+    
+    <item>
+      <title>Amazon API Gateway</title>
+      <link>https://fabiolb.net/deploy/amazon-api-gw/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/deploy/amazon-api-gw/</guid>
+      <description>You can deploy fabio as the target of an Amazon API Gateway.
+or behind an ELB with PROXY protocol support:
+You can authenticate calls from the API Gateway with a client certificate. This requires that you configure an HTTPS listener on fabio with a valid certificate.
+To enable fabio to validate the Amazon generated certificate you need to configure the aws.apigw.cert.cn as follows:
+proxy.addr = 1.2.3.4:9999;your/cert.pem;your/key.pem;api-gw-cert.pem aws.apigw.cert.cn = ApiGateway  api-gw-cert.</description>
+    </item>
+    
+  </channel>
+</rss>

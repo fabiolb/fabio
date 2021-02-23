@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+
+    <title>Certificate Stores</title>
+
+    
+    <link href="/css/theDocs.all.min.css" rel="stylesheet">
+    <link href="/css/skin/skin-blue.min.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    
+    
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+    <link rel="manifest" href="/img/manifest.json">
+    <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+  </head>
+
+  <body data-spy="scroll" data-target=".sidebar" data-offset="400">
+    
+    <a id="top" href="#"></a>
+
+    <header class="site-header sticky">
+      <nav class="navbar navbar-default">
+        <div class="container">
+
+          
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar" aria-expanded="true" aria-controls="navbar">
+              <span class="glyphicon glyphicon-option-vertical"></span>
+            </button>
+
+            <button type="button" class="navbar-toggle for-sidebar" data-toggle="offcanvas">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="/"><img src="/img/logo-bw.svg" alt="logo"></a>
+          </div>
+          
+
+          
+          <div id="navbar" class="navbar-collapse collapse" aria-expanded="true" role="banner">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="/quickstart/">Quickstart</a></li>
+              <li><a href="/deploy/">Deployment</a></li>
+              <li><a href="/feature/">Features</a></li>
+              <li><a href="/ref/">Reference</a></li>
+              <li><a href="/faq/">FAQ</a></li>
+              <li><a target="_blank" href="https://twitter.com/search?q=%23fabiolb"><i class="fa fa-twitter fa-2x" aria-hidden="true"></i></a></li>
+              <li><a target="_blank" href="https://github.com/fabiolb/fabio"><i class="fa fa-github fa-2x" aria-hidden="true"></i></a></li>
+            </ul>
+          </div>
+          
+
+        </div>
+      </nav>
+
+    </header>
+
+
+
+<main class="container">
+  <div class="row">
+    
+<aside class="col-sm-3 sidebar sidebar-line">
+
+  <ul class="nav sidenav dropable ">
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/quickstart/">Quickstart</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/feature/">Features</a>
+      
+      <ul class="open">
+      
+        <li><a href="https://fabiolb.net/feature/access-control/">Access Control</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/access-logging/">Access Logging</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/authorization/">Authorization</a></li>
+      
+        <li><a class="active" href="https://fabiolb.net/feature/certificate-stores/">Certificate Stores</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/docker/">Docker Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/dynamic-reloading/">Dynamic Reloading</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/graceful-shutdown/">Graceful Shutdown</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/grpc-proxy/">GRPC Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-compression/">HTTP Compression</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-headers/">HTTP Header Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-path-stripping/">HTTP Path Stripping</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-redirects/">HTTP Redirects</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/https-tcp-sni-proxy/">HTTPS TCP-SNI Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/https-upstream/">HTTPS Upstream</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/metrics/">Metrics</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/proxy-protocol/">PROXY Protocol Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/sse/">Server Sent Events (SSE)</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/tcp-dynamic-proxy/">TCP Dynamic Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/tcp-proxy/">TCP Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/tcp-sni-proxy/">TCP-SNI Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/traffic-shaping/">Traffic Shaping</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/vault/">Vault Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/web-ui/">Web UI</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/websockets/">Websockets</a></li>
+      
+      </ul>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/deploy/">Deployment</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/cfg/">Config Language</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/ref/">Reference</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/faq/">FAQ</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contrib/">Contributing</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/code-of-conduct/">Code of Conduct</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contact/">Contact</a>
+      
+    </li>
+    
+  </ul>
+
+</aside>
+
+
+    
+    <article class="col-sm-9 main-content" role="main">
+
+      
+      <section>
+        <h2>Certificate Stores</h2>
+        <p>Support for dynamic certificate stores which allow you to store certificates in
+a central place and update them at runtime or generate them on the fly without
+restart. You can store certificates in files, directories, on HTTP
+servers in <a href="https://consul.io/">Consul</a> or in
+<a href="https://vaultproject.io/">Vault</a>.
+You can use <a href="https://vaultproject.io/">Vault</a> to generate certificates on the fly.</p>
+<p>Starting with version 1.2 fabio has support for dynamic certificate stores
+which allow you to store certificates in a central place and update them at
+runtime without restarting fabio. As of Go &lt;= 1.7 only TLS certificates can be
+changed at runtime. For updating client auth certificates <a href="https://github.com/golang/go/issues/16066">golang issue
+16066</a> is open.</p>
+<p>Certificate stores are configured with the <code>proxy.cs</code> option.
+You can configure one or multiple stores.</p>
+<p>Each certificate source is configured with a list of
+key/value options.</p>
+<pre><code>cs=&lt;name&gt;;type=&lt;type&gt;;opt=arg;opt[=arg];...
+</code></pre>
+<p>Each source must have a <strong>unique name</strong> which is then
+referenced in a listener configuration.</p>
+<pre><code>proxy.cs = cs=mycerts;type=...
+proxy.addr = 1.2.3.4:9999;cs=mycerts;...
+</code></pre>
+<p>All certificates must be provided in <strong>PEM format</strong></p>
+<p>The following types of certificate sources are available:</p>
+<ul>
+<li><a href="#file"><code>file</code></a>: legacy store for a single TLS and a set of client auth certificates</li>
+<li><a href="#path"><code>path</code></a>: load certificates from a directory (e.g. managed by puppet/chef/ansible/&hellip;)</li>
+<li><a href="#http"><code>http</code></a>: load certificates from an HTTP server</li>
+<li><a href="#consul"><code>consul</code></a> : load certificates from <a href="https://consul.io/">Consul</a> KV store</li>
+<li><a href="#vault"><code>vault</code></a> : load certificates from <a href="https://vaultproject.io/">Vault</a></li>
+</ul>
+<p>All certificate stores offer a set of <a href="#common-options">common options</a>. If you want to use
+client certificate authentication with an Amazon API gateway check the <code>caupgcn</code> option there.</p>
+<p>At the end you also find a list of <a href="#examples">examples</a>.</p>
+<h3 id="file">File</h3>
+<p>The file certificate source supports one certificate which is loaded at
+startup and is cached until the service exits.</p>
+<p>The <code>cert</code> option contains the path to the certificate file. The <code>key</code>
+option contains the path to the private key file. If the certificate file
+contains both the certificate and the private key the <code>key</code> option can be
+omitted. The <code>clientca</code> option contains the path to one or more client
+authentication certificates.</p>
+<h5 id="example">Example</h5>
+<pre><code>cs=&lt;name&gt;;type=file;cert=p/a-cert.pem;key=p/a-key.pem;clientca=p/clientAuth.pem
+</code></pre>
+<h3 id="path">Path</h3>
+<p>The path certificate source loads certificates from a directory in
+alphabetical order and refreshes them periodically.</p>
+<p>The <code>cert</code> option provides the path to the TLS certificates and the
+<code>clientca</code> option provides the path to the certificates for client
+authentication.</p>
+<p>TLS certificates are stored either in one or two files:</p>
+<pre><code>www.example.com.pem or www.example.com-{cert,key}.pem
+</code></pre>
+<p>TLS certificates are loaded in alphabetical order and the first certificate
+is the default for clients which do not support SNI.</p>
+<p>The <code>refresh</code> option can be set to specify the refresh interval for the TLS
+certificates. Client authentication certificates cannot be refreshed since
+Go does not provide a mechanism for that yet.</p>
+<p>The default refresh interval is 3 seconds and cannot be lower than 1 second
+to prevent busy loops. To load the certificates only once and disable
+automatic refreshing set <code>refresh</code> to zero.</p>
+<h5 id="example-1">Example</h5>
+<pre><code>cs=&lt;name&gt;;type=path;cert=path/to/certs;clientca=path/to/clientcas;refresh=3s
+</code></pre>
+<h3 id="http">HTTP</h3>
+<p>The http certificate source loads certificates from an HTTP/HTTPS server.</p>
+<p>The <code>cert</code> option provides a URL to a text file which contains all files
+that should be loaded from this directory. The filenames follow the same
+rules as for the path source. The text file can be generated with:</p>
+<pre><code>ls -1 *.pem &gt; list
+</code></pre>
+<p>The <code>clientca</code> option provides a URL for the client authentication
+certificates analogous to the <code>cert</code> option.</p>
+<p>Authentication credentials can be provided in the URL as request parameter,
+as basic authentication parameters or through a header.</p>
+<p>The <code>refresh</code> option can be set to specify the refresh interval for the TLS
+certificates. Client authentication certificates cannot be refreshed since
+Go does not provide a mechanism for that yet.</p>
+<p>The default refresh interval is 3 seconds and cannot be lower than 1 second
+to prevent busy loops. To load the certificates only once and disable
+automatic refreshing set <code>refresh</code> to zero.</p>
+<h5 id="example-2">Example</h5>
+<pre><code>cs=&lt;name&gt;;type=http;cert=https://host.com/path/to/cert/list&amp;token=123
+cs=&lt;name&gt;;type=http;cert=https://user:pass@host.com/path/to/cert/list
+cs=&lt;name&gt;;type=http;cert=https://host.com/path/to/cert/list;hdr=Authorization: Bearer 1234
+</code></pre>
+<h3 id="consul">Consul</h3>
+<p>The consul certificate source loads certificates from <a href="https://consul.io/">Consul</a>.</p>
+<p>The <code>cert</code> option provides a KV store URL where the the TLS certificates are
+stored.</p>
+<p>The <code>clientca</code> option provides a URL to a path in the KV store where the the
+client authentication certificates are stored.</p>
+<p>The filenames follow the same rules as for the <a href="#path"><code>path</code></a> source.</p>
+<p>The TLS certificates are updated automatically whenever the KV store
+changes. The client authentication certificates cannot be updated
+automatically since Go does not provide a mechanism for that yet.
+(See <a href="https://github.com/golang/go/issues/16066">golang issue 16066</a>)</p>
+<h5 id="example-3">Example</h5>
+<pre><code>cs=&lt;name&gt;;type=consul;cert=http://localhost:8500/v1/kv/path/to/cert&amp;token=123
+</code></pre>
+<h3 id="vault">Vault</h3>
+<p>The Vault certificate store uses HashiCorp Vault as the certificate
+store.</p>
+<p>The <code>cert</code> option provides the path to the TLS certificates and the
+<code>clientca</code> option provides the path to the certificates for client
+authentication.</p>
+<p>The <code>refresh</code> option can be set to specify the refresh interval for the TLS
+certificates. Client authentication certificates cannot be refreshed since
+Go does not provide a mechanism for that yet.</p>
+<p>Certificate has to be stored in value. It means you have to write your cert into a <em>cert</em> and <em>key</em> fields of secret, that has to be your domain name.
+Example:</p>
+<pre><code>vault write secret/fabio/certs/www.domain.com cert=@cert.pem key=@key.pem
+</code></pre><p>The path to vault must be provided in the <code>VAULT_ADDR</code> environment
+variable. The token must be provided in the <code>VAULT_TOKEN</code> environment
+variable.</p>
+<p><strong>fabio versions &lt;= 1.2.1</strong> require a token with root and/or sudo privileges to create an orphan
+token for itself. This required fabio to have more privileges than it needs
+and it also prevented revoking the fabio token if the parent token was revoked.
+Therefore, supplying a token with root and/or sudo privileges is now deprecated
+and will be removed in a later release.</p>
+<p><strong>fabio versions &gt; 1.2.1</strong> will no longer attempt to create a token itself and
+instead solely rely on the provided token. The provided token can be an orphan
+and should be renewable for the duration fabio is expected to run. It is
+recommended not to set the <code>explicit_max_ttl</code> unless fabio is restarted
+before that time expires.</p>
+<p>fabio needs the following policies set on the path where the
+certificates are stored, for example:</p>
+<pre><code>  # For Vault &lt; 0.7
+  path &quot;secret/fabio/cert&quot; {
+    capabilities = [&quot;list&quot;]
+  }
+
+  # For Vault &gt;= 0.7; note the trailing slash
+  path &quot;secret/fabio/cert/&quot; {
+    capabilities = [&quot;list&quot;]
+  }
+
+  path &quot;secret/fabio/cert/*&quot; {
+    capabilities = [&quot;read&quot;]
+  }
+</code></pre>
+<h5 id="example-4">Example</h5>
+<pre><code>cs=&lt;name&gt;;type=vault;cert=secret/fabio/certs
+</code></pre>
+<h3 id="common-options">Common options</h3>
+<p>All certificate stores support the following options:</p>
+<ul>
+<li><code>caupgcn</code> : Upgrade a self-signed client auth certificate with this common-name
+to a CA certificate. Typically used for self-singed certificates
+for the Amazon AWS API Gateway certificates which do not have the
+CA flag set which makes them unsuitable for client certificate
+authentication in Go. For the AWS API Gateway set this value
+to &lsquo;ApiGateway&rsquo; to allow client certificate authentication.
+This replaces the deprecated parameter &lsquo;aws.apigw.cert.cn&rsquo;
+which was introduced in version 1.1.5.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<pre><code> # file based certificate source
+ proxy.cs = cs=some-name;type=file;cert=p/a-cert.pem;key=p/a-key.pem
+
+ # path based certificate source
+ proxy.cs = cs=some-name;type=path;cert=path/to/certs
+
+ # HTTP certificate source
+ proxy.cs = cs=some-name;type=http;cert=https://user:pass@host:port/path/to/certs
+
+ # Consul certificate source
+ proxy.cs = cs=some-name;type=consul;cert=https://host:port/v1/kv/path/to/certs?token=abc123
+
+ # Vault certificate source
+ proxy.cs = cs=some-name;type=vault;cert=secret/fabio/certs
+
+ # Multiple certificate sources
+ proxy.cs = cs=srcA;type=path;cert=path/to/certs,\
+            cs=srcB;type=http;cert=https://user:pass@host:port/path/to/certs
+
+ # path based certificate source for AWS Api Gateway
+ proxy.cs = cs=some-name;type=path;cert=path/to/certs;clientca=path/to/clientcas;caupgcn=ApiGateway
+</code></pre>
+        
+      </section>
+
+    </article>
+    
+
+  </div>
+</main>
+
+    
+    <footer class="site-footer">
+      <div class="container">
+        <a id="scroll-up" href="#"><i class="fa fa-angle-up"></i></a>
+
+        <div class="row">
+          <div class="col-md-6 col-sm-6">
+            <p style="line-height: 26px;">
+                Copyright &copy; 2020-2021 Education Networks of America. All rights reserved.</br>
+                Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
+                Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
+                Last updated on 23 Feb 2021 20:52
+            </p>
+          </div>
+          <div class="col-md-6 col-sm-6">
+            <ul class="footer-menu">
+              <li><a href="https://github.com/fabiolb/fabio/commits/master">Changelog</a></li>
+              <li><a href="/contact/">Contact</a></li>
+              <li>
+                <a href="https://gohugo.io"><img src="/img/made-with-hugo.png" height="51px"></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-2812942-5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+    gtag('config', 'UA-2812942-5');
+    </script>
+
+    
+    <script src="/js/theDocs.all.min.js"></script>
+    <script src="/js/custom.js"></script>
+
+  </body>
+</html>
+

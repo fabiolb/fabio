@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://fabiolb.net/deploy/direct/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/contrib/guidelines/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/quickstart/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/deploy/existing-lb/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/contrib/development/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/deploy/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/deploy/amazon-elb/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/deploy/amazon-api-gw/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/cfg/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/faq/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/contrib/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/code-of-conduct/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/contact/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.keepalivetimeout/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/access-control/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/access-logging/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/authorization/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/faq/binding-to-low-ports/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/certificate-stores/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/docker/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/dynamic-reloading/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/glob.cache.size/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/glob.matching.disabled/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/graceful-shutdown/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/grpc-proxy/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/faq/multiple-protocol-listeners/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/http-compression/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/http-headers/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/http-path-stripping/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/http-redirects/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/https-tcp-sni-proxy/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/https-upstream/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/log.access.format/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/log.access.target/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/log.level/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/log.routes.format/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/metrics/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.circonus.apiapp/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.circonus.apikey/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.circonus.apiurl/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.circonus.brokerid/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.circonus.checkid/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.circonus.submissionurl/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.graphite.addr/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.interval/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.names/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.prefix/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.retry/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.statsd.addr/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.target/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.timeout/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/proxy-protocol/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.addr/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.auth/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.cs/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.dialtimeout/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.flushinterval/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.globalflushinterval/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.gzip.contenttype/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.header.clientip/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.header.requestid/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.header.sts.maxage/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.header.sts.preload/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.header.sts.subdomains/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.header.tls/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.header.tls.value/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.localip/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.matcher/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.maxconn/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.noroutestatus/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.responseheadertimeout/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.shutdownwait/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/proxy.strategy/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.backend/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.addr/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.checksrequired/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.kvpath/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.noroutehtmlpath/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.pollinterval/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.register.addr/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.register.checkinterval/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.register.checktimeout/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.register.checktlsskipverify/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.register.deregistercriticalserviceafter/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.register.enabled/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.register.name/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.register.tags/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.service.status/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.servicemonitors/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.tagprefix/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.consul.token/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.custom.checktlsskipverify/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.custom.host/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.custom.path/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.custom.pollinginterval/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.custom.queryparams/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.custom.scheme/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.custom.timeout/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.file.noroutehtmlpath/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.file.path/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.retry/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.static.noroutehtmlpath/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.static.routes/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/registry.timeout/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/faq/request-tracing/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/runtime.gogc/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/runtime.gomaxprocs/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/sse/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/tcp-dynamic-proxy/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/tcp-proxy/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/tcp-sni-proxy/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/faq/request-debugging/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/traffic-shaping/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/ui.access/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/ui.addr/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/ui.color/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/ui.title/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/vault/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/faq/verifying-releases/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/web-ui/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/feature/websockets/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/faq/why-fabio/</loc>
+  </url>
+  
+</urlset>

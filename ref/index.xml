@@ -1,0 +1,935 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Reference on fabio - The Consul Load-Balancer</title>
+    <link>https://fabiolb.net/ref/</link>
+    <description>Recent content in Reference on fabio - The Consul Load-Balancer</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="https://fabiolb.net/ref/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title></title>
+      <link>https://fabiolb.net/ref/proxy.keepalivetimeout/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.keepalivetimeout/</guid>
+      <description>proxy.keepalivetimeout configures the keep-alive timeout.
+This configures the KeepAliveTimeout of the network dialer.
+The default is
+proxy.keepalivetimeout = 0s  </description>
+    </item>
+    
+    <item>
+      <title>glob.cache.size</title>
+      <link>https://fabiolb.net/ref/glob.cache.size/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/glob.cache.size/</guid>
+      <description>glob.cache.size Sets the globCache size used for matching on route lookups.
+The default is
+glob.cache.size = 1000  </description>
+    </item>
+    
+    <item>
+      <title>glob.matching.disabled</title>
+      <link>https://fabiolb.net/ref/glob.matching.disabled/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/glob.matching.disabled/</guid>
+      <description>glob.matching.disabled disables glob matching on route lookups.
+Valid options are true, false
+The default is
+glob.matching.disabled = false  </description>
+    </item>
+    
+    <item>
+      <title>log.access.format</title>
+      <link>https://fabiolb.net/ref/log.access.format/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/log.access.format/</guid>
+      <description>log.access.format configures the format of the access log.
+If the value is either common or combined then the logs are written in the Common Log Format or the Combined Log Format as defined below:
+ common: $remote_host - - [$time_common] &amp;quot;$request&amp;quot; $response_status $response_body_size combined: $remote_host - - [$time_common] &amp;quot;$request&amp;quot; $response_status $response_body_size &amp;quot;$header.Referer&amp;quot; &amp;quot;$header.User-Agent&amp;quot;  Otherwise, the value is interpreted as a custom log format which is defined with the following parameters.</description>
+    </item>
+    
+    <item>
+      <title>log.access.target</title>
+      <link>https://fabiolb.net/ref/log.access.target/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/log.access.target/</guid>
+      <description>log.access.target configures where the access log is written to.
+Options are stdout. If the value is empty no access log is written.
+The default is
+log.access.target =  </description>
+    </item>
+    
+    <item>
+      <title>log.level</title>
+      <link>https://fabiolb.net/ref/log.level/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/log.level/</guid>
+      <description>log.level configures the log level.
+Valid levels are TRACE, DEBUG, INFO, WARN, ERROR and FATAL.
+The default is
+log.level = INFO  </description>
+    </item>
+    
+    <item>
+      <title>log.routes.format</title>
+      <link>https://fabiolb.net/ref/log.routes.format/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/log.routes.format/</guid>
+      <description>log.routes.format configures the log output format of routing table updates.
+Changes to the routing table are written to the standard log. This option configures the output format:
+ detail: detailed routing table as ascii tree delta: additions and deletions in config language all: complete routing table in config language  The default is
+log.routes.format = delta  </description>
+    </item>
+    
+    <item>
+      <title>metrics.circonus.apiapp</title>
+      <link>https://fabiolb.net/ref/metrics.circonus.apiapp/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.circonus.apiapp/</guid>
+      <description>metrics.circonus.apiapp configures the API token app to use when submitting metrics to Circonus. See: https://login.circonus.com/user/tokens This is optional when metrics.target is set to circonus.
+The default is
+metrics.circonus.apiapp = fabio  </description>
+    </item>
+    
+    <item>
+      <title>metrics.circonus.apikey</title>
+      <link>https://fabiolb.net/ref/metrics.circonus.apikey/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.circonus.apikey/</guid>
+      <description>metrics.circonus.apikey configures the API token key to use when submitting metrics to Circonus. See: https://login.circonus.com/user/tokens This is optional when metrics.target is set to circonus but metrics.circonus.submissionurl is specified}
+The default is
+metrics.circonus.apikey =  </description>
+    </item>
+    
+    <item>
+      <title>metrics.circonus.apiurl</title>
+      <link>https://fabiolb.net/ref/metrics.circonus.apiurl/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.circonus.apiurl/</guid>
+      <description>metrics.circonus.apiurl configures the API URL to use when submitting metrics to Circonus. https://api.circonus.com/v2/ will be used if no specific URL is provided. This is optional when metrics.target is set to circonus.
+The default is
+metrics.circonus.apiurl =  </description>
+    </item>
+    
+    <item>
+      <title>metrics.circonus.brokerid</title>
+      <link>https://fabiolb.net/ref/metrics.circonus.brokerid/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.circonus.brokerid/</guid>
+      <description>metrics.circonus.brokerid configures a specific broker to use when creating a check for submitting metrics to Circonus.
+This is optional when metrics.target is set to circonus.
+Optional for public brokers, required for Inside brokers. Only applicable if a check is being created.
+The default is
+metrics.circonus.brokerid =  </description>
+    </item>
+    
+    <item>
+      <title>metrics.circonus.checkid</title>
+      <link>https://fabiolb.net/ref/metrics.circonus.checkid/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.circonus.checkid/</guid>
+      <description>metrics.circonus.checkid configures a specific check to use when submitting metrics to Circonus.
+This is optional when metrics.target is set to circonus.
+An attempt will be made to search for a previously created check, if no applicable check is found, one will be created.
+The default is
+metrics.circonus.checkid =  </description>
+    </item>
+    
+    <item>
+      <title>metrics.circonus.submissionurl</title>
+      <link>https://fabiolb.net/ref/metrics.circonus.submissionurl/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.circonus.submissionurl/</guid>
+      <description>metrics.circonus.submissionurl configures a specific check submission url for a Check API object of a previously created HTTPTRAP check.
+This is optional when metrics.target is set to circonus but metrics.circonus.apikey is specified}.
+Example http://127.0.0.1:2609/write/fabio
+The default is
+metrics.circonus.submissionurl =  </description>
+    </item>
+    
+    <item>
+      <title>metrics.graphite.addr</title>
+      <link>https://fabiolb.net/ref/metrics.graphite.addr/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.graphite.addr/</guid>
+      <description>metrics.graphite.addr configures the host:port of the Graphite server.
+This is required when metrics.target is set to graphite.
+The default is
+metrics.graphite.addr =  </description>
+    </item>
+    
+    <item>
+      <title>metrics.interval</title>
+      <link>https://fabiolb.net/ref/metrics.interval/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.interval/</guid>
+      <description>metrics.interval configures the interval in which metrics are reported.
+The default is
+metrics.interval = 30s  </description>
+    </item>
+    
+    <item>
+      <title>metrics.names</title>
+      <link>https://fabiolb.net/ref/metrics.names/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.names/</guid>
+      <description>metrics.names configures the template for the route metric names. The value is expanded by the text/template package and provides the following variables:
+ Service: the service name Host: the host part of the URL prefix Path: the path part of the URL prefix TargetURL: the URL of the target  The following additional functions are defined:
+ clean: lowercase value and replace . and : with _  Given a route rule of</description>
+    </item>
+    
+    <item>
+      <title>metrics.prefix</title>
+      <link>https://fabiolb.net/ref/metrics.prefix/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.prefix/</guid>
+      <description>metrics.prefix configures the template for the prefix of all reported metrics.
+Each metric has a unique name which is hard-coded to
+prefix.service.host.path.target-addr  The value is expanded by the text/template package and provides the following variables:
+ Hostname: the Hostname of the server Exec: the executable name of application  The following additional functions are defined:
+ clean: lowercase value and replace . and : with _  Template may include regular string parts to customize final prefix</description>
+    </item>
+    
+    <item>
+      <title>metrics.retry</title>
+      <link>https://fabiolb.net/ref/metrics.retry/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.retry/</guid>
+      <description>metrics.retry configures the interval with which fabio tries to connect to the metrics backend during startup.
+The default is
+metrics.retry = 500ms  </description>
+    </item>
+    
+    <item>
+      <title>metrics.statsd.addr</title>
+      <link>https://fabiolb.net/ref/metrics.statsd.addr/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.statsd.addr/</guid>
+      <description>metrics.statsd.addr configures the host:port of the StatsD server.
+This is required when metrics.target is set to statsd.
+The default is
+metrics.statsd.addr =  </description>
+    </item>
+    
+    <item>
+      <title>metrics.target</title>
+      <link>https://fabiolb.net/ref/metrics.target/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.target/</guid>
+      <description>metrics.target configures the backend the metrics values are sent to.
+Possible values are:
+ &amp;lt;empty&amp;gt;: do not report metrics stdout: report metrics to stdout graphite: report metrics to Graphite on metrics.graphite.addr statsd: report metrics to StatsD on metrics.statsd.addr circonus: report metrics to Circonus (http://circonus.com/)  The default is
+metrics.target =  </description>
+    </item>
+    
+    <item>
+      <title>metrics.timeout</title>
+      <link>https://fabiolb.net/ref/metrics.timeout/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.timeout/</guid>
+      <description>metrics.timeout configures how long fabio tries to connect to the metrics backend during startup.
+The default is
+metrics.timeout = 10s  </description>
+    </item>
+    
+    <item>
+      <title>proxy.addr</title>
+      <link>https://fabiolb.net/ref/proxy.addr/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.addr/</guid>
+      <description>proxy.addr configures listeners.
+Each listener is configured with and address and a list of optional arguments in the form of
+[host]:port;opt=arg;opt[=arg];...  Each listener has a protocol which is configured with the proto option for which it routes and forwards traffic.
+The supported protocols are:
+ http for HTTP based protocols https for HTTPS based protocols grpc for GRPC based protocols grpcs for GRPC+TLS based protocols tcp for a raw TCP proxy with or witout TLS support tcp+sni for an SNI aware TCP proxy tcp-dynamic for a consul driven TCP proxy https+tcp+sni for an SNI aware TCP proxy with https fallthrough  If no proto option is specified then the protocol is either http or https depending on whether a certificate source is configured via the cs option which contains the name of the certificate source.</description>
+    </item>
+    
+    <item>
+      <title>proxy.auth</title>
+      <link>https://fabiolb.net/ref/proxy.auth/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.auth/</guid>
+      <description>proxy.auth configures one or more authorization schemes.
+Each authorization scheme is configured with a list of key/value options. Each scheme must have a unique name which can then be referred to in a routing rule.
+name=&amp;lt;name&amp;gt;;type=&amp;lt;type&amp;gt;;opt=arg;opt[=arg];...  The following types of authorization schemes are available:
+Basic The basic authorization scheme leverages Http Basic Auth and reads a htpasswd file at startup and credentials are cached until the service exits.
+The file option contains the path to the htpasswd file.</description>
+    </item>
+    
+    <item>
+      <title>proxy.cs</title>
+      <link>https://fabiolb.net/ref/proxy.cs/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.cs/</guid>
+      <description>proxy.cs configures one or more certificate sources.
+Each certificate source is configured with a list of key/value options. Each source must have a unique name which can then be referred to in a listener configuration.
+cs=&amp;lt;name&amp;gt;;type=&amp;lt;type&amp;gt;;opt=arg;opt[=arg];...  All certificates need to be provided in PEM format.
+The following types of certificate sources are available:
+File The file certificate source supports one certificate which is loaded at startup and is cached until the service exits.</description>
+    </item>
+    
+    <item>
+      <title>proxy.dialtimeout</title>
+      <link>https://fabiolb.net/ref/proxy.dialtimeout/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.dialtimeout/</guid>
+      <description>proxy.dialtimeout configures the connection timeout for outgoing connections by setting the Timeout of the net.Dialer
+The default is
+proxy.dialtimeout = 30s  </description>
+    </item>
+    
+    <item>
+      <title>proxy.flushinterval</title>
+      <link>https://fabiolb.net/ref/proxy.flushinterval/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.flushinterval/</guid>
+      <description>proxy.flushinterval configures periodic flushing of the response buffer for SSE (server-sent events) connections. They are detected when the Accept header is text/event-stream.
+The default is
+proxy.flushinterval = 1s  </description>
+    </item>
+    
+    <item>
+      <title>proxy.globalflushinterval</title>
+      <link>https://fabiolb.net/ref/proxy.globalflushinterval/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.globalflushinterval/</guid>
+      <description>proxy.globalflushinterval configures periodic flushing of the response buffer for proxied non-SSE connections. By default it is disabled.
+The default is
+proxy.globalflushinterval = 0  </description>
+    </item>
+    
+    <item>
+      <title>proxy.gzip.contenttype</title>
+      <link>https://fabiolb.net/ref/proxy.gzip.contenttype/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.gzip.contenttype/</guid>
+      <description>proxy.gzip.contenttype configures which responses should be compressed.
+By default, responses sent to the client are not compressed even if the client accepts compressed responses by setting the &amp;lsquo;Accept-Encoding: gzip&amp;rsquo; header. By setting this value responses are compressed if the Content-Type header of the response matches and the response is not already compressed. The list of compressable content types is defined as a regular expression. The regular expression must follow the rules outlined in https://golang.</description>
+    </item>
+    
+    <item>
+      <title>proxy.header.clientip</title>
+      <link>https://fabiolb.net/ref/proxy.header.clientip/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.header.clientip/</guid>
+      <description>proxy.header.clientip configures the header for the request ip.
+The remote ip address is taken from http.Request.RemoteAddr.
+The default is
+proxy.header.clientip =  </description>
+    </item>
+    
+    <item>
+      <title>proxy.header.requestid</title>
+      <link>https://fabiolb.net/ref/proxy.header.requestid/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.header.requestid/</guid>
+      <description>proxy.header.requestid configures the header for the adding a unique request id. When set non-empty value the proxy will set this header on every request to the unique UUID value.
+The default is
+proxy.header.requestid =  </description>
+    </item>
+    
+    <item>
+      <title>proxy.header.sts.maxage</title>
+      <link>https://fabiolb.net/ref/proxy.header.sts.maxage/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.header.sts.maxage/</guid>
+      <description>proxy.header.sts.maxage enables and configures the max-age of HSTS for TLS requests. When set greater than zero this enables the Strict-Transport-Security header and sets the max-age value in the header.
+The default is
+proxy.header.sts.maxage = 0  </description>
+    </item>
+    
+    <item>
+      <title>proxy.header.sts.preload</title>
+      <link>https://fabiolb.net/ref/proxy.header.sts.preload/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.header.sts.preload/</guid>
+      <description>proxy.header.sts.preload instructs HSTS to include the preload directive. When set to true, the &amp;lsquo;preload&amp;rsquo; option will be added to the Strict-Transport-Security header.
+Sending the preload directive from your site can have PERMANENT CONSEQUENCES and prevent users from accessing your site and any of its subdomains if you find you need to switch back to HTTP. Please read the details at https://hstspreload.org/#removal before sending the header with &amp;ldquo;preload&amp;rdquo;.
+The default is</description>
+    </item>
+    
+    <item>
+      <title>proxy.header.sts.subdomains</title>
+      <link>https://fabiolb.net/ref/proxy.header.sts.subdomains/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.header.sts.subdomains/</guid>
+      <description>proxy.header.sts.subdomains instructs HSTS to include subdomains. When set to true, the &amp;lsquo;includeSubDomains&amp;rsquo; option will be added to the Strict-Transport-Security header.
+The default is
+proxy.header.sts.subdomains = false  </description>
+    </item>
+    
+    <item>
+      <title>proxy.header.tls</title>
+      <link>https://fabiolb.net/ref/proxy.header.tls/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.header.tls/</guid>
+      <description>proxy.header.tls configures the header to set for TLS connections.
+When set to a non-empty value the proxy will set this header on every TLS request to the value of proxy.header.tls.value
+The default is
+proxy.header.tls =  </description>
+    </item>
+    
+    <item>
+      <title>proxy.header.tls.value</title>
+      <link>https://fabiolb.net/ref/proxy.header.tls.value/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.header.tls.value/</guid>
+      <description>proxy.header.tls.value configures the value to set the proxy.header.tls header to for TLS connections.
+The default is
+proxy.header.tls.value =  </description>
+    </item>
+    
+    <item>
+      <title>proxy.localip</title>
+      <link>https://fabiolb.net/ref/proxy.localip/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.localip/</guid>
+      <description>proxy.localip configures the ip address of the proxy which is added to the Header configured by header.clientip and to the Forwarded: by= attribute.
+The local non-loopback address is detected during startup but can be overwritten with this property.
+The default is
+proxy.localip =  </description>
+    </item>
+    
+    <item>
+      <title>proxy.matcher</title>
+      <link>https://fabiolb.net/ref/proxy.matcher/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.matcher/</guid>
+      <description>proxy.matcher configures the path matching algorithm.
+ prefix: prefix matching glob: glob matching  When prefix matching is enabled then the route path must be a prefix of the request URI, e.g. /foo matches /foo, /foot but not /fo.
+When glob matching is enabled the route is evaluated according to globbing rules provided by the Go path.Match function.
+For example, /foo* matches /foo, /fool and /fools. Also, /foo/*/bar matches /foo/x/bar.</description>
+    </item>
+    
+    <item>
+      <title>proxy.maxconn</title>
+      <link>https://fabiolb.net/ref/proxy.maxconn/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.maxconn/</guid>
+      <description>proxy.maxconn configures the maximum number of cached incoming and outgoing connections.
+This configures the MaxIdleConnsPerHost of the http.Transport.
+The default is
+proxy.maxconn = 10000  </description>
+    </item>
+    
+    <item>
+      <title>proxy.noroutestatus</title>
+      <link>https://fabiolb.net/ref/proxy.noroutestatus/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.noroutestatus/</guid>
+      <description>proxy.noroutestatus configures the response code when no route was found.
+The default is
+proxy.noroutestatus = 404  </description>
+    </item>
+    
+    <item>
+      <title>proxy.responseheadertimeout</title>
+      <link>https://fabiolb.net/ref/proxy.responseheadertimeout/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.responseheadertimeout/</guid>
+      <description>proxy.responseheadertimeout configures the ResponseHeaderTimeout of the http.Transport.
+The default is
+proxy.responseheadertimeout = 0s  </description>
+    </item>
+    
+    <item>
+      <title>proxy.shutdownwait</title>
+      <link>https://fabiolb.net/ref/proxy.shutdownwait/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.shutdownwait/</guid>
+      <description>proxy.shutdownwait configures the time for a graceful shutdown.
+After a signal is caught the proxy will immediately suspend routing traffic and respond with a 503 Service Unavailable for the duration of the given period.
+The default is
+proxy.shutdownwait = 0s  </description>
+    </item>
+    
+    <item>
+      <title>proxy.strategy</title>
+      <link>https://fabiolb.net/ref/proxy.strategy/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.strategy/</guid>
+      <description>proxy.strategy configures the load balancing strategy.
+  rnd: pseudo-random distribution configures a pseudo-random distribution by using the microsecond fraction of the time of the request.
+  rr: round-robin distribution configures a round-robin distribution.
+  The default is
+proxy.strategy = rnd  </description>
+    </item>
+    
+    <item>
+      <title>registry.backend</title>
+      <link>https://fabiolb.net/ref/registry.backend/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.backend/</guid>
+      <description>registry.backend configures which backend is used. Supported backends are: consul, static, file, custom. If custom is used fabio makes an api call to a remote system expecting the below json response
+[ { &amp;#34;cmd&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;service&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;src&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;dest&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;weight&amp;#34;: float, &amp;#34;tags&amp;#34;: [&amp;#34;string&amp;#34;], &amp;#34;opts&amp;#34;: {&amp;#34;string&amp;#34;:&amp;#34;string&amp;#34;} } ] The default is
+registry.backend = consul  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.addr</title>
+      <link>https://fabiolb.net/ref/registry.consul.addr/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.addr/</guid>
+      <description>registry.consul.addr configures the address of the Consul agent to connect to.
+The default is
+registry.consul.addr = localhost:8500  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.checksRequired</title>
+      <link>https://fabiolb.net/ref/registry.consul.checksrequired/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.checksrequired/</guid>
+      <description>registry.consul.checksRequired configures how many health checks must pass in order for fabio to consider a service available.
+Possible values are:
+ one: at least one health check must pass all: all health checks must pass  The default is
+registry.consul.checksRequired = one  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.kvpath</title>
+      <link>https://fabiolb.net/ref/registry.consul.kvpath/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.kvpath/</guid>
+      <description>registry.consul.kvpath configures the KV path for manual routes.
+The Consul KV path is watched for changes which get appended to the routing table. This allows for manual overrides and weighted round-robin routes.
+As of version 1.5.7 fabio will treat the kv path as a prefix and combine the values of the key itself and all its subkeys in alphabetical order.
+To see all updates you may want to set -log.routes.format to all.</description>
+    </item>
+    
+    <item>
+      <title>registry.consul.noroutehtmlpath</title>
+      <link>https://fabiolb.net/ref/registry.consul.noroutehtmlpath/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.noroutehtmlpath/</guid>
+      <description>registry.consul.noroutehtmlpath configures the KV path for the HTML page when no route was found.
+The consul KV path is watched for changes.
+The default is
+registry.consul.noroutehtmlpath = /fabio/noroute.html  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.pollInterval</title>
+      <link>https://fabiolb.net/ref/registry.consul.pollinterval/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.pollinterval/</guid>
+      <description>registry.consul.pollInterval configures the poll interval for route updates. If Poll interval is set to 0 the updates will be disabled and fall back to blocking queries. Other values can be any time definition. e.g. 1s, 100ms
+The default is
+registry.consul.pollInterval = 0  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.register.addr</title>
+      <link>https://fabiolb.net/ref/registry.consul.register.addr/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.register.addr/</guid>
+      <description>registry.consul.register.addr configures the address for the service registration.
+Fabio registers itself in consul with this host:port address. It must point to the UI/API endpoint configured by ui.addr and defaults to its value.
+The default is
+registry.consul.register.addr = :9998  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.register.checkInterval</title>
+      <link>https://fabiolb.net/ref/registry.consul.register.checkinterval/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.register.checkinterval/</guid>
+      <description>registry.consul.register.checkInterval configures the interval for the health check.
+Fabio registers an http health check on http(s)://ui.addr/health and this value tells consul how often to check it.
+The default is
+registry.consul.register.checkInterval = 1s  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.register.checkTimeout</title>
+      <link>https://fabiolb.net/ref/registry.consul.register.checktimeout/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.register.checktimeout/</guid>
+      <description>registry.consul.register.checkTimeout configures the timeout for the health check.
+Fabio registers an http health check on http(s)://ui.addr/health and this value tells Consul how long to wait for a response.
+The default is
+registry.consul.register.checkTimeout = 3s  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.register.checkTLSSkipVerify</title>
+      <link>https://fabiolb.net/ref/registry.consul.register.checktlsskipverify/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.register.checktlsskipverify/</guid>
+      <description>registry.consul.register.checkTLSSkipVerify configures TLS verification for the health check.
+Fabio registers an http health check on http(s)://ui.addr/health and this value tells consul to skip TLS certificate validation for https checks.
+The default is
+registry.consul.register.checkTLSSkipVerify = false  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.register.deregisterCriticalServiceAfter</title>
+      <link>https://fabiolb.net/ref/registry.consul.register.deregistercriticalserviceafter/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.register.deregistercriticalserviceafter/</guid>
+      <description>This option is deprecated and has no effect in versions after 1.5.11. Services are now always deregistered shortly after fabio exits for any reason.
+In versions up to and including 1.5.11 registry.consul.register.deregisterCriticalServiceAfter configures the duration after which registered services are removed from Consul after fabio exits abruptly (services are always deregistered immediately when fabio exits normally).
+At the time of this writing, Consul enforces a minimum value of one minute and runs its reaper process every thirty seconds.</description>
+    </item>
+    
+    <item>
+      <title>registry.consul.register.enabled</title>
+      <link>https://fabiolb.net/ref/registry.consul.register.enabled/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.register.enabled/</guid>
+      <description>registry.consul.register.enabled configures whether fabio registers itself in Consul.
+Fabio will register itself in consul only if this value is set to true which is the default. To disable registration set it to any other value, e.g. false
+The default is
+registry.consul.register.enabled = true  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.register.name</title>
+      <link>https://fabiolb.net/ref/registry.consul.register.name/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.register.name/</guid>
+      <description>registry.consul.register.name configures the name for the service registration.
+Fabio registers itself in consul under this service name.
+The default is
+registry.consul.register.name = fabio  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.register.tags</title>
+      <link>https://fabiolb.net/ref/registry.consul.register.tags/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.register.tags/</guid>
+      <description>registry.consul.register.tags configures the tags for the service registration.
+Fabio registers itself with these tags. You can provide a comma separated list of tags.
+The default is
+registry.consul.register.tags =  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.service.status</title>
+      <link>https://fabiolb.net/ref/registry.consul.service.status/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.service.status/</guid>
+      <description>registry.consul.service.status configures the valid service status values for services included in the routing table.
+The values are a comma separated list of passing, warning, critical and unknown
+The default is
+registry.consul.service.status = passing  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.serviceMonitors</title>
+      <link>https://fabiolb.net/ref/registry.consul.servicemonitors/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.servicemonitors/</guid>
+      <description>registry.consul.serviceMonitors configures the concurrency for route updates. Fabio will make up to the configured number of concurrent calls to Consul to fetch status data for route updates.
+The default is
+registry.consul.serviceMonitors = 1  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.tagprefix</title>
+      <link>https://fabiolb.net/ref/registry.consul.tagprefix/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.tagprefix/</guid>
+      <description>registry.consul.tagprefix configures the prefix for tags which define routes.
+Services which define routes publish one or more tags with host/path routes which they serve. These tags must have this prefix to be recognized as routes.
+The default is
+registry.consul.tagprefix = urlprefix-  </description>
+    </item>
+    
+    <item>
+      <title>registry.consul.token</title>
+      <link>https://fabiolb.net/ref/registry.consul.token/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.consul.token/</guid>
+      <description>registry.consul.token configures the acl token for consul.
+The default is
+registry.consul.token =  </description>
+    </item>
+    
+    <item>
+      <title>registry.custom.checkTLSSkipVerify</title>
+      <link>https://fabiolb.net/ref/registry.custom.checktlsskipverify/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.custom.checktlsskipverify/</guid>
+      <description>registry.custom.checkTLSSkipVerify disables the TLS validation for the API call
+The default is
+registry.custom.checkTLSSkipVerify = false </description>
+    </item>
+    
+    <item>
+      <title>registry.custom.host</title>
+      <link>https://fabiolb.net/ref/registry.custom.host/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.custom.host/</guid>
+      <description>registry.custom.host configures the host:port for fabio to make the API call
+The default is
+registry.custom.host = </description>
+    </item>
+    
+    <item>
+      <title>registry.custom.path</title>
+      <link>https://fabiolb.net/ref/registry.custom.path/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.custom.path/</guid>
+      <description>registry.custom.path is the path used in the custom back end API Call
+The path does not need to contain the initial &amp;lsquo;/&amp;rsquo;
+Example:
+ registry.custom.path = api/v1/  The default is
+ registry.custom.path = </description>
+    </item>
+    
+    <item>
+      <title>registry.custom.pollinterval</title>
+      <link>https://fabiolb.net/ref/registry.custom.pollinginterval/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.custom.pollinginterval/</guid>
+      <description>registry.custom.pollinterval is the length of time between API calls
+The default is
+registry.custom.pollinterval = 10s </description>
+    </item>
+    
+    <item>
+      <title>registry.custom.queryparams</title>
+      <link>https://fabiolb.net/ref/registry.custom.queryparams/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.custom.queryparams/</guid>
+      <description>registry.custom.queryparams is the query parameters used in the custom back end API Call
+Multiple query parameters should be separated with an &amp;amp;
+Example:
+ registry.custom.queryparams = foo=bar&amp;amp;bar=foo  The default is
+registry.custom.queryparams = </description>
+    </item>
+    
+    <item>
+      <title>registry.custom.scheme</title>
+      <link>https://fabiolb.net/ref/registry.custom.scheme/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.custom.scheme/</guid>
+      <description>registry.custom.scheme configures the scheme use to make the API call must be one of http, https
+The default is
+registry.custom.scheme = https </description>
+    </item>
+    
+    <item>
+      <title>registry.custom.timeout</title>
+      <link>https://fabiolb.net/ref/registry.custom.timeout/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.custom.timeout/</guid>
+      <description>registry.custom.timeout controls the timeout for the API call
+The default is
+registry.custom.timeout = 5s </description>
+    </item>
+    
+    <item>
+      <title>registry.file.noroutehtmlpath</title>
+      <link>https://fabiolb.net/ref/registry.file.noroutehtmlpath/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.file.noroutehtmlpath/</guid>
+      <description>registry.file.noroutehtmlpath configures the path the HTML page when no route was found.
+The default is
+registry.file.noroutehtmlpath =  </description>
+    </item>
+    
+    <item>
+      <title>registry.file.path</title>
+      <link>https://fabiolb.net/ref/registry.file.path/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.file.path/</guid>
+      <description>registry.file.path configures a file based routing table. The value configures the path to the file with the routing table.
+The default is
+registry.file.path =  </description>
+    </item>
+    
+    <item>
+      <title>registry.retry</title>
+      <link>https://fabiolb.net/ref/registry.retry/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.retry/</guid>
+      <description>registry.retry configures the interval with which fabio tries to connect to the registry during startup.
+The default is
+registry.retry = 500ms  </description>
+    </item>
+    
+    <item>
+      <title>registry.static.noroutehtml</title>
+      <link>https://fabiolb.net/ref/registry.static.noroutehtmlpath/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.static.noroutehtmlpath/</guid>
+      <description>registry.static.noroutehtml configures the the HTML for the page when no route was found.
+The default is
+registry.static.noroutehtmlpath =  </description>
+    </item>
+    
+    <item>
+      <title>registry.static.routes</title>
+      <link>https://fabiolb.net/ref/registry.static.routes/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.static.routes/</guid>
+      <description>registry.static.routes configures a static routing table.
+Example registry.static.routes = \ route add svc / http://1.2.3.4:5000/  The default is
+registry.static.routes =  </description>
+    </item>
+    
+    <item>
+      <title>registry.timeout</title>
+      <link>https://fabiolb.net/ref/registry.timeout/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/registry.timeout/</guid>
+      <description>registry.timeout configures how long fabio tries to connect to the registry backend during startup.
+The default is
+registry.timeout = 10s  </description>
+    </item>
+    
+    <item>
+      <title>runtime.gogc</title>
+      <link>https://fabiolb.net/ref/runtime.gogc/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/runtime.gogc/</guid>
+      <description>runtime.gogc configures GOGC (the GC target percentage).
+Setting runtime.gogc is equivalent to setting the GOGC environment variable which also takes precedence over the value from the config file.
+Increasing this value means fewer but longer GC cycles since there is more garbage to collect.
+NOTE - the default for fabio up to 1.5.14 was 800. This changed to 100 in version 1.5.15
+The default is
+runtime.gogc = 100  </description>
+    </item>
+    
+    <item>
+      <title>runtime.gomaxprocs</title>
+      <link>https://fabiolb.net/ref/runtime.gomaxprocs/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/runtime.gomaxprocs/</guid>
+      <description>runtime.gomaxprocs configures GOMAXPROCS.
+Setting runtime.gomaxprocs is equivalent to setting the GOMAXPROCS environment variable which also takes precedence over the value from the config file.
+If runtime.gomaxprocs &amp;lt; 0 then all CPU cores are used.
+The default is
+runtime.gomaxprocs = -1  </description>
+    </item>
+    
+    <item>
+      <title>ui.access</title>
+      <link>https://fabiolb.net/ref/ui.access/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/ui.access/</guid>
+      <description>ui.access configures the access mode for the UI.
+ ro: read-only access rw: read-write access  The default is
+ui.access = rw  </description>
+    </item>
+    
+    <item>
+      <title>ui.addr</title>
+      <link>https://fabiolb.net/ref/ui.addr/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/ui.addr/</guid>
+      <description>ui.addr configures the address the UI is listening on.
+The listener uses the same syntax as proxy.addr but supports only a single listener.
+To enable HTTPS configure a certificate source. You should use a different certificate source than the one you use for the external connections, e.g. cs=ui.
+The default is
+ui.addr = :9998  </description>
+    </item>
+    
+    <item>
+      <title>ui.color</title>
+      <link>https://fabiolb.net/ref/ui.color/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/ui.color/</guid>
+      <description>ui.color configures the background color of the UI. Color names are from http://materializecss.com/color.html
+The default is
+ui.color = light-green  </description>
+    </item>
+    
+    <item>
+      <title>ui.title</title>
+      <link>https://fabiolb.net/ref/ui.title/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/ui.title/</guid>
+      <description>ui.title configures an optional title for the UI.
+The default is
+ui.title =  </description>
+    </item>
+    
+  </channel>
+</rss>

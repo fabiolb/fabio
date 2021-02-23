@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+
+    <title>Quickstart</title>
+
+    
+    <link href="/css/theDocs.all.min.css" rel="stylesheet">
+    <link href="/css/skin/skin-blue.min.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    
+    
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+    <link rel="manifest" href="/img/manifest.json">
+    <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+  </head>
+
+  <body data-spy="scroll" data-target=".sidebar" data-offset="400">
+    
+    <a id="top" href="#"></a>
+
+    <header class="site-header sticky">
+      <nav class="navbar navbar-default">
+        <div class="container">
+
+          
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar" aria-expanded="true" aria-controls="navbar">
+              <span class="glyphicon glyphicon-option-vertical"></span>
+            </button>
+
+            <button type="button" class="navbar-toggle for-sidebar" data-toggle="offcanvas">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="/"><img src="/img/logo-bw.svg" alt="logo"></a>
+          </div>
+          
+
+          
+          <div id="navbar" class="navbar-collapse collapse" aria-expanded="true" role="banner">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="/quickstart/">Quickstart</a></li>
+              <li><a href="/deploy/">Deployment</a></li>
+              <li><a href="/feature/">Features</a></li>
+              <li><a href="/ref/">Reference</a></li>
+              <li><a href="/faq/">FAQ</a></li>
+              <li><a target="_blank" href="https://twitter.com/search?q=%23fabiolb"><i class="fa fa-twitter fa-2x" aria-hidden="true"></i></a></li>
+              <li><a target="_blank" href="https://github.com/fabiolb/fabio"><i class="fa fa-github fa-2x" aria-hidden="true"></i></a></li>
+            </ul>
+          </div>
+          
+
+        </div>
+      </nav>
+
+    </header>
+
+
+
+<main class="container">
+  <div class="row">
+    
+<aside class="col-sm-3 sidebar sidebar-line">
+
+  <ul class="nav sidenav dropable ">
+    
+    
+    <li>
+      <a class=" active" href="https://fabiolb.net/quickstart/">Quickstart</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/feature/">Features</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/deploy/">Deployment</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/cfg/">Config Language</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/ref/">Reference</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/faq/">FAQ</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contrib/">Contributing</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/code-of-conduct/">Code of Conduct</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contact/">Contact</a>
+      
+    </li>
+    
+  </ul>
+
+</aside>
+
+
+    
+    <article class="col-sm-9 main-content" role="main">
+
+      <section>
+        <h2>Quickstart</h2>
+        
+        <ol>
+<li>
+<p>Install from source, binary, Docker or Homebrew.</p>
+<pre><code>go get github.com/fabiolb/fabio                     (&gt;= go1.15)
+
+brew install fabio                                  (OSX/macOS stable)
+
+docker pull fabiolb/fabio                           (Docker)
+
+https://github.com/fabiolb/fabio/releases           (pre-built binaries)
+</code></pre><p>``</p>
+</li>
+<li>
+<p>Register your service in Consul.</p>
+<p>Make sure that each instance registers with a unique <code>ServiceID</code> and a service name <strong>without spaces</strong>.</p>
+</li>
+<li>
+<p>Register a health check in Consul as described <a href="https://www.consul.io/docs/agent/checks.html">here</a>.</p>
+<p>Make sure the health check is <!-- raw HTML omitted -->PASSING<!-- raw HTML omitted --> since fabio will only watch services which
+have a passing health check.</p>
+</li>
+<li>
+<p>Routes are stored in Consul <a href="https://www.consul.io/docs/agent/services.html">Service Tags</a>
+and you need to add a separate <code>urlprefix-</code> tag for every <code>host/path</code> prefix the service serves.</p>
+<p>For example, if your service handles <code>/user</code> and <code>/product</code> then add two tags <code>urlprefix-/user</code> and <code>urlprefix-/product</code>.
+You can register as many prefixes as you want.</p>
+<p>fabio can forward HTTP, HTTPS and TCP traffic. Below are some configuration examples:</p>
+<pre><code># HTTP/S examples
+# Make sure the prefix for HTTP routes contains at least one slash (/).
+urlprefix-/css                                     # path route
+urlprefix-i.com/static                             # host specific path route
+urlprefix-mysite.com/                              # host specific catch all route
+urlprefix-/foo/bar strip=/foo                      # path stripping (forward '/bar' to upstream)
+urlprefix-/foo/bar proto=https                     # HTTPS upstream
+urlprefix-/foo/bar proto=https tlsskipverify=true  # HTTPS upstream and self-signed cert
+
+# TCP examples
+urlprefix-:3306 proto=tcp                          # route external port 3306
+urlprefix-:3306 proto=tcp pxyproto=true            # enables PROXY protocol on outbount TCP connection
+   
+# GRPC/S examples
+urlprefix-/my.service/Method proto=grpc                      # method specific route
+urlprefix-/my.service proto=grpc                             # service specific route
+urlprefix-/my.service proto=grpcs                            # TLS upstream
+urlprefix-/my.service proto=grpcs grpcservername=my.service  # TLS upstream with servername override
+urlprefix-/my.service proto=grpcs tlsskipverify=true         # TLS upstream and self-signed cert
+</code></pre><p>``</p>
+</li>
+<li>
+<p>Start fabio without a config file</p>
+<pre><code>$ fabio
+</code></pre><p>``</p>
+<p>This assumes that a Consul agent is running on <code>localhost:8500</code>.</p>
+<p>Watch the log output how fabio picks up the route to your service.</p>
+<p><strong>Note:</strong> For running fabio in Docker <a href="/feature/docker/">look here</a>.</p>
+</li>
+<li>
+<p>Try starting/stopping your service to see how the routing table changes instantly.</p>
+</li>
+<li>
+<p>Test that you can access the upstream service via fabio</p>
+<pre><code># for urlprefix-/foo
+curl -i http://localhost:9999/foo
+
+# for urlprefix-mysite.com/foo
+curl -i -H 'Host: mysite.com' http://localhost:9999/foo
+
+</code></pre><p>``</p>
+</li>
+<li>
+<p>Send all your HTTP traffic to fabio on port <code>9999</code></p>
+</li>
+</ol>
+
+      </section>
+
+    </article>
+    
+
+  </div>
+</main>
+
+    
+    <footer class="site-footer">
+      <div class="container">
+        <a id="scroll-up" href="#"><i class="fa fa-angle-up"></i></a>
+
+        <div class="row">
+          <div class="col-md-6 col-sm-6">
+            <p style="line-height: 26px;">
+                Copyright &copy; 2020-2021 Education Networks of America. All rights reserved.</br>
+                Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
+                Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
+                Last updated on 23 Feb 2021 20:52
+            </p>
+          </div>
+          <div class="col-md-6 col-sm-6">
+            <ul class="footer-menu">
+              <li><a href="https://github.com/fabiolb/fabio/commits/master">Changelog</a></li>
+              <li><a href="/contact/">Contact</a></li>
+              <li>
+                <a href="https://gohugo.io"><img src="/img/made-with-hugo.png" height="51px"></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-2812942-5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+    gtag('config', 'UA-2812942-5');
+    </script>
+
+    
+    <script src="/js/theDocs.all.min.js"></script>
+    <script src="/js/custom.js"></script>
+
+  </body>
+</html>
+
