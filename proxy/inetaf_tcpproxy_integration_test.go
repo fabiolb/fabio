@@ -25,7 +25,7 @@ import (
 // This also runs in Github Actions by default, since the workflow adds these aliases.
 func TestProxyTCPAndHTTPS(t *testing.T) {
 	if os.Getenv("TRAVIS") != "true" &&
-		os.Getenv("GITHUB") != "true" &&
+		os.Getenv("CI") != "true" &&
 		os.Getenv("FABIO_IHAVEHOSTENTRIES") != "true" {
 		t.Skip("skipping because env FABIO_IHAVEHOSTENTRIES is not set to true")
 	}

@@ -18,8 +18,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Test
-        env:
-          GITHUB: true
         run: |
           export PATH=$PATH:$HOME/bin
           make github
