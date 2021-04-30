@@ -93,7 +93,7 @@ func TestTarget_BuildRedirectURL(t *testing.T) {
 				{req: "/abc/?aaa=1", want: "http://bar.com/bbb/abc/?aaa=1"},
 			},
 		},
-		{ // http -> https redir to corresonding host w/ arbitrary subdir on target with $path at end
+		{ // http -> https redir to corresponding host w/ arbitrary subdir on target with $path at end
 			route: "route add redirect *:80/ https://$host/bbb/$path",
 			tests: []routeTest{
 				{req: "/", want: "https://foo.com/bbb/"},
@@ -113,7 +113,7 @@ func TestTarget_BuildRedirectURL(t *testing.T) {
 				{req: "/abc/?aaa=1", want: "http://bar.com/bbb/abc/?aaa=1"},
 			},
 		},
-		{ // http -> https redir to corresonding host w/ arbitrary subdir on target with $path at end but without / before $path
+		{ // http -> https redir to corresponding host w/ arbitrary subdir on target with $path at end but without / before $path
 			route: "route add redirect *:80/ https://$host/bbb$path",
 			tests: []routeTest{
 				{req: "/", want: "https://foo.com/bbb/"},
@@ -141,6 +141,16 @@ func TestTarget_BuildRedirectURL(t *testing.T) {
 				{req: "/stripme/a/b/c", want: "http://bar.com/a/b/c"},
 				{req: "/stripme/?aaa=1", want: "http://bar.com/?aaa=1"},
 				{req: "/stripme/abc/?aaa=1", want: "http://bar.com/abc/?aaa=1"},
+			},
+		},
+		{ // strip prefix and redirect #824
+			route: "route add svc *:80/stripme https://bar.com/bbb$path opts \"strip=/stripme\"",
+			tests: []routeTest{
+				{req: "/stripme", want: "https://bar.com/bbb"},
+				{req: "/stripme/abc", want: "https://bar.com/bbb/abc"},
+				{req: "/stripme/a/b/c", want: "https://bar.com/bbb/a/b/c"},
+				{req: "/stripme/?aaa=1", want: "https://bar.com/bbb/?aaa=1"},
+				{req: "/stripme/abc/?aaa=1", want: "https://bar.com/bbb/abc/?aaa=1"},
 			},
 		},
 	}

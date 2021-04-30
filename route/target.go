@@ -83,23 +83,28 @@ func (t *Target) BuildRedirectURL(requestURL *url.URL) {
 		t.RedirectURL.Path = strings.Replace(t.RedirectURL.Path, "/$path", "$path", 1)
 		t.RedirectURL.RawPath = strings.Replace(t.RedirectURL.RawPath, "/$path", "$path", 1)
 	}
-	// insert passed request path, remove strip path, set quer
+	// remove strip path, insert passed request path, set query
 	if strings.Contains(t.RedirectURL.Path, "$path") {
-		// replace in not raw path
-		t.RedirectURL.Path = strings.Replace(t.RedirectURL.Path, "$path", requestURL.Path, 1)
-		// replace in raw path - determine replacement first
+		// set replacement paths
+		replacePath := requestURL.Path
 		var replaceRawPath string
 		if requestURL.RawPath == "" {
 			replaceRawPath = requestURL.Path
 		} else {
 			replaceRawPath = requestURL.RawPath
 		}
-		t.RedirectURL.RawPath = strings.Replace(t.RedirectURL.RawPath, "$path", replaceRawPath, 1)
-		// remove stip path
-		if t.StripPath != "" && strings.HasPrefix(t.RedirectURL.Path, t.StripPath) {
-			t.RedirectURL.Path = t.RedirectURL.Path[len(t.StripPath):]
-			t.RedirectURL.RawPath = t.RedirectURL.RawPath[len(t.StripPath):]
+		// strip path before replacement
+		if t.StripPath != "" {
+			if strings.HasPrefix(replacePath, t.StripPath) {
+				replacePath = replacePath[len(t.StripPath):]
+			}
+			if strings.HasPrefix(replaceRawPath, t.StripPath) {
+				replaceRawPath = replaceRawPath[len(t.StripPath):]
+			}
 		}
+		// do path replacement
+		t.RedirectURL.Path = strings.Replace(t.RedirectURL.Path, "$path", replacePath, 1)
+		t.RedirectURL.RawPath = strings.Replace(t.RedirectURL.RawPath, "$path", replaceRawPath, 1)
 		// set query
 		if t.RedirectURL.RawQuery == "" && requestURL.RawQuery != "" {
 			t.RedirectURL.RawQuery = requestURL.RawQuery
