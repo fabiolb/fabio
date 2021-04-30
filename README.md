@@ -66,7 +66,7 @@ It supports ([Full feature list](https://fabiolb.net/feature/))
 * [Raw TCP proxy](https://fabiolb.net/feature/tcp-proxy/)
 * [TCP+SNI proxy for full end-to-end TLS](https://fabiolb.net/feature/tcp-sni-proxy/) without decryption
 * [HTTPS+TCP+SNI proxy for TCP+SNI with HTTPS fallback](https://fabiolb.net/feature/https-tcp-sni-proxy/)
-* [TCP dyanamic proxy](https://fabiolb.net/feature/tcp-dynamic-proxy/)
+* [TCP dynamic proxy](https://fabiolb.net/feature/tcp-dynamic-proxy/)
 * [HTTPS upstream support](https://fabiolb.net/feature/https-upstream/)
 * [Websockets](https://fabiolb.net/feature/websockets/) and
   [SSE](https://fabiolb.net/feature/sse/)
