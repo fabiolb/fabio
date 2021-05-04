@@ -29,6 +29,7 @@ Option                                     | Description
 `allow=ip:10.0.0.0/8,ip:fe80::/10`         | Restrict access to source addresses within the `10.0.0.0/8` or `fe80::/10` CIDR mask.  All other requests will be denied.
 `deny=ip:10.0.0.0/8,ip:fe80::1234`         | Deny requests that source from the `10.0.0.0/8` CIDR mask or `fe80::1234`.  All other requests will be allowed.
 `strip=/path`                              | Forward `/path/to/file` as `/to/file`
+`prepend=/prefix`                          | Forward `/path/to/file` as `/prefix/path/to/file`
 `proto=tcp`                                | Upstream service is TCP, `dst` must be `:port`
 `pxyproto=true`                            | Enables PROXY protocol on outbount TCP connection
 `proto=https`                              | Upstream service is HTTPS

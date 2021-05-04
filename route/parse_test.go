@@ -205,17 +205,17 @@ func TestParseAliases(t *testing.T) {
 		// happy flows with and without aliases
 		{
 			desc: "RouteAddServiceWithoutAlias",
-			in:   `route add alpha-be alpha/ http://1.2.3.4/ opts "strip=/path proto=https"`,
+			in:   `route add alpha-be alpha/ http://1.2.3.4/ opts "strip=/path prepend=/new proto=https"`,
 			out:  []string(nil),
 		},
 		{
 			desc: "RouteAddServiceWithAlias",
-			in:   `route add alpha-be alpha/ http://1.2.3.4/ opts "strip=/path proto=https register=alpha"`,
+			in:   `route add alpha-be alpha/ http://1.2.3.4/ opts "strip=/path prepend=/new proto=https register=alpha"`,
 			out:  []string{"alpha"},
 		},
 		{
 			desc: "RouteAddServicesWithoutAliases",
-			in: `route add alpha-be alpha/ http://1.2.3.4/ opts "strip=/path proto=tcp"
+			in: `route add alpha-be alpha/ http://1.2.3.4/ opts "strip=/path prepend=/new proto=tcp"
 			route add bravo-be bravo/ http://1.2.3.5/
 			route add charlie-be charlie/ http://1.2.3.6/ opts "host=charlie"`,
 			out: []string(nil),
@@ -223,7 +223,7 @@ func TestParseAliases(t *testing.T) {
 		{
 			desc: "RouteAddServicesWithAliases",
 			in: `route add alpha-be alpha/ http://1.2.3.4/ opts "register=alpha"
-			route add bravo-be bravo/ http://1.2.3.5/ opts "strip=/foo register=bravo"
+			route add bravo-be bravo/ http://1.2.3.5/ opts "strip=/foo prepend=/new register=bravo"
 			route add charlie-be charlie/ http://1.2.3.5/ opts "host=charlie proto=https"
 			route add delta-be delta/ http://1.2.3.5/ opts "host=delta proto=https register=delta"`,
 			out: []string{"alpha", "bravo", "delta"},

@@ -18,7 +18,7 @@ import (
 func TestProxyWSUpstream(t *testing.T) {
 	wsServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.RequestURI {
-		case "/ws", "/wss", "/insecure", "/strip":
+		case "/ws", "/wss", "/insecure", "/strip", "/foo/bar/baz", "/new/world":
 			websocket.Handler(wsEchoHandler).ServeHTTP(w, r)
 		default:
 			w.WriteHeader(404)
@@ -37,6 +37,8 @@ func TestProxyWSUpstream(t *testing.T) {
 	routes += "route add ws /wss " + wssServer.URL + ` opts "proto=https"` + "\n"
 	routes += "route add ws /insecure " + wssServer.URL + ` opts "proto=https tlsskipverify=true"` + "\n"
 	routes += "route add ws /foo/strip  " + wsServer.URL + ` opts "strip=/foo"` + "\n"
+	routes += "route add ws /bar/baz  " + wsServer.URL + ` opts "prepend=/foo"` + "\n"
+	routes += "route add ws /old/world  " + wsServer.URL + ` opts "prepend=/new strip=/old"` + "\n"
 
 	httpProxy := httptest.NewServer(&HTTPProxy{
 		Config:            config.Proxy{NoRouteStatus: 404, GZIPContentTypes: regexp.MustCompile(".*")},
@@ -85,6 +87,10 @@ func TestProxyWSUpstream(t *testing.T) {
 	t.Run("ws-ws via http proxy with gzip", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/ws", h) })
 
 	t.Run("ws-ws via http proxy with strip", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/foo/strip", nil) })
+
+	t.Run("ws-ws via http proxy with prepend", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/bar/baz", nil) })
+
+	t.Run("ws-ws via http proxy with strip & prepend", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/old/world", nil) })
 }
 
 func testWSEcho(t *testing.T, url string, hdr http.Header) {
