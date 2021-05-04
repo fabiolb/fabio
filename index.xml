@@ -241,6 +241,16 @@ Since version 1.5.3 fabio also sets the X-Forwarded-Host header.</description>
     </item>
     
     <item>
+      <title>HTTP Path Prepending</title>
+      <link>https://fabiolb.net/feature/http-path-prepending/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/feature/http-path-prepending/</guid>
+      <description>fabio supports prepending a path to the incoming request. If you want to forward http://host/bar as http://host/foo/bar you can add a prepend=/foo option to the route options as urlprefix-/bar prepend=/foo.
+Path prepending is done after path stripping. If you want to forward http://host/foo/bar as http://host/baz/bar you can add prepend=/baz and strip=/foo options to the route options as urlprefix-/bar prepend=/baz strip=/foo.</description>
+    </item>
+    
+    <item>
       <title>HTTP Path Stripping</title>
       <link>https://fabiolb.net/feature/http-path-stripping/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

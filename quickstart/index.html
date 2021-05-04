@@ -176,6 +176,7 @@ urlprefix-/css                                     # path route
 urlprefix-i.com/static                             # host specific path route
 urlprefix-mysite.com/                              # host specific catch all route
 urlprefix-/foo/bar strip=/foo                      # path stripping (forward '/bar' to upstream)
+urlprefix-/bar prepend=/foo                        # path prepending (forward '/foo/bar' to upstream)
 urlprefix-/foo/bar proto=https                     # HTTPS upstream
 urlprefix-/foo/bar proto=https tlsskipverify=true  # HTTPS upstream and self-signed cert
 
@@ -236,7 +237,7 @@ curl -i -H 'Host: mysite.com' http://localhost:9999/foo
                 Copyright &copy; 2020-2021 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 30 Apr 2021 17:18
+                Last updated on 4 May 2021 14:17
             </p>
           </div>
           <div class="col-md-6 col-sm-6">

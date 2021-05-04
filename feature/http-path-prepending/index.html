@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
 
-    <title>Docker Support</title>
+    <title>HTTP Path Prepending</title>
 
     
     <link href="/css/theDocs.all.min.css" rel="stylesheet">
@@ -98,7 +98,7 @@
       
         <li><a href="https://fabiolb.net/feature/certificate-stores/">Certificate Stores</a></li>
       
-        <li><a class="active" href="https://fabiolb.net/feature/docker/">Docker Support</a></li>
+        <li><a href="https://fabiolb.net/feature/docker/">Docker Support</a></li>
       
         <li><a href="https://fabiolb.net/feature/dynamic-reloading/">Dynamic Reloading</a></li>
       
@@ -110,7 +110,7 @@
       
         <li><a href="https://fabiolb.net/feature/http-headers/">HTTP Header Support</a></li>
       
-        <li><a href="https://fabiolb.net/feature/http-path-prepending/">HTTP Path Prepending</a></li>
+        <li><a class="active" href="https://fabiolb.net/feature/http-path-prepending/">HTTP Path Prepending</a></li>
       
         <li><a href="https://fabiolb.net/feature/http-path-stripping/">HTTP Path Stripping</a></li>
       
@@ -196,45 +196,14 @@
 
       
       <section>
-        <h2>Docker Support</h2>
-        <p>To run fabio within Docker use the official Docker image <code>fabiolb/fabio</code> and
-mount your own config file to <code>/etc/fabio/fabio.properties</code></p>
-<pre><code>docker run -d -p 9999:9999 -p 9998:9998 -v $PWD/fabio/fabio.properties:/etc/fabio/fabio.properties fabiolb/fabio
-</code></pre>
-<p>If you want to run the Docker image with one or more SSL certificates then
-you can store your configuration and certificates in <code>/etc/fabio</code> and mount
-the entire directory, e.g.</p>
-<pre><code>$ cat ~/fabio/fabio.properties
-proxy.addr=:443;/etc/fabio/ssl/mycert.pem;/etc/fabio/ssl/mykey.pem
-
-docker run -d -p 443:443 -p 9998:9998 -v $PWD/fabio:/etc/fabio fabiolb/fabio
-</code></pre>
-<p>The official Docker image contains the root CA certificates from a recent and updated
-Ubuntu 12.04.5 LTS installation.</p>
-<h3 id="registrator">Registrator</h3>
-<p>If you use Gliderlabs <a href="https://github.com/gliderlabs/registrator">Registrator</a> to register your services
-you can pass the <code>urlprefix-</code> tags via the <code>SERVICE_TAGS</code> environment variable as follows:</p>
-<pre><code>$ docker run -d \
-    --name=registrator \
-    --net=host \        
-    --volume=/var/run/docker.sock:/tmp/docker.sock \
-    gliderlabs/registrator:latest \
-    consul://localhost:8500
-
-$ docker run -d -p 80:8000 \
-    -e SERVICE_8000_CHECK_HTTP=/foo/healthcheck  \
-    -e SERVICE_8000_NAME=foo \
-    -e SERVICE_CHECK_INTERVAL=10s \
-    -e SERVICE_CHECK_TIMEOUT=5s  \
-    -e SERVICE_TAGS=urlprefix-/foo \
-    test/foo
-</code></pre><h3 id="docker-compose">Docker Compose</h3>
-<p>If you are using <a href="https://docs.docker.com/compose/">Docker compose</a> you can add the <code>SERVICE_TAGS</code>
-to the <code>environment</code> section as follows:</p>
-<pre><code>bar:
-  environment:
-    - SERVICE_TAGS=urlprefix-/bar
-</code></pre>
+        <h2>HTTP Path Prepending</h2>
+        <p>fabio supports prepending a path to the incoming request. If you want to
+forward <code>http://host/bar</code> as <code>http://host/foo/bar</code> you can add a <code>prepend=/foo</code>
+option to the route options as <code>urlprefix-/bar prepend=/foo</code>.</p>
+<p>Path prepending is done after path stripping. If you want to
+forward <code>http://host/foo/bar</code> as <code>http://host/baz/bar</code> you can add
+<code>prepend=/baz</code> and <code>strip=/foo</code> options to the route options as
+<code>urlprefix-/bar prepend=/baz strip=/foo</code>.</p>
 
         
       </section>
