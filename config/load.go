@@ -329,6 +329,10 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 		return nil, fmt.Errorf("proxy.noroutestatus must be between 100 and 999")
 	}
 
+	if cfg.Registry.Consul.AllowStale && cfg.Registry.Consul.RequireConsistent {
+		return nil, fmt.Errorf("registry.consul.allowStale and registry.consul.requireConsistent cannot both be true")
+	}
+
 	// handle deprecations
 	deprecate := func(name, msg string) {
 		if f.IsSet(name) {
