@@ -1,6 +1,6 @@
 package ui
 
-//go:generate wget -pP assets https://code.jquery.com/jquery-3.3.1.min.js
+//go:generate wget -pP assets https://code.jquery.com/jquery-3.6.0.min.js
 //go:generate wget -pP assets https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js
 //go:generate wget -pP assets https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css
 
