@@ -18,5 +18,7 @@ RUN apk update && apk add --no-cache ca-certificates
 COPY --from=build /src/fabio /usr/bin
 ADD fabio.properties /etc/fabio/fabio.properties
 EXPOSE 9998 9999
+
+USER 1001
 ENTRYPOINT ["/usr/bin/fabio"]
 CMD ["-cfg", "/etc/fabio/fabio.properties"]
