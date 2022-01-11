@@ -58,7 +58,12 @@ func addHeaders(r *http.Request, cfg config.Proxy, stripPath string) error {
 	// http proxy which sets it.
 	ws := r.Header.Get("Upgrade") == "websocket"
 	if ws {
-		r.Header.Set("X-Forwarded-For", remoteIP)
+		targetHeader := []string{remoteIP}
+		sourceHeader := r.Header.Get("X-Forwarded-For")
+		if sourceHeader != "" {
+			targetHeader = append([]string{sourceHeader}, targetHeader...)
+		}
+		r.Header.Set("X-Forwarded-For", strings.Join(targetHeader, ","))
 	}
 
 	// Issue #133: Setting the X-Forwarded-Proto header to
