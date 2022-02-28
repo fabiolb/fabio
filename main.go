@@ -213,6 +213,7 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 	newTransport := func(tlscfg *tls.Config) *http.Transport {
 		return &http.Transport{
 			ResponseHeaderTimeout: cfg.Proxy.ResponseHeaderTimeout,
+			IdleConnTimeout: cfg.Proxy.IdleConnTimeout,
 			MaxIdleConnsPerHost:   cfg.Proxy.MaxConn,
 			Dial: (&net.Dialer{
 				Timeout:   cfg.Proxy.DialTimeout,

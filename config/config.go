@@ -66,6 +66,7 @@ type Proxy struct {
 	DialTimeout           time.Duration
 	ResponseHeaderTimeout time.Duration
 	KeepAliveTimeout      time.Duration
+	IdleConnTimeout       time.Duration
 	FlushInterval         time.Duration
 	GlobalFlushInterval   time.Duration
 	LocalIP               string

@@ -47,6 +47,7 @@ var defaultConfig = &Config{
 		GlobalFlushInterval: 0,
 		LocalIP:             LocalIPString(),
 		AuthSchemes:         map[string]AuthScheme{},
+		IdleConnTimeout:     15 * time.Second,
 	},
 	Registry: Registry{
 		Backend: "consul",
