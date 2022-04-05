@@ -24,6 +24,8 @@ CI_CONSUL_VERSION ?= 1.8.4
 CI_VAULT_VERSION ?= 1.5.2
 CI_HUGO_VERSION ?= 0.63.2
 
+BETA_OSES = linux darwin
+
 # all is the default target
 all: test
 
@@ -55,9 +57,14 @@ mod:
 gofmt:
 	gofmt -s -w `find . -type f -name '*.go' | grep -v vendor`
 
-# linux builds a linux binary
-linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags netgo $(GOFLAGS)
+beta: $(BETA_OSES)
+beta:
+	sha256sum fabio_$(CUR_TAG)_*_amd64 > fabio_$(CUR_TAG).sha256 fabio.properties
+	gpg -b fabio_$(CUR_TAG).sha256
+	tar czvf fabio_$(CUR_TAG).tar.gz fabio.properties fabio_$(CUR_TAG)_*_amd64 fabio_$(CUR_TAG).sha256 fabio_$(CUR_TAG).sha256.sig
+$(BETA_OSES):
+	CGO_ENABLED=0 GOOS=$@ GOARCH=amd64 go build -trimpath -tags netgo $(GOFLAGS) -o fabio_$(CUR_TAG)_$@_amd64
+
 
 # install runs go install
 install:
@@ -133,4 +140,4 @@ clean:
 	rm -rf pkg dist fabio
 	find . -name '*.test' -delete
 
-.PHONY: all help build test mod gofmt linux install pkg release preflight tag gorelease homebrew docker-test travis travis-pages clean
+.PHONY: all help build test mod gofmt linux install pkg release preflight tag gorelease homebrew docker-test travis travis-pages clean beta BETA_OSES
