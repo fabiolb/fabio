@@ -2,6 +2,8 @@ package config
 
 import (
 	"flag"
+	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/magiconair/properties"
@@ -30,6 +32,37 @@ func (v *stringSliceValue) Set(s string) error {
 func (v *stringSliceValue) Get() interface{} { return []string(*v) }
 func (v *stringSliceValue) String() string   { return strings.Join(*v, ",") }
 
+type floatSliceValue []float64
+
+func newFloatSliceValue(val []float64, p *[]float64) *floatSliceValue {
+	*p = val
+	return (*floatSliceValue)(p)
+}
+
+func (f *floatSliceValue) String() string {
+	strs := make([]string, len(*f))
+	for i, v := range *f {
+		strs[i] = strconv.FormatFloat(v, 'f', -1, 64)
+	}
+	return strings.Join(strs, ",")
+}
+
+func (f *floatSliceValue) Set(s string) error {
+	*f = []float64{}
+	for _, x := range strings.Split(s, ",") {
+		x = strings.TrimSpace(x)
+		if x == "" {
+			continue
+		}
+		v, err := strconv.ParseFloat(x, 64)
+		if err != nil {
+			return fmt.Errorf("error parsing float slice value %s: %w", x, err)
+		}
+		*f = append(*f, v)
+	}
+	return nil
+}
+
 // -- FlagSet
 type FlagSet struct {
 	flag.FlagSet
@@ -49,6 +82,10 @@ func (f *FlagSet) IsSet(name string) bool {
 
 func (f *FlagSet) StringSliceVar(p *[]string, name string, value []string, usage string) {
 	f.Var(newStringSliceValue(value, p), name, usage)
+}
+
+func (f *FlagSet) FloatSliceVar(p *[]float64, name string, value []float64, usage string) {
+	f.Var(newFloatSliceValue(value, p), name, usage)
 }
 
 // ParseFlags parses command line arguments and provides fallback

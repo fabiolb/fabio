@@ -3,19 +3,20 @@ module github.com/fabiolb/fabio
 require (
 	github.com/Shopify/sarama v1.19.0 // indirect
 	github.com/Shopify/toxiproxy v2.1.4+incompatible // indirect
+	github.com/VividCortex/gohistogram v1.0.0 // indirect
 	github.com/apache/thrift v0.13.0 // indirect
 	github.com/armon/go-metrics v0.3.4 // indirect
 	github.com/armon/go-proxyproto v0.0.0-20180202201750-5b7edb60ff5f
 	github.com/circonus-labs/circonus-gometrics/v3 v3.2.0
 	github.com/circonus-labs/go-apiclient v0.7.9 // indirect
-	github.com/cyberdelia/go-metrics-graphite v0.0.0-20161219230853-39f87cc3b432
 	github.com/eapache/go-resiliency v1.1.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
 	github.com/frankban/quicktest v1.11.1 // indirect
+	github.com/go-kit/kit v0.9.0
 	github.com/go-logfmt/logfmt v0.5.0 // indirect
 	github.com/gobwas/glob v0.0.0-20180208211842-19c076cdf202
-	github.com/gogo/protobuf v1.2.1 // indirect
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/golang/snappy v0.0.2 // indirect
 	github.com/google/btree v1.0.0 // indirect
@@ -41,15 +42,15 @@ require (
 	github.com/pascaldekloe/goe v0.1.0
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
 	github.com/pkg/profile v1.5.0
-	github.com/pubnub/go-metrics-statsd v0.0.0-20170124014003-7da61f429d6b
+	github.com/prometheus/client_golang v1.4.0
 	github.com/rakyll/statik v0.1.7
-	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0
+	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/rogpeppe/fastuuid v1.2.0
 	github.com/sergi/go-diff v1.1.0
 	github.com/tg123/go-htpasswd v1.0.0
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
-	golang.org/x/net v0.0.0-20201016165138-7b1cca2348c0
-	golang.org/x/sync v0.0.0-20201008141435-b3e1573b7520
+	golang.org/x/net v0.0.0-20201021035429-f5854403a974
+	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
 	golang.org/x/sys v0.0.0-20201017003518-b09fb700fbb7 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	google.golang.org/grpc v1.33.0

@@ -98,6 +98,12 @@ type Circonus struct {
 	SubmissionURL string
 }
 
+type Prometheus struct {
+	Subsystem string
+	Path      string
+	Buckets   []float64
+}
+
 type Log struct {
 	AccessFormat string
 	AccessTarget string
@@ -106,15 +112,17 @@ type Log struct {
 }
 
 type Metrics struct {
-	Target       string
-	Prefix       string
-	Names        string
-	Interval     time.Duration
-	Timeout      time.Duration
-	Retry        time.Duration
-	GraphiteAddr string
-	StatsDAddr   string
-	Circonus     Circonus
+	Target        string
+	Prefix        string
+	Names         string
+	Interval      time.Duration
+	Timeout       time.Duration
+	Retry         time.Duration
+	GraphiteAddr  string
+	StatsDAddr    string
+	DogstatsdAddr string
+	Circonus      Circonus
+	Prometheus    Prometheus
 }
 
 type Registry struct {

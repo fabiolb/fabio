@@ -1,12 +1,12 @@
 package tcp
 
 import (
+	gkm "github.com/go-kit/kit/metrics"
 	"io"
 	"log"
 	"net"
 	"time"
 
-	"github.com/fabiolb/fabio/metrics"
 	"github.com/fabiolb/fabio/route"
 )
 
@@ -21,20 +21,20 @@ type DynamicProxy struct {
 	Lookup func(host string) *route.Target
 
 	// Conn counts the number of connections.
-	Conn metrics.Counter
+	Conn gkm.Counter
 
 	// ConnFail counts the failed upstream connection attempts.
-	ConnFail metrics.Counter
+	ConnFail gkm.Counter
 
 	// Noroute counts the failed Lookup() calls.
-	Noroute metrics.Counter
+	Noroute gkm.Counter
 }
 
 func (p *DynamicProxy) ServeTCP(in net.Conn) error {
 	defer in.Close()
 
 	if p.Conn != nil {
-		p.Conn.Inc(1)
+		p.Conn.Add(1)
 	}
 
 	target := in.LocalAddr().String()
@@ -45,7 +45,7 @@ func (p *DynamicProxy) ServeTCP(in net.Conn) error {
 	}
 	if t == nil {
 		if p.Noroute != nil {
-			p.Noroute.Inc(1)
+			p.Noroute.Add(1)
 		}
 		return nil
 	}
@@ -60,24 +60,19 @@ func (p *DynamicProxy) ServeTCP(in net.Conn) error {
 	if err != nil {
 		log.Print("[WARN] tcp: cannot connect to upstream ", addr)
 		if p.ConnFail != nil {
-			p.ConnFail.Inc(1)
+			p.ConnFail.Add(1)
 		}
 		return err
 	}
 	defer out.Close()
 
 	errc := make(chan error, 2)
-	cp := func(dst io.Writer, src io.Reader, c metrics.Counter) {
+	cp := func(dst io.Writer, src io.Reader, c gkm.Counter) {
 		errc <- copyBuffer(dst, src, c)
 	}
 
-	// rx measures the traffic to the upstream server (in <- out)
-	// tx measures the traffic from the upstream server (out <- in)
-	rx := metrics.DefaultRegistry.GetCounter(t.TimerName + ".rx")
-	tx := metrics.DefaultRegistry.GetCounter(t.TimerName + ".tx")
-
-	go cp(in, out, rx)
-	go cp(out, in, tx)
+	go cp(in, out, t.RxCounter)
+	go cp(out, in, t.TxCounter)
 	err = <-errc
 	if err != nil && err != io.EOF {
 		log.Print("[WARN]: tcp:  ", err)

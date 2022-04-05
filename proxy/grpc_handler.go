@@ -8,14 +8,15 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/fabiolb/fabio/config"
-	"github.com/fabiolb/fabio/metrics"
 	"github.com/fabiolb/fabio/route"
+
+	gkm "github.com/go-kit/kit/metrics"
 	grpc_proxy "github.com/mwitkow/grpc-proxy/proxy"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/connectivity"
@@ -99,7 +100,7 @@ func (g GrpcProxyInterceptor) Stream(srv interface{}, stream grpc.ServerStream, 
 	}
 
 	if target == nil {
-		g.StatsHandler.NoRoute.Inc(1)
+		g.StatsHandler.NoRoute.Add(1)
 		log.Println("[WARN] grpc: no route found for", info.FullMethod)
 		return status.Error(codes.NotFound, "no route found")
 	}
@@ -118,7 +119,7 @@ func (g GrpcProxyInterceptor) Stream(srv interface{}, stream grpc.ServerStream, 
 	end := time.Now()
 	dur := end.Sub(start)
 
-	target.Timer.Update(dur)
+	target.Timer.Observe(dur.Seconds())
 
 	return err
 }
@@ -158,9 +159,10 @@ func (g GrpcProxyInterceptor) lookup(ctx context.Context, fullMethodName string)
 }
 
 type GrpcStatsHandler struct {
-	Connect metrics.Counter
-	Request metrics.Timer
-	NoRoute metrics.Counter
+	Connect gkm.Counter
+	Request gkm.Histogram
+	NoRoute gkm.Counter
+	Status  gkm.Histogram
 }
 
 type connCtxKey struct{}
@@ -175,6 +177,7 @@ func (h *GrpcStatsHandler) TagRPC(ctx context.Context, info *stats.RPCTagInfo) c
 }
 
 func (h *GrpcStatsHandler) HandleRPC(ctx context.Context, rpc stats.RPCStats) {
+
 	rpcStats, _ := rpc.(*stats.End)
 
 	if rpcStats == nil {
@@ -183,10 +186,11 @@ func (h *GrpcStatsHandler) HandleRPC(ctx context.Context, rpc stats.RPCStats) {
 
 	dur := rpcStats.EndTime.Sub(rpcStats.BeginTime)
 
-	h.Request.Update(dur)
+	h.Request.Observe(dur.Seconds())
 
 	s, _ := status.FromError(rpcStats.Error)
-	metrics.DefaultRegistry.GetTimer(fmt.Sprintf("grpc.status.%s", strings.ToLower(s.Code().String())))
+
+	h.Status.With("code", s.Code().String()).Observe(dur.Seconds())
 }
 
 // HandleConn processes the Conn stats.
@@ -194,7 +198,7 @@ func (h *GrpcStatsHandler) HandleConn(ctx context.Context, conn stats.ConnStats)
 	connBegin, _ := conn.(*stats.ConnBegin)
 
 	if connBegin != nil {
-		h.Connect.Inc(1)
+		h.Connect.Add(1)
 	}
 }
 

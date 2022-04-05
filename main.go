@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	gkm "github.com/go-kit/kit/metrics"
 	"io"
 	"log"
 	"net"
@@ -120,9 +121,11 @@ func main() {
 		registry.Default.DeregisterAll()
 	})
 
-	// init metrics early since that create the global metric registries
-	// that are used by other parts of the code.
-	initMetrics(cfg)
+	metrics, err := metrics.Initialize(&cfg.Metrics)
+	if err != nil {
+		exit.Fatal("[FATAL] ", err)
+	}
+	route.SetMetricsProvider(metrics)
 	initRuntime(cfg)
 	initBackend(cfg)
 
@@ -134,12 +137,12 @@ func main() {
 	go watchNoRouteHTML(cfg)
 
 	first := make(chan bool)
-	go watchBackend(cfg, first)
+	go watchBackend(cfg, metrics, first)
 	log.Print("[INFO] Waiting for first routing table")
 	<-first
 
 	// create proxies after metrics since they use the metrics registry.
-	startServers(cfg)
+	startServers(cfg, metrics)
 
 	// warn again so that it is visible in the terminal
 	WarnIfRunAsRoot(cfg.Insecure)
@@ -148,16 +151,10 @@ func main() {
 	log.Print("[INFO] Down")
 }
 
-func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config) []grpc.ServerOption {
+func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config, statsHandler *proxy.GrpcStatsHandler) []grpc.ServerOption {
 
 	//Init Glob Cache
 	globCache := route.NewGlobCache(cfg.GlobCacheSize)
-
-	statsHandler := &proxy.GrpcStatsHandler{
-		Connect: metrics.DefaultRegistry.GetCounter("grpc.conn"),
-		Request: metrics.DefaultRegistry.GetTimer("grpc.requests"),
-		NoRoute: metrics.DefaultRegistry.GetCounter("grpc.noroute"),
-	}
 
 	proxyInterceptor := proxy.GrpcProxyInterceptor{
 		Config:       cfg,
@@ -175,7 +172,7 @@ func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config) []grpc.ServerOption {
 	}
 }
 
-func newHTTPProxy(cfg *config.Config) http.Handler {
+func newHTTPProxy(cfg *config.Config, statsHandler *proxy.HttpStatsHandler) *proxy.HTTPProxy {
 	var w io.Writer
 
 	//Init Glob Cache
@@ -206,7 +203,6 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 
 	pick := route.Picker[cfg.Proxy.Strategy]
 	match := route.Matcher[cfg.Proxy.Matcher]
-	notFound := metrics.DefaultRegistry.GetCounter("notfound")
 	log.Printf("[INFO] Using routing strategy %q", cfg.Proxy.Strategy)
 	log.Printf("[INFO] Using route matching %q", cfg.Proxy.Matcher)
 
@@ -235,26 +231,24 @@ func newHTTPProxy(cfg *config.Config) http.Handler {
 		Lookup: func(r *http.Request) *route.Target {
 			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match, globCache, cfg.GlobMatchingDisabled)
 			if t == nil {
-				notFound.Inc(1)
+				statsHandler.Noroute.Add(1)
 				log.Print("[WARN] No route for ", r.Host, r.URL)
 			}
 			return t
 		},
-		Requests:    metrics.DefaultRegistry.GetTimer("requests"),
-		Noroute:     metrics.DefaultRegistry.GetCounter("notfound"),
 		Logger:      l,
 		TracerCfg:   cfg.Tracing,
 		AuthSchemes: authSchemes,
+		Stats:       *statsHandler,
 	}
 }
 
-func lookupHostFn(cfg *config.Config) func(string) *route.Target {
+func lookupHostFn(cfg *config.Config, notFound gkm.Counter) func(string) *route.Target {
 	pick := route.Picker[cfg.Proxy.Strategy]
-	notFound := metrics.DefaultRegistry.GetCounter("notfound")
 	return func(host string) *route.Target {
 		t := route.GetTable().LookupHost(host, pick)
 		if t == nil {
-			notFound.Inc(1)
+			notFound.Add(1)
 			log.Print("[WARN] No route for ", host)
 		}
 		return t
@@ -321,7 +315,58 @@ func startAdmin(cfg *config.Config) {
 	}()
 }
 
-func startServers(cfg *config.Config) {
+func startServers(cfg *config.Config, stats metrics.Provider) {
+	notFound := stats.NewCounter("notfound")
+
+	var (
+		tcpConn          gkm.Counter
+		tcpConnFail      gkm.Counter
+		tcpNoRoute       gkm.Counter
+		tcpSniConn       gkm.Counter
+		tcpSniConnFail   gkm.Counter
+		tcpSniNoRoute    gkm.Counter
+		grpStatsHandler  *proxy.GrpcStatsHandler
+		httpStatsHandler *proxy.HttpStatsHandler
+	)
+
+	grpcCounters := func() {
+		grpStatsHandler = &proxy.GrpcStatsHandler{
+			Connect: stats.NewCounter("grpc.conn"),
+			Request: stats.NewHistogram("grpc.requests"),
+			NoRoute: stats.NewCounter("grpc.noroute"),
+			Status:  stats.NewHistogram("grep.status", "code"),
+		}
+	}
+
+	var grpcOnce sync.Once
+
+	httpCounters := func() {
+		httpStatsHandler = &proxy.HttpStatsHandler{
+			Requests:        stats.NewHistogram("requests"),
+			Noroute:         notFound,
+			WSConn:          stats.NewGauge("ws.conn"),
+			StatusTimer:     stats.NewHistogram("http.status", "code"),
+			RedirectCounter: stats.NewCounter("http.redirect.count", "code"),
+		}
+	}
+
+	var httpOnce sync.Once
+
+	tcpCounters := func() {
+		tcpConn = stats.NewCounter("tcp.conn")
+		tcpConnFail = stats.NewCounter("tcp.connfail")
+		tcpNoRoute = stats.NewCounter("tcp.noroute")
+	}
+	var tcpOnce sync.Once
+
+	tcpSniCounters := func() {
+		tcpSniConn = stats.NewCounter("tcp_sni.conn")
+		tcpSniConnFail = stats.NewCounter("tcp_sni.connfail")
+		tcpSniNoRoute = stats.NewCounter("tcp_sni.noroute")
+	}
+
+	var tcpSniOnce sync.Once
+
 	for _, l := range cfg.Listen {
 		l := l // capture loop var for go routines below
 		tlscfg, err := makeTLSConfig(l)
@@ -333,49 +378,55 @@ func startServers(cfg *config.Config) {
 		if tlscfg != nil && tlscfg.ClientAuth == tls.RequireAndVerifyClientCert {
 			log.Printf("[INFO] Client certificate authentication enabled on %s", l.Addr)
 		}
-
 		switch l.Proto {
 		case "http", "https":
+			httpOnce.Do(httpCounters)
 			go func() {
-				h := newHTTPProxy(cfg)
+				h := newHTTPProxy(cfg, httpStatsHandler)
+				// reset the ws.conn gauge
+				h.Stats.WSConn.Set(0)
 				if err := proxy.ListenAndServeHTTP(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
 				}
 			}()
 		case "grpc", "grpcs":
+			grpcOnce.Do(grpcCounters)
 			go func() {
-				h := newGrpcProxy(cfg, tlscfg)
+				h := newGrpcProxy(cfg, tlscfg, grpStatsHandler)
 				if err := proxy.ListenAndServeGRPC(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
 				}
 			}()
 		case "tcp":
+			tcpOnce.Do(tcpCounters)
 			go func() {
 				h := &tcp.Proxy{
 					DialTimeout: cfg.Proxy.DialTimeout,
-					Lookup:      lookupHostFn(cfg),
-					Conn:        metrics.DefaultRegistry.GetCounter("tcp.conn"),
-					ConnFail:    metrics.DefaultRegistry.GetCounter("tcp.connfail"),
-					Noroute:     metrics.DefaultRegistry.GetCounter("tcp.noroute"),
+					Lookup:      lookupHostFn(cfg, notFound),
+					Conn:        tcpConn,
+					ConnFail:    tcpConnFail,
+					Noroute:     tcpNoRoute,
 				}
 				if err := proxy.ListenAndServeTCP(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
 				}
 			}()
 		case "tcp+sni":
+			tcpSniOnce.Do(tcpSniCounters)
 			go func() {
 				h := &tcp.SNIProxy{
 					DialTimeout: cfg.Proxy.DialTimeout,
-					Lookup:      lookupHostFn(cfg),
-					Conn:        metrics.DefaultRegistry.GetCounter("tcp_sni.conn"),
-					ConnFail:    metrics.DefaultRegistry.GetCounter("tcp_sni.connfail"),
-					Noroute:     metrics.DefaultRegistry.GetCounter("tcp_sni.noroute"),
+					Lookup:      lookupHostFn(cfg, notFound),
+					Conn:        tcpSniConn,
+					ConnFail:    tcpSniConnFail,
+					Noroute:     tcpSniNoRoute,
 				}
 				if err := proxy.ListenAndServeTCP(l, h, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
 				}
 			}()
 		case "tcp-dynamic":
+			tcpOnce.Do(tcpCounters)
 			go func() {
 				var buffer strings.Builder
 				lastPorts := []string{}
@@ -413,10 +464,10 @@ func startServers(cfg *config.Config) {
 						go func() {
 							h := &tcp.DynamicProxy{
 								DialTimeout: cfg.Proxy.DialTimeout,
-								Lookup:      lookupHostFn(cfg),
-								Conn:        metrics.DefaultRegistry.GetCounter("tcp.conn"),
-								ConnFail:    metrics.DefaultRegistry.GetCounter("tcp.connfail"),
-								Noroute:     metrics.DefaultRegistry.GetCounter("tcp.noroute"),
+								Lookup:      lookupHostFn(cfg, notFound),
+								Conn:        tcpConn,
+								ConnFail:    tcpConnFail,
+								Noroute:     tcpNoRoute,
 							}
 							l.Addr = port
 							if err := proxy.ListenAndServeTCP(l, h, tlscfg); err != nil {
@@ -428,48 +479,28 @@ func startServers(cfg *config.Config) {
 				}
 			}()
 		case "https+tcp+sni":
+			tcpSniOnce.Do(tcpSniCounters)
+			httpOnce.Do(httpCounters)
 			go func() {
-				hp := newHTTPProxy(cfg)
+				hp := newHTTPProxy(cfg, httpStatsHandler)
 				tp := &tcp.SNIProxy{
 					DialTimeout: cfg.Proxy.DialTimeout,
-					Lookup:      lookupHostFn(cfg),
-					Conn:        metrics.DefaultRegistry.GetCounter("tcp_sni.conn"),
-					ConnFail:    metrics.DefaultRegistry.GetCounter("tcp_sni.connfail"),
-					Noroute:     metrics.DefaultRegistry.GetCounter("tcp_sni.noroute"),
-				}
+					Lookup:      lookupHostFn(cfg, notFound),
+					Conn:        tcpSniConn,
+					ConnFail:    tcpSniConnFail,
+					Noroute:     tcpSniNoRoute}
 				if err := proxy.ListenAndServeHTTPSTCPSNI(l, hp, tp, tlscfg, lookupHostMatcher(cfg)); err != nil {
+					exit.Fatal("[FATAL] ", err)
+				}
+			}()
+		case "prometheus":
+			go func() {
+				if err := proxy.ListenAndServePrometheus(l, cfg.Metrics.Prometheus, tlscfg); err != nil {
 					exit.Fatal("[FATAL] ", err)
 				}
 			}()
 		default:
 			exit.Fatal("[FATAL] Invalid protocol ", l.Proto)
-		}
-	}
-}
-
-func initMetrics(cfg *config.Config) {
-	if cfg.Metrics.Target == "" {
-		log.Printf("[INFO] Metrics disabled")
-		return
-	}
-
-	var deadline = time.Now().Add(cfg.Metrics.Timeout)
-	var err error
-	for {
-		metrics.DefaultRegistry, err = metrics.NewRegistry(cfg.Metrics)
-		if err == nil {
-			route.ServiceRegistry, err = metrics.NewRegistry(cfg.Metrics)
-		}
-		if err == nil {
-			return
-		}
-		if time.Now().After(deadline) {
-			exit.Fatal("[FATAL] ", err)
-		}
-		log.Print("[WARN] Error initializing metrics. ", err)
-		time.Sleep(cfg.Metrics.Retry)
-		if atomic.LoadInt32(&shuttingDown) > 0 {
-			exit.Exit(1)
 		}
 	}
 }
@@ -525,7 +556,7 @@ func initBackend(cfg *config.Config) {
 	}
 }
 
-func watchBackend(cfg *config.Config, first chan bool) {
+func watchBackend(cfg *config.Config, p metrics.Provider, first chan bool) {
 	var (
 		nextTable   string
 		lastTable   string

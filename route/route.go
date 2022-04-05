@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fabiolb/fabio/metrics"
 	"github.com/gobwas/glob"
 )
 
@@ -54,22 +53,18 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		}
 	}
 
-	name, err := metrics.TargetName(service, r.Host, r.Path, targetURL)
-	if err != nil {
-		log.Printf("[ERROR] Invalid metrics name: %s", err)
-		name = "unknown"
-	}
-
 	t := &Target{
 		Service:     service,
 		Tags:        tags,
 		Opts:        opts,
 		URL:         targetURL,
 		FixedWeight: fixedWeight,
-		Timer:       ServiceRegistry.GetTimer(name),
-		TimerName:   name,
+		Timer:       counters.histogram.With("service", service, "host", r.Host, "path", r.Path, "target", targetURL.String()),
+		RxCounter:   counters.rxCounter.With("service", service, "host", r.Host, "path", r.Path, "target", targetURL.String()),
+		TxCounter:   counters.txCounter.With("service", service, "host", r.Host, "path", r.Path, "target", targetURL.String()),
 	}
 
+	var err error
 	if opts != nil {
 		t.StripPath = opts["strip"]
 		t.PrependPath = opts["prepend"]

@@ -4,17 +4,18 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	gkm "github.com/go-kit/kit/metrics"
 	"log"
 	"net"
 	"net/http"
 	"net/url"
 	"sort"
 	"strings"
-	"sync"
 	"sync/atomic"
 
-	"github.com/fabiolb/fabio/metrics"
 	"github.com/gobwas/glob"
+
+	"github.com/fabiolb/fabio/metrics"
 )
 
 var errInvalidPrefix = errors.New("route: prefix must not be empty")
@@ -24,12 +25,27 @@ var errNoMatch = errors.New("route: no target match")
 // table stores the active routing table. Must never be nil.
 var table atomic.Value
 
-// ServiceRegistry stores the metrics for the services.
-var ServiceRegistry metrics.Registry = metrics.NoopRegistry{}
+// package global metrics bits
 
 // init initializes the routing table.
 func init() {
 	table.Store(make(Table))
+	np := metrics.DiscardProvider{}
+	SetMetricsProvider(np)
+}
+
+type metrix struct {
+	histogram gkm.Histogram
+	rxCounter gkm.Counter
+	txCounter gkm.Counter
+}
+
+var counters metrix
+
+func SetMetricsProvider(p metrics.Provider) {
+	counters.histogram = p.NewHistogram("route", "service", "host", "path", "target")
+	counters.rxCounter = p.NewCounter("route.rx", "service", "host", "path", "target")
+	counters.txCounter = p.NewCounter("route.tx", "service", "host", "path", "target")
 }
 
 // GetTable returns the active routing table. The function
@@ -39,9 +55,6 @@ func GetTable() Table {
 	return table.Load().(Table)
 }
 
-// mu guards table and registry in SetTable.
-var mu sync.Mutex
-
 // SetTable sets the active routing table. A nil value
 // logs a warning and is ignored. The function is safe
 // to be called from multiple goroutines.
@@ -50,42 +63,7 @@ func SetTable(t Table) {
 		log.Print("[WARN] Ignoring nil routing table")
 		return
 	}
-	mu.Lock()
 	table.Store(t)
-	syncRegistry(t)
-	mu.Unlock()
-}
-
-// syncRegistry unregisters all inactive timers.
-// It assumes that all timers of the table have
-// already been registered.
-func syncRegistry(t Table) {
-	timers := map[string]bool{}
-
-	// get all registered timers
-	for _, name := range ServiceRegistry.Names() {
-		timers[name] = false
-	}
-
-	// mark the ones from this table as active.
-	// this can also add new entries but we do not
-	// really care since we are only interested in the
-	// inactive ones.
-	for _, routes := range t {
-		for _, r := range routes {
-			for _, tg := range r.Targets {
-				timers[tg.TimerName] = true
-			}
-		}
-	}
-
-	// unregister inactive timers
-	for name, active := range timers {
-		if !active {
-			ServiceRegistry.Unregister(name)
-			log.Printf("[INFO] Unregistered timer %s", name)
-		}
-	}
 }
 
 // Table contains a set of routes grouped by host.
