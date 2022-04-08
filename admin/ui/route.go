@@ -7,23 +7,26 @@ import (
 
 // RoutesHandler provides the UI for managing the routing table.
 type RoutesHandler struct {
-	Color, Title, Version string
+	Color   string
+	Title   string
+	Version string
 }
 
-func (h *RoutesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *RoutesHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	tmplRoutes.ExecuteTemplate(w, "routes", h)
 }
 
-var tmplRoutes = template.Must(template.New("routes").Parse(`
+var tmplRoutes = template.Must(template.New("routes").Parse( // language=HTML
+	`
 <!doctype html>
 <html lang="en">
 <head>
 	<meta charset="utf-8">
 	<title>fabio{{if .Title}} - {{.Title}}{{end}}</title>
-	<script type="text/javascript" src="/assets/code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="/assets/code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="/assets/fonts/material-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
-    <script src="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+    <link rel="stylesheet" href="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 	<style type="text/css">
@@ -64,19 +67,19 @@ var tmplRoutes = template.Must(template.New("routes").Parse(`
 	</div>
 
 	<div class="section footer">
-		<img class="logo" src="/assets/logo.svg">
+		<img alt="Fabio Logo" class="logo" src="/assets/logo.svg">
 	</div>
 
 </div>
 
 <script>
 $(function(){
-	var params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
+	let params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
 
 	function renderRoutes(routes) {
-		var $table = $('table.routes');
+		const $table = $('table.routes');
 
-		var thead = '<thead><tr>';
+		let thead = '<thead><tr>';
 		thead += '<th>#</th>';
 		thead += '<th>Service</th>';
 		thead += '<th>Source</th>';
@@ -85,12 +88,12 @@ $(function(){
 		thead += '<th>Weight</th>';
 		thead += '</tr></thead>';
 
-		var $tbody = $('<tbody />');
+		let $tbody = $('<tbody />');
 
-		for (var i=0; i < routes.length; i++) {
-			var r = routes[i];
+		for (let i=0; i < routes.length; i++) {
+			const r = routes[i];
 
-			var $tr = $('<tr />')
+			const $tr = $('<tr />')
 
 			$tr.append($('<td />').text(i+1));
 			$tr.append($('<td />').text(r.service));
@@ -107,21 +110,21 @@ $(function(){
 			append($tbody);
 	}
 
-	var $filter = $('#filter');
+	let $filter = $('#filter');
 	function doFilter(v) {
 		$("tr").show();
 		if (!v) return;
-		var words = v.split(' ');
-		for (var i=0; i < words.length; i++) {
-			var w = words[i].trim();
-			if (w == "") continue;
+		let words = v.split(' ');
+		for (let i=0; i < words.length; i++) {
+			let w = words[i].trim();
+			if (w === "") continue;
 			$("tbody tr:not(:contains('"+w+"'))").hide();
 		}
 	}
 
 	$filter.focus();
 	$filter.keyup(function() {
-		var v = $filter.val();
+		const v = $filter.val();
 		window.history.pushState(null, null, "?filter=" +v);
 		doFilter(v);
 	});
@@ -129,16 +132,16 @@ $(function(){
 	$.get("/api/routes", function(data) {
 		renderRoutes(data);
 		if (!params.filter) return;
-		var v = decodeURIComponent(params.filter);
+		const v = decodeURIComponent(params.filter);
 		$filter.val(v);
 		doFilter(v);
 	});
 
 	$.get('/api/paths', function(data) {
-		var d = $("#overrides");
+		const d = $("#overrides");
 		$.each(data, function(idx, val) {
-			var path = val;
-			if (val == "") {
+			let path = val;
+			if (val === "") {
 				val = "default"
 			}
 			d.append(
