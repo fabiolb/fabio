@@ -78,11 +78,6 @@ beta:
 $(BETA_OSES):
 	CGO_ENABLED=0 GOOS=$@ GOARCH=amd64 go build -trimpath -tags netgo $(GOFLAGS) -o fabio_$(CUR_TAG)_$@_amd64
 
-# linux builds a linux binary
-.PHONY: linux
-linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags netgo $(GOFLAGS)
-
 # install runs go install
 .PHONY: install
 install:
