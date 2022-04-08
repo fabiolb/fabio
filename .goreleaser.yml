@@ -17,9 +17,6 @@ builds:
       - arm64
     goarm:
       - 7
-    ignore:
-      - goos: darwin
-        goarch: arm64
 
 archives:
   - id: bin
