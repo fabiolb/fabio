@@ -250,7 +250,7 @@ The default is metrics.prometheus.buckets = .005,.01,.025,.05,.1,.25,.5,1,2.5,5,
       
       <guid>https://fabiolb.net/ref/metrics.prometheus.path/</guid>
       <description>metrics.prometheus.path configures the path to serve up metrics on any configured proxy.addr where proto=prometheus.
-Defaults to /metrics/</description>
+Defaults to /metrics</description>
     </item>
     
     <item>
