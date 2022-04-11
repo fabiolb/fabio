@@ -109,6 +109,12 @@ func NewTable(b *bytes.Buffer) (t Table, err error) {
 			return nil, err
 		}
 	}
+
+	// Sort the route table for each hostname
+	for _, h := range t {
+		sort.Sort(h)
+	}
+
 	return t, nil
 }
 
@@ -130,6 +136,12 @@ func NewTableCustom(defs *[]RouteDef) (t Table, err error) {
 			return nil, err
 		}
 	}
+
+	// Sort the route table for each hostname
+	for _, h := range t {
+		sort.Sort(h)
+	}
+
 	return t, nil
 }
 
@@ -171,7 +183,6 @@ func (t Table) addRoute(d *RouteDef) error {
 		r := &Route{Host: host, Path: path, Glob: g}
 		r.addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
 		t[host] = append(t[host], r)
-		sort.Sort(t[host])
 
 	// add new target to existing route
 	default:
