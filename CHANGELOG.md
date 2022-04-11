@@ -1,5 +1,40 @@
 ## Changelog
 
+### [v1.6.0](https://github.com/fabiolb/fabio/releases/tag/v1.5.15) - 11 April 2022
+
+#### Improvements
+
+* [PR #476](https://github.com/fabiolb/fabio/pull/476) - Metrics refactor (@magiconair @nathanejohnson)
+
+    This is a large change.  All previously supported metrics backends
+    are still supported, however this is a complete rewrite of the functionality
+    moving over to the gokit framework for implementations.  In addition
+    to all previously supported metrics backends (circonus, graphite, statsd),
+    prometheus support has been added, as well as dogstatsd, have been added,
+    with full tagging support.  Unfortunately some backwards compatibility
+    with graphana histograms does not work, due to the way gokit handles
+    these.  Statsd support has changed as well, but it was horribly broken
+    in that counters never reset like they were supposed to.  Overall, the
+    improvements should outweigh the negatives of backwards compatibility for
+    most people.
+
+* [PR #868](https://github.com/fabiolb/fabio/pull/868) - Updating go and alpine versions for Docker (@Netlims)
+* [PR #869](https://github.com/fabiolb/fabio/pull/869) - Updating golang.orgx/sys dependency version (@nathanejohnson)
+* [PR #866](https://github.com/fabiolb/fabio/pull/866) - Support for arm64 mac build (@nathanejohnson)
+* [PR #863](https://github.com/fabiolb/fabio/pull/863) - Add IdleConnTimeout configuration option for http transport 
+  (@aal89)
+* [PR #857](https://github.com/fabiolb/fabio/pull/857) - admin/ui updates (@dcarbone), updating UI dependencies and 
+  generation from Makefile
+
+#### Breaking Changes
+
+    As mentioned above, Graphite histograms have changed.
+
+#### Bug Fixes
+
+* [PR #867](https://github.com/fabiolb/fabio/pull/867) - Improve performance of building routing table (@ddreier)
+* [PR #864](https://github.com/fabiolb/fabio/pull/864) - Fix example commands in registry.consul.kvpath (@blake)
+
 ### [v1.5.15](https://github.com/fabiolb/fabio/releases/tag/v1.5.15) - 1 Dec 2020
 
 #### Bug Fixes
