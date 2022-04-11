@@ -21,15 +21,21 @@
 
 #### Notes
 
-1) From release 1.5.15 onward, fabio changes the default GOGC from 800 back to
+1) From release 1.6.0 onward, metrics backend statsd is no longer supported.  statsd_raw
+works similarly, though it actually resets counters appropriately.  If you are using datadog,
+you should consider using the new dogstatsd backend, which has support for tags now.  Graphite
+histogram functionality has changed slightly since switching to gokit framework, so something to be aware of.
+ Prometheus functionality is now supported natively.
+
+2) From release 1.5.15 onward, fabio changes the default GOGC from 800 back to
 the golang default of 100.  Apparently this made some sense back in the golang 1.5 days, but with
 changes introduced with golang 1.12 and others, this is probably no longer a very good default.
 This is still configurable, as always, but the new default should make the most sense for most users.
 
-2) From release 1.5.14, release hashes are signed with a new PGP key.
+3) From release 1.5.14, release hashes are signed with a new PGP key.
 See details [here](https://fabiolb.net/faq/verifying-releases/).
 
-3) From release 1.5.14 onward, fabio binary releases are compiled with golang 1.15+.  
+4) From release 1.5.14 onward, fabio binary releases are compiled with golang 1.15+.  
 This means that the fabio will no longer validate upstream https certificates that do 
 not have SAN extensions matching the server name.  This may be a concern if fabio is 
 communicating with https backends with misconfigured certificates.  If this is a problem,
