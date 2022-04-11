@@ -24,6 +24,8 @@ The supported protocols are:
 * `tcp+sni` for an SNI aware TCP proxy
 * `tcp-dynamic` for a consul driven TCP proxy
 * `https+tcp+sni` for an SNI aware TCP proxy with https fallthrough
+* `prometheus` for a prometheus metrics endpoint.  Used in conjunction with [metrics.target](/ref/metrics.target/)
+  =prometheus
 
 If no `proto` option is specified then the protocol
 is either `http` or `https` depending on whether a

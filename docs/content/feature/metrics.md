@@ -11,6 +11,19 @@ to avoid computing large amounts of metrics. The metrics can be send to
 options in the [fabio.properties](https://github.com/eBay/fabio/blob/master/fabio.properties)
 file.
 
+### Configuring Prometheus Metrics
+
+To configure prometheus metrics, you need two do the following:
+
+1) You must specify that prometheus is the [metrics.target](/ref/metrics.target/)
+2) You must configure a listener with [proxy.addr](/ref/proxy.addr/) with `proto=prometheus`
+3) (optional) override the 
+[metrics.prometheus.path](/ref/metrics.prometheus.path/),
+[metrics.prometheus.subsystem](/ref/metrics.prometheus.subsystem/),
+and [metrics.prometheus.buckets](/ref/metrics.prometheus.buckets/). 
+
+### Metrics info (for non-tagged backends, such as circonus and statsd_raw)
+
 Fabio reports the following metrics:
 
 Name                        | Type     | Description
@@ -59,4 +72,5 @@ A gauge provides a current value.
 `{route}` is a shorthand for the metrics name generated for a route
 with the `metrics.names` template defined in
 [fabio.properties](https://github.com/fabiolb/fabio/blob/master/fabio.properties)
+
 
