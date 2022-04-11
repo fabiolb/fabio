@@ -78,10 +78,11 @@ It supports ([Full feature list](https://fabiolb.net/feature/))
 * [SSE](https://fabiolb.net/feature/sse/)
 * [Dynamic reloading without restart](https://fabiolb.net/feature/dynamic-reloading/)
 * [Traffic shaping](https://fabiolb.net/feature/traffic-shaping/) for "blue/green" deployments,
-* [Prometheus](https://fabiolb.net/features/metrics/),
+* [Prometheus](https://fabiolb.net/feature/metrics/),
 * [Circonus](https://fabiolb.net/feature/metrics/),
-* [Graphite](https://fabiolb.net/feature/metrics/) and
-* [StatsD/DataDog](https://fabiolb.net/feature/metrics/) metrics
+* [Graphite](https://fabiolb.net/feature/metrics/),
+* [StatsD](https://fabiolb.net/feature/metrics/) and
+* [DataDog](https://fabiolb.net/feature/metrics/) metrics
 * [WebUI](https://fabiolb.net/feature/web-ui/)
 
 [Watch](https://www.youtube.com/watch?v=gf43TcWjBrE&list=PL81sUbsFNc5b-Gd59Lpz7BW0eHJBt0GvE&index=1)
