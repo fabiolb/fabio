@@ -356,8 +356,9 @@ log.routes.format = delta  </description>
       
       <guid>https://fabiolb.net/feature/metrics/</guid>
       <description>fabio collects metrics per route and service instance as well as running totals to avoid computing large amounts of metrics. The metrics can be send to Circonus, Graphite, StatsD, DataDog (via statsd - or since v1.6.0 to native protocol with tag support) or stdout. See the metrics.* options in the fabio.properties file.
-Fabio reports the following metrics:
-   Name Type Description     {route}.rx timer Number of bytes received by fabio for TCP target   {route}.</description>
+##Prometheus Metrics
+To configure prometheus metrics, you need two do the following:
+ You must specify that prometheus is the metrics.</description>
     </item>
     
     <item>
@@ -488,6 +489,36 @@ Each metric has a unique name which is hard-coded to
 prefix.service.host.path.target-addr  The value is expanded by the text/template package and provides the following variables:
  Hostname: the Hostname of the server Exec: the executable name of application  The following additional functions are defined:
  clean: lowercase value and replace . and : with _  Template may include regular string parts to customize final prefix</description>
+    </item>
+    
+    <item>
+      <title>metrics.prometheus.buckets</title>
+      <link>https://fabiolb.net/ref/metrics.prometheus.buckets/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.prometheus.buckets/</guid>
+      <description>metrics.prometheus.buckets configures the time buckets for use with histograms, measured in seconds. for instance, .005 is equivalent to 5ms. There is an implied &amp;ldquo;infinity&amp;rdquo; bucket tacked on at the end.
+The default is metrics.prometheus.buckets = .005,.01,.025,.05,.1,.25,.5,1,2.5,5,10</description>
+    </item>
+    
+    <item>
+      <title>metrics.prometheus.path</title>
+      <link>https://fabiolb.net/ref/metrics.prometheus.path/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.prometheus.path/</guid>
+      <description>metrics.prometheus.path configures the path to serve up metrics on any configured proxy.addr where proto=prometheus.
+Defaults to /metrics/</description>
+    </item>
+    
+    <item>
+      <title>metrics.prometheus.subsystem</title>
+      <link>https://fabiolb.net/ref/metrics.prometheus.subsystem/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.prometheus.subsystem/</guid>
+      <description>metrics.prometheus.subsystem configures the subsystem name when reporting metrics. This is basically appended to the prefix for metric names.
+See https://prometheus.io/docs/practices/instrumentation/#subsystems for more information.</description>
     </item>
     
     <item>

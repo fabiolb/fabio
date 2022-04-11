@@ -213,6 +213,18 @@
   </url>
   
   <url>
+    <loc>https://fabiolb.net/ref/metrics.prometheus.buckets/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.prometheus.path/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.prometheus.subsystem/</loc>
+  </url>
+  
+  <url>
     <loc>https://fabiolb.net/ref/metrics.retry/</loc>
   </url>
   

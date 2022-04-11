@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
 
-    <title>metrics.names</title>
+    <title>metrics.prometheus.path</title>
 
     
     <link href="/css/theDocs.all.min.css" rel="stylesheet">
@@ -142,13 +142,13 @@
       
         <li><a href="https://fabiolb.net/ref/metrics.interval/">metrics.interval</a></li>
       
-        <li><a class="active" href="https://fabiolb.net/ref/metrics.names/">metrics.names</a></li>
+        <li><a href="https://fabiolb.net/ref/metrics.names/">metrics.names</a></li>
       
         <li><a href="https://fabiolb.net/ref/metrics.prefix/">metrics.prefix</a></li>
       
         <li><a href="https://fabiolb.net/ref/metrics.prometheus.buckets/">metrics.prometheus.buckets</a></li>
       
-        <li><a href="https://fabiolb.net/ref/metrics.prometheus.path/">metrics.prometheus.path</a></li>
+        <li><a class="active" href="https://fabiolb.net/ref/metrics.prometheus.path/">metrics.prometheus.path</a></li>
       
         <li><a href="https://fabiolb.net/ref/metrics.prometheus.subsystem/">metrics.prometheus.subsystem</a></li>
       
@@ -314,37 +314,10 @@
 
       
       <section>
-        <h2>metrics.names</h2>
-        <p><code>metrics.names</code> configures the template for the route metric names
-on backends that don&rsquo;t support tags.  This is used in circonus,
-graphite and statsd_raw.  dogstatsd and prometheus ignore this.
-The value is expanded by the <a href="https://golang.org/pkg/text/template">text/template</a> package and provides
-the following variables:</p>
-<ul>
-<li><code>Service</code>:   the service name</li>
-<li><code>Host</code>:      the host part of the URL prefix</li>
-<li><code>Path</code>:      the path part of the URL prefix</li>
-<li><code>TargetURL</code>: the URL of the target</li>
-</ul>
-<p>The following additional functions are defined:</p>
-<ul>
-<li><code>clean</code>:     lowercase value and replace <code>.</code> and <code>:</code> with <code>_</code></li>
-</ul>
-<p>Given a route rule of</p>
-<pre><code>route add testservice www.example.com/ http://10.1.2.3:12345/
-</code></pre>
-<p>the template variables are:</p>
-<pre><code>.Service = testservice
-.Host = www.example.com
-.Path  = /
-.TargetURL.Host = 10.1.2.3:12345
-</code></pre>
-<p>which results to the following metric name when using the default template:</p>
-<pre><code>testservice.www_example_com./.10_1_2_3_12345
-</code></pre>
-<p>The default is</p>
-<pre><code>metrics.names = {{clean .Service}}.{{clean .Host}}.{{clean .Path}}.{{clean .TargetURL.Host}}
-</code></pre>
+        <h2>metrics.prometheus.path</h2>
+        <p><code>metrics.prometheus.path</code> configures the path to serve up metrics on any configured
+<a href="/ref/proxy.addr/">proxy.addr</a> where <code>proto=prometheus</code>.</p>
+<p>Defaults to <code>/metrics/</code></p>
 
         
       </section>

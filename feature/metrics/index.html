@@ -204,6 +204,16 @@ to avoid computing large amounts of metrics. The metrics can be send to
 (via statsd - or since v1.6.0 to native protocol with tag support) or stdout. See the <code>metrics.*</code>
 options in the <a href="https://github.com/eBay/fabio/blob/master/fabio.properties">fabio.properties</a>
 file.</p>
+<p>##Prometheus Metrics</p>
+<p>To configure prometheus metrics, you need two do the following:</p>
+<ol>
+<li>You must specify that prometheus is the <a href="/ref/metrics.target/">metrics.target</a></li>
+<li>You must configure a listener with <a href="/refs/proxy.addr/">proxy.addr</a> with <code>proto=prometheus</code></li>
+<li>(optional) specify the
+<a href="/refs/metrics.prometheus.path/">metrics.prometheus.path</a>,
+<a href="metrics.prometheus.subsystem">metrics.prometheus.subsystem</a>,
+and <a href="/refs/metrics.prometheus.buckets/">metrics.prometheus.buckets</a>.</li>
+</ol>
 <p>Fabio reports the following metrics:</p>
 <table>
 <thead>
@@ -337,7 +347,7 @@ with the <code>metrics.names</code> template defined in
                 Copyright &copy; 2020-2022 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 11 Apr 2022 17:06
+                Last updated on 11 Apr 2022 18:25
             </p>
           </div>
           <div class="col-md-6 col-sm-6">

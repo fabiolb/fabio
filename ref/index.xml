@@ -234,6 +234,36 @@ prefix.service.host.path.target-addr  The value is expanded by the text/template
     </item>
     
     <item>
+      <title>metrics.prometheus.buckets</title>
+      <link>https://fabiolb.net/ref/metrics.prometheus.buckets/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.prometheus.buckets/</guid>
+      <description>metrics.prometheus.buckets configures the time buckets for use with histograms, measured in seconds. for instance, .005 is equivalent to 5ms. There is an implied &amp;ldquo;infinity&amp;rdquo; bucket tacked on at the end.
+The default is metrics.prometheus.buckets = .005,.01,.025,.05,.1,.25,.5,1,2.5,5,10</description>
+    </item>
+    
+    <item>
+      <title>metrics.prometheus.path</title>
+      <link>https://fabiolb.net/ref/metrics.prometheus.path/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.prometheus.path/</guid>
+      <description>metrics.prometheus.path configures the path to serve up metrics on any configured proxy.addr where proto=prometheus.
+Defaults to /metrics/</description>
+    </item>
+    
+    <item>
+      <title>metrics.prometheus.subsystem</title>
+      <link>https://fabiolb.net/ref/metrics.prometheus.subsystem/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.prometheus.subsystem/</guid>
+      <description>metrics.prometheus.subsystem configures the subsystem name when reporting metrics. This is basically appended to the prefix for metric names.
+See https://prometheus.io/docs/practices/instrumentation/#subsystems for more information.</description>
+    </item>
+    
+    <item>
       <title>metrics.retry</title>
       <link>https://fabiolb.net/ref/metrics.retry/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
