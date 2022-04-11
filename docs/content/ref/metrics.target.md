@@ -16,7 +16,7 @@ Possible values are:
   likely wrong or people using this were doing some workarounds they'll need to remove anyway.
 * `circonus`: report metrics to Circonus (https://circonus.com/)
 * `prometheus`: use prometheus metrics. (https://prometheus.io)  Must be used in conjuction with a prometheus 
-  listener in [proxy.addr](/ref/proxy.addr/])
+  listener in [proxy.addr](/ref/proxy.addr/)
 * `dogstatsd`: use with datadog dogstatsd (https://www.datadoghq.com/)
 
 The default is
