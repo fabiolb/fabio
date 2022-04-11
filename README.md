@@ -69,12 +69,13 @@ It supports ([Full feature list](https://fabiolb.net/feature/))
 * [TCP dynamic proxy](https://fabiolb.net/feature/tcp-dynamic-proxy/)
 * [HTTPS upstream support](https://fabiolb.net/feature/https-upstream/)
 * [Websockets](https://fabiolb.net/feature/websockets/) and
-  [SSE](https://fabiolb.net/feature/sse/)
+* [SSE](https://fabiolb.net/feature/sse/)
 * [Dynamic reloading without restart](https://fabiolb.net/feature/dynamic-reloading/)
 * [Traffic shaping](https://fabiolb.net/feature/traffic-shaping/) for "blue/green" deployments,
+* [Prometheus](https://fabiolb.net/features/metrics/),
 * [Circonus](https://fabiolb.net/feature/metrics/),
-  [Graphite](https://fabiolb.net/feature/metrics/) and
-  [StatsD/DataDog](https://fabiolb.net/feature/metrics/) metrics
+* [Graphite](https://fabiolb.net/feature/metrics/) and
+* [StatsD/DataDog](https://fabiolb.net/feature/metrics/) metrics
 * [WebUI](https://fabiolb.net/feature/web-ui/)
 
 [Watch](https://www.youtube.com/watch?v=gf43TcWjBrE&list=PL81sUbsFNc5b-Gd59Lpz7BW0eHJBt0GvE&index=1)

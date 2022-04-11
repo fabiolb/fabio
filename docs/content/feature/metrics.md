@@ -1,14 +1,14 @@
 ---
 title: "Metrics"
-since: "1.0.0 (Graphite), 1.2.1 (StatsD, DataDog, Circonus)"
+since: "1.0.0 (Graphite), 1.2.1 (StatsD, DataDog, Circonus), 1.6.0 (Prometheus)"
 ---
 
 fabio collects metrics per route and service instance as well as running totals
 to avoid computing large amounts of metrics. The metrics can be send to
 [Circonus](http://www.circonus.com), [Graphite](https://graphiteapp.org),
 [StatsD](https://github.com/etsy/statsd), [DataDog](https://www.datadoghq.com)
-(via statsd) or stdout. See the `metrics.*` options in the
-[fabio.properties](https://github.com/eBay/fabio/blob/master/fabio.properties)
+(via statsd - or since v1.6.0 to native protocol with tag support) or stdout. See the `metrics.*`
+options in the [fabio.properties](https://github.com/eBay/fabio/blob/master/fabio.properties)
 file.
 
 Fabio reports the following metrics:
