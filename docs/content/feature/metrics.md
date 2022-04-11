@@ -17,7 +17,7 @@ Instead of pushing data to a metrics, prometheus expects to poll and endpoint fo
 To configure prometheus metrics, you need two do the following:
 
 1) You must specify that prometheus is the [metrics.target](/ref/metrics.target/)
-2) You must configure a listener with [proxy.addr](/ref/proxy.addr/) with `proto=prometheus`
+2) You must configure a listener in [proxy.addr](/ref/proxy.addr/) with `proto=prometheus`
 3) (optional) override the 
 [metrics.prometheus.path](/ref/metrics.prometheus.path/),
 [metrics.prometheus.subsystem](/ref/metrics.prometheus.subsystem/),
