@@ -62,6 +62,8 @@ func Initialize(cfg *config.Metrics) (Provider, error) {
 				return nil, err
 			}
 			p = append(p, pp)
+		case "":
+			// metrics are disabled.
 		default:
 			return nil, fmt.Errorf("invalid metrics backend %s", x)
 		}
