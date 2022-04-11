@@ -355,7 +355,7 @@ log.routes.format = delta  </description>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://fabiolb.net/feature/metrics/</guid>
-      <description>Fabio collects metrics per route and service instance as well as running totals to avoid computing large amounts of metrics. The metrics can be sent to Circonus, Graphite, StatsD, DataDog (via statsd - or since v1.6.0 to native protocol with tag support) or stdout. See the metrics.* options in the fabio.properties file. Prometheus is also possible but it works the reverse of the other metrics platforms. Instead of pushing data to a metrics, prometheus expects to poll and endpoint for changes.</description>
+      <description>Fabio collects metrics per route and service instance as well as running totals to avoid computing large amounts of metrics. The metrics can be sent to Circonus, Graphite, StatsD, DataDog (via statsd - or since v1.6.0 to native protocol with tag support) or stdout. See the metrics.* options in the fabio.properties file. Prometheus is also possible, but it works the reverse of the other metrics platforms. Instead of pushing data to a metrics server, prometheus expects to poll an endpoint for changes.</description>
     </item>
     
     <item>
