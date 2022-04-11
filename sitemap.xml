@@ -63,6 +63,11 @@
   </url>
   
   <url>
+    <loc>https://fabiolb.net/ref/proxy.idleconntimeout/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>https://fabiolb.net/ref/proxy.keepalivetimeout/</loc>
     <priority>0</priority>
   </url>
@@ -185,6 +190,10 @@
   
   <url>
     <loc>https://fabiolb.net/ref/metrics.circonus.submissionurl/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fabiolb.net/ref/metrics.dogstatsd.addr/</loc>
   </url>
   
   <url>

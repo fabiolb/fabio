@@ -108,6 +108,8 @@
       
       <ul class="open">
       
+        <li><a href="https://fabiolb.net/ref/proxy.idleconntimeout/"></a></li>
+      
         <li><a href="https://fabiolb.net/ref/proxy.keepalivetimeout/"></a></li>
       
         <li><a href="https://fabiolb.net/ref/glob.cache.size/">glob.cache.size</a></li>
@@ -133,6 +135,8 @@
         <li><a href="https://fabiolb.net/ref/metrics.circonus.checkid/">metrics.circonus.checkid</a></li>
       
         <li><a href="https://fabiolb.net/ref/metrics.circonus.submissionurl/">metrics.circonus.submissionurl</a></li>
+      
+        <li><a href="https://fabiolb.net/ref/metrics.dogstatsd.addr/">metrics.dogstatsd.addr</a></li>
       
         <li><a href="https://fabiolb.net/ref/metrics.graphite.addr/">metrics.graphite.addr</a></li>
       
@@ -311,12 +315,20 @@
 <li><code>&lt;empty&gt;</code>:  do not report metrics</li>
 <li><code>stdout</code>:   report metrics to stdout</li>
 <li><code>graphite</code>: report metrics to Graphite on <a href="/ref/metrics.graphite.addr/">metrics.graphite.addr</a></li>
-<li><code>statsd</code>: report metrics to StatsD on <a href="/ref/metrics.statsd.addr/">metrics.statsd.addr</a></li>
-<li><code>circonus</code>: report metrics to Circonus (<a href="http://circonus.com/">http://circonus.com/</a>)</li>
+<li><code>statsd</code>: legacy statsd support, used in v1.5.5 and lower - removed in v1.6</li>
+<li><code>statsd_raw</code>: report metrics to StatsD on <a href="/ref/metrics.statsd.addr/">metrics.statsd.addr</a> - this was
+intentionally renamed because anyone upgrading to 1.6 will need to revisit their configuration anyway due to
+rewrite of this backend.  It was quite broken before, the counters never reset, it did not follow the spec so the info was
+likely wrong or people using this were doing some workarounds they&rsquo;ll need to remove anyway.</li>
+<li><code>circonus</code>: report metrics to Circonus (<a href="https://circonus.com/">https://circonus.com/</a>)</li>
+<li><code>prometheus</code>: use prometheus metrics. (<a href="https://prometheus.io">https://prometheus.io</a>)  Must be used in conjuction with a prometheus
+listener in <a href="/ref/proxy.addr/%5D">proxy.addr</a></li>
+<li><code>dogstatsd</code>: use with datadog dogstatsd (<a href="https://www.datadoghq.com/">https://www.datadoghq.com/</a>)</li>
 </ul>
 <p>The default is</p>
 <pre><code>metrics.target =
 </code></pre>
+<p>Multiple metrics targets can be defined separated by comma.</p>
 
         
       </section>
@@ -338,7 +350,7 @@
                 Copyright &copy; 2020-2022 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 11 Apr 2022 16:37
+                Last updated on 11 Apr 2022 17:06
             </p>
           </div>
           <div class="col-md-6 col-sm-6">

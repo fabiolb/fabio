@@ -12,6 +12,17 @@
     
     <item>
       <title></title>
+      <link>https://fabiolb.net/ref/proxy.idleconntimeout/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.idleconntimeout/</guid>
+      <description>proxy.idleconntimeout configures idle connection timeout, which influences when to close keep-alive connections.
+The default is
+proxy.idleconntimeout = 15s  </description>
+    </item>
+    
+    <item>
+      <title></title>
       <link>https://fabiolb.net/ref/proxy.keepalivetimeout/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
@@ -165,6 +176,18 @@ metrics.circonus.submissionurl =  </description>
     </item>
     
     <item>
+      <title>metrics.dogstatsd.addr</title>
+      <link>https://fabiolb.net/ref/metrics.dogstatsd.addr/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/metrics.dogstatsd.addr/</guid>
+      <description>metrics.dogstatsd.addr configures the host:port of the dogstatsd server.
+This is required when metrics.target is set to dogstatsd.
+The default is
+metrics.statsd.addr =  </description>
+    </item>
+    
+    <item>
       <title>metrics.graphite.addr</title>
       <link>https://fabiolb.net/ref/metrics.graphite.addr/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -193,9 +216,8 @@ metrics.interval = 30s  </description>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://fabiolb.net/ref/metrics.names/</guid>
-      <description>metrics.names configures the template for the route metric names. The value is expanded by the text/template package and provides the following variables:
- Service: the service name Host: the host part of the URL prefix Path: the path part of the URL prefix TargetURL: the URL of the target  The following additional functions are defined:
- clean: lowercase value and replace . and : with _  Given a route rule of</description>
+      <description>metrics.names configures the template for the route metric names on backends that don&amp;rsquo;t support tags. This is used in circonus, graphite and statsd_raw. dogstatsd and prometheus ignore this. The value is expanded by the text/template package and provides the following variables:
+ Service: the service name Host: the host part of the URL prefix Path: the path part of the URL prefix TargetURL: the URL of the target  The following additional functions are defined:</description>
     </item>
     
     <item>
@@ -229,7 +251,7 @@ metrics.retry = 500ms  </description>
       
       <guid>https://fabiolb.net/ref/metrics.statsd.addr/</guid>
       <description>metrics.statsd.addr configures the host:port of the StatsD server.
-This is required when metrics.target is set to statsd.
+This is required when metrics.target is set to statsd_raw.
 The default is
 metrics.statsd.addr =  </description>
     </item>
@@ -242,8 +264,7 @@ metrics.statsd.addr =  </description>
       <guid>https://fabiolb.net/ref/metrics.target/</guid>
       <description>metrics.target configures the backend the metrics values are sent to.
 Possible values are:
- &amp;lt;empty&amp;gt;: do not report metrics stdout: report metrics to stdout graphite: report metrics to Graphite on metrics.graphite.addr statsd: report metrics to StatsD on metrics.statsd.addr circonus: report metrics to Circonus (http://circonus.com/)  The default is
-metrics.target =  </description>
+ &amp;lt;empty&amp;gt;: do not report metrics stdout: report metrics to stdout graphite: report metrics to Graphite on metrics.graphite.addr statsd: legacy statsd support, used in v1.5.5 and lower - removed in v1.6 statsd_raw: report metrics to StatsD on metrics.statsd.addr - this was intentionally renamed because anyone upgrading to 1.6 will need to revisit their configuration anyway due to rewrite of this backend.</description>
     </item>
     
     <item>
@@ -267,7 +288,7 @@ metrics.timeout = 10s  </description>
 Each listener is configured with and address and a list of optional arguments in the form of
 [host]:port;opt=arg;opt[=arg];...  Each listener has a protocol which is configured with the proto option for which it routes and forwards traffic.
 The supported protocols are:
- http for HTTP based protocols https for HTTPS based protocols grpc for GRPC based protocols grpcs for GRPC+TLS based protocols tcp for a raw TCP proxy with or witout TLS support tcp+sni for an SNI aware TCP proxy tcp-dynamic for a consul driven TCP proxy https+tcp+sni for an SNI aware TCP proxy with https fallthrough  If no proto option is specified then the protocol is either http or https depending on whether a certificate source is configured via the cs option which contains the name of the certificate source.</description>
+ http for HTTP based protocols https for HTTPS based protocols grpc for GRPC based protocols grpcs for GRPC+TLS based protocols tcp for a raw TCP proxy with or witout TLS support tcp+sni for an SNI aware TCP proxy tcp-dynamic for a consul driven TCP proxy https+tcp+sni for an SNI aware TCP proxy with https fallthrough prometheus for a prometheus metrics endpoint.</description>
     </item>
     
     <item>

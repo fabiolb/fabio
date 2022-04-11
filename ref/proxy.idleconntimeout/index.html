@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
 
-    <title>metrics.timeout</title>
+    <title></title>
 
     
     <link href="/css/theDocs.all.min.css" rel="stylesheet">
@@ -108,7 +108,7 @@
       
       <ul class="open">
       
-        <li><a href="https://fabiolb.net/ref/proxy.idleconntimeout/"></a></li>
+        <li><a class="active" href="https://fabiolb.net/ref/proxy.idleconntimeout/"></a></li>
       
         <li><a href="https://fabiolb.net/ref/proxy.keepalivetimeout/"></a></li>
       
@@ -152,7 +152,7 @@
       
         <li><a href="https://fabiolb.net/ref/metrics.target/">metrics.target</a></li>
       
-        <li><a class="active" href="https://fabiolb.net/ref/metrics.timeout/">metrics.timeout</a></li>
+        <li><a href="https://fabiolb.net/ref/metrics.timeout/">metrics.timeout</a></li>
       
         <li><a href="https://fabiolb.net/ref/proxy.addr/">proxy.addr</a></li>
       
@@ -308,11 +308,11 @@
 
       
       <section>
-        <h2>metrics.timeout</h2>
-        <p><code>metrics.timeout</code> configures how long fabio tries to connect to the metrics
-backend during startup.</p>
+        <h2></h2>
+        <p><code>proxy.idleconntimeout</code> configures idle connection timeout, which influences
+when to close keep-alive connections.</p>
 <p>The default is</p>
-<pre><code>metrics.timeout = 10s
+<pre><code>proxy.idleconntimeout     = 15s
 </code></pre>
 
         

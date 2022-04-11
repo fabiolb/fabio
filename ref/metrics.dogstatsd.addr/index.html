@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
 
-    <title>metrics.timeout</title>
+    <title>metrics.dogstatsd.addr</title>
 
     
     <link href="/css/theDocs.all.min.css" rel="stylesheet">
@@ -136,7 +136,7 @@
       
         <li><a href="https://fabiolb.net/ref/metrics.circonus.submissionurl/">metrics.circonus.submissionurl</a></li>
       
-        <li><a href="https://fabiolb.net/ref/metrics.dogstatsd.addr/">metrics.dogstatsd.addr</a></li>
+        <li><a class="active" href="https://fabiolb.net/ref/metrics.dogstatsd.addr/">metrics.dogstatsd.addr</a></li>
       
         <li><a href="https://fabiolb.net/ref/metrics.graphite.addr/">metrics.graphite.addr</a></li>
       
@@ -152,7 +152,7 @@
       
         <li><a href="https://fabiolb.net/ref/metrics.target/">metrics.target</a></li>
       
-        <li><a class="active" href="https://fabiolb.net/ref/metrics.timeout/">metrics.timeout</a></li>
+        <li><a href="https://fabiolb.net/ref/metrics.timeout/">metrics.timeout</a></li>
       
         <li><a href="https://fabiolb.net/ref/proxy.addr/">proxy.addr</a></li>
       
@@ -308,11 +308,12 @@
 
       
       <section>
-        <h2>metrics.timeout</h2>
-        <p><code>metrics.timeout</code> configures how long fabio tries to connect to the metrics
-backend during startup.</p>
+        <h2>metrics.dogstatsd.addr</h2>
+        <p><code>metrics.dogstatsd.addr</code> configures the host:port of the dogstatsd
+server.</p>
+<p>This is required when <a href="/ref/metrics.target/">metrics.target</a> is set to <code>dogstatsd</code>.</p>
 <p>The default is</p>
-<pre><code>metrics.timeout = 10s
+<pre><code>metrics.statsd.addr =
 </code></pre>
 
         
