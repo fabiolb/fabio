@@ -8,6 +8,7 @@ ARG vault_version=1.5.0
 ADD https://releases.hashicorp.com/vault/${vault_version}/vault_${vault_version}_linux_amd64.zip /usr/local/bin
 RUN cd /usr/local/bin && unzip vault_${vault_version}_linux_amd64.zip
 
+RUN apk update && apk add --no-cache git
 WORKDIR /src
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go test -mod=vendor -trimpath -ldflags "-s -w" ./...
