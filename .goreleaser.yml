@@ -27,12 +27,10 @@ checksum:
   name_template: '{{.ProjectName}}-{{.Version}}.sha256'
 
 signs:
-  -
-    artifacts: checksum
+  - artifacts: checksum
 
 dockers:
-  -
-    dockerfile: Dockerfile-goreleaser
+  - dockerfile: Dockerfile-goreleaser
     image_templates:
       - 'fabiolb/fabio:latest'
       - 'fabiolb/fabio:{{ .Version }}'
