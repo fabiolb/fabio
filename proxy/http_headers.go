@@ -125,10 +125,10 @@ func addHeaders(r *http.Request, cfg config.Proxy, stripPath string) error {
 }
 
 var tlsver = map[uint16]string{
-	tls.VersionSSL30: "ssl30",
 	tls.VersionTLS10: "tls10",
 	tls.VersionTLS11: "tls11",
 	tls.VersionTLS12: "tls12",
+	tls.VersionTLS13: "tls13",
 }
 
 var digit16 = []byte("0123456789abcdef")

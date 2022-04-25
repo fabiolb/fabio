@@ -490,35 +490,20 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 }
 
 var tlsver = map[string]uint16{
-	"ssl30": tls.VersionSSL30,
 	"tls10": tls.VersionTLS10,
 	"tls11": tls.VersionTLS11,
 	"tls12": tls.VersionTLS12,
+	"tls13": tls.VersionTLS13,
 }
 
-var tlsciphers = map[string]uint16{
-	"TLS_RSA_WITH_RC4_128_SHA":                0x0005,
-	"TLS_RSA_WITH_3DES_EDE_CBC_SHA":           0x000a,
-	"TLS_RSA_WITH_AES_128_CBC_SHA":            0x002f,
-	"TLS_RSA_WITH_AES_256_CBC_SHA":            0x0035,
-	"TLS_RSA_WITH_AES_128_CBC_SHA256":         0x003c,
-	"TLS_RSA_WITH_AES_128_GCM_SHA256":         0x009c,
-	"TLS_RSA_WITH_AES_256_GCM_SHA384":         0x009d,
-	"TLS_ECDHE_ECDSA_WITH_RC4_128_SHA":        0xc007,
-	"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA":    0xc009,
-	"TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA":    0xc00a,
-	"TLS_ECDHE_RSA_WITH_RC4_128_SHA":          0xc011,
-	"TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA":     0xc012,
-	"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA":      0xc013,
-	"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA":      0xc014,
-	"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256": 0xc023,
-	"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256":   0xc027,
-	"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256":   0xc02f,
-	"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256": 0xc02b,
-	"TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384":   0xc030,
-	"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384": 0xc02c,
-	"TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305":    0xcca8,
-	"TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305":  0xcca9,
+var tlsciphers map[string]uint16
+
+func init() {
+	// build cipher map by what is provided by the tls package
+	tlsciphers = make(map[string]uint16)
+	for _, s := range tls.CipherSuites() {
+		tlsciphers[s.Name] = s.ID
+	}
 }
 
 func parseTLSVersion(s string) (uint16, error) {
