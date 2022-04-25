@@ -14,6 +14,23 @@ import (
 	"unicode"
 )
 
+const (
+	// NOTE: max tags and metric name len are enforced here so that
+	// details on which metric(s) can be logged. Otherwise, any
+	// metric(s) exceeding the limits are rejected by the broker
+	// without details on exactly which metric(s) caused the error.
+	// All metrics sent with the offending metric(s) are also rejected.
+
+	MaxTagLen = 256 // sync w/NOIT_TAG_MAX_PAIR_LEN https://github.com/circonus-labs/reconnoiter/blob/master/src/noit_metric.h#L102
+	MaxTagCat = 254 // sync w/NOIT_TAG_MAX_CAT_LEN https://github.com/circonus-labs/reconnoiter/blob/master/src/noit_metric.h#L104
+
+	// MaxTags reconnoiter will accept in stream tagged metric name
+	MaxTags = 256 // sync w/MAX_TAGS https://github.com/circonus-labs/reconnoiter/blob/master/src/noit_metric.h#L46
+
+	// MaxMetricNameLen reconnoiter will accept (name+stream tags)
+	MaxMetricNameLen = 4096 // sync w/MAX_METRIC_TAGGED_NAME https://github.com/circonus-labs/reconnoiter/blob/master/src/noit_metric.h#L45
+)
+
 // Tag defines an individual tag
 type Tag struct {
 	Category string
@@ -96,7 +113,7 @@ func (m *CirconusMetrics) EncodeMetricStreamTags(metricName string, tags Tags) s
 // EncodeMetricTags encodes Tags into an array of strings. The format
 // check_bundle.metircs.metric.tags needs. This helper is intended to work
 // with legacy check bundle metrics. Tags directly on named metrics are being
-// deprecated in favor of stream tags.
+// removed in favor of stream tags.
 func (m *CirconusMetrics) EncodeMetricTags(metricName string, tags Tags) []string {
 	if len(tags) == 0 {
 		return []string{}
@@ -110,17 +127,31 @@ func (m *CirconusMetrics) EncodeMetricTags(metricName string, tags Tags) []strin
 			m.Log.Printf("%s has invalid tag (%#v)", metricName, t)
 			continue
 		}
+		if len(tc) > MaxTagCat {
+			m.Log.Printf("%s has tag cat (%s) >= max len (%d)", metricName, tc, MaxTagCat)
+			continue
+		}
 		tag := tc + ":"
 		if tv != "" {
 			tag += tv
 		}
+		if len(tag) >= MaxTagLen {
+			m.Log.Printf("%s has tag (%s) >= max len (%d)", metricName, tag, MaxTagLen)
+			continue
+		}
 		uniqueTags[tag] = true
 	}
-	tagList := make([]string, len(uniqueTags))
+	if len(uniqueTags) >= MaxTags {
+		m.Log.Printf("%s has more tags (%d) >= max tags (%d) - dropping excess tags", metricName, len(uniqueTags), MaxTags)
+	}
+	tagList := make([]string, 0, len(uniqueTags))
 	idx := 0
-	for t := range uniqueTags {
-		tagList[idx] = t
+	for tag := range uniqueTags {
+		tagList = append(tagList, tag)
 		idx++
+		if idx >= MaxTags {
+			break
+		}
 	}
 	sort.Strings(tagList)
 	return tagList

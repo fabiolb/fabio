@@ -18,9 +18,9 @@ import (
 
 // Counter is an in-memory implementation of a Counter.
 type Counter struct {
+	bits uint64 // bits has to be the first word in order to be 64-aligned on 32-bit
 	Name string
 	lvs  lv.LabelValues
-	bits uint64
 }
 
 // NewCounter returns a new, usable Counter.
@@ -81,9 +81,9 @@ func (c *Counter) LabelValues() []string {
 
 // Gauge is an in-memory implementation of a Gauge.
 type Gauge struct {
+	bits uint64 // bits has to be the first word in order to be 64-aligned on 32-bit
 	Name string
 	lvs  lv.LabelValues
-	bits uint64
 }
 
 // NewGauge returns a new, usable Gauge.
@@ -182,7 +182,7 @@ func (h *Histogram) LabelValues() []string {
 func (h *Histogram) Print(w io.Writer) {
 	h.h.RLock()
 	defer h.h.RUnlock()
-	fmt.Fprintf(w, h.h.String())
+	fmt.Fprint(w, h.h.String())
 }
 
 // safeHistogram exists as gohistogram.Histogram is not goroutine-safe.

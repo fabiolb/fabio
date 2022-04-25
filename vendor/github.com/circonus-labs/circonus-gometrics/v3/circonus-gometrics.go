@@ -30,19 +30,61 @@
 package circonusgometrics
 
 import (
+	"crypto/tls"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/circonus-labs/circonus-gometrics/v3/checkmgr"
+	"github.com/circonus-labs/go-apiclient"
 	"github.com/pkg/errors"
 )
 
 const (
 	defaultFlushInterval = "10s" // 10 * time.Second
+
+	// MetricTypeInt32 reconnoiter
+	MetricTypeInt32 = "i"
+
+	// MetricTypeUint32 reconnoiter
+	MetricTypeUint32 = "I"
+
+	// MetricTypeInt64 reconnoiter
+	MetricTypeInt64 = "l"
+
+	// MetricTypeUint64 reconnoiter
+	MetricTypeUint64 = "L"
+
+	// MetricTypeFloat64 reconnoiter
+	MetricTypeFloat64 = "n"
+
+	// MetricTypeString reconnoiter
+	MetricTypeString = "s"
+
+	// MetricTypeHistogram reconnoiter
+	MetricTypeHistogram = "h"
+
+	// MetricTypeCumulativeHistogram reconnoiter
+	MetricTypeCumulativeHistogram = "H"
+)
+
+var (
+	metricTypeRx = regexp.MustCompile(`^[` + strings.Join([]string{
+		MetricTypeInt32,
+		MetricTypeUint32,
+		MetricTypeInt64,
+		MetricTypeUint64,
+		MetricTypeFloat64,
+		MetricTypeString,
+		MetricTypeHistogram,
+		MetricTypeCumulativeHistogram,
+	}, "") + `]$`)
 )
 
 // Logger facilitates use of any logger supporting the required methods
@@ -53,8 +95,9 @@ type Logger interface {
 
 // Metric defines an individual metric
 type Metric struct {
-	Type  string      `json:"_type"`
-	Value interface{} `json:"_value"`
+	Value     interface{} `json:"_value"`
+	Type      string      `json:"_type"`
+	Timestamp uint64      `json:"_ts,omitempty"`
 }
 
 // Metrics holds host metrics
@@ -63,62 +106,59 @@ type Metrics map[string]Metric
 // Config options for circonus-gometrics
 type Config struct {
 	Log             Logger
-	Debug           bool
 	ResetCounters   string // reset/delete counters on flush (default true)
 	ResetGauges     string // reset/delete gauges on flush (default true)
 	ResetHistograms string // reset/delete histograms on flush (default true)
 	ResetText       string // reset/delete text on flush (default true)
+	// how frequenly to submit metrics to Circonus, default 10 seconds.
+	// Set to 0 to disable automatic flushes and call Flush manually.
+	Interval string
 
 	// API, Check and Broker configuration options
 	CheckManager checkmgr.Config
 
-	// how frequenly to submit metrics to Circonus, default 10 seconds.
-	// Set to 0 to disable automatic flushes and call Flush manually.
-	Interval string
+	Debug       bool
+	DumpMetrics bool
 }
 
 type prevMetrics struct {
-	metrics   *Metrics
-	metricsmu sync.Mutex
 	ts        time.Time
+	metricsmu sync.Mutex
+	metrics   *Metrics
 }
 
 // CirconusMetrics state
 type CirconusMetrics struct {
-	Log   Logger
-	Debug bool
-
+	Log             Logger
+	lastMetrics     *prevMetrics
+	check           *checkmgr.CheckManager
+	gauges          map[string]interface{}
+	histograms      map[string]*Histogram
+	custom          map[string]Metric
+	text            map[string]string
+	textFuncs       map[string]func() string
+	counterFuncs    map[string]func() uint64
+	gaugeFuncs      map[string]func() int64
+	counters        map[string]uint64
+	submitTimestamp *time.Time
+	flushInterval   time.Duration
+	flushmu         sync.Mutex
+	packagingmu     sync.Mutex
+	cm              sync.Mutex
+	cfm             sync.Mutex
+	gm              sync.Mutex
+	gfm             sync.Mutex
+	hm              sync.Mutex
+	tm              sync.Mutex
+	tfm             sync.Mutex
+	custm           sync.Mutex
+	flushing        bool
+	Debug           bool
+	DumpMetrics     bool
 	resetCounters   bool
 	resetGauges     bool
 	resetHistograms bool
 	resetText       bool
-	flushInterval   time.Duration
-	flushing        bool
-	flushmu         sync.Mutex
-	packagingmu     sync.Mutex
-	check           *checkmgr.CheckManager
-	lastMetrics     *prevMetrics
-
-	counters map[string]uint64
-	cm       sync.Mutex
-
-	counterFuncs map[string]func() uint64
-	cfm          sync.Mutex
-
-	gauges map[string]interface{}
-	gm     sync.Mutex
-
-	gaugeFuncs map[string]func() int64
-	gfm        sync.Mutex
-
-	histograms map[string]*Histogram
-	hm         sync.Mutex
-
-	text map[string]string
-	tm   sync.Mutex
-
-	textFuncs map[string]func() string
-	tfm       sync.Mutex
 }
 
 // NewCirconusMetrics returns a CirconusMetrics instance
@@ -141,15 +181,17 @@ func New(cfg *Config) (*CirconusMetrics, error) {
 		histograms:   make(map[string]*Histogram),
 		text:         make(map[string]string),
 		textFuncs:    make(map[string]func() string),
+		custom:       make(map[string]Metric),
 		lastMetrics:  &prevMetrics{},
 	}
 
 	// Logging
 	{
 		cm.Debug = cfg.Debug
+		cm.DumpMetrics = cfg.DumpMetrics
 		cm.Log = cfg.Log
 
-		if cm.Debug && cm.Log == nil {
+		if (cm.Debug || cm.DumpMetrics) && cm.Log == nil {
 			cm.Log = log.New(os.Stderr, "", log.LstdFlags)
 		}
 		if cm.Log == nil {
@@ -221,8 +263,10 @@ func New(cfg *Config) (*CirconusMetrics, error) {
 		cm.check = check
 	}
 
-	// start background initialization
-	cm.check.Initialize()
+	// start initialization (serialized or background)
+	if err := cm.check.Initialize(); err != nil {
+		return nil, err
+	}
 
 	// if automatic flush is enabled, start it.
 	// NOTE: submit will jettison metrics until initialization has completed.
@@ -245,4 +289,32 @@ func (m *CirconusMetrics) Start() {
 // Ready returns true or false indicating if the check is ready to accept metrics
 func (m *CirconusMetrics) Ready() bool {
 	return m.check.IsReady()
+}
+
+// Custom adds a user defined metric
+func (m *CirconusMetrics) Custom(metricName string, metric Metric) error {
+	if !metricTypeRx.MatchString(metric.Type) {
+		return fmt.Errorf("unrecognized circonus metric type (%s)", metric.Type)
+	}
+
+	m.custm.Lock()
+	m.custom[metricName] = metric
+	m.custm.Unlock()
+
+	return nil
+}
+
+// GetBrokerTLSConfig returns the tls.Config for the broker
+func (m *CirconusMetrics) GetBrokerTLSConfig() *tls.Config {
+	return m.check.BrokerTLSConfig()
+}
+
+func (m *CirconusMetrics) GetCheckBundle() *apiclient.CheckBundle {
+	return m.check.GetCheckBundle()
+}
+
+func (m *CirconusMetrics) SetSubmitTimestamp(ts time.Time) {
+	m.packagingmu.Lock()
+	defer m.packagingmu.Unlock()
+	m.submitTimestamp = &ts
 }

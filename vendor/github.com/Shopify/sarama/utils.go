@@ -26,9 +26,7 @@ func (slice int32Slice) Swap(i, j int) {
 
 func dupInt32Slice(input []int32) []int32 {
 	ret := make([]int32, 0, len(input))
-	for _, val := range input {
-		ret = append(ret, val)
-	}
+	ret = append(ret, input...)
 	return ret
 }
 
@@ -150,12 +148,39 @@ var (
 	V0_10_1_1 = newKafkaVersion(0, 10, 1, 1)
 	V0_10_2_0 = newKafkaVersion(0, 10, 2, 0)
 	V0_10_2_1 = newKafkaVersion(0, 10, 2, 1)
+	V0_10_2_2 = newKafkaVersion(0, 10, 2, 2)
 	V0_11_0_0 = newKafkaVersion(0, 11, 0, 0)
 	V0_11_0_1 = newKafkaVersion(0, 11, 0, 1)
 	V0_11_0_2 = newKafkaVersion(0, 11, 0, 2)
 	V1_0_0_0  = newKafkaVersion(1, 0, 0, 0)
+	V1_0_1_0  = newKafkaVersion(1, 0, 1, 0)
+	V1_0_2_0  = newKafkaVersion(1, 0, 2, 0)
 	V1_1_0_0  = newKafkaVersion(1, 1, 0, 0)
+	V1_1_1_0  = newKafkaVersion(1, 1, 1, 0)
 	V2_0_0_0  = newKafkaVersion(2, 0, 0, 0)
+	V2_0_1_0  = newKafkaVersion(2, 0, 1, 0)
+	V2_1_0_0  = newKafkaVersion(2, 1, 0, 0)
+	V2_1_1_0  = newKafkaVersion(2, 1, 1, 0)
+	V2_2_0_0  = newKafkaVersion(2, 2, 0, 0)
+	V2_2_1_0  = newKafkaVersion(2, 2, 1, 0)
+	V2_2_2_0  = newKafkaVersion(2, 2, 2, 0)
+	V2_3_0_0  = newKafkaVersion(2, 3, 0, 0)
+	V2_3_1_0  = newKafkaVersion(2, 3, 1, 0)
+	V2_4_0_0  = newKafkaVersion(2, 4, 0, 0)
+	V2_4_1_0  = newKafkaVersion(2, 4, 1, 0)
+	V2_5_0_0  = newKafkaVersion(2, 5, 0, 0)
+	V2_5_1_0  = newKafkaVersion(2, 5, 1, 0)
+	V2_6_0_0  = newKafkaVersion(2, 6, 0, 0)
+	V2_6_1_0  = newKafkaVersion(2, 6, 1, 0)
+	V2_6_2_0  = newKafkaVersion(2, 6, 2, 0)
+	V2_6_3_0  = newKafkaVersion(2, 6, 3, 0)
+	V2_7_0_0  = newKafkaVersion(2, 7, 0, 0)
+	V2_7_1_0  = newKafkaVersion(2, 7, 1, 0)
+	V2_7_2_0  = newKafkaVersion(2, 7, 2, 0)
+	V2_8_0_0  = newKafkaVersion(2, 8, 0, 0)
+	V2_8_1_0  = newKafkaVersion(2, 8, 1, 0)
+	V3_0_0_0  = newKafkaVersion(3, 0, 0, 0)
+	V3_1_0_0  = newKafkaVersion(3, 1, 0, 0)
 
 	SupportedVersions = []KafkaVersion{
 		V0_8_2_0,
@@ -169,20 +194,47 @@ var (
 		V0_10_1_1,
 		V0_10_2_0,
 		V0_10_2_1,
+		V0_10_2_2,
 		V0_11_0_0,
 		V0_11_0_1,
 		V0_11_0_2,
 		V1_0_0_0,
+		V1_0_1_0,
+		V1_0_2_0,
 		V1_1_0_0,
+		V1_1_1_0,
 		V2_0_0_0,
+		V2_0_1_0,
+		V2_1_0_0,
+		V2_1_1_0,
+		V2_2_0_0,
+		V2_2_1_0,
+		V2_2_2_0,
+		V2_3_0_0,
+		V2_3_1_0,
+		V2_4_0_0,
+		V2_4_1_0,
+		V2_5_0_0,
+		V2_5_1_0,
+		V2_6_0_0,
+		V2_6_1_0,
+		V2_6_2_0,
+		V2_7_0_0,
+		V2_7_1_0,
+		V2_8_0_0,
+		V2_8_1_0,
+		V3_0_0_0,
+		V3_1_0_0,
 	}
-	MinVersion = V0_8_2_0
-	MaxVersion = V2_0_0_0
+	MinVersion     = V0_8_2_0
+	MaxVersion     = V3_1_0_0
+	DefaultVersion = V1_0_0_0
 )
 
+// ParseKafkaVersion parses and returns kafka version or error from a string
 func ParseKafkaVersion(s string) (KafkaVersion, error) {
 	if len(s) < 5 {
-		return MinVersion, fmt.Errorf("invalid version `%s`", s)
+		return DefaultVersion, fmt.Errorf("invalid version `%s`", s)
 	}
 	var major, minor, veryMinor, patch uint
 	var err error
@@ -192,7 +244,7 @@ func ParseKafkaVersion(s string) (KafkaVersion, error) {
 		err = scanKafkaVersion(s, `^\d+\.\d+\.\d+$`, "%d.%d.%d", [3]*uint{&major, &minor, &veryMinor})
 	}
 	if err != nil {
-		return MinVersion, err
+		return DefaultVersion, err
 	}
 	return newKafkaVersion(major, minor, veryMinor, patch), nil
 }
@@ -208,7 +260,7 @@ func scanKafkaVersion(s string, pattern string, format string, v [3]*uint) error
 func (v KafkaVersion) String() string {
 	if v.version[0] == 0 {
 		return fmt.Sprintf("0.%d.%d.%d", v.version[1], v.version[2], v.version[3])
-	} else {
-		return fmt.Sprintf("%d.%d.%d", v.version[0], v.version[1], v.version[2])
 	}
+
+	return fmt.Sprintf("%d.%d.%d", v.version[0], v.version[1], v.version[2])
 }

@@ -16,8 +16,8 @@ import (
 	"github.com/fabiolb/fabio/proxy/tcp"
 
 	"github.com/armon/go-proxyproto"
-	"github.com/inetaf/tcpproxy"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"inet.af/tcpproxy"
 )
 
 type Server interface {

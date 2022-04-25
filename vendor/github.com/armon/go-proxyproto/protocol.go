@@ -49,6 +49,7 @@ type Listener struct {
 	Listener           net.Listener
 	ProxyHeaderTimeout time.Duration
 	SourceCheck        SourceChecker
+	UnknownOK          bool // allow PROXY UNKNOWN
 }
 
 // Conn is used to wrap and underlying connection which
@@ -59,31 +60,39 @@ type Conn struct {
 	conn               net.Conn
 	dstAddr            *net.TCPAddr
 	srcAddr            *net.TCPAddr
-	useConnRemoteAddr  bool
+	useConnAddr        bool
 	once               sync.Once
 	proxyHeaderTimeout time.Duration
+	unknownOK          bool
 }
 
 // Accept waits for and returns the next connection to the listener.
 func (p *Listener) Accept() (net.Conn, error) {
 	// Get the underlying connection
-	conn, err := p.Listener.Accept()
-	if err != nil {
-		return nil, err
-	}
-	var useConnRemoteAddr bool
-	if p.SourceCheck != nil {
-		allowed, err := p.SourceCheck(conn.RemoteAddr())
+	for {
+		conn, err := p.Listener.Accept()
 		if err != nil {
 			return nil, err
 		}
-		if !allowed {
-			useConnRemoteAddr = true
+		var useConnAddr bool
+		if p.SourceCheck != nil {
+			allowed, err := p.SourceCheck(conn.RemoteAddr())
+			if err != nil {
+				if err == ErrInvalidUpstream {
+					conn.Close()
+					continue
+				}
+				return nil, err
+			}
+			if !allowed {
+				useConnAddr = true
+			}
 		}
+		newConn := NewConn(conn, p.ProxyHeaderTimeout)
+		newConn.useConnAddr = useConnAddr
+		newConn.unknownOK = p.UnknownOK
+		return newConn, nil
 	}
-	newConn := NewConn(conn, p.ProxyHeaderTimeout)
-	newConn.useConnRemoteAddr = useConnRemoteAddr
-	return newConn, nil
 }
 
 // Close closes the underlying listener.
@@ -119,6 +128,22 @@ func (p *Conn) Read(b []byte) (int, error) {
 	return p.bufReader.Read(b)
 }
 
+func (p *Conn) ReadFrom(r io.Reader) (int64, error) {
+	if rf, ok := p.conn.(io.ReaderFrom); ok {
+		return rf.ReadFrom(r)
+	}
+	return io.Copy(p.conn, r)
+}
+
+func (p *Conn) WriteTo(w io.Writer) (int64, error) {
+	var err error
+	p.once.Do(func() { err = p.checkPrefix() })
+	if err != nil {
+		return 0, err
+	}
+	return p.bufReader.WriteTo(w)
+}
+
 func (p *Conn) Write(b []byte) (int, error) {
 	return p.conn.Write(b)
 }
@@ -128,6 +153,10 @@ func (p *Conn) Close() error {
 }
 
 func (p *Conn) LocalAddr() net.Addr {
+	p.checkPrefixOnce()
+	if p.dstAddr != nil && !p.useConnAddr {
+		return p.dstAddr
+	}
 	return p.conn.LocalAddr()
 }
 
@@ -139,14 +168,8 @@ func (p *Conn) LocalAddr() net.Addr {
 // client is slow. Using a Deadline is recommended if this is called
 // before Read()
 func (p *Conn) RemoteAddr() net.Addr {
-	p.once.Do(func() {
-		if err := p.checkPrefix(); err != nil && err != io.EOF {
-			log.Printf("[ERR] Failed to read proxy prefix: %v", err)
-			p.Close()
-			p.bufReader = bufio.NewReader(p.conn)
-		}
-	})
-	if p.srcAddr != nil && !p.useConnRemoteAddr {
+	p.checkPrefixOnce()
+	if p.srcAddr != nil && !p.useConnAddr {
 		return p.srcAddr
 	}
 	return p.conn.RemoteAddr()
@@ -162,6 +185,16 @@ func (p *Conn) SetReadDeadline(t time.Time) error {
 
 func (p *Conn) SetWriteDeadline(t time.Time) error {
 	return p.conn.SetWriteDeadline(t)
+}
+
+func (p *Conn) checkPrefixOnce() {
+	p.once.Do(func() {
+		if err := p.checkPrefix(); err != nil && err != io.EOF {
+			log.Printf("[ERR] Failed to read proxy prefix: %v", err)
+			p.Close()
+			p.bufReader = bufio.NewReader(p.conn)
+		}
+	})
 }
 
 func (p *Conn) checkPrefix() error {
@@ -201,18 +234,30 @@ func (p *Conn) checkPrefix() error {
 
 	// Split on spaces, should be (PROXY <type> <src addr> <dst addr> <src port> <dst port>)
 	parts := strings.Split(header, " ")
-	if len(parts) != 6 {
+	if len(parts) < 2 {
 		p.conn.Close()
 		return fmt.Errorf("Invalid header line: %s", header)
 	}
 
 	// Verify the type is known
 	switch parts[1] {
+	case "UNKNOWN":
+		if !p.unknownOK || len(parts) != 2 {
+			p.conn.Close()
+			return fmt.Errorf("Invalid UNKNOWN header line: %s", header)
+		}
+		p.useConnAddr = true
+		return nil
 	case "TCP4":
 	case "TCP6":
 	default:
 		p.conn.Close()
 		return fmt.Errorf("Unhandled address type: %s", parts[1])
+	}
+
+	if len(parts) != 6 {
+		p.conn.Close()
+		return fmt.Errorf("Invalid header line: %s", header)
 	}
 
 	// Parse out the source address

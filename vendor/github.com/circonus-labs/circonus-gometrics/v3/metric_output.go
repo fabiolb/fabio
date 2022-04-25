@@ -9,10 +9,11 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
-	"github.com/circonus-labs/circonusllhist"
 	"github.com/circonus-labs/go-apiclient"
+	"github.com/openhistogram/circonusllhist"
 	"github.com/pkg/errors"
 )
 
@@ -21,13 +22,34 @@ func (m *CirconusMetrics) packageMetrics() (map[string]*apiclient.CheckBundleMet
 	m.packagingmu.Lock()
 	defer m.packagingmu.Unlock()
 
-	if m.Debug {
-		m.Log.Printf("packaging metrics\n")
+	// if m.Debug {
+	// 	m.Log.Printf("packaging metrics\n")
+	// }
+
+	var ts uint64
+	// always submitting a timestamp forces the broker to treat the check as though
+	// it is "async" which doesn't work well for "group" checks with multiple submitters
+	// e.g. circonus-agent with a group statsd check
+	// if m.submitTimestamp == nil {
+	// 	ts = makeTimestamp(time.Now())
+	// } else {
+	if m.submitTimestamp != nil {
+		ts = makeTimestamp(*m.submitTimestamp)
+		m.Log.Printf("setting custom timestamp %v -> %v (UTC ms)", *m.submitTimestamp, ts)
 	}
 
-	counters, gauges, histograms, text := m.snapshot()
 	newMetrics := make(map[string]*apiclient.CheckBundleMetric)
-	output := make(Metrics, len(counters)+len(gauges)+len(histograms)+len(text))
+	counters, gauges, histograms, text := m.snapshot()
+	m.custm.Lock()
+	output := make(Metrics, len(counters)+len(gauges)+len(histograms)+len(text)+len(m.custom))
+	if len(m.custom) > 0 {
+		// add and reset any custom metrics
+		for mn, mv := range m.custom {
+			output[mn] = mv
+		}
+		m.custom = make(map[string]Metric)
+	}
+	m.custm.Unlock()
 	for name, value := range counters {
 		send := m.check.IsMetricActive(name)
 		if !send && m.check.ActivateMetric(name) {
@@ -39,7 +61,11 @@ func (m *CirconusMetrics) packageMetrics() (map[string]*apiclient.CheckBundleMet
 			}
 		}
 		if send {
-			output[name] = Metric{Type: "L", Value: value}
+			metric := Metric{Type: "L", Value: value}
+			if ts > 0 {
+				metric.Timestamp = ts
+			}
+			output[name] = metric
 		}
 	}
 
@@ -54,7 +80,11 @@ func (m *CirconusMetrics) packageMetrics() (map[string]*apiclient.CheckBundleMet
 			}
 		}
 		if send {
-			output[name] = Metric{Type: m.getGaugeType(value), Value: value}
+			metric := Metric{Type: m.getGaugeType(value), Value: value}
+			if ts > 0 {
+				metric.Timestamp = ts
+			}
+			output[name] = metric
 		}
 	}
 
@@ -69,7 +99,18 @@ func (m *CirconusMetrics) packageMetrics() (map[string]*apiclient.CheckBundleMet
 			}
 		}
 		if send {
-			output[name] = Metric{Type: "h", Value: value.DecStrings()}
+			buf := bytes.NewBuffer([]byte{})
+			if err := value.SerializeB64(buf); err != nil {
+				m.Log.Printf("[ERR] serializing histogram %s: %s", name, err)
+			} else {
+				// histograms b64 serialized support timestamps
+				metric := Metric{Type: "h", Value: buf.String()}
+				if ts > 0 {
+					metric.Timestamp = ts
+				}
+				output[name] = metric
+			}
+			// output[name] = Metric{Type: "h", Value: value.DecStrings()} // histograms do NOT get timestamps
 		}
 	}
 
@@ -84,7 +125,11 @@ func (m *CirconusMetrics) packageMetrics() (map[string]*apiclient.CheckBundleMet
 			}
 		}
 		if send {
-			output[name] = Metric{Type: "s", Value: value}
+			metric := Metric{Type: "s", Value: value}
+			if ts > 0 {
+				metric.Timestamp = ts
+			}
+			output[name] = metric
 		}
 	}
 
@@ -92,6 +137,8 @@ func (m *CirconusMetrics) packageMetrics() (map[string]*apiclient.CheckBundleMet
 	defer m.lastMetrics.metricsmu.Unlock()
 	m.lastMetrics.metrics = &output
 	m.lastMetrics.ts = time.Now()
+	// reset the submission timestamp
+	m.submitTimestamp = nil
 
 	return newMetrics, output
 }
@@ -204,9 +251,9 @@ func (m *CirconusMetrics) Flush() {
 
 	if len(output) > 0 {
 		m.submit(output, newMetrics)
-	} else if m.Debug {
+	} /* else if m.Debug {
 		m.Log.Printf("no metrics to send, skipping\n")
-	}
+	}*/
 
 	m.flushmu.Lock()
 	m.flushing = false
@@ -246,20 +293,51 @@ func (m *CirconusMetrics) Reset() {
 }
 
 // snapshot returns a copy of the values of all registered counters and gauges.
-func (m *CirconusMetrics) snapshot() (c map[string]uint64, g map[string]interface{}, h map[string]*circonusllhist.Histogram, t map[string]string) {
-	c = m.snapCounters()
-	g = m.snapGauges()
-	h = m.snapHistograms()
-	t = m.snapText()
+func (m *CirconusMetrics) snapshot() (
+	map[string]uint64, // counters
+	map[string]interface{}, // gauges
+	map[string]*circonusllhist.Histogram, // histograms
+	map[string]string) { // text
 
-	return
+	var h map[string]*circonusllhist.Histogram
+	var c map[string]uint64
+	var g map[string]interface{}
+	var t map[string]string
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		h = m.snapHistograms()
+		wg.Done()
+	}()
+
+	wg.Add(1)
+	go func() {
+		c = m.snapCounters()
+		wg.Done()
+	}()
+
+	wg.Add(1)
+	go func() {
+		g = m.snapGauges()
+		wg.Done()
+	}()
+
+	wg.Add(1)
+	go func() {
+		t = m.snapText()
+		wg.Done()
+	}()
+
+	wg.Wait()
+
+	return c, g, h, t
 }
 
 func (m *CirconusMetrics) snapCounters() map[string]uint64 {
 	m.cm.Lock()
-	defer m.cm.Unlock()
 	m.cfm.Lock()
-	defer m.cfm.Unlock()
 
 	c := make(map[string]uint64, len(m.counters)+len(m.counterFuncs))
 
@@ -274,14 +352,15 @@ func (m *CirconusMetrics) snapCounters() map[string]uint64 {
 		c[n] = f()
 	}
 
+	m.cm.Unlock()
+	m.cfm.Unlock()
+
 	return c
 }
 
 func (m *CirconusMetrics) snapGauges() map[string]interface{} {
 	m.gm.Lock()
-	defer m.gm.Unlock()
 	m.gfm.Lock()
-	defer m.gfm.Unlock()
 
 	g := make(map[string]interface{}, len(m.gauges)+len(m.gaugeFuncs))
 
@@ -296,12 +375,14 @@ func (m *CirconusMetrics) snapGauges() map[string]interface{} {
 		g[n] = f()
 	}
 
+	m.gm.Unlock()
+	m.gfm.Unlock()
+
 	return g
 }
 
 func (m *CirconusMetrics) snapHistograms() map[string]*circonusllhist.Histogram {
 	m.hm.Lock()
-	defer m.hm.Unlock()
 
 	h := make(map[string]*circonusllhist.Histogram, len(m.histograms))
 
@@ -312,7 +393,6 @@ func (m *CirconusMetrics) snapHistograms() map[string]*circonusllhist.Histogram 
 		} else {
 			h[n] = hist.hist.Copy()
 		}
-
 		hist.rw.Unlock()
 	}
 
@@ -320,14 +400,14 @@ func (m *CirconusMetrics) snapHistograms() map[string]*circonusllhist.Histogram 
 		m.histograms = make(map[string]*Histogram)
 	}
 
+	m.hm.Unlock()
+
 	return h
 }
 
 func (m *CirconusMetrics) snapText() map[string]string {
 	m.tm.Lock()
-	defer m.tm.Unlock()
 	m.tfm.Lock()
-	defer m.tfm.Unlock()
 
 	t := make(map[string]string, len(m.text)+len(m.textFuncs))
 
@@ -342,5 +422,13 @@ func (m *CirconusMetrics) snapText() map[string]string {
 		t[n] = f()
 	}
 
+	m.tm.Unlock()
+	m.tfm.Unlock()
+
 	return t
+}
+
+// makeTimestamp returns timestamp in ms units for _ts metric value
+func makeTimestamp(ts time.Time) uint64 {
+	return uint64(ts.UTC().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond)))
 }

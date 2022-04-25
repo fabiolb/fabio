@@ -21,15 +21,15 @@ import (
 
 // Acknowledgement defines a acknowledgement. See https://login.circonus.com/resources/api/calls/acknowledgement for more information.
 type Acknowledgement struct {
-	AcknowledgedBy    string      `json:"_acknowledged_by,omitempty"`   // string
-	AcknowledgedOn    uint        `json:"_acknowledged_on,omitempty"`   // uint
 	AcknowledgedUntil interface{} `json:"acknowledged_until,omitempty"` // NOTE received as uint; can be set using string or uint
-	Active            bool        `json:"_active,omitempty"`            // bool
 	AlertCID          string      `json:"alert,omitempty"`              // string
 	CID               string      `json:"_cid,omitempty"`               // string
-	LastModified      uint        `json:"_last_modified,omitempty"`     // uint
 	LastModifiedBy    string      `json:"_last_modified_by,omitempty"`  // string
 	Notes             string      `json:"notes,omitempty"`              // string
+	AcknowledgedBy    string      `json:"_acknowledged_by,omitempty"`   // string
+	AcknowledgedOn    uint        `json:"_acknowledged_on,omitempty"`   // uint
+	LastModified      uint        `json:"_last_modified,omitempty"`     // uint
+	Active            bool        `json:"_active,omitempty"`            // bool
 }
 
 // NewAcknowledgement returns new Acknowledgement (with defaults, if applicable).

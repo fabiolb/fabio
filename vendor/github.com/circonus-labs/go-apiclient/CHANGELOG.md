@@ -1,3 +1,32 @@
+# v0.7.15
+
+* fix: do not allow blank tags through on check bundle creation
+
+# v0.7.14
+
+* add: `MaxRetries`, `MinRetryDelay`, and `MaxRetryDelay` settings
+
+# v0.7.13
+
+* upd: dependencies
+
+# v0.7.12
+
+* fix: lint issues
+* add: lint config and workflow
+* upd: squelch empty data debug msg
+
+# v0.7.11
+
+* add: new `user_json` field support to rule_set
+* upd: make timeout/retry tests optional (env var)
+
+# v0.7.10
+
+* upd: add 429 rate limit tests
+* upd: dependency retryablehttp, to use Retry-After header on 429s
+* upd: increase exp backoff range 1-60
+
 # v0.7.9
 
 * add: additional SMTP check attributes to support proxies

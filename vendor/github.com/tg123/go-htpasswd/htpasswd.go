@@ -57,7 +57,7 @@ type File struct {
 }
 
 // DefaultSystems is an array of PasswdParser including all builtin parsers. Notice that Plain is last, since it accepts anything
-var DefaultSystems = []PasswdParser{AcceptMd5, AcceptSha, AcceptBcrypt, AcceptSsha, AcceptPlain}
+var DefaultSystems = []PasswdParser{AcceptMd5, AcceptSha, AcceptBcrypt, AcceptSsha, AcceptCryptSha, AcceptPlain}
 
 // New creates an File from an Apache-style htpasswd file for HTTP Basic Authentication.
 //

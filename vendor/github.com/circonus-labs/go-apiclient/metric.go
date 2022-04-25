@@ -21,18 +21,18 @@ import (
 
 // Metric defines a metric. See https://login.circonus.com/resources/api/calls/metric for more information.
 type Metric struct {
-	Active         bool     `json:"_active,omitempty"`       // boolean
-	CheckActive    bool     `json:"_check_active,omitempty"` // boolean
+	Notes          *string  `json:"notes,omitempty"`         // string or null
+	Link           *string  `json:"link,omitempty"`          // string or null
 	CheckBundleCID string   `json:"_check_bundle,omitempty"` // string
 	CheckCID       string   `json:"_check,omitempty"`        // string
-	CheckTags      []string `json:"_check_tags,omitempty"`   // [] len >= 0
 	CheckUUID      string   `json:"_check_uuid,omitempty"`   // string
 	CID            string   `json:"_cid,omitempty"`          // string
 	Histogram      string   `json:"_histogram,omitempty"`    // string
-	Link           *string  `json:"link,omitempty"`          // string or null
 	MetricName     string   `json:"_metric_name,omitempty"`  // string
 	MetricType     string   `json:"_metric_type,omitempty"`  // string
-	Notes          *string  `json:"notes,omitempty"`         // string or null
+	CheckTags      []string `json:"_check_tags,omitempty"`   // [] len >= 0
+	Active         bool     `json:"_active,omitempty"`       // boolean
+	CheckActive    bool     `json:"_check_active,omitempty"` // boolean
 	// DEPRECATED
 	// Tags           []string `json:"tags,omitempty"`          // [] len >= 0
 	// Units          *string  `json:"units,omitempty"`         // string or null

@@ -65,7 +65,7 @@ to the destination without decrypting the traffic.
 #### TLS options
 
 * `tlsmin`: Sets the minimum TLS version for the handshake. This value
-  is one of `ssl30`, `tls10`, `tls11`, `tls12` or the corresponding
+  is one of `tls10`, `tls11`, `tls12`, `tls13` or the corresponding
   version number from https://golang.org/pkg/crypto/tls/#pkg-constants
 
 * `tlsmax`: Sets the maximum TLS version for the handshake. See `tlsmin`

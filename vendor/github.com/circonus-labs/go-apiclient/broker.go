@@ -20,28 +20,28 @@ import (
 
 // BrokerDetail defines instance attributes
 type BrokerDetail struct {
-	ClusterIP    *string  `json:"cluster_ip"`               // string or null
 	CN           string   `json:"cn"`                       // string
-	ExternalHost *string  `json:"external_host"`            // string or null
-	ExternalPort uint16   `json:"external_port"`            // uint16
-	IP           *string  `json:"ipaddress"`                // string or null
-	MinVer       uint     `json:"minimum_version_required"` // uint
-	Modules      []string `json:"modules"`                  // [] len >= 0
-	Port         *uint16  `json:"port"`                     // uint16 or null
-	Skew         *string  `json:"skew"`                     // BUG doc: floating point number, api object: string or null
 	Status       string   `json:"status"`                   // string
+	ClusterIP    *string  `json:"cluster_ip"`               // string or null
+	ExternalHost *string  `json:"external_host"`            // string or null
+	IP           *string  `json:"ipaddress"`                // string or null
+	Skew         *string  `json:"skew"`                     // BUG doc: floating point number, api object: string or null
+	Port         *uint16  `json:"port"`                     // uint16 or null
 	Version      *uint    `json:"version"`                  // uint or null
+	Modules      []string `json:"modules"`                  // [] len >= 0
+	ExternalPort uint16   `json:"external_port"`            // uint16
+	MinVer       uint     `json:"minimum_version_required"` // uint
 }
 
 // Broker defines a broker. See https://login.circonus.com/resources/api/calls/broker for more information.
 type Broker struct {
 	CID       string         `json:"_cid"`       // string
-	Details   []BrokerDetail `json:"_details"`   // [] len >= 1
+	Name      string         `json:"_name"`      // string
+	Type      string         `json:"_type"`      // string
 	Latitude  *string        `json:"_latitude"`  // string or null
 	Longitude *string        `json:"_longitude"` // string or null
-	Name      string         `json:"_name"`      // string
 	Tags      []string       `json:"_tags"`      // [] len >= 0
-	Type      string         `json:"_type"`      // string
+	Details   []BrokerDetail `json:"_details"`   // [] len >= 1
 }
 
 // FetchBroker retrieves broker with passed cid.

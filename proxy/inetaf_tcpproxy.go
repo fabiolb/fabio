@@ -8,7 +8,7 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/inetaf/tcpproxy"
+	"inet.af/tcpproxy"
 )
 
 type childProxy struct {

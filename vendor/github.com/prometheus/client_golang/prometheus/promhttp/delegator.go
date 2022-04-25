@@ -53,12 +53,16 @@ func (r *responseWriterDelegator) Written() int64 {
 }
 
 func (r *responseWriterDelegator) WriteHeader(code int) {
+	if r.observeWriteHeader != nil && !r.wroteHeader {
+		// Only call observeWriteHeader for the 1st time. It's a bug if
+		// WriteHeader is called more than once, but we want to protect
+		// against it here. Note that we still delegate the WriteHeader
+		// to the original ResponseWriter to not mask the bug from it.
+		r.observeWriteHeader(code)
+	}
 	r.status = code
 	r.wroteHeader = true
 	r.ResponseWriter.WriteHeader(code)
-	if r.observeWriteHeader != nil {
-		r.observeWriteHeader(code)
-	}
 }
 
 func (r *responseWriterDelegator) Write(b []byte) (int, error) {
@@ -79,8 +83,7 @@ type readerFromDelegator struct{ *responseWriterDelegator }
 type pusherDelegator struct{ *responseWriterDelegator }
 
 func (d closeNotifierDelegator) CloseNotify() <-chan bool {
-	//lint:ignore SA1019 http.CloseNotifier is deprecated but we don't want to
-	//remove support from client_golang yet.
+	//nolint:staticcheck // Ignore SA1019. http.CloseNotifier is deprecated but we keep it here to not break existing users.
 	return d.ResponseWriter.(http.CloseNotifier).CloseNotify()
 }
 func (d flusherDelegator) Flush() {
@@ -344,8 +347,7 @@ func newDelegator(w http.ResponseWriter, observeWriteHeaderFunc func(int)) deleg
 	}
 
 	id := 0
-	//lint:ignore SA1019 http.CloseNotifier is deprecated but we don't want to
-	//remove support from client_golang yet.
+	//nolint:staticcheck // Ignore SA1019. http.CloseNotifier is deprecated but we keep it here to not break existing users.
 	if _, ok := w.(http.CloseNotifier); ok {
 		id += closeNotifier
 	}

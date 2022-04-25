@@ -48,24 +48,24 @@ type ContactGroupContacts struct {
 
 // ContactGroupEscalation defines escalations for severity levels
 type ContactGroupEscalation struct {
-	After           uint   `json:"after"`         // uint
 	ContactGroupCID string `json:"contact_group"` // string
+	After           uint   `json:"after"`         // uint
 }
 
 // ContactGroup defines a contact group. See https://login.circonus.com/resources/api/calls/contact_group for more information.
 type ContactGroup struct {
-	AggregationWindow uint                      `json:"aggregation_window,omitempty"` // uint
-	AlertFormats      ContactGroupAlertFormats  `json:"alert_formats,omitempty"`      // ContactGroupAlertFormats
 	CID               string                    `json:"_cid,omitempty"`               // string
-	Contacts          ContactGroupContacts      `json:"contacts,omitempty"`           // ContactGroupContacts
-	Escalations       []*ContactGroupEscalation `json:"escalations,omitempty"`        // [] len == 5, elements: ContactGroupEscalation or null
-	LastModified      uint                      `json:"_last_modified,omitempty"`     // uint
 	LastModifiedBy    string                    `json:"_last_modified_by,omitempty"`  // string
 	Name              string                    `json:"name,omitempty"`               // string
+	GroupType         string                    `json:"group_type,omitempty"`         // string - new 2019-10-09
+	AlertFormats      ContactGroupAlertFormats  `json:"alert_formats,omitempty"`      // ContactGroupAlertFormats
+	Contacts          ContactGroupContacts      `json:"contacts,omitempty"`           // ContactGroupContacts
+	Escalations       []*ContactGroupEscalation `json:"escalations,omitempty"`        // [] len == 5, elements: ContactGroupEscalation or null
 	Reminders         []uint                    `json:"reminders,omitempty"`          // [] len == 5
 	Tags              []string                  `json:"tags,omitempty"`               // [] len >= 0
+	LastModified      uint                      `json:"_last_modified,omitempty"`     // uint
+	AggregationWindow uint                      `json:"aggregation_window,omitempty"` // uint
 	AlwaysSendClear   bool                      `json:"always_send_clear,omitempty"`  // bool - new 2019-10-09
-	GroupType         string                    `json:"group_type,omitempty"`         // string - new 2019-10-09
 }
 
 // NewContactGroup returns a ContactGroup (with defaults, if applicable)

@@ -19,6 +19,10 @@ type OffsetManager interface {
 	// will otherwise leak memory. You must call this after all the
 	// PartitionOffsetManagers are closed.
 	Close() error
+
+	// Commit commits the offsets. This method can be used if AutoCommit.Enable is
+	// set to false.
+	Commit()
 }
 
 type offsetManager struct {
@@ -58,7 +62,6 @@ func newOffsetManagerFromClient(group, memberID string, generation int32, client
 		client: client,
 		conf:   conf,
 		group:  group,
-		ticker: time.NewTicker(conf.Consumer.Offsets.CommitInterval),
 		poms:   make(map[string]map[int32]*partitionOffsetManager),
 
 		memberID:   memberID,
@@ -67,7 +70,10 @@ func newOffsetManagerFromClient(group, memberID string, generation int32, client
 		closing: make(chan none),
 		closed:  make(chan none),
 	}
-	go withRecover(om.mainLoop)
+	if conf.Consumer.Offsets.AutoCommit.Enable {
+		om.ticker = time.NewTicker(conf.Consumer.Offsets.AutoCommit.Interval)
+		go withRecover(om.mainLoop)
+	}
 
 	return om, nil
 }
@@ -99,16 +105,20 @@ func (om *offsetManager) Close() error {
 	om.closeOnce.Do(func() {
 		// exit the mainLoop
 		close(om.closing)
-		<-om.closed
+		if om.conf.Consumer.Offsets.AutoCommit.Enable {
+			<-om.closed
+		}
 
 		// mark all POMs as closed
 		om.asyncClosePOMs()
 
 		// flush one last time
-		for attempt := 0; attempt <= om.conf.Consumer.Offsets.Retry.Max; attempt++ {
-			om.flushToBroker()
-			if om.releasePOMs(false) == 0 {
-				break
+		if om.conf.Consumer.Offsets.AutoCommit.Enable {
+			for attempt := 0; attempt <= om.conf.Consumer.Offsets.Retry.Max; attempt++ {
+				om.flushToBroker()
+				if om.releasePOMs(false) == 0 {
+					break
+				}
 			}
 		}
 
@@ -118,6 +128,14 @@ func (om *offsetManager) Close() error {
 		om.brokerLock.Unlock()
 	})
 	return nil
+}
+
+func (om *offsetManager) computeBackoff(retries int) time.Duration {
+	if om.conf.Metadata.Retry.BackoffFunc != nil {
+		return om.conf.Metadata.Retry.BackoffFunc(retries, om.conf.Metadata.Retry.Max)
+	} else {
+		return om.conf.Metadata.Retry.Backoff
+	}
 }
 
 func (om *offsetManager) fetchInitialOffset(topic string, partition int32, retries int) (int64, string, error) {
@@ -161,10 +179,11 @@ func (om *offsetManager) fetchInitialOffset(topic string, partition int32, retri
 		if retries <= 0 {
 			return 0, "", block.Err
 		}
+		backoff := om.computeBackoff(retries)
 		select {
 		case <-om.closing:
 			return 0, "", block.Err
-		case <-time.After(om.conf.Metadata.Retry.Backoff):
+		case <-time.After(backoff):
 		}
 		return om.fetchInitialOffset(topic, partition, retries-1)
 	default:
@@ -216,12 +235,16 @@ func (om *offsetManager) mainLoop() {
 	for {
 		select {
 		case <-om.ticker.C:
-			om.flushToBroker()
-			om.releasePOMs(false)
+			om.Commit()
 		case <-om.closing:
 			return
 		}
 	}
+}
+
+func (om *offsetManager) Commit() {
+	om.flushToBroker()
+	om.releasePOMs(false)
 }
 
 func (om *offsetManager) flushToBroker() {
@@ -266,7 +289,6 @@ func (om *offsetManager) constructRequest() *OffsetCommitRequest {
 			ConsumerID:              om.memberID,
 			ConsumerGroupGeneration: om.generation,
 		}
-
 	}
 
 	om.pomsLock.RLock()
@@ -324,7 +346,6 @@ func (om *offsetManager) handleResponse(broker *Broker, req *OffsetCommitRequest
 				pom.handleError(err)
 			case ErrOffsetsLoadInProgress:
 				// nothing wrong but we didn't commit, we'll get it next time round
-				break
 			case ErrUnknownTopicOrPartition:
 				// let the user know *and* try redispatching - if topic-auto-create is
 				// enabled, redispatching should trigger a metadata req and create the
@@ -567,6 +588,6 @@ func (pom *partitionOffsetManager) handleError(err error) {
 
 func (pom *partitionOffsetManager) release() {
 	pom.releaseOnce.Do(func() {
-		go close(pom.errors)
+		close(pom.errors)
 	})
 }

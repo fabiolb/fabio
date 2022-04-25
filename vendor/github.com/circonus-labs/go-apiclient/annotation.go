@@ -22,14 +22,14 @@ import (
 type Annotation struct {
 	Category       string   `json:"category"`                    // string
 	CID            string   `json:"_cid,omitempty"`              // string
-	Created        uint     `json:"_created,omitempty"`          // uint
 	Description    string   `json:"description"`                 // string
-	LastModified   uint     `json:"_last_modified,omitempty"`    // uint
 	LastModifiedBy string   `json:"_last_modified_by,omitempty"` // string
+	Title          string   `json:"title"`                       // string
 	RelatedMetrics []string `json:"rel_metrics"`                 // [] len >= 0
+	LastModified   uint     `json:"_last_modified,omitempty"`    // uint
+	Created        uint     `json:"_created,omitempty"`          // uint
 	Start          uint     `json:"start"`                       // uint
 	Stop           uint     `json:"stop"`                        // uint
-	Title          string   `json:"title"`                       // string
 }
 
 // NewAnnotation returns a new Annotation (with defaults, if applicable)

@@ -21,8 +21,8 @@ import (
 
 // AccountLimit defines a usage limit imposed on account
 type AccountLimit struct {
-	Limit uint   `json:"_limit,omitempty"` // uint >=0
 	Type  string `json:"_type,omitempty"`  // string
+	Limit uint   `json:"_limit,omitempty"` // uint >=0
 	Used  uint   `json:"_used,omitempty"`  // uint >=0
 }
 
@@ -40,20 +40,20 @@ type AccountUser struct {
 
 // Account defines an account. See https://login.circonus.com/resources/api/calls/account for more information.
 type Account struct {
+	CID           string          `json:"_cid,omitempty"`            // string
+	Country       string          `json:"country_code,omitempty"`    // string
+	Name          string          `json:"name,omitempty"`            // string
+	OwnerCID      string          `json:"_owner,omitempty"`          // string
+	Timezone      string          `json:"timezone,omitempty"`        // string
+	UIBaseURL     string          `json:"_ui_base_url,omitempty"`    // string
 	Address1      *string         `json:"address1,omitempty"`        // string or null
 	Address2      *string         `json:"address2,omitempty"`        // string or null
 	CCEmail       *string         `json:"cc_email,omitempty"`        // string or null
-	CID           string          `json:"_cid,omitempty"`            // string
 	City          *string         `json:"city,omitempty"`            // string or null
-	ContactGroups []string        `json:"_contact_groups,omitempty"` // [] len >= 0
-	Country       string          `json:"country_code,omitempty"`    // string
 	Description   *string         `json:"description,omitempty"`     // string or null
-	Invites       []AccountInvite `json:"invites,omitempty"`         // [] len >= 0
-	Name          string          `json:"name,omitempty"`            // string
-	OwnerCID      string          `json:"_owner,omitempty"`          // string
 	StateProv     *string         `json:"state_prov,omitempty"`      // string or null
-	Timezone      string          `json:"timezone,omitempty"`        // string
-	UIBaseURL     string          `json:"_ui_base_url,omitempty"`    // string
+	ContactGroups []string        `json:"_contact_groups,omitempty"` // [] len >= 0
+	Invites       []AccountInvite `json:"invites,omitempty"`         // [] len >= 0
 	Usage         []AccountLimit  `json:"_usage,omitempty"`          // [] len >= 0
 	Users         []AccountUser   `json:"users,omitempty"`           // [] len >= 0
 }

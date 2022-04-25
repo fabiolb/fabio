@@ -38,10 +38,10 @@ type ProvisionBroker struct {
 	Longitude               string           `json:"longitude,omitempty"`                 // string
 	Name                    string           `json:"noit_name,omitempty"`                 // string
 	Port                    string           `json:"port,omitempty"`                      // string
-	PreferReverseConnection bool             `json:"prefer_reverse_connection,omitempty"` // boolean
-	Rebuild                 bool             `json:"rebuild,omitempty"`                   // boolean
 	Stratcons               []BrokerStratcon `json:"_stratcons,omitempty"`                // [] len >= 1
 	Tags                    []string         `json:"tags,omitempty"`                      // [] len >= 0
+	PreferReverseConnection bool             `json:"prefer_reverse_connection,omitempty"` // boolean
+	Rebuild                 bool             `json:"rebuild,omitempty"`                   // boolean
 }
 
 // NewProvisionBroker returns a new ProvisionBroker (with defaults, if applicable)

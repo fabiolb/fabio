@@ -43,41 +43,50 @@ func (cm *CheckManager) getBroker() (*apiclient.Broker, error) {
 }
 
 // Get CN of Broker associated with submission_url to satisfy no IP SANS in certs
-func (cm *CheckManager) getBrokerCN(broker *apiclient.Broker, submissionURL apiclient.URLType) (string, error) {
+func (cm *CheckManager) getBrokerCN(broker *apiclient.Broker, submissionURL apiclient.URLType) (string, string, error) {
 	u, err := url.Parse(string(submissionURL))
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	hostParts := strings.Split(u.Host, ":")
 	host := hostParts[0]
 
 	if net.ParseIP(host) == nil { // it's a non-ip string
-		return u.Host, nil
+		return u.Host, u.Host, nil
 	}
 
 	cn := ""
+	cnList := make([]string, 0, len(broker.Details))
 
 	for _, detail := range broker.Details {
+		// broker must be active
+		if detail.Status != statusActive {
+			continue
+		}
+
 		// certs are generated against the CN (in theory)
 		// 1. find the right broker instance with matching IP or external hostname
 		// 2. set the tls.Config.ServerName to whatever that instance's CN is currently
 		// 3. cert will be valid for TLS conns (in theory)
 		if detail.IP != nil && *detail.IP == host {
-			cn = detail.CN
-			break
-		}
-		if detail.ExternalHost != nil && *detail.ExternalHost == host {
-			cn = detail.CN
-			break
+			if cn == "" {
+				cn = detail.CN
+			}
+			cnList = append(cnList, detail.CN)
+		} else if detail.ExternalHost != nil && *detail.ExternalHost == host {
+			if cn == "" {
+				cn = detail.CN
+			}
+			cnList = append(cnList, detail.CN)
 		}
 	}
 
 	if cn == "" {
-		return "", errors.Errorf("error, unable to match URL host (%s) to Broker", u.Host)
+		return "", "", errors.Errorf("error, unable to match URL host (%s) to Broker", u.Host)
 	}
 
-	return cn, nil
+	return cn, strings.Join(cnList, ","), nil
 
 }
 

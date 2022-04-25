@@ -20,72 +20,72 @@ import (
 
 // GraphAccessKey defines an access key for a graph
 type GraphAccessKey struct {
-	Active         bool   `json:"active,omitempty"`           // boolean
-	Height         uint   `json:"height,omitempty"`           // uint
 	Key            string `json:"key,omitempty"`              // string
-	Legend         bool   `json:"legend,omitempty"`           // boolean
-	LockDate       bool   `json:"lock_date,omitempty"`        // boolean
 	LockMode       string `json:"lock_mode,omitempty"`        // string
-	LockRangeEnd   uint   `json:"lock_range_end,omitempty"`   // uint
-	LockRangeStart uint   `json:"lock_range_start,omitempty"` // uint
-	LockShowTimes  bool   `json:"lock_show_times,omitempty"`  // boolean
 	LockZoom       string `json:"lock_zoom,omitempty"`        // string
 	Nickname       string `json:"nickname,omitempty"`         // string
-	Title          bool   `json:"title,omitempty"`            // boolean
+	Height         uint   `json:"height,omitempty"`           // uint
+	LockRangeEnd   uint   `json:"lock_range_end,omitempty"`   // uint
+	LockRangeStart uint   `json:"lock_range_start,omitempty"` // uint
 	Width          uint   `json:"width,omitempty"`            // uint
+	Active         bool   `json:"active,omitempty"`           // boolean
+	Legend         bool   `json:"legend,omitempty"`           // boolean
+	LockDate       bool   `json:"lock_date,omitempty"`        // boolean
+	LockShowTimes  bool   `json:"lock_show_times,omitempty"`  // boolean
+	Title          bool   `json:"title,omitempty"`            // boolean
 	XLabels        bool   `json:"x_labels,omitempty"`         // boolean
 	YLabels        bool   `json:"y_labels,omitempty"`         // boolean
 }
 
 // GraphComposite defines a composite
 type GraphComposite struct {
+	Stack         *uint   `json:"stack"`          // uint or null
+	DataFormula   *string `json:"data_formula"`   // string or null
+	LegendFormula *string `json:"legend_formula"` // string or null
 	Axis          string  `json:"axis"`           // string
 	Color         string  `json:"color"`          // string
-	DataFormula   *string `json:"data_formula"`   // string or null
-	Hidden        bool    `json:"hidden"`         // boolean
-	LegendFormula *string `json:"legend_formula"` // string or null
 	Name          string  `json:"name"`           // string
-	Stack         *uint   `json:"stack"`          // uint or null
+	Hidden        bool    `json:"hidden"`         // boolean
 }
 
 // GraphDatapoint defines a datapoint
 type GraphDatapoint struct {
+	Derive        interface{} `json:"derive,omitempty"`      // BUG doc: string, api: string or boolean(for caql statements)
+	Search        *string     `json:"search"`                // string or null
 	Alpha         *string     `json:"alpha,omitempty"`       // BUG: doc: floating point number, api: string
-	Axis          string      `json:"axis,omitempty"`        // string
 	CAQL          *string     `json:"caql,omitempty"`        // string or null
-	CheckID       uint        `json:"check_id,omitempty"`    // uint
 	Color         *string     `json:"color,omitempty"`       // string
 	DataFormula   *string     `json:"data_formula"`          // string or null
-	Derive        interface{} `json:"derive,omitempty"`      // BUG doc: string, api: string or boolean(for caql statements)
-	Hidden        bool        `json:"hidden"`                // boolean
 	LegendFormula *string     `json:"legend_formula"`        // string or null
+	Stack         *uint       `json:"stack"`                 // uint or null
+	Axis          string      `json:"axis,omitempty"`        // string
 	MetricName    string      `json:"metric_name,omitempty"` // string
 	MetricType    string      `json:"metric_type,omitempty"` // string
 	Name          string      `json:"name"`                  // string
-	Search        *string     `json:"search"`                // string or null
-	Stack         *uint       `json:"stack"`                 // uint or null
+	CheckID       uint        `json:"check_id,omitempty"`    // uint
+	Hidden        bool        `json:"hidden"`                // boolean
 }
 
 // GraphGuide defines a guide
 type GraphGuide struct {
-	Color         string  `json:"color"`          // string
 	DataFormula   *string `json:"data_formula"`   // string or null
-	Hidden        bool    `json:"hidden"`         // boolean
 	LegendFormula *string `json:"legend_formula"` // string or null
+	Color         string  `json:"color"`          // string
 	Name          string  `json:"name"`           // string
+	Hidden        bool    `json:"hidden"`         // boolean
 }
 
 // GraphMetricCluster defines a metric cluster
 type GraphMetricCluster struct {
-	AggregateFunc string  `json:"aggregate_function,omitempty"` // string
-	Axis          string  `json:"axis,omitempty"`               // string
 	Color         *string `json:"color,omitempty"`              // string
 	DataFormula   *string `json:"data_formula"`                 // string or null
-	Hidden        bool    `json:"hidden"`                       // boolean
 	LegendFormula *string `json:"legend_formula"`               // string or null
+	Stack         *uint   `json:"stack"`                        // uint or null
 	MetricCluster string  `json:"metric_cluster,omitempty"`     // string
 	Name          string  `json:"name,omitempty"`               // string
-	Stack         *uint   `json:"stack"`                        // uint or null
+	AggregateFunc string  `json:"aggregate_function,omitempty"` // string
+	Axis          string  `json:"axis,omitempty"`               // string
+	Hidden        bool    `json:"hidden"`                       // boolean
 }
 
 // OverlaySet defines an overlay set for a graph
@@ -104,11 +104,11 @@ type GraphOverlay struct {
 
 // OverlayUISpecs defines UI specs for overlay
 type OverlayUISpecs struct {
-	Decouple bool   `json:"decouple,omitempty"` // boolean
 	ID       string `json:"id,omitempty"`       // string
 	Label    string `json:"label,omitempty"`    // string
 	Type     string `json:"type,omitempty"`     // string
 	Z        string `json:"z,omitempty"`        // int encoded as string BUG doc: numeric, api: string
+	Decouple bool   `json:"decouple,omitempty"` // boolean
 }
 
 // OverlayDataOptions defines overlay options for data. Note, each overlay type requires
@@ -146,25 +146,25 @@ type OverlayDataOptions struct {
 
 // Graph defines a graph. See https://login.circonus.com/resources/api/calls/graph for more information.
 type Graph struct {
-	AccessKeys     []GraphAccessKey            `json:"access_keys,omitempty"`                // [] len >= 0
-	CID            string                      `json:"_cid,omitempty"`                       // string
-	Composites     []GraphComposite            `json:"composites,omitempty"`                 // [] len >= 0
-	Datapoints     []GraphDatapoint            `json:"datapoints,omitempty"`                 // [] len >= 0
-	Description    string                      `json:"description,omitempty"`                // string
-	Guides         []GraphGuide                `json:"guides,omitempty"`                     // [] len >= 0
 	LineStyle      *string                     `json:"line_style"`                           // string or null
+	Style          *string                     `json:"style"`                                // string or null
+	Notes          *string                     `json:"notes,omitempty"`                      // string or null
 	LogLeftY       *int                        `json:"logarithmic_left_y,string,omitempty"`  // int encoded as string or null BUG doc: number (not string)
 	LogRightY      *int                        `json:"logarithmic_right_y,string,omitempty"` // int encoded as string or null BUG doc: number (not string)
 	MaxLeftY       *float64                    `json:"max_left_y,string,omitempty"`          // float64 encoded as string or null BUG doc: number (not string)
 	MaxRightY      *float64                    `json:"max_right_y,string,omitempty"`         // float64 encoded as string or null BUG doc: number (not string)
-	MetricClusters []GraphMetricCluster        `json:"metric_clusters,omitempty"`            // [] len >= 0
 	MinLeftY       *float64                    `json:"min_left_y,string,omitempty"`          // float64 encoded as string or null BUG doc: number (not string)
 	MinRightY      *float64                    `json:"min_right_y,string,omitempty"`         // float64 encoded as string or null BUG doc: number (not string)
-	Notes          *string                     `json:"notes,omitempty"`                      // string or null
 	OverlaySets    *map[string]GraphOverlaySet `json:"overlay_sets,omitempty"`               // GroupOverLaySets or null
-	Style          *string                     `json:"style"`                                // string or null
-	Tags           []string                    `json:"tags,omitempty"`                       // [] len >= 0
+	CID            string                      `json:"_cid,omitempty"`                       // string
+	Description    string                      `json:"description,omitempty"`                // string
 	Title          string                      `json:"title,omitempty"`                      // string
+	Tags           []string                    `json:"tags,omitempty"`                       // [] len >= 0
+	AccessKeys     []GraphAccessKey            `json:"access_keys,omitempty"`                // [] len >= 0
+	Composites     []GraphComposite            `json:"composites,omitempty"`                 // [] len >= 0
+	Datapoints     []GraphDatapoint            `json:"datapoints,omitempty"`                 // [] len >= 0
+	Guides         []GraphGuide                `json:"guides,omitempty"`                     // [] len >= 0
+	MetricClusters []GraphMetricCluster        `json:"metric_clusters,omitempty"`            // [] len >= 0
 }
 
 // NewGraph returns a Graph (with defaults, if applicable)

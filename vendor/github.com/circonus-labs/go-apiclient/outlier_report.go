@@ -22,13 +22,13 @@ import (
 type OutlierReport struct {
 	CID              string   `json:"_cid,omitempty"`              // string
 	Config           string   `json:"config,omitempty"`            // string
-	Created          uint     `json:"_created,omitempty"`          // uint
 	CreatedBy        string   `json:"_created_by,omitempty"`       // string
-	LastModified     uint     `json:"_last_modified,omitempty"`    // uint
 	LastModifiedBy   string   `json:"_last_modified_by,omitempty"` // string
 	MetricClusterCID string   `json:"metric_cluster,omitempty"`    // st ring
-	Tags             []string `json:"tags,omitempty"`              // [] len >= 0
 	Title            string   `json:"title,omitempty"`             // string
+	Tags             []string `json:"tags,omitempty"`              // [] len >= 0
+	Created          uint     `json:"_created,omitempty"`          // uint
+	LastModified     uint     `json:"_last_modified,omitempty"`    // uint
 }
 
 // NewOutlierReport returns a new OutlierReport (with defaults, if applicable)

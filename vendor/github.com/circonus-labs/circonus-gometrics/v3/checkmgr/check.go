@@ -134,7 +134,7 @@ func (cm *CheckManager) initializeTrapURL() error {
 		// unless the new submission url can be fetched with the API (which is no
 		// longer possible using the original submission url)
 		var id int
-		id, err = strconv.Atoi(strings.Replace(check.CID, "/check/", "", -1))
+		id, err = strconv.Atoi(strings.ReplaceAll(check.CID, "/check/", ""))
 		if err == nil {
 			cm.checkID = apiclient.IDType(id)
 			cm.checkSubmissionURL = ""
@@ -202,13 +202,6 @@ func (cm *CheckManager) initializeTrapURL() error {
 
 	// retain to facilitate metric management (adding new metrics specifically)
 	cm.checkBundle = checkBundle
-	// check is using metric filters, disable check management
-	if len(cm.checkBundle.MetricFilters) > 0 {
-		cm.enabled = false
-	}
-	if cm.enabled {
-		cm.inventoryMetrics()
-	}
 
 	// determine the trap url to which metrics should be PUT
 	if strings.HasPrefix(checkBundle.Type, "httptrap") {
@@ -240,11 +233,12 @@ func (cm *CheckManager) initializeTrapURL() error {
 
 	// used when sending as "ServerName" get around certs not having IP SANS
 	// (cert created with server name as CN but IP used in trap url)
-	cn, err := cm.getBrokerCN(broker, cm.trapURL)
+	cn, cnList, err := cm.getBrokerCN(broker, cm.trapURL)
 	if err != nil {
 		return err
 	}
 	cm.trapCN = BrokerCNType(cn)
+	cm.trapCNList = cnList
 
 	if cm.enabled {
 		u, err := url.Parse(string(cm.trapURL))
@@ -258,6 +252,14 @@ func (cm *CheckManager) initializeTrapURL() error {
 		}
 	}
 
+	// check is using metric filters, disable check management
+	cm.manageMetrics = true
+	if len(cm.checkBundle.MetricFilters) > 0 {
+		cm.manageMetrics = false
+	}
+	if cm.manageMetrics {
+		cm.inventoryMetrics()
+	}
 	cm.trapLastUpdate = time.Now()
 
 	return nil

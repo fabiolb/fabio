@@ -26,20 +26,20 @@ type WorksheetGraph struct {
 // WorksheetSmartQuery defines a query to include multiple worksheets
 type WorksheetSmartQuery struct {
 	Name  string   `json:"name"`
-	Order []string `json:"order"`
 	Query string   `json:"query"`
+	Order []string `json:"order"`
 }
 
 // Worksheet defines a worksheet. See https://login.circonus.com/resources/api/calls/worksheet for more information.
 type Worksheet struct {
-	CID          string                `json:"_cid,omitempty"`          // string
-	Description  *string               `json:"description"`             // string or null
-	Favorite     bool                  `json:"favorite"`                // boolean
-	Graphs       []WorksheetGraph      `json:"graphs"`                  // [] len >= 0
 	Notes        *string               `json:"notes"`                   // string or null
-	SmartQueries []WorksheetSmartQuery `json:"smart_queries,omitempty"` // [] len >= 0
-	Tags         []string              `json:"tags"`                    // [] len >= 0
+	Description  *string               `json:"description"`             // string or null
+	CID          string                `json:"_cid,omitempty"`          // string
 	Title        string                `json:"title"`                   // string
+	Tags         []string              `json:"tags"`                    // [] len >= 0
+	Graphs       []WorksheetGraph      `json:"graphs"`                  // [] len >= 0
+	SmartQueries []WorksheetSmartQuery `json:"smart_queries,omitempty"` // [] len >= 0
+	Favorite     bool                  `json:"favorite"`                // boolean
 }
 
 // NewWorksheet returns a new Worksheet (with defaults, if applicable)

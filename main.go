@@ -256,7 +256,7 @@ func lookupHostFn(cfg *config.Config, notFound gkm.Counter) func(string) *route.
 	}
 }
 
-// Returns a matcher function compatible with tcpproxy Matcher from github.com/inetaf/tcpproxy
+// Returns a matcher function compatible with tcpproxy Matcher from inet.af/tcpproxy
 func lookupHostMatcher(cfg *config.Config) func(context.Context, string) bool {
 	pick := route.Picker[cfg.Proxy.Strategy]
 	return func(ctx context.Context, host string) bool {
