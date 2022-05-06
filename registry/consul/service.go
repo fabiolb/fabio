@@ -35,10 +35,10 @@ func (w *ServiceMonitor) Watch(updates chan string) {
 	var q *api.QueryOptions
 	for {
 		if w.config.PollInterval != 0 {
-			q = &api.QueryOptions{RequireConsistent: true}
+			q = &api.QueryOptions{RequireConsistent: w.config.RequireConsistent, AllowStale: w.config.AllowStale}
 			time.Sleep(w.config.PollInterval)
 		} else {
-			q = &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
+			q = &api.QueryOptions{RequireConsistent: w.config.RequireConsistent, AllowStale: w.config.AllowStale, WaitIndex: lastIndex}
 		}
 		checks, meta, err := w.client.Health().State("any", q)
 		if err != nil {
@@ -110,7 +110,7 @@ func (w *ServiceMonitor) serviceConfig(name string, passing map[string]bool) (co
 		return nil
 	}
 
-	q := &api.QueryOptions{RequireConsistent: true}
+	q := &api.QueryOptions{RequireConsistent: w.config.RequireConsistent, AllowStale: w.config.AllowStale}
 	svcs, _, err := w.client.Catalog().Service(name, "", q)
 	if err != nil {
 		log.Printf("[WARN] consul: Error getting catalog service %s. %v", name, err)

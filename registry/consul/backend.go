@@ -110,14 +110,14 @@ func (b *be) DeregisterAll() error {
 }
 
 func (b *be) ManualPaths() ([]string, error) {
-	keys, _, err := listKeys(b.c, b.cfg.KVPath, 0)
+	keys, _, err := listKeys(b.c, b.cfg.KVPath, 0, b.cfg.RequireConsistent, b.cfg.AllowStale)
 	return keys, err
 }
 
 func (b *be) ReadManual(path string) (value string, version uint64, err error) {
 	// we cannot rely on the value provided by WatchManual() since
 	// someone has to call that method first to kick off the go routine.
-	return getKV(b.c, b.cfg.KVPath+path, 0)
+	return getKV(b.c, b.cfg.KVPath+path, 0, b.cfg.RequireConsistent, b.cfg.AllowStale)
 }
 
 func (b *be) WriteManual(path string, value string, version uint64) (ok bool, err error) {
@@ -144,7 +144,7 @@ func (b *be) WatchManual() chan string {
 	log.Printf("[INFO] consul: Watching KV path %q", b.cfg.KVPath)
 
 	kv := make(chan string)
-	go watchKV(b.c, b.cfg.KVPath, kv, true)
+	go watchKV(b.c, b.cfg.KVPath, kv, true, b.cfg.RequireConsistent, b.cfg.AllowStale)
 	return kv
 }
 
@@ -152,7 +152,7 @@ func (b *be) WatchNoRouteHTML() chan string {
 	log.Printf("[INFO] consul: Watching KV path %q", b.cfg.NoRouteHTMLPath)
 
 	html := make(chan string)
-	go watchKV(b.c, b.cfg.NoRouteHTMLPath, html, false)
+	go watchKV(b.c, b.cfg.NoRouteHTMLPath, html, false, b.cfg.RequireConsistent, b.cfg.AllowStale)
 	return html
 }
 

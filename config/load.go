@@ -197,6 +197,8 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Registry.Consul.ChecksRequired, "registry.consul.checksRequired", defaultConfig.Registry.Consul.ChecksRequired, "number of checks which must pass: one or all")
 	f.IntVar(&cfg.Registry.Consul.ServiceMonitors, "registry.consul.serviceMonitors", defaultConfig.Registry.Consul.ServiceMonitors, "concurrency for route updates")
 	f.DurationVar(&cfg.Registry.Consul.PollInterval, "registry.consul.pollinterval", defaultConfig.Registry.Consul.PollInterval, "poll interval for route updates")
+	f.BoolVar(&cfg.Registry.Consul.RequireConsistent, "registry.consul.requireConsistent", defaultConfig.Registry.Consul.RequireConsistent, "is consistent read mode on consul queries required")
+	f.BoolVar(&cfg.Registry.Consul.AllowStale, "registry.consul.allowStale", defaultConfig.Registry.Consul.AllowStale, "is stale read mode on consul queries allowed")
 	f.IntVar(&cfg.Runtime.GOGC, "runtime.gogc", defaultConfig.Runtime.GOGC, "sets runtime.GOGC")
 	f.IntVar(&cfg.Runtime.GOMAXPROCS, "runtime.gomaxprocs", defaultConfig.Runtime.GOMAXPROCS, "sets runtime.GOMAXPROCS")
 	f.StringVar(&cfg.UI.Access, "ui.access", defaultConfig.UI.Access, "access mode, one of [ro, rw]")
@@ -325,6 +327,10 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	// go1.10 will not accept a non-three digit status code
 	if cfg.Proxy.NoRouteStatus < 100 || cfg.Proxy.NoRouteStatus > 999 {
 		return nil, fmt.Errorf("proxy.noroutestatus must be between 100 and 999")
+	}
+
+	if cfg.Registry.Consul.AllowStale && cfg.Registry.Consul.RequireConsistent {
+		return nil, fmt.Errorf("registry.consul.allowStale and registry.consul.requireConsistent cannot both be true")
 	}
 
 	// handle deprecations
