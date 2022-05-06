@@ -58,7 +58,18 @@ func addHeaders(r *http.Request, cfg config.Proxy, stripPath string) error {
 	// http proxy which sets it.
 	ws := r.Header.Get("Upgrade") == "websocket"
 	if ws {
-		r.Header.Set("X-Forwarded-For", remoteIP)
+		clientIP := remoteIP
+		// If we aren't the first proxy retain prior
+		// X-Forwarded-For information as a comma+space
+		// separated list and fold multiple headers into one.
+		prior, ok := r.Header["X-Forwarded-For"]
+		omit := ok && prior == nil // Issue 38079: nil now means don't populate the header
+		if len(prior) > 0 {
+			clientIP = strings.Join(prior, ", ") + ", " + clientIP
+		}
+		if !omit {
+			r.Header.Set("X-Forwarded-For", clientIP)
+		}
 	}
 
 	// Issue #133: Setting the X-Forwarded-Proto header to
