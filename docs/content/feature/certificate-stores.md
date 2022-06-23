@@ -199,7 +199,7 @@ certificates are stored, for example:
       }
       
       # Allow our own token to be renewed.
-        path "auth/token/renew-self" {
+      path "auth/token/renew-self" {
         capabilities = ["update"]
       }
 
