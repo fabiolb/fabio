@@ -1,0 +1,11 @@
+Source: fabio
+Maintainer: Systems <sysinfra@hudson-trading.com>
+Section: misc
+Priority: optional
+Build-Depends:
+ debhelper-compat (= 12),
+Homepage: https://github.com/fabiolb/fabio
+
+Package: fabio
+Architecture: any
+Description: fabio is a fast, modern, zero-conf load balancing HTTP(S) and TCP router for deploying applications managed by consul. 

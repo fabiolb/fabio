@@ -1,0 +1,5 @@
+fabio (1.6.0-1) hrt; urgency=medium
+
+  * Initial HRT release.
+
+ -- Owen Mooney <mooney@hudson-trading.com>  Fri, 24 Jun 2022 10:48:15 -0400

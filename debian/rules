@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+		go build -mod=vendor
+override_dh_auto_test:
+override_dh_auto_install:

@@ -1,0 +1,16 @@
+build:
+  artifacts:
+    name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
+    when: always
+    paths:
+      - ${WORKING_DIR}/
+  stage: build
+  tags:
+    - docker
+  image: golang:1.18
+  script:
+    - cd ${WORKING_DIR}/${SOURCE_DIR}
+    - apt update && apt install -y build-essential
+    - apt build-dep . -y
+    - time dpkg-buildpackage -us -uc
+    - rm -rf ${WORKING_DIR}/${SOURCE_DIR}

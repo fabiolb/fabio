@@ -1,0 +1,16 @@
+debian:
+  stage: build
+  trigger:
+    include:
+      - https://shagitlab.hudson-trading.com/debian/pipeline/raw/master/hrt-pipeline-base.yml
+      - https://shagitlab.hudson-trading.com/debian/pipeline/raw/master/hrt-pipeline-jobs.yml
+      - local: debian/hrt-go-ci.yml
+    strategy: depend
+  parallel:
+    matrix:
+      - RELEASE: buster
+        SALSA_CI_MIRROR: 'http://shadebrepo.hudson-trading.com/debian'
+        DCH_RELEASE: '+hrtdeb10'
+      - RELEASE: bullseye
+        SALSA_CI_MIRROR: 'http://shadebrepo.hudson-trading.com/debian'
+        DCH_RELEASE: '+hrtdeb11'
