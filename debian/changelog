@@ -1,3 +1,9 @@
+fabio (1.6.0-1.1) hrt; urgency=medium
+
+  * Move install to /usr/sbin
+
+ -- Owen Mooney <mooney@hudson-trading.com>  Tue, 28 Jun 2022 09:21:27 -0400
+
 fabio (1.6.0-1) hrt; urgency=medium
 
   * Initial HRT release.
