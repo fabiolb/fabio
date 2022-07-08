@@ -167,7 +167,7 @@ github.com/rcrowley/go-metrics
 github.com/rogpeppe/fastuuid
 # github.com/ryanuber/go-glob v1.0.0
 github.com/ryanuber/go-glob
-# github.com/sergi/go-diff v1.1.0
+# github.com/sergi/go-diff v1.2.0
 github.com/sergi/go-diff/diffmatchpatch
 # github.com/tg123/go-htpasswd v1.0.0
 github.com/tg123/go-htpasswd
