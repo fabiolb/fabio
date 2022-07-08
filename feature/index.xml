@@ -5,11 +5,7 @@
     <link>https://fabiolb.net/feature/</link>
     <description>Recent content in Features on fabio - The Consul Load-Balancer</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://fabiolb.net/feature/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://fabiolb.net/feature/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Access Control</title>
       <link>https://fabiolb.net/feature/access-control/</link>
@@ -63,8 +59,8 @@ You can use &lt;a href=&#34;https://vaultproject.io/&#34;&gt;Vault&lt;/a&gt; to 
       
       <guid>https://fabiolb.net/feature/docker/</guid>
       <description>To run fabio within Docker use the official Docker image fabiolb/fabio and mount your own config file to /etc/fabio/fabio.properties
-docker run -d -p 9999:9999 -p 9998:9998 -v $PWD/fabio/fabio.properties:/etc/fabio/fabio.properties fabiolb/fabio  If you want to run the Docker image with one or more SSL certificates then you can store your configuration and certificates in /etc/fabio and mount the entire directory, e.g.
-$ cat ~/fabio/fabio.properties proxy.addr=:443;/etc/fabio/ssl/mycert.pem;/etc/fabio/ssl/mykey.pem docker run -d -p 443:443 -p 9998:9998 -v $PWD/fabio:/etc/fabio fabiolb/fabio  The official Docker image contains the root CA certificates from a recent and updated Ubuntu 12.</description>
+docker run -d -p 9999:9999 -p 9998:9998 -v $PWD/fabio/fabio.properties:/etc/fabio/fabio.properties fabiolb/fabio If you want to run the Docker image with one or more SSL certificates then you can store your configuration and certificates in /etc/fabio and mount the entire directory, e.g.
+$ cat ~/fabio/fabio.properties proxy.addr=:443;/etc/fabio/ssl/mycert.pem;/etc/fabio/ssl/mykey.pem docker run -d -p 443:443 -p 9998:9998 -v $PWD/fabio:/etc/fabio fabiolb/fabio The official Docker image contains the root CA certificates from a recent and updated Ubuntu 12.</description>
     </item>
     
     <item>
@@ -94,7 +90,7 @@ When the Raft log changes fabio is notified and downloads the list of healthy se
       
       <guid>https://fabiolb.net/feature/grpc-proxy/</guid>
       <description>fabio can run a transparent GRPC proxy which dynamically forwards an incoming RPC on a given port to services which advertise rpc service or method. To use GRPC proxy support the service needs to advertise urlprefix-/my.service/Method proto=grpc in Consul. In addition, fabio needs to be configured with a grpc listener:
-fabio -proxy.addr &#39;:1234;proto=grpc&#39; As per the HTTP/2 spec, the host header is not required, so host matching is not supported for GRPC proxying.</description>
+fabio -proxy.addr &amp;#39;:1234;proto=grpc&amp;#39; As per the HTTP/2 spec, the host header is not required, so host matching is not supported for GRPC proxying.</description>
     </item>
     
     <item>
@@ -105,7 +101,7 @@ fabio -proxy.addr &#39;:1234;proto=grpc&#39; As per the HTTP/2 spec, the host he
       <guid>https://fabiolb.net/feature/http-compression/</guid>
       <description>Enable dynamic compression of responses when the client sets the Accept-Encoding: gzip header and the name of the requested file matches a regular expression.
 To configure which files should be compressed on the fly set configure a regular expression in the proxy.gzip.contenttype property
-# proxy.gzip.contenttype configures which responses should be compressed. # # By default, responses sent to the client are not compressed even if the # client accepts compressed responses by setting the &#39;Accept-Encoding: gzip&#39; # header.</description>
+# proxy.gzip.contenttype configures which responses should be compressed. # # By default, responses sent to the client are not compressed even if the # client accepts compressed responses by setting the &amp;#39;Accept-Encoding: gzip&amp;#39; # header.</description>
     </item>
     
     <item>
@@ -144,7 +140,7 @@ Path prepending is done after path stripping. If you want to forward http://host
       
       <guid>https://fabiolb.net/feature/http-redirects/</guid>
       <description>To redirect an HTTP request to another URL you can use the redirect=&amp;lt;code&amp;gt; option. The code is the HTTP status code used for the redirect response and must be between 300-399 for the route to be valid.
-# redirect /path to https://www.google.com/ route add svc /path https://www.google.com/ opts &amp;quot;redirect=301&amp;quot;  To use the redirect with the urlprefix- tags you need to specify the target URL in after the code since the target of the request is usually the address of the service that registers the tag.</description>
+# redirect /path to https://www.google.com/ route add svc /path https://www.google.com/ opts &amp;quot;redirect=301&amp;quot; To use the redirect with the urlprefix- tags you need to specify the target URL in after the code since the target of the request is usually the address of the service that registers the tag.</description>
     </item>
     
     <item>
@@ -155,7 +151,7 @@ Path prepending is done after path stripping. If you want to forward http://host
       <guid>https://fabiolb.net/feature/https-tcp-sni-proxy/</guid>
       <description>fabio can run a TCP+SNI routing proxy on a listener, and have fallback to https functionality. This is effectively an amalgam of the TCP-SNI Proxy and the HTTPS functionality.
 To enable this feature configure a listener as follows:
-fabio -proxy.addr=&#39;:443;proto=https+tcp+sni;cs=somecertstore&#39; For host matches that are proto=tcp or have a scheme of tcp://, this will proxy TCP using SNI.
+fabio -proxy.addr=&amp;#39;:443;proto=https+tcp+sni;cs=somecertstore&amp;#39; For host matches that are proto=tcp or have a scheme of tcp://, this will proxy TCP using SNI.
 You would register your service in Consul with a urlprefix- tag that matches the host from the SNI extension for any services that should be proxied TCP (TLS terminated by upstream).</description>
     </item>
     
@@ -186,7 +182,7 @@ urlprefix-/foo proto=https urlprefix-/foo proto=https tlsskipverify=true </descr
       <guid>https://fabiolb.net/feature/proxy-protocol/</guid>
       <description>fabio transparently supports the HA Proxy PROXY protocol version 1 which is used by HA Proxy, Amazon ELB and others to transmit the remote address and port of the client without using headers.
 You may control the behavior of PROXY protocol support with the following options on the listener:
-  pxyproto: When set to &amp;lsquo;true&amp;rsquo; the listener will respect upstream v1 PROXY protocol headers. NOTE: PROXY protocol was on by default from 1.</description>
+pxyproto: When set to &amp;rsquo;true&amp;rsquo; the listener will respect upstream v1 PROXY protocol headers. NOTE: PROXY protocol was on by default from 1.</description>
     </item>
     
     <item>
@@ -215,8 +211,8 @@ To use TCP Dynamic proxy support the service needs to advertise urlprefix-127.0.
       
       <guid>https://fabiolb.net/feature/tcp-proxy/</guid>
       <description>fabio can run a transparent TCP proxy which dynamically forwards an incoming connection on a given port to services which advertise that port. To use TCP proxy support the service needs to advertise urlprefix-:1234 proto=tcp in Consul. In addition, fabio needs to be configured to listen on that port:
-fabio -proxy.addr &#39;:1234;proto=tcp&#39; TCP proxy support can be combined with Certificate Stores to provide TLS termination on fabio.
-fabio -proxy.cs &#39;cs=ssl;type=path;path=/etc/ssl&#39; -proxy.</description>
+fabio -proxy.addr &amp;#39;:1234;proto=tcp&amp;#39; TCP proxy support can be combined with Certificate Stores to provide TLS termination on fabio.
+fabio -proxy.cs &amp;#39;cs=ssl;type=path;path=/etc/ssl&amp;#39; -proxy.</description>
     </item>
     
     <item>
@@ -266,7 +262,7 @@ As of 1.5.3 fabio can use the PKI support of Vault to generate TLS certificates 
       <description>fabio transparently supports Websocket connections by detecting the Upgrade: websocket header in the incoming HTTP(S) request.
 Websocket support has been implemented with the websocket library from golang.org/x/net/websocket.
 You can test the websocket support with the demo/wsclient and demo/server which implements a simple echo server.
-./server -addr 127.0.0.1:5000 -name ws-a -prefix /echo -proto ws ./wsclient -url ws://127.0.0.1:9999/echo  You can also run multiple web socket servers on different ports but the same endpoint.</description>
+./server -addr 127.0.0.1:5000 -name ws-a -prefix /echo -proto ws ./wsclient -url ws://127.0.0.1:9999/echo You can also run multiple web socket servers on different ports but the same endpoint.</description>
     </item>
     
   </channel>

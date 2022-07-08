@@ -5,10 +5,6 @@
     <link>https://fabiolb.net/code-of-conduct/</link>
     <description>Recent content in Code of Conduct on fabio - The Consul Load-Balancer</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://fabiolb.net/code-of-conduct/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://fabiolb.net/code-of-conduct/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

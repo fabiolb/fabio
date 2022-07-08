@@ -206,11 +206,11 @@ all instances of <code>service-b</code> which match tags <code>version-15</code>
 is independent of the number of actual instances running. The remaining 95%
 of the traffic will be distributed evenly across the remaining instances
 publishing the same prefix.</p>
-<pre><code>route weight service-b www.kjca.dev/auth/ weight 0.05 tags &quot;version-15,dc-fra&quot;
+<pre tabindex="0"><code>route weight service-b www.kjca.dev/auth/ weight 0.05 tags &#34;version-15,dc-fra&#34;
 </code></pre><h3 id="vault-example">Vault Example</h3>
 <p><a href="https://www.vaultproject.io">Vault</a> is a tool by <a href="https://www.hashicorp.com/">HashiCorp</a> for managing secrets and protecting sensitive data. When running in HA mode, Vault will have a single active node which is responsible for responding the API requests. Fabio can be used to ensure traffic is routed to the correct server via traffic shaping.</p>
 <p>The following command will allocate 100% of traffic to <code>vault.company.com</code> to the instance of <code>vault</code> which is registered with the tag <code>active</code>.</p>
-<pre><code>route weight vault vault.company.com weight 1.00 tags &quot;active&quot;
+<pre tabindex="0"><code>route weight vault vault.company.com weight 1.00 tags &#34;active&#34;
 </code></pre>
         
       </section>
@@ -232,7 +232,7 @@ publishing the same prefix.</p>
                 Copyright &copy; 2020-2022 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 8 Jul 2022 15:44
+                Last updated on 8 Jul 2022 22:28
             </p>
           </div>
           <div class="col-md-6 col-sm-6">

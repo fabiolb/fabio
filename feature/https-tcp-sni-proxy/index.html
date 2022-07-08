@@ -200,7 +200,7 @@
         <p>fabio can run a TCP+SNI routing proxy on a listener, and have fallback to https functionality.
 This is effectively an amalgam of the TCP-SNI Proxy and the HTTPS functionality.</p>
 <p>To enable this feature configure a listener as follows:</p>
-<pre><code>fabio -proxy.addr=':443;proto=https+tcp+sni;cs=somecertstore'
+<pre tabindex="0"><code>fabio -proxy.addr=&#39;:443;proto=https+tcp+sni;cs=somecertstore&#39;
 </code></pre><p>For host matches that are proto=tcp or have a scheme of tcp://, this will proxy TCP using SNI.</p>
 <p>You would register your service in <a href="https://consul.io">Consul</a> with a <code>urlprefix-</code> tag that
 matches the host from the SNI extension for any services that should be proxied TCP (TLS
@@ -230,7 +230,7 @@ fabio to terminate TLS using the cs= line specified in the config.</p>
                 Copyright &copy; 2020-2022 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 8 Jul 2022 15:44
+                Last updated on 8 Jul 2022 22:28
             </p>
           </div>
           <div class="col-md-6 col-sm-6">

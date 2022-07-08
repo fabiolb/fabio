@@ -204,9 +204,9 @@ uses it for finding the upstream server to forward the connection to. It then re
 <code>ClientHello</code> packet and then transparently forwards all traffic between client and server
 as a byte stream.</p>
 <p>To enable this feature configure a listener as follows:</p>
-<pre><code>fabio -proxy.addr=':443;proto=tcp+sni'
+<pre tabindex="0"><code>fabio -proxy.addr=&#39;:443;proto=tcp+sni&#39;
 </code></pre><p>to listen to more than 1 port separate with comma&rsquo;s (like if you want to do tcp and http listening):</p>
-<pre><code>fabio -proxy.addr ':9999,:19587;proto=tcp
+<pre tabindex="0"><code>fabio -proxy.addr &#39;:9999,:19587;proto=tcp
 </code></pre><p>This will do normal fabio http(s) routing on port 9999 and TCP proxy on port 19587.</p>
 <p>and register your services in <a href="https://consul.io/">Consul</a> with a <code>urlprefix-</code> tag that
 matches the host from the SNI extension. If your server responds to <code>https://foo.com/...</code>
@@ -233,7 +233,7 @@ should only contain  <code>&lt;host&gt;/</code> since path-based routing is not 
                 Copyright &copy; 2020-2022 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 8 Jul 2022 15:44
+                Last updated on 8 Jul 2022 22:28
             </p>
           </div>
           <div class="col-md-6 col-sm-6">

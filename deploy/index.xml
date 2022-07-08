@@ -5,11 +5,7 @@
     <link>https://fabiolb.net/deploy/</link>
     <description>Recent content in Deployment on fabio - The Consul Load-Balancer</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://fabiolb.net/deploy/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://fabiolb.net/deploy/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Direct</title>
       <link>https://fabiolb.net/deploy/direct/</link>
@@ -49,7 +45,7 @@ Again, to scale fabio you can deploy it together with the frontend services whic
 or behind an ELB with PROXY protocol support:
 You can authenticate calls from the API Gateway with a client certificate. This requires that you configure an HTTPS listener on fabio with a valid certificate.
 To enable fabio to validate the Amazon generated certificate you need to configure the aws.apigw.cert.cn as follows:
-proxy.addr = 1.2.3.4:9999;your/cert.pem;your/key.pem;api-gw-cert.pem aws.apigw.cert.cn = ApiGateway  api-gw-cert.</description>
+proxy.addr = 1.2.3.4:9999;your/cert.pem;your/key.pem;api-gw-cert.pem aws.apigw.cert.cn = ApiGateway api-gw-cert.pem is the certificate generated in the AWS Management Console.</description>
     </item>
     
   </channel>

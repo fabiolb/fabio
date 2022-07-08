@@ -363,7 +363,7 @@ if no matching certificate was found. This matches the default
 behavior of the Go TLS server implementation.</p>
 </li>
 <li>
-<p><code>pxyproto</code>: When set to &lsquo;true&rsquo; the listener will respect upstream v1
+<p><code>pxyproto</code>: When set to &rsquo;true&rsquo; the listener will respect upstream v1
 PROXY protocol headers.
 NOTE: PROXY protocol was on by default from 1.1.3 to 1.5.10.
 This changed to off when this option was introduced with
@@ -393,7 +393,7 @@ for the format.</p>
 <li>
 <p><code>tlsciphers</code>: Sets the list of allowed ciphers for the handshake. The value
 is a quoted comma-separated list of the hex cipher values or
-the constant names from <a href="https://golang.org/pkg/crypto/tls/#pkg-constants,">https://golang.org/pkg/crypto/tls/#pkg-constants,</a>
+the constant names from <a href="https://golang.org/pkg/crypto/tls/#pkg-constants">https://golang.org/pkg/crypto/tls/#pkg-constants</a>,
 e.g. <code>&quot;0xc00a,0xc02b&quot;</code> or <code>&quot;TLS_RSA_WITH_RC4_128_SHA,TLS_RSA_WITH_AES_128_CBC_SHA&quot;</code></p>
 </li>
 </ul>
@@ -458,7 +458,7 @@ proxy.addr = 0.0.0.0:0;proto=tcp-dynamic;refresh=5s
                 Copyright &copy; 2020-2022 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 8 Jul 2022 15:44
+                Last updated on 8 Jul 2022 22:28
             </p>
           </div>
           <div class="col-md-6 col-sm-6">

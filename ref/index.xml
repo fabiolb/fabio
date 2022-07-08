@@ -5,11 +5,7 @@
     <link>https://fabiolb.net/ref/</link>
     <description>Recent content in Reference on fabio - The Consul Load-Balancer</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://fabiolb.net/ref/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://fabiolb.net/ref/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title></title>
       <link>https://fabiolb.net/ref/proxy.idleconntimeout/</link>
@@ -18,7 +14,7 @@
       <guid>https://fabiolb.net/ref/proxy.idleconntimeout/</guid>
       <description>proxy.idleconntimeout configures idle connection timeout, which influences when to close keep-alive connections.
 The default is
-proxy.idleconntimeout = 15s  </description>
+proxy.idleconntimeout = 15s </description>
     </item>
     
     <item>
@@ -30,7 +26,7 @@ proxy.idleconntimeout = 15s  </description>
       <description>proxy.keepalivetimeout configures the keep-alive timeout.
 This configures the KeepAliveTimeout of the network dialer.
 The default is
-proxy.keepalivetimeout = 0s  </description>
+proxy.keepalivetimeout = 0s </description>
     </item>
     
     <item>
@@ -41,7 +37,7 @@ proxy.keepalivetimeout = 0s  </description>
       <guid>https://fabiolb.net/ref/glob.cache.size/</guid>
       <description>glob.cache.size Sets the globCache size used for matching on route lookups.
 The default is
-glob.cache.size = 1000  </description>
+glob.cache.size = 1000 </description>
     </item>
     
     <item>
@@ -53,7 +49,7 @@ glob.cache.size = 1000  </description>
       <description>glob.matching.disabled disables glob matching on route lookups.
 Valid options are true, false
 The default is
-glob.matching.disabled = false  </description>
+glob.matching.disabled = false </description>
     </item>
     
     <item>
@@ -64,7 +60,7 @@ glob.matching.disabled = false  </description>
       <guid>https://fabiolb.net/ref/log.access.format/</guid>
       <description>log.access.format configures the format of the access log.
 If the value is either common or combined then the logs are written in the Common Log Format or the Combined Log Format as defined below:
- common: $remote_host - - [$time_common] &amp;quot;$request&amp;quot; $response_status $response_body_size combined: $remote_host - - [$time_common] &amp;quot;$request&amp;quot; $response_status $response_body_size &amp;quot;$header.Referer&amp;quot; &amp;quot;$header.User-Agent&amp;quot;  Otherwise, the value is interpreted as a custom log format which is defined with the following parameters.</description>
+common: $remote_host - - [$time_common] &amp;quot;$request&amp;quot; $response_status $response_body_size combined: $remote_host - - [$time_common] &amp;quot;$request&amp;quot; $response_status $response_body_size &amp;quot;$header.Referer&amp;quot; &amp;quot;$header.User-Agent&amp;quot; Otherwise, the value is interpreted as a custom log format which is defined with the following parameters. Providing an empty format when logging is enabled is an error.</description>
     </item>
     
     <item>
@@ -76,7 +72,7 @@ If the value is either common or combined then the logs are written in the Commo
       <description>log.access.target configures where the access log is written to.
 Options are stdout. If the value is empty no access log is written.
 The default is
-log.access.target =  </description>
+log.access.target = </description>
     </item>
     
     <item>
@@ -88,7 +84,7 @@ log.access.target =  </description>
       <description>log.level configures the log level.
 Valid levels are TRACE, DEBUG, INFO, WARN, ERROR and FATAL.
 The default is
-log.level = INFO  </description>
+log.level = INFO </description>
     </item>
     
     <item>
@@ -99,8 +95,8 @@ log.level = INFO  </description>
       <guid>https://fabiolb.net/ref/log.routes.format/</guid>
       <description>log.routes.format configures the log output format of routing table updates.
 Changes to the routing table are written to the standard log. This option configures the output format:
- detail: detailed routing table as ascii tree delta: additions and deletions in config language all: complete routing table in config language  The default is
-log.routes.format = delta  </description>
+detail: detailed routing table as ascii tree delta: additions and deletions in config language all: complete routing table in config language The default is
+log.routes.format = delta </description>
     </item>
     
     <item>
@@ -111,7 +107,7 @@ log.routes.format = delta  </description>
       <guid>https://fabiolb.net/ref/metrics.circonus.apiapp/</guid>
       <description>metrics.circonus.apiapp configures the API token app to use when submitting metrics to Circonus. See: https://login.circonus.com/user/tokens This is optional when metrics.target is set to circonus.
 The default is
-metrics.circonus.apiapp = fabio  </description>
+metrics.circonus.apiapp = fabio </description>
     </item>
     
     <item>
@@ -122,7 +118,7 @@ metrics.circonus.apiapp = fabio  </description>
       <guid>https://fabiolb.net/ref/metrics.circonus.apikey/</guid>
       <description>metrics.circonus.apikey configures the API token key to use when submitting metrics to Circonus. See: https://login.circonus.com/user/tokens This is optional when metrics.target is set to circonus but metrics.circonus.submissionurl is specified}
 The default is
-metrics.circonus.apikey =  </description>
+metrics.circonus.apikey = </description>
     </item>
     
     <item>
@@ -133,7 +129,7 @@ metrics.circonus.apikey =  </description>
       <guid>https://fabiolb.net/ref/metrics.circonus.apiurl/</guid>
       <description>metrics.circonus.apiurl configures the API URL to use when submitting metrics to Circonus. https://api.circonus.com/v2/ will be used if no specific URL is provided. This is optional when metrics.target is set to circonus.
 The default is
-metrics.circonus.apiurl =  </description>
+metrics.circonus.apiurl = </description>
     </item>
     
     <item>
@@ -146,7 +142,7 @@ metrics.circonus.apiurl =  </description>
 This is optional when metrics.target is set to circonus.
 Optional for public brokers, required for Inside brokers. Only applicable if a check is being created.
 The default is
-metrics.circonus.brokerid =  </description>
+metrics.circonus.brokerid = </description>
     </item>
     
     <item>
@@ -159,7 +155,7 @@ metrics.circonus.brokerid =  </description>
 This is optional when metrics.target is set to circonus.
 An attempt will be made to search for a previously created check, if no applicable check is found, one will be created.
 The default is
-metrics.circonus.checkid =  </description>
+metrics.circonus.checkid = </description>
     </item>
     
     <item>
@@ -172,7 +168,7 @@ metrics.circonus.checkid =  </description>
 This is optional when metrics.target is set to circonus but metrics.circonus.apikey is specified}.
 Example http://127.0.0.1:2609/write/fabio
 The default is
-metrics.circonus.submissionurl =  </description>
+metrics.circonus.submissionurl = </description>
     </item>
     
     <item>
@@ -184,7 +180,7 @@ metrics.circonus.submissionurl =  </description>
       <description>metrics.dogstatsd.addr configures the host:port of the dogstatsd server.
 This is required when metrics.target is set to dogstatsd.
 The default is
-metrics.statsd.addr =  </description>
+metrics.statsd.addr = </description>
     </item>
     
     <item>
@@ -196,7 +192,7 @@ metrics.statsd.addr =  </description>
       <description>metrics.graphite.addr configures the host:port of the Graphite server.
 This is required when metrics.target is set to graphite.
 The default is
-metrics.graphite.addr =  </description>
+metrics.graphite.addr = </description>
     </item>
     
     <item>
@@ -207,7 +203,7 @@ metrics.graphite.addr =  </description>
       <guid>https://fabiolb.net/ref/metrics.interval/</guid>
       <description>metrics.interval configures the interval in which metrics are reported.
 The default is
-metrics.interval = 30s  </description>
+metrics.interval = 30s </description>
     </item>
     
     <item>
@@ -217,7 +213,7 @@ metrics.interval = 30s  </description>
       
       <guid>https://fabiolb.net/ref/metrics.names/</guid>
       <description>metrics.names configures the template for the route metric names on backends that don&amp;rsquo;t support tags. This is used in circonus, graphite and statsd_raw. dogstatsd and prometheus ignore this. The value is expanded by the text/template package and provides the following variables:
- Service: the service name Host: the host part of the URL prefix Path: the path part of the URL prefix TargetURL: the URL of the target  The following additional functions are defined:</description>
+Service: the service name Host: the host part of the URL prefix Path: the path part of the URL prefix TargetURL: the URL of the target The following additional functions are defined:</description>
     </item>
     
     <item>
@@ -228,9 +224,9 @@ metrics.interval = 30s  </description>
       <guid>https://fabiolb.net/ref/metrics.prefix/</guid>
       <description>metrics.prefix configures the template for the prefix of all reported metrics.
 Each metric has a unique name which is hard-coded to
-prefix.service.host.path.target-addr  The value is expanded by the text/template package and provides the following variables:
- Hostname: the Hostname of the server Exec: the executable name of application  The following additional functions are defined:
- clean: lowercase value and replace . and : with _  Template may include regular string parts to customize final prefix</description>
+prefix.service.host.path.target-addr The value is expanded by the text/template package and provides the following variables:
+Hostname: the Hostname of the server Exec: the executable name of application The following additional functions are defined:
+clean: lowercase value and replace . and : with _ Template may include regular string parts to customize final prefix</description>
     </item>
     
     <item>
@@ -271,7 +267,7 @@ See https://prometheus.io/docs/practices/instrumentation/#subsystems for more in
       <guid>https://fabiolb.net/ref/metrics.retry/</guid>
       <description>metrics.retry configures the interval with which fabio tries to connect to the metrics backend during startup.
 The default is
-metrics.retry = 500ms  </description>
+metrics.retry = 500ms </description>
     </item>
     
     <item>
@@ -283,7 +279,7 @@ metrics.retry = 500ms  </description>
       <description>metrics.statsd.addr configures the host:port of the StatsD server.
 This is required when metrics.target is set to statsd_raw.
 The default is
-metrics.statsd.addr =  </description>
+metrics.statsd.addr = </description>
     </item>
     
     <item>
@@ -294,7 +290,7 @@ metrics.statsd.addr =  </description>
       <guid>https://fabiolb.net/ref/metrics.target/</guid>
       <description>metrics.target configures the backend the metrics values are sent to.
 Possible values are:
- &amp;lt;empty&amp;gt;: do not report metrics stdout: report metrics to stdout graphite: report metrics to Graphite on metrics.graphite.addr statsd: legacy statsd support, used in v1.5.5 and lower - removed in v1.6 statsd_raw: report metrics to StatsD on metrics.statsd.addr - this was intentionally renamed because anyone upgrading to 1.6 will need to revisit their configuration anyway due to rewrite of this backend.</description>
+&amp;lt;empty&amp;gt;: do not report metrics stdout: report metrics to stdout graphite: report metrics to Graphite on metrics.graphite.addr statsd: legacy statsd support, used in v1.5.5 and lower - removed in v1.6 statsd_raw: report metrics to StatsD on metrics.statsd.addr - this was intentionally renamed because anyone upgrading to 1.6 will need to revisit their configuration anyway due to rewrite of this backend.</description>
     </item>
     
     <item>
@@ -305,7 +301,7 @@ Possible values are:
       <guid>https://fabiolb.net/ref/metrics.timeout/</guid>
       <description>metrics.timeout configures how long fabio tries to connect to the metrics backend during startup.
 The default is
-metrics.timeout = 10s  </description>
+metrics.timeout = 10s </description>
     </item>
     
     <item>
@@ -316,9 +312,9 @@ metrics.timeout = 10s  </description>
       <guid>https://fabiolb.net/ref/proxy.addr/</guid>
       <description>proxy.addr configures listeners.
 Each listener is configured with and address and a list of optional arguments in the form of
-[host]:port;opt=arg;opt[=arg];...  Each listener has a protocol which is configured with the proto option for which it routes and forwards traffic.
+[host]:port;opt=arg;opt[=arg];... Each listener has a protocol which is configured with the proto option for which it routes and forwards traffic.
 The supported protocols are:
- http for HTTP based protocols https for HTTPS based protocols grpc for GRPC based protocols grpcs for GRPC+TLS based protocols tcp for a raw TCP proxy with or witout TLS support tcp+sni for an SNI aware TCP proxy tcp-dynamic for a consul driven TCP proxy https+tcp+sni for an SNI aware TCP proxy with https fallthrough prometheus for a prometheus metrics endpoint.</description>
+http for HTTP based protocols https for HTTPS based protocols grpc for GRPC based protocols grpcs for GRPC+TLS based protocols tcp for a raw TCP proxy with or witout TLS support tcp+sni for an SNI aware TCP proxy tcp-dynamic for a consul driven TCP proxy https+tcp+sni for an SNI aware TCP proxy with https fallthrough prometheus for a prometheus metrics endpoint.</description>
     </item>
     
     <item>
@@ -329,7 +325,7 @@ The supported protocols are:
       <guid>https://fabiolb.net/ref/proxy.auth/</guid>
       <description>proxy.auth configures one or more authorization schemes.
 Each authorization scheme is configured with a list of key/value options. Each scheme must have a unique name which can then be referred to in a routing rule.
-name=&amp;lt;name&amp;gt;;type=&amp;lt;type&amp;gt;;opt=arg;opt[=arg];...  The following types of authorization schemes are available:
+name=&amp;lt;name&amp;gt;;type=&amp;lt;type&amp;gt;;opt=arg;opt[=arg];... The following types of authorization schemes are available:
 Basic The basic authorization scheme leverages Http Basic Auth and reads a htpasswd file at startup and credentials are cached until the service exits.
 The file option contains the path to the htpasswd file.</description>
     </item>
@@ -342,7 +338,7 @@ The file option contains the path to the htpasswd file.</description>
       <guid>https://fabiolb.net/ref/proxy.cs/</guid>
       <description>proxy.cs configures one or more certificate sources.
 Each certificate source is configured with a list of key/value options. Each source must have a unique name which can then be referred to in a listener configuration.
-cs=&amp;lt;name&amp;gt;;type=&amp;lt;type&amp;gt;;opt=arg;opt[=arg];...  All certificates need to be provided in PEM format.
+cs=&amp;lt;name&amp;gt;;type=&amp;lt;type&amp;gt;;opt=arg;opt[=arg];... All certificates need to be provided in PEM format.
 The following types of certificate sources are available:
 File The file certificate source supports one certificate which is loaded at startup and is cached until the service exits.</description>
     </item>
@@ -355,7 +351,7 @@ File The file certificate source supports one certificate which is loaded at sta
       <guid>https://fabiolb.net/ref/proxy.dialtimeout/</guid>
       <description>proxy.dialtimeout configures the connection timeout for outgoing connections by setting the Timeout of the net.Dialer
 The default is
-proxy.dialtimeout = 30s  </description>
+proxy.dialtimeout = 30s </description>
     </item>
     
     <item>
@@ -366,7 +362,7 @@ proxy.dialtimeout = 30s  </description>
       <guid>https://fabiolb.net/ref/proxy.flushinterval/</guid>
       <description>proxy.flushinterval configures periodic flushing of the response buffer for SSE (server-sent events) connections. They are detected when the Accept header is text/event-stream.
 The default is
-proxy.flushinterval = 1s  </description>
+proxy.flushinterval = 1s </description>
     </item>
     
     <item>
@@ -377,7 +373,7 @@ proxy.flushinterval = 1s  </description>
       <guid>https://fabiolb.net/ref/proxy.globalflushinterval/</guid>
       <description>proxy.globalflushinterval configures periodic flushing of the response buffer for proxied non-SSE connections. By default it is disabled.
 The default is
-proxy.globalflushinterval = 0  </description>
+proxy.globalflushinterval = 0 </description>
     </item>
     
     <item>
@@ -399,7 +395,7 @@ By default, responses sent to the client are not compressed even if the client a
       <description>proxy.header.clientip configures the header for the request ip.
 The remote ip address is taken from http.Request.RemoteAddr.
 The default is
-proxy.header.clientip =  </description>
+proxy.header.clientip = </description>
     </item>
     
     <item>
@@ -410,7 +406,7 @@ proxy.header.clientip =  </description>
       <guid>https://fabiolb.net/ref/proxy.header.requestid/</guid>
       <description>proxy.header.requestid configures the header for the adding a unique request id. When set non-empty value the proxy will set this header on every request to the unique UUID value.
 The default is
-proxy.header.requestid =  </description>
+proxy.header.requestid = </description>
     </item>
     
     <item>
@@ -421,7 +417,7 @@ proxy.header.requestid =  </description>
       <guid>https://fabiolb.net/ref/proxy.header.sts.maxage/</guid>
       <description>proxy.header.sts.maxage enables and configures the max-age of HSTS for TLS requests. When set greater than zero this enables the Strict-Transport-Security header and sets the max-age value in the header.
 The default is
-proxy.header.sts.maxage = 0  </description>
+proxy.header.sts.maxage = 0 </description>
     </item>
     
     <item>
@@ -443,7 +439,7 @@ The default is</description>
       <guid>https://fabiolb.net/ref/proxy.header.sts.subdomains/</guid>
       <description>proxy.header.sts.subdomains instructs HSTS to include subdomains. When set to true, the &amp;lsquo;includeSubDomains&amp;rsquo; option will be added to the Strict-Transport-Security header.
 The default is
-proxy.header.sts.subdomains = false  </description>
+proxy.header.sts.subdomains = false </description>
     </item>
     
     <item>
@@ -455,7 +451,7 @@ proxy.header.sts.subdomains = false  </description>
       <description>proxy.header.tls configures the header to set for TLS connections.
 When set to a non-empty value the proxy will set this header on every TLS request to the value of proxy.header.tls.value
 The default is
-proxy.header.tls =  </description>
+proxy.header.tls = </description>
     </item>
     
     <item>
@@ -466,7 +462,7 @@ proxy.header.tls =  </description>
       <guid>https://fabiolb.net/ref/proxy.header.tls.value/</guid>
       <description>proxy.header.tls.value configures the value to set the proxy.header.tls header to for TLS connections.
 The default is
-proxy.header.tls.value =  </description>
+proxy.header.tls.value = </description>
     </item>
     
     <item>
@@ -478,7 +474,7 @@ proxy.header.tls.value =  </description>
       <description>proxy.localip configures the ip address of the proxy which is added to the Header configured by header.clientip and to the Forwarded: by= attribute.
 The local non-loopback address is detected during startup but can be overwritten with this property.
 The default is
-proxy.localip =  </description>
+proxy.localip = </description>
     </item>
     
     <item>
@@ -488,9 +484,10 @@ proxy.localip =  </description>
       
       <guid>https://fabiolb.net/ref/proxy.matcher/</guid>
       <description>proxy.matcher configures the path matching algorithm.
- prefix: prefix matching glob: glob matching  When prefix matching is enabled then the route path must be a prefix of the request URI, e.g. /foo matches /foo, /foot but not /fo.
+prefix: prefix matching glob: glob matching When prefix matching is enabled then the route path must be a prefix of the request URI, e.g. /foo matches /foo, /foot but not /fo.
 When glob matching is enabled the route is evaluated according to globbing rules provided by the Go path.Match function.
-For example, /foo* matches /foo, /fool and /fools. Also, /foo/*/bar matches /foo/x/bar.</description>
+For example, /foo* matches /foo, /fool and /fools. Also, /foo/*/bar matches /foo/x/bar.
+iprefix matching is similar to prefix, except it uses a case insensitive comparison</description>
     </item>
     
     <item>
@@ -502,7 +499,7 @@ For example, /foo* matches /foo, /fool and /fools. Also, /foo/*/bar matches /foo
       <description>proxy.maxconn configures the maximum number of cached incoming and outgoing connections.
 This configures the MaxIdleConnsPerHost of the http.Transport.
 The default is
-proxy.maxconn = 10000  </description>
+proxy.maxconn = 10000 </description>
     </item>
     
     <item>
@@ -513,7 +510,7 @@ proxy.maxconn = 10000  </description>
       <guid>https://fabiolb.net/ref/proxy.noroutestatus/</guid>
       <description>proxy.noroutestatus configures the response code when no route was found.
 The default is
-proxy.noroutestatus = 404  </description>
+proxy.noroutestatus = 404 </description>
     </item>
     
     <item>
@@ -524,7 +521,7 @@ proxy.noroutestatus = 404  </description>
       <guid>https://fabiolb.net/ref/proxy.responseheadertimeout/</guid>
       <description>proxy.responseheadertimeout configures the ResponseHeaderTimeout of the http.Transport.
 The default is
-proxy.responseheadertimeout = 0s  </description>
+proxy.responseheadertimeout = 0s </description>
     </item>
     
     <item>
@@ -536,7 +533,7 @@ proxy.responseheadertimeout = 0s  </description>
       <description>proxy.shutdownwait configures the time for a graceful shutdown.
 After a signal is caught the proxy will immediately suspend routing traffic and respond with a 503 Service Unavailable for the duration of the given period.
 The default is
-proxy.shutdownwait = 0s  </description>
+proxy.shutdownwait = 0s </description>
     </item>
     
     <item>
@@ -546,10 +543,10 @@ proxy.shutdownwait = 0s  </description>
       
       <guid>https://fabiolb.net/ref/proxy.strategy/</guid>
       <description>proxy.strategy configures the load balancing strategy.
-  rnd: pseudo-random distribution configures a pseudo-random distribution by using the microsecond fraction of the time of the request.
-  rr: round-robin distribution configures a round-robin distribution.
-  The default is
-proxy.strategy = rnd  </description>
+rnd: pseudo-random distribution configures a pseudo-random distribution by using the microsecond fraction of the time of the request.
+rr: round-robin distribution configures a round-robin distribution.
+The default is
+proxy.strategy = rnd </description>
     </item>
     
     <item>
@@ -560,7 +557,7 @@ proxy.strategy = rnd  </description>
       <guid>https://fabiolb.net/ref/registry.backend/</guid>
       <description>registry.backend configures which backend is used. Supported backends are: consul, static, file, custom. If custom is used fabio makes an api call to a remote system expecting the below json response
 [ { &amp;#34;cmd&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;service&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;src&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;dst&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;weight&amp;#34;: float, &amp;#34;tags&amp;#34;: [&amp;#34;string&amp;#34;], &amp;#34;opts&amp;#34;: {&amp;#34;string&amp;#34;:&amp;#34;string&amp;#34;} } ] The default is
-registry.backend = consul  Short description of the fields required for a custom backend
+registry.backend = consul Short description of the fields required for a custom backend
 To configure routes Fabio uses a Config Language, specified here</description>
     </item>
     
@@ -572,7 +569,7 @@ To configure routes Fabio uses a Config Language, specified here</description>
       <guid>https://fabiolb.net/ref/registry.consul.addr/</guid>
       <description>registry.consul.addr configures the address of the Consul agent to connect to.
 The default is
-registry.consul.addr = localhost:8500  </description>
+registry.consul.addr = localhost:8500 </description>
     </item>
     
     <item>
@@ -583,8 +580,8 @@ registry.consul.addr = localhost:8500  </description>
       <guid>https://fabiolb.net/ref/registry.consul.checksrequired/</guid>
       <description>registry.consul.checksRequired configures how many health checks must pass in order for fabio to consider a service available.
 Possible values are:
- one: at least one health check must pass all: all health checks must pass  The default is
-registry.consul.checksRequired = one  </description>
+one: at least one health check must pass all: all health checks must pass The default is
+registry.consul.checksRequired = one </description>
     </item>
     
     <item>
@@ -608,7 +605,7 @@ To see all updates you may want to set -log.routes.format to all.</description>
       <description>registry.consul.noroutehtmlpath configures the KV path for the HTML page when no route was found.
 The consul KV path is watched for changes.
 The default is
-registry.consul.noroutehtmlpath = /fabio/noroute.html  </description>
+registry.consul.noroutehtmlpath = /fabio/noroute.html </description>
     </item>
     
     <item>
@@ -619,7 +616,7 @@ registry.consul.noroutehtmlpath = /fabio/noroute.html  </description>
       <guid>https://fabiolb.net/ref/registry.consul.pollinterval/</guid>
       <description>registry.consul.pollInterval configures the poll interval for route updates. If Poll interval is set to 0 the updates will be disabled and fall back to blocking queries. Other values can be any time definition. e.g. 1s, 100ms
 The default is
-registry.consul.pollInterval = 0  </description>
+registry.consul.pollInterval = 0 </description>
     </item>
     
     <item>
@@ -631,7 +628,7 @@ registry.consul.pollInterval = 0  </description>
       <description>registry.consul.register.addr configures the address for the service registration.
 Fabio registers itself in consul with this host:port address. It must point to the UI/API endpoint configured by ui.addr and defaults to its value.
 The default is
-registry.consul.register.addr = :9998  </description>
+registry.consul.register.addr = :9998 </description>
     </item>
     
     <item>
@@ -643,7 +640,7 @@ registry.consul.register.addr = :9998  </description>
       <description>registry.consul.register.checkInterval configures the interval for the health check.
 Fabio registers an http health check on http(s)://ui.addr/health and this value tells consul how often to check it.
 The default is
-registry.consul.register.checkInterval = 1s  </description>
+registry.consul.register.checkInterval = 1s </description>
     </item>
     
     <item>
@@ -655,7 +652,7 @@ registry.consul.register.checkInterval = 1s  </description>
       <description>registry.consul.register.checkTimeout configures the timeout for the health check.
 Fabio registers an http health check on http(s)://ui.addr/health and this value tells Consul how long to wait for a response.
 The default is
-registry.consul.register.checkTimeout = 3s  </description>
+registry.consul.register.checkTimeout = 3s </description>
     </item>
     
     <item>
@@ -667,7 +664,7 @@ registry.consul.register.checkTimeout = 3s  </description>
       <description>registry.consul.register.checkTLSSkipVerify configures TLS verification for the health check.
 Fabio registers an http health check on http(s)://ui.addr/health and this value tells consul to skip TLS certificate validation for https checks.
 The default is
-registry.consul.register.checkTLSSkipVerify = false  </description>
+registry.consul.register.checkTLSSkipVerify = false </description>
     </item>
     
     <item>
@@ -690,7 +687,7 @@ At the time of this writing, Consul enforces a minimum value of one minute and r
       <description>registry.consul.register.enabled configures whether fabio registers itself in Consul.
 Fabio will register itself in consul only if this value is set to true which is the default. To disable registration set it to any other value, e.g. false
 The default is
-registry.consul.register.enabled = true  </description>
+registry.consul.register.enabled = true </description>
     </item>
     
     <item>
@@ -702,7 +699,7 @@ registry.consul.register.enabled = true  </description>
       <description>registry.consul.register.name configures the name for the service registration.
 Fabio registers itself in consul under this service name.
 The default is
-registry.consul.register.name = fabio  </description>
+registry.consul.register.name = fabio </description>
     </item>
     
     <item>
@@ -714,7 +711,7 @@ registry.consul.register.name = fabio  </description>
       <description>registry.consul.register.tags configures the tags for the service registration.
 Fabio registers itself with these tags. You can provide a comma separated list of tags.
 The default is
-registry.consul.register.tags =  </description>
+registry.consul.register.tags = </description>
     </item>
     
     <item>
@@ -726,7 +723,7 @@ registry.consul.register.tags =  </description>
       <description>registry.consul.service.status configures the valid service status values for services included in the routing table.
 The values are a comma separated list of passing, warning, critical and unknown
 The default is
-registry.consul.service.status = passing  </description>
+registry.consul.service.status = passing </description>
     </item>
     
     <item>
@@ -737,7 +734,7 @@ registry.consul.service.status = passing  </description>
       <guid>https://fabiolb.net/ref/registry.consul.servicemonitors/</guid>
       <description>registry.consul.serviceMonitors configures the concurrency for route updates. Fabio will make up to the configured number of concurrent calls to Consul to fetch status data for route updates.
 The default is
-registry.consul.serviceMonitors = 1  </description>
+registry.consul.serviceMonitors = 1 </description>
     </item>
     
     <item>
@@ -749,7 +746,7 @@ registry.consul.serviceMonitors = 1  </description>
       <description>registry.consul.tagprefix configures the prefix for tags which define routes.
 Services which define routes publish one or more tags with host/path routes which they serve. These tags must have this prefix to be recognized as routes.
 The default is
-registry.consul.tagprefix = urlprefix-  </description>
+registry.consul.tagprefix = urlprefix- </description>
     </item>
     
     <item>
@@ -760,7 +757,7 @@ registry.consul.tagprefix = urlprefix-  </description>
       <guid>https://fabiolb.net/ref/registry.consul.token/</guid>
       <description>registry.consul.token configures the acl token for consul.
 The default is
-registry.consul.token =  </description>
+registry.consul.token = </description>
     </item>
     
     <item>
@@ -794,8 +791,8 @@ registry.custom.host = </description>
       <description>registry.custom.path is the path used in the custom back end API Call
 The path does not need to contain the initial &amp;lsquo;/&amp;rsquo;
 Example:
- registry.custom.path = api/v1/  The default is
- registry.custom.path = </description>
+registry.custom.path = api/v1/ The default is
+registry.custom.path = </description>
     </item>
     
     <item>
@@ -818,7 +815,7 @@ registry.custom.pollinterval = 10s </description>
       <description>registry.custom.queryparams is the query parameters used in the custom back end API Call
 Multiple query parameters should be separated with an &amp;amp;
 Example:
- registry.custom.queryparams = foo=bar&amp;amp;bar=foo  The default is
+registry.custom.queryparams = foo=bar&amp;amp;bar=foo The default is
 registry.custom.queryparams = </description>
     </item>
     
@@ -852,7 +849,7 @@ registry.custom.timeout = 5s </description>
       <guid>https://fabiolb.net/ref/registry.file.noroutehtmlpath/</guid>
       <description>registry.file.noroutehtmlpath configures the path the HTML page when no route was found.
 The default is
-registry.file.noroutehtmlpath =  </description>
+registry.file.noroutehtmlpath = </description>
     </item>
     
     <item>
@@ -863,7 +860,7 @@ registry.file.noroutehtmlpath =  </description>
       <guid>https://fabiolb.net/ref/registry.file.path/</guid>
       <description>registry.file.path configures a file based routing table. The value configures the path to the file with the routing table.
 The default is
-registry.file.path =  </description>
+registry.file.path = </description>
     </item>
     
     <item>
@@ -874,7 +871,7 @@ registry.file.path =  </description>
       <guid>https://fabiolb.net/ref/registry.retry/</guid>
       <description>registry.retry configures the interval with which fabio tries to connect to the registry during startup.
 The default is
-registry.retry = 500ms  </description>
+registry.retry = 500ms </description>
     </item>
     
     <item>
@@ -885,7 +882,7 @@ registry.retry = 500ms  </description>
       <guid>https://fabiolb.net/ref/registry.static.noroutehtmlpath/</guid>
       <description>registry.static.noroutehtml configures the the HTML for the page when no route was found.
 The default is
-registry.static.noroutehtmlpath =  </description>
+registry.static.noroutehtmlpath = </description>
     </item>
     
     <item>
@@ -895,8 +892,8 @@ registry.static.noroutehtmlpath =  </description>
       
       <guid>https://fabiolb.net/ref/registry.static.routes/</guid>
       <description>registry.static.routes configures a static routing table.
-Example registry.static.routes = \ route add svc / http://1.2.3.4:5000/  The default is
-registry.static.routes =  </description>
+Example registry.static.routes = \ route add svc / http://1.2.3.4:5000/ The default is
+registry.static.routes = </description>
     </item>
     
     <item>
@@ -907,7 +904,7 @@ registry.static.routes =  </description>
       <guid>https://fabiolb.net/ref/registry.timeout/</guid>
       <description>registry.timeout configures how long fabio tries to connect to the registry backend during startup.
 The default is
-registry.timeout = 10s  </description>
+registry.timeout = 10s </description>
     </item>
     
     <item>
@@ -921,7 +918,7 @@ Setting runtime.gogc is equivalent to setting the GOGC environment variable whic
 Increasing this value means fewer but longer GC cycles since there is more garbage to collect.
 NOTE - the default for fabio up to 1.5.14 was 800. This changed to 100 in version 1.5.15
 The default is
-runtime.gogc = 100  </description>
+runtime.gogc = 100 </description>
     </item>
     
     <item>
@@ -934,7 +931,7 @@ runtime.gogc = 100  </description>
 Setting runtime.gomaxprocs is equivalent to setting the GOMAXPROCS environment variable which also takes precedence over the value from the config file.
 If runtime.gomaxprocs &amp;lt; 0 then all CPU cores are used.
 The default is
-runtime.gomaxprocs = -1  </description>
+runtime.gomaxprocs = -1 </description>
     </item>
     
     <item>
@@ -944,8 +941,8 @@ runtime.gomaxprocs = -1  </description>
       
       <guid>https://fabiolb.net/ref/ui.access/</guid>
       <description>ui.access configures the access mode for the UI.
- ro: read-only access rw: read-write access  The default is
-ui.access = rw  </description>
+ro: read-only access rw: read-write access The default is
+ui.access = rw </description>
     </item>
     
     <item>
@@ -958,7 +955,7 @@ ui.access = rw  </description>
 The listener uses the same syntax as proxy.addr but supports only a single listener.
 To enable HTTPS configure a certificate source. You should use a different certificate source than the one you use for the external connections, e.g. cs=ui.
 The default is
-ui.addr = :9998  </description>
+ui.addr = :9998 </description>
     </item>
     
     <item>
@@ -969,7 +966,7 @@ ui.addr = :9998  </description>
       <guid>https://fabiolb.net/ref/ui.color/</guid>
       <description>ui.color configures the background color of the UI. Color names are from http://materializecss.com/color.html
 The default is
-ui.color = light-green  </description>
+ui.color = light-green </description>
     </item>
     
     <item>
@@ -980,7 +977,7 @@ ui.color = light-green  </description>
       <guid>https://fabiolb.net/ref/ui.title/</guid>
       <description>ui.title configures an optional title for the UI.
 The default is
-ui.title =  </description>
+ui.title = </description>
     </item>
     
   </channel>

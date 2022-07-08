@@ -212,29 +212,29 @@ table contains comments on the source of the fragment.</p>
 </tbody>
 </table>
 <h5 id="example">Example</h5>
-<pre><code># route traffic for product-svc to 1.2.3.4:8000 and :9000
+<pre tabindex="0"><code># route traffic for product-svc to 1.2.3.4:8000 and :9000
 route add product-svc /product http://1.2.3.4:8000
 route add product-svc /product http://1.2.3.4:9000
 </code></pre><h3 id="route-del"><code>route del</code></h3>
 <p>Remove one or more routes which match the given criteria.</p>
-<pre><code>route del &lt;svc&gt;[ &lt;src&gt;[ &lt;dst&gt;]]
-route del &lt;svc&gt; tags &quot;&lt;t1&gt;,&lt;t2&gt;,...&quot;
-route del tags &quot;&lt;t1&gt;,&lt;t2&gt;,...&quot;
+<pre tabindex="0"><code>route del &lt;svc&gt;[ &lt;src&gt;[ &lt;dst&gt;]]
+route del &lt;svc&gt; tags &#34;&lt;t1&gt;,&lt;t2&gt;,...&#34;
+route del tags &#34;&lt;t1&gt;,&lt;t2&gt;,...&#34;
 </code></pre><h5 id="example-1">Example</h5>
-<pre><code># remove all routes for 'product-svc'
+<pre tabindex="0"><code># remove all routes for &#39;product-svc&#39;
 route del product-svc
 
-# remove all routes for 'product-svc' and /path
+# remove all routes for &#39;product-svc&#39; and /path
 route del product-svc /path
 
 # remove single route
 route del product-svc /path http://1.2.3.4:8000
 
-# remove all routes for 'product-svc' matching a tag
-route del product-svc tags &quot;green&quot;
+# remove all routes for &#39;product-svc&#39; matching a tag
+route del product-svc tags &#34;green&#34;
 
 # remove all routes matching a tag
-route del tags &quot;yesterday&quot;
+route del tags &#34;yesterday&#34;
 </code></pre><h3 id="route-weight"><code>route weight</code></h3>
 <p>Directs a certain amount of traffic to instances matching certain criteria.</p>
 <p>The weight <code>w</code> is expressed as follows:</p>
@@ -247,19 +247,19 @@ route del tags &quot;yesterday&quot;
 <p>Note that the total sum of traffic sent to all matching routes is <code>w</code>%.</p>
 <p>The order of commands matters but routes are always ordered from most to least
 specific by prefix length.</p>
-<pre><code>route weight &lt;svc&gt; &lt;src&gt; weight &lt;w&gt; tags &quot;&lt;t1&gt;,&lt;t2&gt;,...&quot;
-route weight &lt;src&gt; weight &lt;w&gt; tags &quot;&lt;t1&gt;,&lt;t2&gt;,...&quot;
+<pre tabindex="0"><code>route weight &lt;svc&gt; &lt;src&gt; weight &lt;w&gt; tags &#34;&lt;t1&gt;,&lt;t2&gt;,...&#34;
+route weight &lt;src&gt; weight &lt;w&gt; tags &#34;&lt;t1&gt;,&lt;t2&gt;,...&#34;
 route weight &lt;svc&gt; &lt;src&gt; weight &lt;w&gt;
-route weight service host/path weight w tags &quot;tag1,tag2&quot;
+route weight service host/path weight w tags &#34;tag1,tag2&#34;
 </code></pre><h5 id="example-2">Example</h5>
-<pre><code># Route 5% of the traffic to product-svc:/path with tags &quot;green&quot;
-route weight product-svc /path weight .05 tags &quot;green&quot;
+<pre tabindex="0"><code># Route 5% of the traffic to product-svc:/path with tags &#34;green&#34;
+route weight product-svc /path weight .05 tags &#34;green&#34;
 
-# Route 5% of the traffic to '/path' to the Go implementation.
+# Route 5% of the traffic to &#39;/path&#39; to the Go implementation.
 # Route the rest (95%) to the other implementation
-route weight /path weight .05 tags &quot;lang=go&quot;
+route weight /path weight .05 tags &#34;lang=go&#34;
 
-# Route 5% of the traffice to '/path' on the product-svc-go
+# Route 5% of the traffice to &#39;/path&#39; on the product-svc-go
 route weight product-svc-go /path weight .05
 </code></pre><h3 id="routing-rules">Routing rules</h3>
 <p>The routing table contains first all routes with a host sorted by prefix
@@ -272,22 +272,22 @@ match - just <code>/path</code> matches.</p>
 strategy. <code>rnd</code> and <code>rr</code> are available with <code>rnd</code> being the default.</p>
 <h5 id="example-3">Example</h5>
 <p>The auto-generated routing table is</p>
-<pre><code>route add service-a www.mp.dev/accounts/ http://host-a:11050/ tags &quot;a,b&quot;
-route add service-a www.kjca.dev/accounts/ http://host-a:11050/ tags &quot;a,b&quot;
-route add service-a www.dba.dev/accounts/ http://host-a:11050/ tags &quot;a,b&quot;
-route add service-b www.mp.dev/auth/ http://host-b:11080/ tags &quot;a,b&quot;
-route add service-b www.kjca.dev/auth/ http://host-b:11080/ tags &quot;a,b&quot;
-route add service-b www.dba.dev/auth/ http://host-b:11080/ tags &quot;a,b&quot;
+<pre tabindex="0"><code>route add service-a www.mp.dev/accounts/ http://host-a:11050/ tags &#34;a,b&#34;
+route add service-a www.kjca.dev/accounts/ http://host-a:11050/ tags &#34;a,b&#34;
+route add service-a www.dba.dev/accounts/ http://host-a:11050/ tags &#34;a,b&#34;
+route add service-b www.mp.dev/auth/ http://host-b:11080/ tags &#34;a,b&#34;
+route add service-b www.kjca.dev/auth/ http://host-b:11080/ tags &#34;a,b&#34;
+route add service-b www.dba.dev/auth/ http://host-b:11080/ tags &#34;a,b&#34;
 </code></pre><p>The manual configuration under <code>/fabio/config</code> is</p>
-<pre><code>route del service-b www.dba.dev/auth/
+<pre tabindex="0"><code>route del service-b www.dba.dev/auth/
 route add service-c www.somedomain.com/ http://host-z:12345/
 </code></pre><p>The complete routing table then is</p>
-<pre><code>route add service-a www.mp.dev/accounts/ http://host-a:11050/ tags &quot;a,b&quot;
-route add service-a www.kjca.dev/accounts/ http://host-a:11050/ tags &quot;a,b&quot;
-route add service-a www.dba.dev/accounts/ http://host-a:11050/ tags &quot;a,b&quot;
-route add service-b www.mp.dev/auth/ http://host-b:11080/ tags &quot;a,b&quot;
-route add service-b www.kjca.dev/auth/ http://host-b:11080/ tags &quot;a,b&quot;
-route add service-c www.somedomain.com/ http://host-z:12345/ tags &quot;a,b&quot;
+<pre tabindex="0"><code>route add service-a www.mp.dev/accounts/ http://host-a:11050/ tags &#34;a,b&#34;
+route add service-a www.kjca.dev/accounts/ http://host-a:11050/ tags &#34;a,b&#34;
+route add service-a www.dba.dev/accounts/ http://host-a:11050/ tags &#34;a,b&#34;
+route add service-b www.mp.dev/auth/ http://host-b:11080/ tags &#34;a,b&#34;
+route add service-b www.kjca.dev/auth/ http://host-b:11080/ tags &#34;a,b&#34;
+route add service-c www.somedomain.com/ http://host-z:12345/ tags &#34;a,b&#34;
 </code></pre>
       </section>
 
@@ -308,7 +308,7 @@ route add service-c www.somedomain.com/ http://host-z:12345/ tags &quot;a,b&quot
                 Copyright &copy; 2020-2022 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 8 Jul 2022 15:44
+                Last updated on 8 Jul 2022 22:28
             </p>
           </div>
           <div class="col-md-6 col-sm-6">

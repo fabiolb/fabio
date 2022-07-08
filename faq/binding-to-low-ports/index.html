@@ -165,9 +165,9 @@ described below.</p>
 <p>These best practices are taken from <a href="https://github.com/fabiolb/fabio/issues/195">https://github.com/fabiolb/fabio/issues/195</a>.</p>
 <h4 id="linux">Linux</h4>
 <p>Provide <code>net_bind_service</code> capability to fabio binary</p>
-<pre><code>$ setcap 'cap_net_bind_service=+ep' $(which fabio)
+<pre tabindex="0"><code>$ setcap &#39;cap_net_bind_service=+ep&#39; $(which fabio)
 </code></pre><p>When using <code>systemd</code> you can use the following service definition:</p>
-<pre><code>$ cat /etc/systemd/system/fabio.service
+<pre tabindex="0"><code>$ cat /etc/systemd/system/fabio.service
 
 [Unit]
 Description=Fabio proxy
@@ -200,58 +200,57 @@ NoNewPrivileges=yes
 RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
 </code></pre><h4 id="solarisillumossmartos">Solaris/Illumos/SmartOS</h4>
 <p>Provide <code>net_privaddr</code> privileges to fabio user</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ /usr/sbin/usermod -K defaultpriv<span style="color:#f92672">=</span>basic,net_privaddr fabio_user
-
-$ grep fabio_user /etc/user_attr
-fabio_user::::type<span style="color:#f92672">=</span>normal;defaultpriv<span style="color:#f92672">=</span>basic,net_privaddr
-</code></pre></div><h4 id="provide-privilege-to-fabio-process-syntax-needs-review">Provide privilege to fabio process (syntax needs review)</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ /usr/sbin/ppriv -s PELI+NET_PRIVADDR -e fabio
-</code></pre></div><h4 id="openbsdfreebsdnetbsd">OpenBSD/FreeBSD/NetBSD</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ /usr/sbin/usermod -K defaultpriv<span style="color:#f92672">=</span>basic,net_privaddr fabio_user
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$ grep fabio_user /etc/user_attr
+</span></span><span style="display:flex;"><span>fabio_user::::type<span style="color:#f92672">=</span>normal;defaultpriv<span style="color:#f92672">=</span>basic,net_privaddr
+</span></span></code></pre></div><h4 id="provide-privilege-to-fabio-process-syntax-needs-review">Provide privilege to fabio process (syntax needs review)</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ /usr/sbin/ppriv -s PELI+NET_PRIVADDR -e fabio
+</span></span></code></pre></div><h4 id="openbsdfreebsdnetbsd">OpenBSD/FreeBSD/NetBSD</h4>
 <p>Use <code>PF</code> to forward from low port to high port.</p>
-<pre><code>/etc/pf.conf
+<pre tabindex="0"><code>/etc/pf.conf
 
-EXT_IF = &quot;eth0&quot;
+EXT_IF = &#34;eth0&#34;
 HTTPS_PORT = 443
 HTTPS_PORT_BACKEND = 4343
-LOCAL_IP = &quot;127.0.0.1&quot;
+LOCAL_IP = &#34;127.0.0.1&#34;
 
 ...
 
 pass in quick on $EXT_IF inet proto tcp from any to $LOCAL_IP port $HTTPS_PORT rdr-to $LOCAL_IP port $HTTPS_PORT_BACKEND
-
 </code></pre><h4 id="freebsd-change-the-range-of-reserved-ports-this-looks-dangerous">FreeBSD: Change the range of reserved ports (this looks dangerous)</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sysctl net.inet.ip.portrange.reservedhigh<span style="color:#f92672">=</span><span style="color:#ae81ff">79</span>
-
-<span style="color:#75715e"># add to /etc/sysctl.conf to make this permament</span>
-</code></pre></div><h4 id="macos-needs-review-by-sme">macOS (needs review by SME)</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ sysctl net.inet.ip.portrange.reservedhigh<span style="color:#f92672">=</span><span style="color:#ae81ff">79</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># add to /etc/sysctl.conf to make this permament</span>
+</span></span></code></pre></div><h4 id="macos-needs-review-by-sme">macOS (needs review by SME)</h4>
 <p>Use <code>launchd</code> to launch fabio by creating a service plist and using launchctl to run it:</p>
 <p><code>$sudo launchctl load -w /path/to/fabio.plist</code></p>
 <p>Example plist XML (needs reviewing):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
-<span style="color:#75715e">&lt;!DOCTYPE plist
-</span><span style="color:#75715e">  PUBLIC &#39;-//Apple//DTD PLIST 1.0//EN&#39;
-</span><span style="color:#75715e">  &#39;http://www.apple.com/DTDs/PropertyList-1.0.dtd&#39;&gt;</span>
-<span style="color:#f92672">&lt;plist</span> <span style="color:#a6e22e">version=</span><span style="color:#e6db74">&#34;1.0&#34;</span><span style="color:#f92672">&gt;</span>
-	<span style="color:#f92672">&lt;dict</span><span style="color:#f92672">&gt;</span>
-		<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>Label<span style="color:#f92672">&lt;/key&gt;</span>
-		<span style="color:#f92672">&lt;string</span><span style="color:#f92672">&gt;</span>com.github.fabiolb.fabio<span style="color:#f92672">&lt;/string&gt;</span>
-		<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>Program<span style="color:#f92672">&lt;/key&gt;</span>
-		<span style="color:#f92672">&lt;string</span><span style="color:#f92672">&gt;</span>fabio<span style="color:#f92672">&lt;/string&gt;</span>
-		<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>Sockets<span style="color:#f92672">&lt;/key&gt;</span>
-		<span style="color:#f92672">&lt;dict</span><span style="color:#f92672">&gt;</span>
-			<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>Listeners<span style="color:#f92672">&lt;/key&gt;</span>
-			<span style="color:#f92672">&lt;dict</span><span style="color:#f92672">&gt;</span>
-				<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>SockServiceName<span style="color:#f92672">&lt;/key&gt;</span>
-				<span style="color:#f92672">&lt;string</span><span style="color:#f92672">&gt;</span>80<span style="color:#f92672">&lt;/string&gt;</span>
-				<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>SockType<span style="color:#f92672">&lt;/key&gt;</span>
-				<span style="color:#f92672">&lt;string</span><span style="color:#f92672">&gt;</span>stream<span style="color:#f92672">&lt;/string&gt;</span>
-				<span style="color:#f92672">&lt;key</span><span style="color:#f92672">&gt;</span>SockFamily<span style="color:#f92672">&lt;/key&gt;</span>
-				<span style="color:#f92672">&lt;string</span><span style="color:#f92672">&gt;</span>IPv4<span style="color:#f92672">&lt;/string&gt;</span>
-			<span style="color:#f92672">&lt;/dict&gt;</span>
-		<span style="color:#f92672">&lt;/dict&gt;</span>
-	<span style="color:#f92672">&lt;/dict&gt;</span>
-<span style="color:#f92672">&lt;/plist&gt;</span>
-</code></pre></div><h4 id="windows">Windows</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">&lt;!DOCTYPE plist
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">  PUBLIC &#39;-//Apple//DTD PLIST 1.0//EN&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">  &#39;http://www.apple.com/DTDs/PropertyList-1.0.dtd&#39;&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;plist</span> <span style="color:#a6e22e">version=</span><span style="color:#e6db74">&#34;1.0&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&lt;dict&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;key&gt;</span>Label<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;string&gt;</span>com.github.fabiolb.fabio<span style="color:#f92672">&lt;/string&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;key&gt;</span>Program<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;string&gt;</span>fabio<span style="color:#f92672">&lt;/string&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;key&gt;</span>Sockets<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;dict&gt;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">&lt;key&gt;</span>Listeners<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">&lt;dict&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;key&gt;</span>SockServiceName<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;string&gt;</span>80<span style="color:#f92672">&lt;/string&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;key&gt;</span>SockType<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;string&gt;</span>stream<span style="color:#f92672">&lt;/string&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;key&gt;</span>SockFamily<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;string&gt;</span>IPv4<span style="color:#f92672">&lt;/string&gt;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">&lt;/dict&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;/dict&gt;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&lt;/dict&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/plist&gt;</span>
+</span></span></code></pre></div><h4 id="windows">Windows</h4>
 <p>???</p>
 
         
@@ -274,7 +273,7 @@ pass in quick on $EXT_IF inet proto tcp from any to $LOCAL_IP port $HTTPS_PORT r
                 Copyright &copy; 2020-2022 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 8 Jul 2022 15:44
+                Last updated on 8 Jul 2022 22:28
             </p>
           </div>
           <div class="col-md-6 col-sm-6">

@@ -202,12 +202,12 @@ specify one of <code>allow</code> or <code>deny</code> options per route to cont
 Currently only source ip control is available.</p>
 <p>To allow access to a route from clients within the <code>192.168.1.0/24</code>
 and <code>fe80::/10</code> subnet you would add the following option:</p>
-<pre><code>allow=ip:192.168.1.0/24,ip:fe80::/10
+<pre tabindex="0"><code>allow=ip:192.168.1.0/24,ip:fe80::/10
 </code></pre><p>With this specified only clients sourced from those two subnets will
 be allowed.  All other requests to that route will be denied.</p>
 <p>Inversely, to deny a specific set of clients you can use the
 following option syntax:</p>
-<pre><code>deny=ip:fe80::1234,100.123.0.0/16
+<pre tabindex="0"><code>deny=ip:fe80::1234,100.123.0.0/16
 </code></pre><p>With this configuration access will be denied to any clients with
 the <code>fe80::1234</code> address or coming from the <code>100.123.0.0/16</code> network.</p>
 <p>Single host addresses (addresses without a prefix) will have a
@@ -247,7 +247,7 @@ be used for both <code>HTTP</code> and <code>TCP</code> connections for validati
                 Copyright &copy; 2020-2022 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 8 Jul 2022 15:44
+                Last updated on 8 Jul 2022 22:28
             </p>
           </div>
           <div class="col-md-6 col-sm-6">

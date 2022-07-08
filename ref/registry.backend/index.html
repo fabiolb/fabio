@@ -318,18 +318,18 @@
         <p><code>registry.backend</code> configures which backend is used.
 Supported backends are: <code>consul</code>, <code>static</code>, <code>file</code>, <code>custom</code>. If custom is used fabio makes an api
 call to a remote system expecting the below json response</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">[
- {
-  <span style="color:#f92672">&#34;cmd&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>,
-  <span style="color:#f92672">&#34;service&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>,
-  <span style="color:#f92672">&#34;src&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>,
-  <span style="color:#f92672">&#34;dst&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>,
-  <span style="color:#f92672">&#34;weight&#34;</span>: <span style="color:#960050;background-color:#1e0010">f</span><span style="color:#960050;background-color:#1e0010">l</span><span style="color:#960050;background-color:#1e0010">o</span><span style="color:#960050;background-color:#1e0010">a</span><span style="color:#960050;background-color:#1e0010">t</span>,
-  <span style="color:#f92672">&#34;tags&#34;</span>: [<span style="color:#e6db74">&#34;string&#34;</span>],
-  <span style="color:#f92672">&#34;opts&#34;</span>: {<span style="color:#f92672">&#34;string&#34;</span>:<span style="color:#e6db74">&#34;string&#34;</span>}
- }
-]
-</code></pre></div><p>The default is</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;cmd&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;service&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;src&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;dst&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;weight&#34;</span>: <span style="color:#960050;background-color:#1e0010">float</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;tags&#34;</span>: [<span style="color:#e6db74">&#34;string&#34;</span>],
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;opts&#34;</span>: {<span style="color:#f92672">&#34;string&#34;</span>:<span style="color:#e6db74">&#34;string&#34;</span>}
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p>The default is</p>
 <pre><code>registry.backend = consul
 </code></pre>
 <p>Short description of the fields required for a custom backend</p>
@@ -364,7 +364,7 @@ call to a remote system expecting the below json response</p>
                 Copyright &copy; 2020-2022 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 8 Jul 2022 15:44
+                Last updated on 8 Jul 2022 22:28
             </p>
           </div>
           <div class="col-md-6 col-sm-6">
