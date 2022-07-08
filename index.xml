@@ -825,8 +825,9 @@ proxy.strategy = rnd  </description>
       
       <guid>https://fabiolb.net/ref/registry.backend/</guid>
       <description>registry.backend configures which backend is used. Supported backends are: consul, static, file, custom. If custom is used fabio makes an api call to a remote system expecting the below json response
-[ { &amp;#34;cmd&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;service&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;src&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;dest&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;weight&amp;#34;: float, &amp;#34;tags&amp;#34;: [&amp;#34;string&amp;#34;], &amp;#34;opts&amp;#34;: {&amp;#34;string&amp;#34;:&amp;#34;string&amp;#34;} } ] The default is
-registry.backend = consul  </description>
+[ { &amp;#34;cmd&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;service&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;src&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;dst&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;weight&amp;#34;: float, &amp;#34;tags&amp;#34;: [&amp;#34;string&amp;#34;], &amp;#34;opts&amp;#34;: {&amp;#34;string&amp;#34;:&amp;#34;string&amp;#34;} } ] The default is
+registry.backend = consul  Short description of the fields required for a custom backend
+To configure routes Fabio uses a Config Language, specified here</description>
     </item>
     
     <item>

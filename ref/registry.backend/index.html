@@ -323,7 +323,7 @@ call to a remote system expecting the below json response</p>
   <span style="color:#f92672">&#34;cmd&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>,
   <span style="color:#f92672">&#34;service&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>,
   <span style="color:#f92672">&#34;src&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>,
-  <span style="color:#f92672">&#34;dest&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>,
+  <span style="color:#f92672">&#34;dst&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>,
   <span style="color:#f92672">&#34;weight&#34;</span>: <span style="color:#960050;background-color:#1e0010">f</span><span style="color:#960050;background-color:#1e0010">l</span><span style="color:#960050;background-color:#1e0010">o</span><span style="color:#960050;background-color:#1e0010">a</span><span style="color:#960050;background-color:#1e0010">t</span>,
   <span style="color:#f92672">&#34;tags&#34;</span>: [<span style="color:#e6db74">&#34;string&#34;</span>],
   <span style="color:#f92672">&#34;opts&#34;</span>: {<span style="color:#f92672">&#34;string&#34;</span>:<span style="color:#e6db74">&#34;string&#34;</span>}
@@ -332,6 +332,17 @@ call to a remote system expecting the below json response</p>
 </code></pre></div><p>The default is</p>
 <pre><code>registry.backend = consul
 </code></pre>
+<p>Short description of the fields required for a custom backend</p>
+<p>To configure routes Fabio uses a Config Language, specified <a href="https://fabiolb.net/cfg/">here</a></p>
+<ul>
+<li>cmd - the command to add, remove or change weight of a route. For example <code>route add</code> to add a new route mapping.</li>
+<li>service - the name that the service will show up in the UI.</li>
+<li>src - usually the prefix that will be used in the routing table.</li>
+<li>dst - the endpoint that will be used as the destination of the routing table.</li>
+<li>weight - defines the weight of this path to perform routing. For example route A 90% and route B 10% for canary deployments.</li>
+<li>tags - a list of tags, provide a way to filter routes, making it easier to do operations like bulk deletes <code>route del tags &quot;dev&quot;</code>.</li>
+<li>opts - a KV map of the config language list of options. for example <code>proto</code> or <code>prefix</code></li>
+</ul>
 
         
       </section>
@@ -353,7 +364,7 @@ call to a remote system expecting the below json response</p>
                 Copyright &copy; 2020-2022 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 8 Jul 2022 15:30
+                Last updated on 8 Jul 2022 15:44
             </p>
           </div>
           <div class="col-md-6 col-sm-6">
