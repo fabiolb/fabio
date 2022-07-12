@@ -32,3 +32,26 @@ p.since::before {
 p.since {
 	font-size: 16px;
 }
+
+/* adjustment to code example sections so they are more readable */
+pre[class*="language"], pre code[class*="language"] {
+	text-shadow: none;
+	color: #808080;
+}
+pre code .token.operator, pre code[class*="operator"] {
+	background: inherit;
+}
+.clipboard-copy {
+	top: 6px !important;
+	right: 8px;
+	color: #808080;
+	background-color: transparent;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	font-weight: 600;
+	opacity: 1;
+	padding: 2px 5px;
+}
+pre .language-name {
+	right: 75px;
+}
