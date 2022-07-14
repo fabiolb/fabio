@@ -20,8 +20,8 @@ GOVERSION ?= $(shell go version | awk '{print $$3;}')
 GORELEASER ?= $(shell which goreleaser)
 
 # pin versions for CI builds
-CI_CONSUL_VERSION ?= 1.8.4
-CI_VAULT_VERSION ?= 1.5.2
+CI_CONSUL_VERSION ?= 1.12.3
+CI_VAULT_VERSION ?= 1.11.0
 CI_HUGO_VERSION ?= 0.101.0
 
 BETA_OSES = linux darwin
@@ -31,7 +31,7 @@ all: test
 
 # help prints a help screen
 help:
-	@echo "generate  - go generate"
+	@echo "generate  - go generate (use it when updating admin ui assets)"
 	@echo "build     - go build"
 	@echo "install   - go install"
 	@echo "test      - go test"
@@ -50,7 +50,7 @@ generate: clean-adm
 
 # build compiles fabio and the test dependencies
 .PHONY: build
-build: generate gofmt
+build: gofmt
 	go build $(GOFLAGS)
 
 # test builds and runs the tests
