@@ -43,7 +43,6 @@ require (
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
 	github.com/pkg/profile v1.5.0
 	github.com/prometheus/client_golang v1.4.0
-	github.com/rakyll/statik v0.1.7
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/rogpeppe/fastuuid v1.2.0
 	github.com/sergi/go-diff v1.2.0
@@ -59,4 +58,4 @@ require (
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
 
-go 1.13
+go 1.16
