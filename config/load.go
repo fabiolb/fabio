@@ -138,6 +138,8 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.IntVar(&cfg.Proxy.STSHeader.MaxAge, "proxy.header.sts.maxage", defaultConfig.Proxy.STSHeader.MaxAge, "enable and set the max-age value for HSTS")
 	f.BoolVar(&cfg.Proxy.STSHeader.Subdomains, "proxy.header.sts.subdomains", defaultConfig.Proxy.STSHeader.Subdomains, "direct HSTS to include subdomains")
 	f.BoolVar(&cfg.Proxy.STSHeader.Preload, "proxy.header.sts.preload", defaultConfig.Proxy.STSHeader.Preload, "direct HSTS to pass the preload directive")
+	f.IntVar(&cfg.Proxy.GRPCMaxRxMsgSize, "proxy.grpcmaxrxmsgsize", defaultConfig.Proxy.GRPCMaxRxMsgSize, "max grpc receive message size (in bytes)")
+	f.IntVar(&cfg.Proxy.GRPCMaxTxMsgSize, "proxy.grpcmaxtxmsgsize", defaultConfig.Proxy.GRPCMaxTxMsgSize, "max grpc transmit message size (in bytes)")
 	f.StringVar(&gzipContentTypesValue, "proxy.gzip.contenttype", defaultValues.GZIPContentTypesValue, "regexp of content types to compress")
 	f.StringVar(&listenerValue, "proxy.addr", defaultValues.ListenerValue, "listener config")
 	f.StringVar(&certSourcesValue, "proxy.cs", defaultValues.CertSourcesValue, "certificate sources")
