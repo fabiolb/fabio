@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine3.16 AS build
+FROM golang:1.18-alpine3.16 AS build
 
 ARG consul_version=1.12.3
 ADD https://releases.hashicorp.com/consul/${consul_version}/consul_${consul_version}_linux_amd64.zip /usr/local/bin

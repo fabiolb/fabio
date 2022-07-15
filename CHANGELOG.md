@@ -1,6 +1,34 @@
 ## Changelog
 
-### [v1.6.0](https://github.com/fabiolb/fabio/releases/tag/v1.5.15) - 11 April 2022
+### [v1.6.1](https://github.com/fabiolb/fabio/releases/tag/v1.6.1) - 14 July 2022
+
+#### Improvements
+
+* [PR #811](https://github.com/fabiolb/fabio/pull/811) - Add command line flag to toggle required
+    consistency on consul reads. (@jeremycw)
+* [PR #860](https://github.com/fabiolb/fabio/pull/860) - Fix x-forwarded-for header processing for
+    ws connections. (bn0ir)
+* [PR #854](https://github.com/fabiolb/fabio/pull/854) - Update registry documentation for custom type. (@webmutation)
+* [Issue #873](https://github.com/fabiolb/fabio/issues/873) - Bump version of go-diff dependency to fix reported
+  crash. (@ddreier @nathanejohnson)
+* [PR #816](https://github.com/fabiolb/fabio/pull/816) - Fix memory leak around GRPC connections. (@nathanejohnson)
+* [PR #884](https://github.com/fabiolb/fabio/pull/884) - Fix CSS issue in clipboards in hugo docs (@KTruesdellENA)
+* [PR #875](https://github.com/fabiolb/fabio/pull/875) - Build multi-arch Docker images for amd64 and arm64
+  architectures (@vamc19)
+* [PR #885](https://github.com/fabiolb/fabio/pull/885) - Moved admin UI assets to use go embed. (@nathanejohnson)
+* [Issue #866](https://github.com/fabiolb/fabio/issues/886) - Fixed issue where admin UI overrides were not working 
+  properly. (@nathanejohnson @KTruesdellENA)
+* [Issue #858](https://github.com/fabiolb/fabio/issues/858) - Add option to specify TLS 1.3 for min and max version 
+  (@dcarbone @nathanejohnson)
+* [PR #896](https://github.com/fabiolb/fabio/pull/896) - Set SNI to match host for https routes (@KTruesdellENA)
+* [Issue #872](https://github.com/fabiolb/fabio/issues/872) - Crash on using rnd stratgy on 32 bit platforms fixed 
+  (@sbrl @nathanejohnson)
+
+#### Breaking Changes
+
+    Minimum go version is bumped to 1.16 since we use embed functionality.
+
+### [v1.6.0](https://github.com/fabiolb/fabio/releases/tag/v1.6.0) - 11 April 2022
 
 #### Improvements
 
