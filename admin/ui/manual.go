@@ -67,7 +67,7 @@ var tmplManual = template.Must(template.New("manual").Funcs(funcs).Parse( // lan
 		<a href="/" class="brand-logo"><img alt="Fabio Logo" style="margin: 15px 0" class="logo" src="/assets/logo.bw.svg"> {{if .Title}} - {{.Title}}{{end}}</a>
 			<ul id="nav-mobile" class="right hide-on-med-and-down">
 				<li><a href="/routes">Routes</a></li>
-                <li><a class="dropdown-button" href="#!" data-activates="overrides">Overrides<i class="material-icons right">arrow_drop_down</i></a></li>
+                <li><a class="dropdown-trigger dropdown-button" href="#" data-target="overrides">Overrides<i class="material-icons right">arrow_drop_down</i></a></li>
 				<li><a href="https://github.com/fabiolb/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
 				<li><a href="https://github.com/fabiolb/fabio">Github</a></li>
 			</ul>
@@ -104,21 +104,22 @@ var tmplManual = template.Must(template.New("manual").Funcs(funcs).Parse( // lan
 
 <script>
 $(function(){
+	$('.dropdown-trigger').dropdown();
 	let params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
 
 	$.get({{.APIPath}}, function(data) {
-        const $ta1 = $("#textarea1");
+		const $ta1 = $("#textarea1");
 		$("input[name=version]").val(data.version);
 		$("textarea>label").val("Version " + data.version);
 		$ta1.val(data.value);
-		$ta1.trigger('autoresize');
+		M.textareaAutoResize($('#textarea1'));
 	});
 
 	$.get('/api/paths', function(data) {
 		const d = $("#overrides");
 		$.each(data, function(idx, val) {
 			let path = val;
-			if (val === "") {
+			if (val == "") {
 				val = "default"
 			}
 			d.append(

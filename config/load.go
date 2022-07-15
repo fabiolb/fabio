@@ -500,6 +500,7 @@ var tlsver = map[string]uint16{
 	"tls10": tls.VersionTLS10,
 	"tls11": tls.VersionTLS11,
 	"tls12": tls.VersionTLS12,
+	"tls13": tls.VersionTLS13,
 }
 
 var tlsciphers = map[string]uint16{

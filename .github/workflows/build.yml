@@ -4,19 +4,19 @@ jobs:
   build:
     strategy:
       matrix:
-        go-version: [ 1.18.x, 1.17.x ]
         os: [ ubuntu-latest ]
+        go: [ '1.18.4', '1.17.12' ]
     runs-on: ${{matrix.os}}
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: ${{ matrix.go }}
       - name: Set Hosts
         run: |
           echo "127.0.0.1	example.com example2.com" | sudo tee -a /etc/hosts
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Test
         run: |
           export PATH=$PATH:$HOME/bin
