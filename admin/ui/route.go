@@ -24,9 +24,9 @@ var tmplRoutes = template.Must(template.New("routes").Parse( // language=HTML
 	<meta charset="utf-8">
 	<title>fabio{{if .Title}} - {{.Title}}{{end}}</title>
 	<script type="text/javascript" src="/assets/code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link href="/assets/fonts/material-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <script src="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+	<link href="/assets/fonts/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+	<script src="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 	<style type="text/css">
@@ -49,7 +49,7 @@ var tmplRoutes = template.Must(template.New("routes").Parse( // language=HTML
 		<div class="nav-wrapper">
 			<a href="/" class="brand-logo">fabio{{if .Title}} - {{.Title}}{{end}}</a>
 			<ul id="nav-mobile" class="right hide-on-med-and-down">
-                <li><a class="dropdown-trigger dropdown-button" href="#" data-target="overrides">Overrides<i class="material-icons right">arrow_drop_down</i></a></li>
+				<li><a class="dropdown-trigger dropdown-button" href="#" data-target="overrides">Overrides<i class="material-icons right">arrow_drop_down</i></a></li>
 				<li><a href="https://github.com/fabiolb/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
 				<li><a href="https://github.com/fabiolb/fabio">Github</a></li>
 			</ul>
