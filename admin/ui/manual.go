@@ -108,7 +108,7 @@ $(function(){
 	let params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
 
 	$.get({{.APIPath}}, function(data) {
-        const $ta1 = $("#textarea1");
+		const $ta1 = $("#textarea1");
 		$("input[name=version]").val(data.version);
 		$("textarea>label").val("Version " + data.version);
 		$ta1.val(data.value);
