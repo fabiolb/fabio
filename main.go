@@ -162,15 +162,15 @@ func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config, statsHandler *proxy.Gr
 		GlobCache:    globCache,
 	}
 
-	handler := grpc_proxy.TransparentHandler(proxy.GetGRPCDirector(tlscfg))
+	handler := grpc_proxy.TransparentHandler(proxy.GetGRPCDirector(tlscfg, cfg))
 
 	return []grpc.ServerOption{
 		grpc.CustomCodec(grpc_proxy.Codec()),
 		grpc.UnknownServiceHandler(handler),
 		grpc.StreamInterceptor(proxyInterceptor.Stream),
 		grpc.StatsHandler(statsHandler),
-		grpc.MaxRecvMsgSize(1024 * 1024 * 1024),
-		grpc.MaxSendMsgSize(1024 * 1024 * 1024),
+		grpc.MaxRecvMsgSize(cfg.Proxy.GRPCMaxRxMsgSize),
+		grpc.MaxSendMsgSize(cfg.Proxy.GRPCMaxTxMsgSize),
 	}
 }
 

@@ -77,6 +77,8 @@ type Proxy struct {
 	RequestID             string
 	STSHeader             STSHeader
 	AuthSchemes           map[string]AuthScheme
+	GRPCMaxRxMsgSize      int
+	GRPCMaxTxMsgSize      int
 }
 
 type STSHeader struct {

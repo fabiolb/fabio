@@ -44,9 +44,9 @@ func (s *gRPCServer) Serve(lis net.Listener) error {
 	return s.server.Serve(lis)
 }
 
-func GetGRPCDirector(tlscfg *tls.Config) func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
+func GetGRPCDirector(tlscfg *tls.Config, cfg *config.Config) func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
 
-	connectionPool := newGrpcConnectionPool(tlscfg)
+	connectionPool := newGrpcConnectionPool(tlscfg, cfg)
 
 	return func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
 		md, ok := metadata.FromIncomingContext(ctx)
@@ -230,14 +230,16 @@ type grpcConnectionPool struct {
 	lock            sync.RWMutex
 	cleanupInterval time.Duration
 	tlscfg          *tls.Config
+	cfg             *config.Config
 }
 
-func newGrpcConnectionPool(tlscfg *tls.Config) *grpcConnectionPool {
+func newGrpcConnectionPool(tlscfg *tls.Config, cfg *config.Config) *grpcConnectionPool {
 	cp := &grpcConnectionPool{
 		connections:     make(map[string]*grpc.ClientConn),
 		lock:            sync.RWMutex{},
 		cleanupInterval: time.Second * 5,
 		tlscfg:          tlscfg,
+		cfg:             cfg,
 	}
 
 	go cp.cleanup()
@@ -259,7 +261,7 @@ func (p *grpcConnectionPool) Get(ctx context.Context, target *route.Target) (*gr
 
 func (p *grpcConnectionPool) newConnection(ctx context.Context, target *route.Target) (*grpc.ClientConn, error) {
 	opts := []grpc.DialOption{
-		grpc.WithDefaultCallOptions(grpc.CallCustomCodec(grpc_proxy.Codec()), grpc.MaxCallRecvMsgSize(1024*1024*1024)),
+		grpc.WithDefaultCallOptions(grpc.CallCustomCodec(grpc_proxy.Codec()), grpc.MaxCallRecvMsgSize(p.cfg.Proxy.GRPCMaxRxMsgSize)),
 	}
 
 	if target.URL.Scheme == "grpcs" && p.tlscfg != nil {
