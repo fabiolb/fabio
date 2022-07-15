@@ -54,7 +54,6 @@ var defaultConfig = &Config{
 		IdleConnTimeout:     15 * time.Second,
 		GRPCMaxRxMsgSize:    4 * 1024 * 1024, // 4M
 		GRPCMaxTxMsgSize:    4 * 1024 * 1024, // 4M
-
 	},
 	Registry: Registry{
 		Backend: "consul",

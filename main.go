@@ -162,7 +162,7 @@ func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config, statsHandler *proxy.Gr
 		GlobCache:    globCache,
 	}
 
-	handler := grpc_proxy.TransparentHandler(proxy.GetGRPCDirector(tlscfg))
+	handler := grpc_proxy.TransparentHandler(proxy.GetGRPCDirector(tlscfg, cfg))
 
 	return []grpc.ServerOption{
 		grpc.CustomCodec(grpc_proxy.Codec()),
