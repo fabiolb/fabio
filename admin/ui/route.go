@@ -49,7 +49,7 @@ var tmplRoutes = template.Must(template.New("routes").Parse( // language=HTML
 		<div class="nav-wrapper">
 			<a href="/" class="brand-logo">fabio{{if .Title}} - {{.Title}}{{end}}</a>
 			<ul id="nav-mobile" class="right hide-on-med-and-down">
-                <li><a class="dropdown-button" href="#!" data-activates="overrides">Overrides<i class="material-icons right">arrow_drop_down</i></a></li>
+                <li><a class="dropdown-trigger dropdown-button" href="#" data-target="overrides">Overrides<i class="material-icons right">arrow_drop_down</i></a></li>
 				<li><a href="https://github.com/fabiolb/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
 				<li><a href="https://github.com/fabiolb/fabio">Github</a></li>
 			</ul>
@@ -76,6 +76,7 @@ var tmplRoutes = template.Must(template.New("routes").Parse( // language=HTML
 $(function(){
 	let params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
 
+	$('.dropdown-trigger').dropdown();
 	function renderRoutes(routes) {
 		const $table = $('table.routes');
 
@@ -141,7 +142,7 @@ $(function(){
 		const d = $("#overrides");
 		$.each(data, function(idx, val) {
 			let path = val;
-			if (val === "") {
+			if (val == "") {
 				val = "default"
 			}
 			d.append(
