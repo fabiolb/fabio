@@ -91,19 +91,21 @@ $(function(){
 
 		let $tbody = $('<tbody />');
 
-		for (let i=0; i < routes.length; i++) {
-			const r = routes[i];
+		if (routes != null) {
+			for (let i=0; i < routes.length; i++) {
+				const r = routes[i];
 
-			const $tr = $('<tr />')
+				const $tr = $('<tr />')
 
-			$tr.append($('<td />').text(i+1));
-			$tr.append($('<td />').text(r.service));
-			$tr.append($('<td />').text(r.src));
-			$tr.append($('<td />').append($('<a />').attr('href', r.dst).text(r.dst)));
-			$tr.append($('<td />').text(r.opts));
-			$tr.append($('<td />').text((r.weight * 100).toFixed(2) + '%'));
+				$tr.append($('<td />').text(i+1));
+				$tr.append($('<td />').text(r.service));
+				$tr.append($('<td />').text(r.src));
+				$tr.append($('<td />').append($('<a />').attr('href', r.dst).text(r.dst)));
+				$tr.append($('<td />').text(r.opts));
+				$tr.append($('<td />').text((r.weight * 100).toFixed(2) + '%'));
 
-			$tr.appendTo($tbody);
+				$tr.appendTo($tbody);
+			}
 		}
 
 		$table.empty().
