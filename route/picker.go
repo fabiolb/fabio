@@ -1,6 +1,8 @@
 package route
 
 import (
+	"math/rand"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -27,17 +29,17 @@ func rrPicker(r *Route) *Target {
 	return u
 }
 
-// stubbed out for testing
-// we implement the randIntN function using the nanosecond time counter
-// since it is 15x faster than using the pseudo random number generator
-// (12 ns vs 190 ns) Most HW does not seem to provide clocks with ns
-// resolution but seem to be good enough for µs resolution. Since
-// requests are usually handled within several ms we should have enough
-// variation. Within 1 ms we have 1000 µs to distribute among a smaller
-// set of entities (<< 100)
+// as it turns out, math/rand's Intn is now way faster (4x) than the previous implementation using
+// time.UnixNano().  As a bonus, this actually works properly on 32 bit platforms.
+var rndOnce sync.Once
 var randIntn = func(n int) int {
+	rndOnce.Do(func() {
+		rand.Seed(time.Now().UnixNano())
+	})
 	if n == 0 {
 		return 0
 	}
-	return int(time.Now().UnixNano()/int64(time.Microsecond)) % n
+	return rand.Intn(n)
 }
+
+
