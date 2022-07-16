@@ -2,7 +2,9 @@ package route
 
 import (
 	"math/rand"
+	"sync"
 	"sync/atomic"
+	"time"
 )
 
 // picker selects a target from a list of targets.
@@ -29,7 +31,11 @@ func rrPicker(r *Route) *Target {
 
 // as it turns out, math/rand's Intn is now way faster (4x) than the previous implementation using
 // time.UnixNano().  As a bonus, this actually works properly on 32 bit platforms.
+var rndOnce sync.Once
 var randIntn = func(n int) int {
+	rndOnce.Do(func() {
+		rand.Seed(time.Now().UnixNano())
+	})
 	if n == 0 {
 		return 0
 	}
