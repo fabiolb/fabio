@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
+	"time"
 )
 
 var (
@@ -55,4 +56,30 @@ func TestRRPicker(t *testing.T) {
 			t.Errorf("%d: got %v want %v", i, got, want)
 		}
 	}
+}
+
+// This is an improved version of the previous UnixNano implementation
+// This one does not overflow on 32 bit platforms, it casts to int after
+// doing mod.  doing it before caused overflows.
+var oldRandInt = func(n int) int {
+	if n == 0 {
+		return 0
+	}
+	return int(time.Now().UnixNano()/int64(time.Microsecond) % int64(n))
+}
+
+var result int // prevent compiler optimization
+func BenchmarkOldRandIntn(b *testing.B) {
+	var r int // more shields against compiler optimization
+	for i := 0; i < b.N; i++ {
+		r = oldRandInt(i)
+	}
+	result = r
+}
+func BenchmarkMathRandIntn(b *testing.B) {
+	var r int // more shields against compiler optimization
+	for i := 0; i < b.N; i++ {
+		r = randIntn(i)
+	}
+	result = r
 }
