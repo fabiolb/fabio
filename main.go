@@ -9,6 +9,7 @@ import (
 	gkm "github.com/go-kit/kit/metrics"
 	"io"
 	"log"
+	"math/rand"
 	"net"
 	"net/http"
 	"os"
@@ -66,6 +67,9 @@ func main() {
 	if cfg == nil {
 		fmt.Printf("%s %s\n", version, runtime.Version())
 		return
+	}
+	if cfg.Proxy.Strategy == "rnd" {
+		rand.Seed(time.Now().UnixNano())
 	}
 
 	log.Printf("[INFO] Setting log level to %s", logOutput.Level())
