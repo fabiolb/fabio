@@ -2,6 +2,7 @@ package route
 
 import (
 	gkm "github.com/go-kit/kit/metrics"
+	"net/http"
 	"net/url"
 	"strings"
 )
@@ -67,6 +68,9 @@ type Target struct {
 
 	// ProxyProto enables PROXY Protocol on upstream connection
 	ProxyProto bool
+
+	// Transport allows for different types of transports
+	Transport *http.Transport
 }
 
 func (t *Target) BuildRedirectURL(requestURL *url.URL) {

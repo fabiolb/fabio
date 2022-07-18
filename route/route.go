@@ -1,7 +1,9 @@
 package route
 
 import (
+	"crypto/tls"
 	"fmt"
+	"github.com/fabiolb/fabio/transport"
 	"log"
 	"net/url"
 	"reflect"
@@ -66,11 +68,16 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 
 	var err error
 	if opts != nil {
+
 		t.StripPath = opts["strip"]
 		t.PrependPath = opts["prepend"]
 		t.TLSSkipVerify = opts["tlsskipverify"] == "true"
 		t.Host = opts["host"]
 		t.ProxyProto = opts["pxyproto"] == "true"
+
+		if t.Host != "" && (t.URL.Scheme == "https" || opts["proto"] == "https") {
+			t.Transport = transport.NewTransport(&tls.Config{ServerName: t.Host, InsecureSkipVerify: t.TLSSkipVerify})
+		}
 
 		if opts["redirect"] != "" {
 			t.RedirectCode, err = strconv.Atoi(opts["redirect"])
