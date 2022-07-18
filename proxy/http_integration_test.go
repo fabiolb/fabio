@@ -529,6 +529,48 @@ func TestProxyHTTPSUpstream(t *testing.T) {
 	}
 }
 
+type sniHandler struct {
+	sni string
+}
+
+func (s *sniHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	if request.TLS != nil {
+		s.sni = request.TLS.ServerName
+	}
+	writer.Write([]byte(`OK`))
+}
+
+func TestProxyHTTPSTransport(t *testing.T) {
+	sni := &sniHandler{}
+
+	server := httptest.NewUnstartedServer(sni)
+	server.TLS = tlsServerConfig()
+	server.StartTLS()
+	defer server.Close()
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Config:    config.Proxy{},
+		Transport: &http.Transport{TLSClientConfig: tlsClientConfig()},
+		Lookup: func(r *http.Request) *route.Target {
+			tbl, _ := route.NewTable(bytes.NewBufferString("route add srv / " + server.URL + ` opts "proto=https host=foo.com tlsskipverify=true"`))
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
+		},
+	})
+	defer proxy.Close()
+
+	resp, body := mustGet(proxy.URL)
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
+		t.Fatalf("got status %d want %d", got, want)
+	}
+	if got, want := string(body), "OK"; got != want {
+		t.Fatalf("got body %q want %q", got, want)
+	}
+	if got, want := sni.sni, "foo.com"; got != want {
+		t.Fatalf("got sni %q want %q", got, want)
+	}
+
+}
+
 func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
 	server := httptest.NewUnstartedServer(okHandler)
 	server.TLS = &tls.Config{}
