@@ -44,9 +44,9 @@ func (s *gRPCServer) Serve(lis net.Listener) error {
 	return s.server.Serve(lis)
 }
 
-func GetGRPCDirector(tlscfg *tls.Config) func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
+func GetGRPCDirector(tlscfg *tls.Config, cfg *config.Config) func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
 
-	connectionPool := newGrpcConnectionPool(tlscfg)
+	connectionPool := newGrpcConnectionPool(tlscfg, cfg)
 
 	return func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
 		md, ok := metadata.FromIncomingContext(ctx)
@@ -152,13 +152,33 @@ func (g GrpcProxyInterceptor) lookup(ctx context.Context, fullMethodName string)
 		}
 	}
 
+	//grpc client can specify a destination host in metadata
+	dstHostSpecifiedByGRPCClient := g.getDestinationHostFromMetadata(md)
+	//todo: better a configuration flag is required to disable/enable this function, and make it disabled by default configuration
+
 	req := &http.Request{
-		Host:   "",
+		Host:   dstHostSpecifiedByGRPCClient,
 		URL:    reqUrl,
 		Header: headers,
 	}
 
 	return route.GetTable().Lookup(req, req.Header.Get("trace"), pick, match, g.GlobCache, g.Config.GlobMatchingDisabled), nil
+}
+
+//grpc client can specify a destination host in metadata by key 'dsthost', e.g. dsthost=betatest
+//the backend service(s) tags should be urlprefix-betatest/grpcpackage.servicename proto=grpc
+//the 'betatest' will be parsed as 'host' and '/grpcpackage.servicename' is the 'path',
+//a route record will be setup in route Table, t['betatest']
+//the dstHost is extracted from context's metadata of grpc client, that will trigger t[dstHost] is used.
+//if t[dstHost] not exists, fallback to t[""] is used
+//dstHost will be "" as before if not specified by grpc client side.
+func (g GrpcProxyInterceptor) getDestinationHostFromMetadata(md metadata.MD) (dstHost string) {
+	dstHost = ""
+	hosts := md["dsthost"]
+	if len(hosts) == 1 {
+		dstHost = hosts[0]
+	}
+	return
 }
 
 type GrpcStatsHandler struct {
@@ -210,14 +230,16 @@ type grpcConnectionPool struct {
 	lock            sync.RWMutex
 	cleanupInterval time.Duration
 	tlscfg          *tls.Config
+	cfg             *config.Config
 }
 
-func newGrpcConnectionPool(tlscfg *tls.Config) *grpcConnectionPool {
+func newGrpcConnectionPool(tlscfg *tls.Config, cfg *config.Config) *grpcConnectionPool {
 	cp := &grpcConnectionPool{
 		connections:     make(map[string]*grpc.ClientConn),
 		lock:            sync.RWMutex{},
 		cleanupInterval: time.Second * 5,
 		tlscfg:          tlscfg,
+		cfg:             cfg,
 	}
 
 	go cp.cleanup()
@@ -239,7 +261,7 @@ func (p *grpcConnectionPool) Get(ctx context.Context, target *route.Target) (*gr
 
 func (p *grpcConnectionPool) newConnection(ctx context.Context, target *route.Target) (*grpc.ClientConn, error) {
 	opts := []grpc.DialOption{
-		grpc.WithDefaultCallOptions(grpc.CallCustomCodec(grpc_proxy.Codec())),
+		grpc.WithDefaultCallOptions(grpc.CallCustomCodec(grpc_proxy.Codec()), grpc.MaxCallRecvMsgSize(p.cfg.Proxy.GRPCMaxRxMsgSize)),
 	}
 
 	if target.URL.Scheme == "grpcs" && p.tlscfg != nil {

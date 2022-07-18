@@ -153,5 +153,5 @@ route add service-a www.kjca.dev/accounts/ http://host-a:11050/ tags "a,b"
 route add service-a www.dba.dev/accounts/ http://host-a:11050/ tags "a,b"
 route add service-b www.mp.dev/auth/ http://host-b:11080/ tags "a,b"
 route add service-b www.kjca.dev/auth/ http://host-b:11080/ tags "a,b"
-route add service-c www.somedomain.com/ http://host-z:12345/ tags "a,b"
+route add service-c www.somedomain.com/ http://host-z:12345/
 ```
