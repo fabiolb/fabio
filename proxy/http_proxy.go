@@ -195,7 +195,9 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	upgrade, accept := r.Header.Get("Upgrade"), r.Header.Get("Accept")
 
 	tr := p.Transport
-	if t.TLSSkipVerify {
+	if t.Transport != nil {
+		tr = t.Transport
+	} else if t.TLSSkipVerify {
 		tr = p.InsecureTransport
 	}
 

@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/fabiolb/fabio/transport"
 	gkm "github.com/go-kit/kit/metrics"
 	"io"
 	"log"
@@ -67,6 +68,8 @@ func main() {
 		fmt.Printf("%s %s\n", version, runtime.Version())
 		return
 	}
+
+	transport.SetConfig(cfg)
 
 	log.Printf("[INFO] Setting log level to %s", logOutput.Level())
 	if !logOutput.SetLevel(cfg.Log.Level) {
@@ -162,15 +165,13 @@ func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config, statsHandler *proxy.Gr
 		GlobCache:    globCache,
 	}
 
-	handler := grpc_proxy.TransparentHandler(proxy.GetGRPCDirector(tlscfg, cfg))
+	handler := grpc_proxy.TransparentHandler(proxy.GetGRPCDirector(tlscfg))
 
 	return []grpc.ServerOption{
 		grpc.CustomCodec(grpc_proxy.Codec()),
 		grpc.UnknownServiceHandler(handler),
 		grpc.StreamInterceptor(proxyInterceptor.Stream),
 		grpc.StatsHandler(statsHandler),
-		grpc.MaxRecvMsgSize(cfg.Proxy.GRPCMaxRxMsgSize),
-		grpc.MaxSendMsgSize(cfg.Proxy.GRPCMaxTxMsgSize),
 	}
 }
 
@@ -208,19 +209,6 @@ func newHTTPProxy(cfg *config.Config, statsHandler *proxy.HttpStatsHandler) *pro
 	log.Printf("[INFO] Using routing strategy %q", cfg.Proxy.Strategy)
 	log.Printf("[INFO] Using route matching %q", cfg.Proxy.Matcher)
 
-	newTransport := func(tlscfg *tls.Config) *http.Transport {
-		return &http.Transport{
-			ResponseHeaderTimeout: cfg.Proxy.ResponseHeaderTimeout,
-			IdleConnTimeout:       cfg.Proxy.IdleConnTimeout,
-			MaxIdleConnsPerHost:   cfg.Proxy.MaxConn,
-			Dial: (&net.Dialer{
-				Timeout:   cfg.Proxy.DialTimeout,
-				KeepAlive: cfg.Proxy.KeepAliveTimeout,
-			}).Dial,
-			TLSClientConfig: tlscfg,
-		}
-	}
-
 	authSchemes, err := auth.LoadAuthSchemes(cfg.Proxy.AuthSchemes)
 
 	if err != nil {
@@ -229,8 +217,8 @@ func newHTTPProxy(cfg *config.Config, statsHandler *proxy.HttpStatsHandler) *pro
 
 	return &proxy.HTTPProxy{
 		Config:            cfg.Proxy,
-		Transport:         newTransport(nil),
-		InsecureTransport: newTransport(&tls.Config{InsecureSkipVerify: true}),
+		Transport:         transport.NewTransport(nil),
+		InsecureTransport: transport.NewTransport(&tls.Config{InsecureSkipVerify: true}),
 		Lookup: func(r *http.Request) *route.Target {
 			t := route.GetTable().Lookup(r, r.Header.Get("trace"), pick, match, globCache, cfg.GlobMatchingDisabled)
 			if t == nil {
