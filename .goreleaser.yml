@@ -23,6 +23,12 @@ archives:
     name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Os }}_{{ .Arch }}'
     format: binary
 
+source:
+  enabled: true
+  name_template: '{{ .ProjectName }}-{{.Version }}.src'
+  prefix_template: '{{ .ProjectName }}-{{.Version }}/'
+
+
 checksum:
   name_template: '{{.ProjectName}}-{{.Version}}.sha256'
 

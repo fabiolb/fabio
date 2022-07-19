@@ -7,7 +7,7 @@
 * [PR #811](https://github.com/fabiolb/fabio/pull/811) - Add command line flag to toggle required
     consistency on consul reads. (@jeremycw)
 * [PR #860](https://github.com/fabiolb/fabio/pull/860) - Fix x-forwarded-for header processing for
-    ws connections. (bn0ir)
+    ws connections. (@bn0ir)
 * [PR #854](https://github.com/fabiolb/fabio/pull/854) - Update registry documentation for custom type. (@webmutation)
 * [Issue #873](https://github.com/fabiolb/fabio/issues/873) - Bump version of go-diff dependency to fix reported
   crash. (@ddreier @nathanejohnson)
