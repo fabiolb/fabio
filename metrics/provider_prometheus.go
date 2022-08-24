@@ -12,9 +12,9 @@ type PromProvider struct {
 }
 
 func NewPromProvider(namespace, subsystem string, buckets []float64) Provider {
-	namespace = clean_prom(namespace)
+	namespace = clean(namespace)
 	if len(subsystem) > 0 {
-		subsystem = clean_prom(subsystem)
+		subsystem = clean(subsystem)
 	}
 	return &PromProvider{
 		Opts: promclient.Opts{
