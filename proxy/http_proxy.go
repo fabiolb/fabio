@@ -193,7 +193,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	trace.InjectHeaders(span, r)
 
 	upgrade, accept := r.Header.Get("Upgrade"), r.Header.Get("Accept")
-	
+
 	tr := p.Transport
 	if t.Transport != nil {
 		tr = t.Transport
