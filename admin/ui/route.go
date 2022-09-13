@@ -99,7 +99,16 @@ $(function(){
 
 				$tr.append($('<td />').text(i+1));
 				$tr.append($('<td />').text(r.service));
-				$tr.append($('<td />').text(r.src));
+				// If the link redirects to http or https destination.
+				const rx = /^https?:\/\/[^\/]+\/?$/.exec(r.dst)
+				if (rx != null) {
+					// If the src is missing hostname, take the hostname from current url.
+					const hrefsrc = "http://" + (r.src.startsWith("/") ? window.location.hostname : "") + r.src
+					// Create a link with href for source.
+					$tr.append($('<td />').append($('<a />').attr('href', hrefsrc).text(r.src)));
+				} else {
+					$tr.append($('<td />').text(r.src));
+				}
 				$tr.append($('<td />').append($('<a />').attr('href', r.dst).text(r.dst)));
 				$tr.append($('<td />').text(r.opts));
 				$tr.append($('<td />').text((r.weight * 100).toFixed(2) + '%'));
