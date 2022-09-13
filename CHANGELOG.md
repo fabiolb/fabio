@@ -1,5 +1,11 @@
 ## Changelog
 
+### [v1.6.2](https://github.com/fabiolb/fabio/releases/tag/v1.6.2) - 13 September 2022
+
+* [Issue #903 PR #904](https://github.com/fabiolb/fabio/pull/904) - Improve TLS Cipher Suite parser in the config 
+  loader to handle modern TLS 1.3 cipher suites.  This should no longer require manual updating of code as new 
+  cipher suites are added to the standard library crypto/tls package.
+
 ### [v1.6.1](https://github.com/fabiolb/fabio/releases/tag/v1.6.1) - 14 July 2022
 
 #### Improvements
