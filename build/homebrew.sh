@@ -7,7 +7,7 @@ set -o errexit
 set -o pipefail
 
 readonly prgdir=$(cd $(dirname $0); pwd)
-readonly brewdir=$(brew --prefix)/Homebrew/Library/Taps/homebrew/homebrew-core
+readonly brewdir=$(brew tap-info homebrew/core | head -n 2 | tail -n 1 | sed 's/[[:space:]].*$//')
 
 v=${1:-}
 [[ -n "$v" ]] || read -p "Enter version (e.g. 1.0.4): " v
