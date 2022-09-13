@@ -97,7 +97,7 @@ The full documentation is on [fabiolb.net](https://fabiolb.net/)
    [Docker](https://hub.docker.com/r/fabiolb/fabio/) or [Homebrew](http://brew.sh).
     ```shell
 	# go 1.15 or higher is required
-    go get github.com/fabiolb/fabio                     (>= go1.15)
+    go install github.com/fabiolb/fabio                     (>= go1.15)
 
     brew install fabio                                  (OSX/macOS stable)
     brew install --devel fabio                          (OSX/macOS devel)
