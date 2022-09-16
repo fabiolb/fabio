@@ -1,3 +1,10 @@
+fabio (1.6.0-1.2) hrt; urgency=medium
+
+  * Patch: Improve the performance of passingServices()
+    https://jira.hudson-trading.com/browse/SYSINFRA-21633
+
+ -- Agustin Henze <agustin@hudson-trading.com>  Fri, 16 Sep 2022 09:56:22 -0400
+
 fabio (1.6.0-1.1) hrt; urgency=medium
 
   * Move install to /usr/sbin
