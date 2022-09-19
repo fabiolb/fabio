@@ -1,19 +1,22 @@
+diff --git a/registry/consul/passing.go b/registry/consul/passing.go
+index e566c6a9..13d61a9b 100644
 --- a/registry/consul/passing.go
 +++ b/registry/consul/passing.go
-@@ -9,24 +9,28 @@
+@@ -9,24 +9,29 @@ import (
  
  func passingServices(checks []*api.HealthCheck, status []string, strict bool) []*api.HealthCheck {
  	var p []*api.HealthCheck
-+	checksMap := make(map[*api.HealthCheck]*api.HealthCheck)
++	checksMap := make(map[string][]*api.HealthCheck)
 +	for _, svc := range checks {
-+		checksMap[svc] = svc
++		checksMap[svc.Node] = append(checksMap[svc.Node], svc)
 +	}
  	for _, svc := range checks {
  		if !isServiceCheck(svc) {
  			continue
  		}
 -		total, passing := countChecks(svc, checks, status)
-+		total, passing := countChecks(svc, checksMap, status)
++		nodeChecks := checksMap[svc.Node]
++		total, passing := countChecks(svc, nodeChecks, status)
  		if passing == 0 {
  			continue
  		}
@@ -21,66 +24,50 @@
  			continue
  		}
 -		if isAgentCritical(svc, checks) {
-+		if isAgentCritical(svc, checksMap) {
++		if isAgentCritical(svc, nodeChecks) {
  			continue
  		}
 -		if isNodeInMaintenance(svc, checks) {
-+		if isNodeInMaintenance(svc, checksMap) {
++		if isNodeInMaintenance(svc, nodeChecks) {
  			continue
  		}
 -		if isServiceInMaintenance(svc, checks) {
-+		if isServiceInMaintenance(svc, checksMap) {
++		if isServiceInMaintenance(svc, nodeChecks) {
  			continue
  		}
  		p = append(p, svc)
-@@ -45,9 +49,9 @@
- 
- // isAgentCritical returns true if the agent on the node on which the service
+@@ -47,7 +52,7 @@ func isServiceCheck(c *api.HealthCheck) bool {
  // runs is critical.
--func isAgentCritical(svc *api.HealthCheck, checks []*api.HealthCheck) bool {
--	for _, c := range checks {
+ func isAgentCritical(svc *api.HealthCheck, checks []*api.HealthCheck) bool {
+ 	for _, c := range checks {
 -		if svc.Node == c.Node && c.CheckID == "serfHealth" && c.Status == "critical" {
-+func isAgentCritical(svc *api.HealthCheck, checksMap map[*api.HealthCheck]*api.HealthCheck) bool {
-+	if c, found := checksMap[svc]; found {
 +		if c.CheckID == "serfHealth" && c.Status == "critical" {
  			log.Printf("[DEBUG] consul: Skipping service %q since agent on node %q is down: %s", c.ServiceID, c.Node, c.Output)
  			return true
  		}
-@@ -57,9 +61,9 @@
- 
- // isNodeInMaintenance returns true if the node on which the service runs is in
+@@ -59,7 +64,7 @@ func isAgentCritical(svc *api.HealthCheck, checks []*api.HealthCheck) bool {
  // maintenance mode.
--func isNodeInMaintenance(svc *api.HealthCheck, checks []*api.HealthCheck) bool {
--	for _, c := range checks {
+ func isNodeInMaintenance(svc *api.HealthCheck, checks []*api.HealthCheck) bool {
+ 	for _, c := range checks {
 -		if svc.Node == c.Node && c.CheckID == "_node_maintenance" {
-+func isNodeInMaintenance(svc *api.HealthCheck, checksMap map[*api.HealthCheck]*api.HealthCheck) bool {
-+	if c, found := checksMap[svc]; found {
 +		if c.CheckID == "_node_maintenance" {
  			log.Printf("[DEBUG] consul: Skipping service %q since node %q is in maintenance mode: %s", c.ServiceID, c.Node, c.Output)
  			return true
  		}
-@@ -69,9 +73,9 @@
- 
- // isServiceInMaintenance returns true if the service instance is in
+@@ -71,7 +76,7 @@ func isNodeInMaintenance(svc *api.HealthCheck, checks []*api.HealthCheck) bool {
  // maintenance mode.
--func isServiceInMaintenance(svc *api.HealthCheck, checks []*api.HealthCheck) bool {
--	for _, c := range checks {
+ func isServiceInMaintenance(svc *api.HealthCheck, checks []*api.HealthCheck) bool {
+ 	for _, c := range checks {
 -		if svc.Node == c.Node && c.CheckID == "_service_maintenance:"+svc.ServiceID && c.Status == "critical" {
-+func isServiceInMaintenance(svc *api.HealthCheck, checksMap map[*api.HealthCheck]*api.HealthCheck) bool {
-+	if c, found := checksMap[svc]; found {
 +		if c.CheckID == "_service_maintenance:"+svc.ServiceID && c.Status == "critical" {
  			log.Printf("[DEBUG] consul: Skipping service %q since it is in maintenance mode: %s", svc.ServiceID, c.Output)
  			return true
  		}
-@@ -81,9 +85,9 @@
- 
- // countChecks counts the number of service checks exist for a given service
+@@ -83,7 +88,7 @@ func isServiceInMaintenance(svc *api.HealthCheck, checks []*api.HealthCheck) boo
  // and how many of them are passing.
--func countChecks(svc *api.HealthCheck, checks []*api.HealthCheck, status []string) (total int, passing int) {
--	for _, c := range checks {
+ func countChecks(svc *api.HealthCheck, checks []*api.HealthCheck, status []string) (total int, passing int) {
+ 	for _, c := range checks {
 -		if svc.Node == c.Node && svc.ServiceID == c.ServiceID {
-+func countChecks(svc *api.HealthCheck, checksMap map[*api.HealthCheck]*api.HealthCheck, status []string) (total int, passing int) {
-+	if c, found := checksMap[svc]; found {
 +		if svc.ServiceID == c.ServiceID {
  			total++
  			if hasStatus(c, status) {
