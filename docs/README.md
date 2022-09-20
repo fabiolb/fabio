@@ -3,7 +3,7 @@
 This is the source code for the https://fabiolb.net website.
 
 It is built with [Hugo](https://gohugo.io/) and automatically deployed to GitHub pages via
-[Travis](https://travis-ci.org/).
+Github Actions.
 
 The theme is [TheDocs](http://thetheme.io/thedocs/) from [TheTheme.io](http://thetheme.io/).
 
