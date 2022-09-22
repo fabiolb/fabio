@@ -100,6 +100,13 @@ var defaultConfig = &Config{
 		},
 		Color:  "light-green",
 		Access: "rw",
+		RoutingTable: RoutingTable{
+			Source: Source{
+				LinkEnabled: false,
+				NewTab:      true,
+				Scheme:      "http",
+			},
+		},
 	},
 
 	Tracing: Tracing{

@@ -20,3 +20,5 @@ fabio.sublime-*
 demo/cert/
 /pkg/
 dist/
+*.app
+*.hugo_build.lock
