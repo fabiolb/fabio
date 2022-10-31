@@ -114,14 +114,14 @@ func main() {
 
 	exit.Listen(func(s os.Signal) {
 		atomic.StoreInt32(&shuttingDown, 1)
+		if registry.Default != nil {
+			registry.Default.DeregisterAll()
+		}
+		time.Sleep(cfg.Proxy.DeregisterGracePeriod)
 		proxy.Shutdown(cfg.Proxy.ShutdownWait)
 		if prof != nil {
 			prof.Stop()
 		}
-		if registry.Default == nil {
-			return
-		}
-		registry.Default.DeregisterAll()
 	})
 
 	metrics, err := metrics.Initialize(&cfg.Metrics)
