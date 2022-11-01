@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/fabiolb/fabio/bgp"
 	"github.com/fabiolb/fabio/transport"
 	gkm "github.com/go-kit/kit/metrics"
 	"io"
@@ -112,6 +113,13 @@ func main() {
 		log.Printf("[INFO] Profile path %q", cfg.ProfilePath)
 	}
 
+	if cfg.BGP.BGPEnabled {
+		err = bgp.ValidateConfig(&cfg.BGP)
+		if err != nil {
+			log.Fatalf("[FATAL] BGP configuration invalid: %s", err)
+		}
+	}
+
 	exit.Listen(func(s os.Signal) {
 		atomic.StoreInt32(&shuttingDown, 1)
 		if registry.Default != nil {
@@ -149,7 +157,9 @@ func main() {
 
 	// warn again so that it is visible in the terminal
 	WarnIfRunAsRoot(cfg.Insecure)
-
+	if cfg.BGP.BGPEnabled {
+		startBGP(&cfg.BGP)
+	}
 	exit.Wait()
 	log.Print("[INFO] Down")
 }
@@ -496,6 +506,18 @@ func startServers(cfg *config.Config, stats metrics.Provider) {
 			exit.Fatal("[FATAL] Invalid protocol ", l.Proto)
 		}
 	}
+}
+
+func startBGP(cfg *config.BGP) {
+	h, err := bgp.NewBGPHandler(cfg)
+	if err != nil {
+		exit.Fatal("[FATAL] ", err)
+	}
+	go func() {
+		if err := h.Start(); err != nil {
+			exit.Fatal("[FATAL] ", err)
+		}
+	}()
 }
 
 func initRuntime(cfg *config.Config) {

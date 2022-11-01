@@ -1141,6 +1141,24 @@ func TestLoad(t *testing.T) {
 			cfg:  func(cfg *Config) *Config { return nil },
 			err:  errInvalidConfig,
 		},
+		{
+			desc: "valid bgp peers",
+			args: []string{"-bgp.peers", "address=127.0.0.3;port=1179;asn=65000;" +
+				"multihop=true;multihoplength=5;password=hunter2"},
+			cfg: func(cfg *Config) *Config {
+				cfg.BGP.Peers = []BGPPeer{
+					{
+						NeighborAddress: "127.0.0.3",
+						NeighborPort:    1179,
+						Asn:             65000,
+						MultiHop:        true,
+						MultiHopLength:  5,
+						Password:        "hunter2",
+					},
+				}
+				return cfg
+			},
+		},
 	}
 
 	for _, tt := range tests {

@@ -132,6 +132,8 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 
 	var obsoleteStr string
 
+	var bgpPeersValue string
+
 	f.BoolVar(&cfg.Insecure, "insecure", defaultConfig.Insecure, "allow fabio to run as root when set to true")
 	f.IntVar(&cfg.Proxy.MaxConn, "proxy.maxconn", defaultConfig.Proxy.MaxConn, "maximum number of cached connections")
 	f.StringVar(&cfg.Proxy.Strategy, "proxy.strategy", defaultConfig.Proxy.Strategy, "load balancing strategy")
@@ -250,6 +252,17 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Registry.Custom.Path, "registry.custom.path", defaultConfig.Registry.Custom.Path, "custom back end path in the URL")
 	f.StringVar(&cfg.Registry.Custom.QueryParams, "registry.custom.queryparams", defaultConfig.Registry.Custom.QueryParams, "custom back end query parameters in the URL")
 
+	f.BoolVar(&cfg.BGP.BGPEnabled, "bgp.enabled", defaultConfig.BGP.BGPEnabled, "enabled bgp announcements")
+	f.UintVar(&cfg.BGP.Asn, "bgp.asn", defaultConfig.BGP.Asn, "our BGP asn")
+	f.StringSliceVar(&cfg.BGP.AnycastAddresses, "bgp.anycastaddresses", defaultConfig.BGP.AnycastAddresses, "comma separated list of CIDRs to broadcast - required if bgp is enabled")
+	f.StringVar(&cfg.BGP.RouterID, "bgp.routerid", defaultConfig.BGP.RouterID, "our router ID - required if bgp is enabled")
+	f.IntVar(&cfg.BGP.ListenPort, "bgp.listenport", defaultConfig.BGP.ListenPort, "bgp listen port.  -1 means disabled")
+	f.StringSliceVar(&cfg.BGP.ListenAddresses, "bgp.listenaddresses", defaultConfig.BGP.ListenAddresses, "bgp listen address")
+	f.StringVar(&bgpPeersValue, "bgp.peers", defaultValues.BGPPeersValue, "bgp peers.  comma separated list of neighboraddress=1.2.3.4;asn=65001")
+	f.BoolVar(&cfg.BGP.EnableGRPC, "bgp.enablegrpc", defaultConfig.BGP.EnableGRPC, "enable bgp grpc listener for use with gobgp cli")
+	f.StringVar(&cfg.BGP.GRPCListenAddress, "bgp.grpclistenaddress", defaultConfig.BGP.GRPCListenAddress, "bgp grpc cli listen address")
+	f.StringVar(&cfg.BGP.NextHop, "bgp.nexthop", defaultConfig.BGP.NextHop, "specify the next-hop.  defaults to bgp.routerid")
+	f.StringVar(&cfg.BGP.GOBGPDCfgFile, "bgp.gobgpdcfgfile", defaultConfig.BGP.GOBGPDCfgFile, "specify path to gobgpd config file.  overrides settings")
 	// deprecated flags
 	var proxyLogRoutes string
 	f.StringVar(&proxyLogRoutes, "proxy.log.routes", "", "deprecated. use log.routes.format instead")
@@ -365,6 +378,11 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 
 	if proxyLogRoutes != "" {
 		cfg.Log.RoutesFormat = proxyLogRoutes
+	}
+
+	cfg.BGP.Peers, err = parseBGPPeers(bgpPeersValue)
+	if err != nil {
+		return nil, err
 	}
 
 	return cfg, nil
@@ -704,4 +722,58 @@ func parseAuthScheme(cfg map[string]string) (a AuthScheme, err error) {
 	}
 
 	return
+}
+
+func parseBGPPeers(cfgs string) ([]BGPPeer, error) {
+	kvs, err := parseKVSlice(cfgs)
+	if err != nil {
+		return nil, err
+	}
+	var peers []BGPPeer
+	for _, cfg := range kvs {
+		peer, err := parseBGPPeer(cfg)
+		if err != nil {
+			return nil, err
+		}
+		peers = append(peers, peer)
+	}
+	return peers, nil
+}
+
+func parseBGPPeer(cfg map[string]string) (BGPPeer, error) {
+	var peer = *defaultBGPPeer
+	for k, v := range cfg {
+		switch k {
+		case "address":
+			peer.NeighborAddress = v
+		case "port":
+			u, err := strconv.ParseUint(v, 10, 32)
+			if err != nil {
+				return peer, err
+			}
+			peer.NeighborPort = uint(u)
+		case "asn":
+			u, err := strconv.ParseUint(v, 10, 32)
+			if err != nil {
+				return peer, err
+			}
+			peer.Asn = uint(u)
+		case "multihop":
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				return peer, err
+			}
+			peer.MultiHop = b
+		case "multihoplength":
+			u, err := strconv.ParseUint(v, 10, 32)
+			if err != nil {
+				return peer, err
+			}
+			peer.MultiHopLength = uint(u)
+		case "password":
+			peer.Password = v
+		}
+
+	}
+	return peer, nil
 }

@@ -20,6 +20,7 @@ type Config struct {
 	Insecure             bool
 	GlobMatchingDisabled bool
 	GlobCacheSize        int
+	BGP                  BGP
 }
 
 type CertSource struct {
@@ -228,4 +229,30 @@ type ConsulTlS struct {
 	CAFile             string
 	CAPath             string
 	InsecureSkipVerify bool
+}
+
+type BGP struct {
+	BGPEnabled        bool
+	Asn               uint
+	AnycastAddresses  []string
+	RouterID          string
+	ListenPort        int
+	ListenAddresses   []string
+	Peers             []BGPPeer
+	EnableGRPC        bool
+	GRPCListenAddress string
+	GRPCTLS           bool
+	CertFile          string
+	KeyFile           string
+	GOBGPDCfgFile     string
+	NextHop           string
+}
+
+type BGPPeer struct {
+	NeighborAddress string
+	NeighborPort    uint
+	Asn             uint
+	MultiHop        bool
+	MultiHopLength  uint
+	Password        string
 }
