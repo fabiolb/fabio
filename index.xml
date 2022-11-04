@@ -610,6 +610,18 @@ File The file certificate source supports one certificate which is loaded at sta
     </item>
     
     <item>
+      <title>proxy.deregistergraceperiod</title>
+      <link>https://fabiolb.net/ref/proxy.deregistergraceperiod/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.deregistergraceperiod/</guid>
+      <description>proxy.deregistergraceperiod configures the time to wait before shutting down the proxies de-registering from the service registry.
+After a signal is caught Fabio will immediately de-register from the service registry and wait for proxy.deregistergraceperiod letting in-flight requests finish after which it will continue with shutting down the proxy.
+The default is
+proxy.deregistergraceperiod = 0s </description>
+    </item>
+    
+    <item>
       <title>proxy.dialtimeout</title>
       <link>https://fabiolb.net/ref/proxy.dialtimeout/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

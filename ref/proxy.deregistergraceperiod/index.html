@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
 
-    <title>registry.timeout</title>
+    <title>proxy.deregistergraceperiod</title>
 
     
     <link href="/css/theDocs.all.min.css" rel="stylesheet">
@@ -166,7 +166,7 @@
       
         <li><a href="https://fabiolb.net/ref/proxy.cs/">proxy.cs</a></li>
       
-        <li><a href="https://fabiolb.net/ref/proxy.deregistergraceperiod/">proxy.deregistergraceperiod</a></li>
+        <li><a class="active" href="https://fabiolb.net/ref/proxy.deregistergraceperiod/">proxy.deregistergraceperiod</a></li>
       
         <li><a href="https://fabiolb.net/ref/proxy.dialtimeout/">proxy.dialtimeout</a></li>
       
@@ -264,7 +264,7 @@
       
         <li><a href="https://fabiolb.net/ref/registry.static.routes/">registry.static.routes</a></li>
       
-        <li><a class="active" href="https://fabiolb.net/ref/registry.timeout/">registry.timeout</a></li>
+        <li><a href="https://fabiolb.net/ref/registry.timeout/">registry.timeout</a></li>
       
         <li><a href="https://fabiolb.net/ref/runtime.gogc/">runtime.gogc</a></li>
       
@@ -316,11 +316,15 @@
 
       
       <section>
-        <h2>registry.timeout</h2>
-        <p><code>registry.timeout</code> configures how long fabio tries to connect to the registry
-backend during startup.</p>
+        <h2>proxy.deregistergraceperiod</h2>
+        <p><code>proxy.deregistergraceperiod</code> configures the time to wait before
+shutting down the proxies de-registering from the service registry.</p>
+<p>After a signal is caught Fabio will immediately de-register from the
+service registry and wait for <code>proxy.deregistergraceperiod</code> letting
+in-flight requests finish after which it will continue with shutting
+down the proxy.</p>
 <p>The default is</p>
-<pre><code>registry.timeout = 10s
+<pre><code>proxy.deregistergraceperiod = 0s
 </code></pre>
 
         
