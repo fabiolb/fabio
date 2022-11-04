@@ -63,6 +63,7 @@ type Proxy struct {
 	NoRouteStatus         int
 	MaxConn               int
 	ShutdownWait          time.Duration
+	DeregisterGracePeriod time.Duration
 	DialTimeout           time.Duration
 	ResponseHeaderTimeout time.Duration
 	KeepAliveTimeout      time.Duration
