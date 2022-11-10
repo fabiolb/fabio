@@ -39,9 +39,15 @@ It will also configure a [gobgpd policy](https://github.com/osrg/gobgp/blob/mast
 that will reject all incoming prefixes from neighbors.
 
 Alternatively, for more advanced use cases, you can reference an [external gobgpd config file](/ref/bgp.gobgpdcfgfile/) 
-that will override
-most of the options set in the fabio config, including the policy
-blocking us from accepting prefixes from neighbors.
+that will override many of the options set in the fabio config, including the policy
+blocking us from accepting prefixes from neighbors.  You still need to specify the bgp.grpc
+options from the fabio config since there is no analog in the gobgpd config file. 
+You may still specify bgp anycastaddresses or bgp.peers from 
+the fabio config, but we ignore anything
+that would be specified in the global section of the gobgpd config file, including router ID and
+the ASN.  Even If the bgp.gobgpdcfgfile value is set, fabio will still honor any values 
+configured for bgp.anycastaddresses or bgp.peers.  These will be processed after the config
+file is processed.
 
 
 ### Note
