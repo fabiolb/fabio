@@ -50,11 +50,24 @@ type Listen struct {
 	Refresh            time.Duration
 }
 
+type Source struct {
+	LinkEnabled bool
+	NewTab      bool
+	Scheme      string
+	Host        string
+	Port        string
+}
+
+type RoutingTable struct {
+	Source Source
+}
+
 type UI struct {
-	Listen Listen
-	Color  string
-	Title  string
-	Access string
+	Listen       Listen
+	Color        string
+	Title        string
+	Access       string
+	RoutingTable RoutingTable
 }
 
 type Proxy struct {

@@ -63,7 +63,7 @@ func (s *Server) handler() http.Handler {
 	mux.Handle("/api/config", &api.ConfigHandler{Config: s.Cfg})
 	mux.Handle("/api/routes", &api.RoutesHandler{})
 	mux.Handle("/api/version", &api.VersionHandler{Version: s.Version})
-	mux.Handle("/routes", &ui.RoutesHandler{Color: s.Color, Title: s.Title, Version: s.Version})
+	mux.Handle("/routes", &ui.RoutesHandler{Color: s.Color, Title: s.Title, Version: s.Version, RoutingTable: s.Cfg.UI.RoutingTable})
 	mux.HandleFunc("/health", handleHealth)
 
 	mux.Handle("/assets/", http.FileServer(http.FS(ui.Static)))

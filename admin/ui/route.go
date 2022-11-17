@@ -3,13 +3,16 @@ package ui
 import (
 	"html/template"
 	"net/http"
+
+	"github.com/fabiolb/fabio/config"
 )
 
 // RoutesHandler provides the UI for managing the routing table.
 type RoutesHandler struct {
-	Color   string
-	Title   string
-	Version string
+	Color        string
+	Title        string
+	Version      string
+	RoutingTable config.RoutingTable
 }
 
 func (h *RoutesHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
@@ -17,8 +20,7 @@ func (h *RoutesHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 }
 
 var tmplRoutes = template.Must(template.New("routes").Parse( // language=HTML
-	`
-<!doctype html>
+	`<!doctype html>
 <html lang="en">
 <head>
 	<meta charset="utf-8">
@@ -37,6 +39,21 @@ var tmplRoutes = template.Must(template.New("routes").Parse( // language=HTML
 		@media (min-width: 78em) {
 			td.tags{ display: table-cell; }
 		}
+
+		.tooltip { position: relative; display: inline-block; }
+		.tooltip .tooltiptext {
+			visibility: hidden;
+			width: 250px;
+			background-color: #000000;
+			color: #ffffff;
+			text-align: center;
+			margin: 30px 0px 0px 30px;
+			padding: 5px 0;
+			border-radius: 6px;
+			position: absolute;
+			z-index: 1000;
+		}
+		.tooltip:hover .tooltiptext { visibility: visible; }
 	</style>
 </head>
 <body>
@@ -91,15 +108,31 @@ $(function(){
 
 		let $tbody = $('<tbody />');
 
+		console.log(routes);
+
 		if (routes != null) {
 			for (let i=0; i < routes.length; i++) {
 				const r = routes[i];
-
-				const $tr = $('<tr />')
-
-				$tr.append($('<td />').text(i+1));
+				
+				let $tr = $('<tr />');
+				if (/^https?:\/+/i.exec(r.src) != null) { 
+					$tr = $('<tr />').attr('style', 'background-color: #ff1a1a;');
+					$tr.append($('<td />').addClass('tooltip').append($('<span class="tooltiptext"></span>').text("Route Source cannot start with the protocol or scheme (e.g. - 'http' and 'https' are invalid to have listed in the route source)")).append($('<span class="valign-wrapper" />').append(i+1).append($('<i class="material-icons">error_outline</i>'))));
+				} else {
+					$tr.append($('<td />').text(i+1));
+				}
 				$tr.append($('<td />').text(r.service));
-				$tr.append($('<td />').text(r.src));
+
+				if ({{.RoutingTable.Source.LinkEnabled}} == true && /^https?:\/+/i.exec(r.dst) != null && /^https?:\/+/i.exec(r.src) == null) {
+					const hrefScheme = ({{.RoutingTable.Source.Scheme}} != '' ? {{.RoutingTable.Source.Scheme}} + ':' : window.location.protocol) + '//';
+					const hrefHost = ({{.RoutingTable.Source.Host}} != '' ? {{.RoutingTable.Source.Host}} : window.location.hostname);
+					const hrefPort = (/:/gi.exec(r.src) != null ? /:[0-9]*\/?/gi.exec(r.src)[0] : '{{if .RoutingTable.Source.Port}}:{{.RoutingTable.Source.Port}}{{end}}');
+					const hrefStr = (r.src.startsWith('/') ? hrefScheme + hrefHost + hrefPort : '{{if .RoutingTable.Source.Scheme}}{{.RoutingTable.Source.Scheme}}:{{end}}//') + r.src;
+					$tr.append($('<td />').append($('<a />').attr('href', hrefStr){{if .RoutingTable.Source.NewTab}}.attr('target', '_blank'){{end}}.text(r.src)));
+				} else {
+					$tr.append($('<td />').text(r.src));
+				}
+
 				$tr.append($('<td />').append($('<a />').attr('href', r.dst).text(r.dst)));
 				$tr.append($('<td />').text(r.opts));
 				$tr.append($('<td />').text((r.weight * 100).toFixed(2) + '%'));
@@ -145,7 +178,7 @@ $(function(){
 		$.each(data, function(idx, val) {
 			let path = val;
 			if (val == "") {
-				val = "default"
+				val = "default";
 			}
 			d.append(
 				$('<li />').append(
