@@ -1316,6 +1316,63 @@ ui.color = light-green </description>
     </item>
     
     <item>
+      <title>ui.routingtable.source.host</title>
+      <link>https://fabiolb.net/ref/ui.routingtable.source.host/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/ui.routingtable.source.host/</guid>
+      <description>ui.routingtable.source.host configures an optional host or base address for the link in the source column.
+This is only used when the source is not a separate server (does not begin with &amp;lsquo;/&amp;rsquo;, e.g. &amp;lsquo;dev.google.net&amp;rsquo;). If source is subdirectory it will set the link for the source to this host. If this is not set, and the source link is enabled, the link will default to current host.
+This is only applicable if the linkenabled is set to true.</description>
+    </item>
+    
+    <item>
+      <title>ui.routingtable.source.linkenabled</title>
+      <link>https://fabiolb.net/ref/ui.routingtable.source.linkenabled/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/ui.routingtable.source.linkenabled/</guid>
+      <description>ui.routingtable.source.linkenabled optionally configures if the routing table&amp;rsquo;s column &amp;ldquo;source&amp;rdquo; should be a clickable link.
+The default is
+ui.routingtable.source.linkenabled = false </description>
+    </item>
+    
+    <item>
+      <title>ui.routingtable.source.newtab</title>
+      <link>https://fabiolb.net/ref/ui.routingtable.source.newtab/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/ui.routingtable.source.newtab/</guid>
+      <description>ui.routingtable.source.scheme configures the scheme protocol for the link of the source on the routing table. This is useful when the scheme is different than the current page or to force the traffic to a certain protocol.
+This is only applicable if the linkenabled is set to true.
+The default is
+ui.routingtable.source.scheme = http </description>
+    </item>
+    
+    <item>
+      <title>ui.routingtable.source.port</title>
+      <link>https://fabiolb.net/ref/ui.routingtable.source.port/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/ui.routingtable.source.port/</guid>
+      <description>ui.routingtable.source.port configures an optional port for the routing table source column link. This is used in conjunction with the scheme and host.
+If the source is not a separate server (does not begin with &amp;lsquo;/&amp;rsquo;, e.g. &amp;lsquo;dev.google.net&amp;rsquo;), and the host is set, this will use the port that is set, or default to the current scheme protocol port (80 for http or 443 for https).
+This is only applicable if the linkenabled is set to true.</description>
+    </item>
+    
+    <item>
+      <title>ui.routingtable.source.scheme</title>
+      <link>https://fabiolb.net/ref/ui.routingtable.source.scheme/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/ui.routingtable.source.scheme/</guid>
+      <description>ui.routingtable.source.scheme configures the scheme protocol for the link of the source on the routing table. This is useful when the scheme is different than the current page or to force the traffic to a certain protocol.
+This is only applicable if the linkenabled is set to true.
+The default is
+ui.routingtable.source.scheme = http </description>
+    </item>
+    
+    <item>
       <title>ui.title</title>
       <link>https://fabiolb.net/ref/ui.title/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

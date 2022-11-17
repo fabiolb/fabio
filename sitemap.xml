@@ -254,6 +254,16 @@
   </url><url>
     <loc>https://fabiolb.net/ref/ui.color/</loc>
   </url><url>
+    <loc>https://fabiolb.net/ref/ui.routingtable.source.host/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/ui.routingtable.source.linkenabled/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/ui.routingtable.source.newtab/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/ui.routingtable.source.port/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/ui.routingtable.source.scheme/</loc>
+  </url><url>
     <loc>https://fabiolb.net/ref/ui.title/</loc>
   </url><url>
     <loc>https://fabiolb.net/feature/vault/</loc>
