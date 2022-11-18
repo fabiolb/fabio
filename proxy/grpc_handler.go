@@ -299,14 +299,21 @@ func (p *grpcConnectionPool) cleanup() {
 		p.lock.Lock()
 		table := route.GetTable()
 		for tKey, cs := range p.connections {
-			if cs.GetState() == connectivity.Shutdown {
+			state := cs.GetState()
+			if state == connectivity.Shutdown {
 				delete(p.connections, tKey)
 				continue
 			}
 
 			if !hasTarget(tKey, table) {
 				log.Println("[DEBUG] grpc: cleaning up connection to", tKey)
-				cs.Close()
+				go func(cs *grpc.ClientConn, state connectivity.State) {
+					ctx, cancel := context.WithTimeout(context.Background(), p.cfg.Proxy.GRPCGShutdownTimeout)
+					defer cancel()
+					// wait for state to change, or timeout, before closing, in case it's still handling traffic.
+					cs.WaitForStateChange(ctx, state)
+					cs.Close()
+				}(cs, state)
 				delete(p.connections, tKey)
 			}
 		}
