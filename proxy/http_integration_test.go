@@ -33,7 +33,7 @@ const (
 	globDisabled = true
 )
 
-//Global GlobCache for Testing
+// Global GlobCache for Testing
 var globCache = route.NewGlobCache(1000)
 
 func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {

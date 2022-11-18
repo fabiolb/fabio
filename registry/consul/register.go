@@ -26,9 +26,8 @@ const (
 // consul. To wait for completion the caller should read the next value from
 // the dereg channel.
 //
-//    dereg <- true // trigger deregistration
-//    <-dereg       // wait for completion
-//
+//	dereg <- true // trigger deregistration
+//	<-dereg       // wait for completion
 func register(c *api.Client, service *api.AgentServiceRegistration) chan bool {
 	registered := func(serviceID string) bool {
 		if serviceID == "" {

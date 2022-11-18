@@ -41,5 +41,3 @@ var randIntn = func(n int) int {
 	}
 	return rand.Intn(n)
 }
-
-

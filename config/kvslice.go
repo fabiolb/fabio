@@ -8,7 +8,7 @@ import (
 
 // parseKVSlice parses a configuration string in the form
 //
-//   key=val;key=val,key=val;key=val
+//	key=val;key=val,key=val;key=val
 //
 // into a list of string maps. maps are separated by comma and key/value
 // pairs within a map are separated by semicolons. The first key/value
@@ -16,7 +16,7 @@ import (
 // empty key. This allows support of legacy configuration formats which
 // are
 //
-//   val;opt1=val1;opt2=val2;...
+//	val;opt1=val1;opt2=val2;...
 func parseKVSlice(in string) ([]map[string]string, error) {
 	var keyOrFirstVal string
 	maps := []map[string]string{}

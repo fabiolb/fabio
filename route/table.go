@@ -72,7 +72,7 @@ func SetTable(t Table) {
 type Table map[string]Routes
 
 // hostpath splits a 'host/path' prefix into 'host' and '/path' or it returns a
-// ':port' prefix as ':port' and '' since there is no path component for TCP
+// ':port' prefix as ':port' and ” since there is no path component for TCP
 // connections.
 func hostpath(prefix string) (host string, path string) {
 	if strings.HasPrefix(prefix, ":") {

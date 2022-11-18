@@ -33,7 +33,6 @@ func addResponseHeaders(w http.ResponseWriter, r *http.Request, cfg config.Proxy
 // * add X-Real-Ip, if not present
 // * ClientIPHeader != "": Set header with that name to <remote ip>
 // * TLS connection: Set header with name from `cfg.TLSHeader` to `cfg.TLSHeaderValue`
-//
 func addHeaders(r *http.Request, cfg config.Proxy, stripPath string) error {
 	remoteIP, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {

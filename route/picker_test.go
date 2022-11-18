@@ -65,7 +65,7 @@ var oldRandInt = func(n int) int {
 	if n == 0 {
 		return 0
 	}
-	return int(time.Now().UnixNano()/int64(time.Microsecond) % int64(n))
+	return int(time.Now().UnixNano() / int64(time.Microsecond) % int64(n))
 }
 
 var result int // prevent compiler optimization

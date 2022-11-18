@@ -165,13 +165,13 @@ func (g GrpcProxyInterceptor) lookup(ctx context.Context, fullMethodName string)
 	return route.GetTable().Lookup(req, req.Header.Get("trace"), pick, match, g.GlobCache, g.Config.GlobMatchingDisabled), nil
 }
 
-//grpc client can specify a destination host in metadata by key 'dsthost', e.g. dsthost=betatest
-//the backend service(s) tags should be urlprefix-betatest/grpcpackage.servicename proto=grpc
-//the 'betatest' will be parsed as 'host' and '/grpcpackage.servicename' is the 'path',
-//a route record will be setup in route Table, t['betatest']
-//the dstHost is extracted from context's metadata of grpc client, that will trigger t[dstHost] is used.
-//if t[dstHost] not exists, fallback to t[""] is used
-//dstHost will be "" as before if not specified by grpc client side.
+// grpc client can specify a destination host in metadata by key 'dsthost', e.g. dsthost=betatest
+// the backend service(s) tags should be urlprefix-betatest/grpcpackage.servicename proto=grpc
+// the 'betatest' will be parsed as 'host' and '/grpcpackage.servicename' is the 'path',
+// a route record will be setup in route Table, t['betatest']
+// the dstHost is extracted from context's metadata of grpc client, that will trigger t[dstHost] is used.
+// if t[dstHost] not exists, fallback to t[""] is used
+// dstHost will be "" as before if not specified by grpc client side.
 func (g GrpcProxyInterceptor) getDestinationHostFromMetadata(md metadata.MD) (dstHost string) {
 	dstHost = ""
 	hosts := md["dsthost"]
