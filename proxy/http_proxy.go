@@ -21,6 +21,8 @@ import (
 	"github.com/fabiolb/fabio/route"
 	"github.com/fabiolb/fabio/trace"
 	"github.com/fabiolb/fabio/uuid"
+
+	"github.com/corazawaf/coraza/v2"
 )
 
 type HttpStatsHandler struct {
@@ -78,9 +80,26 @@ type HTTPProxy struct {
 
 	// stats contains all of the stats bits
 	Stats HttpStatsHandler
+
+	// Waf instance
+	WAF *coraza.Waf
 }
 
 func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	tx := p.WAF.NewTransaction()
+	defer tx.ProcessLogging()
+	_, e := tx.ProcessRequest(r)
+	if e != nil {
+		panic(e)
+	}
+	if it := tx.Interruption; it != nil {
+		switch it.Action {
+		case "deny":
+			http.Error(w, "coraza:"+strconv.Itoa(it.RuleID)+":"+it.Data, http.StatusTeapot)
+			return
+		}
+	}
+
 	if p.Lookup == nil {
 		panic("no lookup function")
 	}

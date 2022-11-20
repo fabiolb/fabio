@@ -6,6 +6,9 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/corazawaf/coraza/v2"
+	"github.com/corazawaf/coraza/v2/seclang"
+
 	"github.com/fabiolb/fabio/transport"
 	gkm "github.com/go-kit/kit/metrics"
 	"io"
@@ -217,8 +220,23 @@ func newHTTPProxy(cfg *config.Config, statsHandler *proxy.HttpStatsHandler) *pro
 		exit.Fatal("[FATAL] ", err)
 	}
 
+	waf := coraza.NewWaf()
+	parser, _ := seclang.NewParser(waf)
+
+	files := []string{
+		"waf/coraza.conf",
+		"waf/coreruleset/crs-setup.conf.example",
+		"waf/coreruleset/rules/*.conf",
+	}
+	for _, f := range files {
+		if e := parser.FromFile(f); e != nil {
+			panic(e)
+		}
+	}
+
 	return &proxy.HTTPProxy{
 		Config:            cfg.Proxy,
+		WAF:               waf,
 		Transport:         transport.NewTransport(nil),
 		InsecureTransport: transport.NewTransport(&tls.Config{InsecureSkipVerify: true}),
 		Lookup: func(r *http.Request) *route.Target {
