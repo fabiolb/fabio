@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+
+    <title>BGP</title>
+
+    
+    <link href="/css/theDocs.all.min.css" rel="stylesheet">
+    <link href="/css/skin/skin-blue.min.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    
+    
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+    <link rel="manifest" href="/img/manifest.json">
+    <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+  </head>
+
+  <body data-spy="scroll" data-target=".sidebar" data-offset="400">
+    
+    <a id="top" href="#"></a>
+
+    <header class="site-header sticky">
+      <nav class="navbar navbar-default">
+        <div class="container">
+
+          
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar" aria-expanded="true" aria-controls="navbar">
+              <span class="glyphicon glyphicon-option-vertical"></span>
+            </button>
+
+            <button type="button" class="navbar-toggle for-sidebar" data-toggle="offcanvas">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="/"><img src="/img/logo-bw.svg" alt="logo"></a>
+          </div>
+          
+
+          
+          <div id="navbar" class="navbar-collapse collapse" aria-expanded="true" role="banner">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="/quickstart/">Quickstart</a></li>
+              <li><a href="/deploy/">Deployment</a></li>
+              <li><a href="/feature/">Features</a></li>
+              <li><a href="/ref/">Reference</a></li>
+              <li><a href="/faq/">FAQ</a></li>
+              <li><a target="_blank" href="https://twitter.com/search?q=%23fabiolb"><i class="fa fa-twitter fa-2x" aria-hidden="true"></i></a></li>
+              <li><a target="_blank" href="https://github.com/fabiolb/fabio"><i class="fa fa-github fa-2x" aria-hidden="true"></i></a></li>
+            </ul>
+          </div>
+          
+
+        </div>
+      </nav>
+
+    </header>
+
+
+
+<main class="container">
+  <div class="row">
+    
+<aside class="col-sm-3 sidebar sidebar-line">
+
+  <ul class="nav sidenav dropable ">
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/quickstart/">Quickstart</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/feature/">Features</a>
+      
+      <ul class="open">
+      
+        <li><a href="https://fabiolb.net/feature/access-control/">Access Control</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/access-logging/">Access Logging</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/authorization/">Authorization</a></li>
+      
+        <li><a class="active" href="https://fabiolb.net/feature/bgp/">BGP</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/certificate-stores/">Certificate Stores</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/docker/">Docker Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/dynamic-reloading/">Dynamic Reloading</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/graceful-shutdown/">Graceful Shutdown</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/grpc-proxy/">GRPC Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-compression/">HTTP Compression</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-headers/">HTTP Header Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-path-prepending/">HTTP Path Prepending</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-path-stripping/">HTTP Path Stripping</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/http-redirects/">HTTP Redirects</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/https-tcp-sni-proxy/">HTTPS TCP-SNI Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/https-upstream/">HTTPS Upstream</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/metrics/">Metrics</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/proxy-protocol/">PROXY Protocol Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/sse/">Server Sent Events (SSE)</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/tcp-dynamic-proxy/">TCP Dynamic Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/tcp-proxy/">TCP Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/tcp-sni-proxy/">TCP-SNI Proxy</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/traffic-shaping/">Traffic Shaping</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/vault/">Vault Support</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/web-ui/">Web UI</a></li>
+      
+        <li><a href="https://fabiolb.net/feature/websockets/">Websockets</a></li>
+      
+      </ul>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/deploy/">Deployment</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/cfg/">Config Language</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/ref/">Reference</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/faq/">FAQ</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contrib/">Contributing</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/code-of-conduct/">Code of Conduct</a>
+      
+    </li>
+    
+    
+    <li>
+      <a class="" href="https://fabiolb.net/contact/">Contact</a>
+      
+    </li>
+    
+  </ul>
+
+</aside>
+
+
+    
+    <article class="col-sm-9 main-content" role="main">
+
+      
+      <section>
+        <h2>BGP</h2>
+        <p>This feature integrates the functionality of <a href="https://github.com/osrg/gobgp">gobgpd</a>
+with fabio.  This is particularly useful in the scenario where we are using
+anycast IP addresses and want to dynamically advertise to upstream routers
+when we&rsquo;re ready to receive traffic.  In the past, we&rsquo;ve used external router
+packages such as quagga or frr to handle this for us, but it&rsquo;s potentially
+messy to make sure that the route advertisement stops if fabio goes down,
+and the bgp daemon is started back up once fabio is running again.
+By integrating the bgp advertisement with the proxy server, we&rsquo;ve made
+sure that when fabio goes down, the route is no longer advertised and
+traffic can be sent to other fabio instances accordingly.  When fabio is back up,
+the route is advertised again.</p>
+<p>Further, the gobgp <a href="https://github.com/osrg/gobgp/blob/master/docs/sources/cli-command-syntax.md">command line client</a>
+is fully supported by enabling
+the <a href="/ref/bgp.enablegrpc/">bgp.enablegrpc</a> option.</p>
+<p><a href="/ref/bgp.multihop/">Multihop</a> is supported, where fabio may not be
+on the same subnet as neighbor.</p>
+<p>To enable BGP, you must at a minimum:</p>
+<ul>
+<li>Set up an anycast interface on the host with a /32 address.  On linux, the dummy interface type is a good option
+since it&rsquo;s supported using network manager.  Another option is hanging this address off of loopback.</li>
+<li>Configure the neighbor / peer / upstream router to allow us to peer, and to allow our anycast as a prefix it will
+accept</li>
+<li>Set <a href="/ref/bgp.enabled/">bgp.enabled</a>=true</li>
+<li>Configure the <a href="/ref/bgp.asn/">bgp.asn</a> to be our router&rsquo;s Asn - probably use a private ASN here</li>
+<li>Configure the <a href="/ref/bgp.routerid/">bgp.routerid</a> to be our router&rsquo;s IP address (i.e., not the anycast address,
+something unique).  This will be the default nexthop of all routes we publish.</li>
+<li>Configure the <a href="/ref/bgp.peers/">bgp.peers</a> for at least one nieghbor.</li>
+<li>Configure the <a href="/ref/bgp.anycastaddresses">bgp.anycastaddresses</a> for at least one anycast address.</li>
+</ul>
+<p>This will embed a gobgpd instance inside of fabio on startup and it will publish the configure anycast addresses.<br>
+It will also configure a <a href="https://github.com/osrg/gobgp/blob/master/docs/sources/policy.md">gobgpd policy</a>
+that will reject all incoming prefixes from neighbors.</p>
+<p>Alternatively, for more advanced use cases, you can reference an <a href="/ref/bgp.gobgpdcfgfile/">external gobgpd config file</a>
+that will override many of the options set in the fabio config, including the policy
+blocking us from accepting prefixes from neighbors.  You still need to specify the bgp.grpc
+options from the fabio config since there is no analog in the gobgpd config file.
+You may still specify bgp anycastaddresses or bgp.peers from
+the fabio config, but we ignore anything
+that would be specified in the global section of the gobgpd config file, including router ID and
+the ASN.  Even If the bgp.gobgpdcfgfile value is set, fabio will still honor any values
+configured for bgp.anycastaddresses or bgp.peers.  These will be processed after the config
+file is processed.</p>
+<h3 id="note">Note</h3>
+<p>For situations where multiple fabio instances are running with the same anycast address
+in the same datacenter, or in any other situation where the path distance
+is the same and load balancing across multiple fabio instances is desired,
+the details of ECMP configuration is outside the scope of
+this document as configuration would vary greatly depending on the
+details of the upstream router.</p>
+
+        
+      </section>
+
+    </article>
+    
+
+  </div>
+</main>
+
+    
+    <footer class="site-footer">
+      <div class="container">
+        <a id="scroll-up" href="#"><i class="fa fa-angle-up"></i></a>
+
+        <div class="row">
+          <div class="col-md-6 col-sm-6">
+            <p style="line-height: 26px;">
+                Copyright &copy; 2020-2022 Education Networks of America. All rights reserved.</br>
+                Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
+                Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
+                Last updated on 7 Dec 2022 04:21
+            </p>
+          </div>
+          <div class="col-md-6 col-sm-6">
+            <ul class="footer-menu">
+              <li><a href="https://github.com/fabiolb/fabio/commits/master">Changelog</a></li>
+              <li><a href="/contact/">Contact</a></li>
+              <li>
+                <a href="https://gohugo.io"><img src="/img/made-with-hugo.png" height="51px"></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-2812942-5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+    gtag('config', 'UA-2812942-5');
+    </script>
+
+    
+    <script src="/js/theDocs.all.min.js"></script>
+    <script src="/js/custom.js"></script>
+
+  </body>
+</html>
+

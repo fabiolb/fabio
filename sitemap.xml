@@ -42,6 +42,36 @@
   </url><url>
     <loc>https://fabiolb.net/feature/authorization/</loc>
   </url><url>
+    <loc>https://fabiolb.net/feature/bgp/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.anycastaddresses/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.asn/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.certfile/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.enabled/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.enablegrpc/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.gobgpdcfgfile/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.grpclistenaddress/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.grpctls/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.keyfile/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.listenaddresses/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.listenport/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.nexthop/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.peers/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/bgp.routerid/</loc>
+  </url><url>
     <loc>https://fabiolb.net/faq/binding-to-low-ports/</loc>
   </url><url>
     <loc>https://fabiolb.net/feature/certificate-stores/</loc>

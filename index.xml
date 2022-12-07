@@ -124,6 +124,173 @@ or a custom format to stdout.&lt;/p&gt;</description>
     </item>
     
     <item>
+      <title>BGP</title>
+      <link>https://fabiolb.net/feature/bgp/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/feature/bgp/</guid>
+      <description>This feature integrates the functionality of gobgpd with fabio. This is particularly useful in the scenario where we are using anycast IP addresses and want to dynamically advertise to upstream routers when we&amp;rsquo;re ready to receive traffic. In the past, we&amp;rsquo;ve used external router packages such as quagga or frr to handle this for us, but it&amp;rsquo;s potentially messy to make sure that the route advertisement stops if fabio goes down, and the bgp daemon is started back up once fabio is running again.</description>
+    </item>
+    
+    <item>
+      <title>bgp.anycastaddresses</title>
+      <link>https://fabiolb.net/ref/bgp.anycastaddresses/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.anycastaddresses/</guid>
+      <description>bgp.anycastaddresses sets the anycast addresses we will advertise, separated by comma. Technically this will advertise any route prefix.
+These should already be configured on the host probably hung off loopback. For example, 192.168.5.3/32.
+The default value is
+bgp.anycastaddresses = If bgp is enabled, this must be defined.</description>
+    </item>
+    
+    <item>
+      <title>bgp.asn</title>
+      <link>https://fabiolb.net/ref/bgp.asn/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.asn/</guid>
+      <description>bgp.asn sets the asn ID of our router
+The default value is
+bgp.asn = 65000 </description>
+    </item>
+    
+    <item>
+      <title>bgp.certfile</title>
+      <link>https://fabiolb.net/ref/bgp.certfile/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.certfile/</guid>
+      <description>bgp.certfile is the file path of the certificate, and is required if bgp.grpctls is set to true.
+The default value is
+bgp.certfile = </description>
+    </item>
+    
+    <item>
+      <title>bgp.enabled</title>
+      <link>https://fabiolb.net/ref/bgp.enabled/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.enabled/</guid>
+      <description>bgp.enabled enables the embedded gobgpd daemon
+The default value is
+bgp.enabled = false </description>
+    </item>
+    
+    <item>
+      <title>bgp.enablegrpc</title>
+      <link>https://fabiolb.net/ref/bgp.enablegrpc/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.enablegrpc/</guid>
+      <description>bgp.enablegrpc enables the gobgp grpc interface.
+To be used with the gobgp command line client.
+The default value is
+bgp.enablegrpc = false </description>
+    </item>
+    
+    <item>
+      <title>bgp.gobgpdcfgfile</title>
+      <link>https://fabiolb.net/ref/bgp.gobgpdcfgfile/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.gobgpdcfgfile/</guid>
+      <description>bgp.gobgpdcfgfile is the optional file path to a gobgpd config file. This overrides the global config items, such as bgp.routerid, bgp.asn etc. This also skips automatically adding gobgpd policies that restrict / disallow accepting prefixes from neighbors. Only use this if you know what you&amp;rsquo;re doing, this is to allow for more flexibility than we expose directly with fabio.
+The default value is
+bgp.gobgpdcfgfile = </description>
+    </item>
+    
+    <item>
+      <title>bgp.grpclistenaddress</title>
+      <link>https://fabiolb.net/ref/bgp.grpclistenaddress/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.grpclistenaddress/</guid>
+      <description>bgp.grpclistenaddress is the listen interface and port if bgp.enablegrpc is set to true.
+The default value is
+bgp.grpclistenaddress = 127.0.0.1:50051 </description>
+    </item>
+    
+    <item>
+      <title>bgp.grpctls</title>
+      <link>https://fabiolb.net/ref/bgp.grpctls/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.grpctls/</guid>
+      <description>bgp.grpctls is whether to enable TLS on the bgp grpc interface.
+The default value is
+bgp.grpctls = false </description>
+    </item>
+    
+    <item>
+      <title>bgp.keyfile</title>
+      <link>https://fabiolb.net/ref/bgp.keyfile/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.keyfile/</guid>
+      <description>bgp.keyfile is the file path of the key file, and is required if bgp.grpctls is set to true.
+The default value is
+bgp.keyfile = </description>
+    </item>
+    
+    <item>
+      <title>bgp.listenaddresses</title>
+      <link>https://fabiolb.net/ref/bgp.listenaddresses/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.listenaddresses/</guid>
+      <description>bgp.listenaddresses sets the listen addresses for bgp, separated by comma.
+The default value is
+bgp.listenaddresses = 0.0.0.0 which listens on all interfaces.</description>
+    </item>
+    
+    <item>
+      <title>bgp.listenport</title>
+      <link>https://fabiolb.net/ref/bgp.listenport/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.listenport/</guid>
+      <description>bgp.listenport sets the listen ports for bgp communication from other routers.
+The default value is
+bgp.listenport = 179 The default bgp port is 179.</description>
+    </item>
+    
+    <item>
+      <title>bgp.nexthop</title>
+      <link>https://fabiolb.net/ref/bgp.nexthop/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.nexthop/</guid>
+      <description>bgp.nexthop sets the next hop address.
+If not set, it uses the bgp.routerid instead.
+The default value is
+bgp.nexthop = </description>
+    </item>
+    
+    <item>
+      <title>bgp.peers</title>
+      <link>https://fabiolb.net/ref/bgp.peers/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.peers/</guid>
+      <description>bgp.peers sets the bgp peers we will advertise routes to. This is required if bgp is enabled. bgp.peers is specified as a comma separated list of neighboraddress and asn pairs, i.e.
+bgp.peers = address=1.2.3.4;asn=65001,address=5.6.7.8;asn=65002 valid parameters for peers are:
+address - required port - optional, defaults to 179 asn - required multihop - optional, defaults to false multihoplength - optional, defaults to 2 password - optional The default value is</description>
+    </item>
+    
+    <item>
+      <title>bgp.routerid</title>
+      <link>https://fabiolb.net/ref/bgp.routerid/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/bgp.routerid/</guid>
+      <description>bgp.routerid is the router id (ip address) of this router.
+This is required if bgp is enabled. This should be the unique IP address, not any anycast. This will also be used as the default nexthop address unless bgp.nexthop is specified.
+The default value is
+bgp.routerid = </description>
+    </item>
+    
+    <item>
       <title>Binding to Low Ports</title>
       <link>https://fabiolb.net/faq/binding-to-low-ports/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

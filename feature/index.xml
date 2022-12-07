@@ -39,6 +39,15 @@ or a custom format to stdout.&lt;/p&gt;</description>
     </item>
     
     <item>
+      <title>BGP</title>
+      <link>https://fabiolb.net/feature/bgp/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/feature/bgp/</guid>
+      <description>This feature integrates the functionality of gobgpd with fabio. This is particularly useful in the scenario where we are using anycast IP addresses and want to dynamically advertise to upstream routers when we&amp;rsquo;re ready to receive traffic. In the past, we&amp;rsquo;ve used external router packages such as quagga or frr to handle this for us, but it&amp;rsquo;s potentially messy to make sure that the route advertisement stops if fabio goes down, and the bgp daemon is started back up once fabio is running again.</description>
+    </item>
+    
+    <item>
       <title>Certificate Stores</title>
       <link>https://fabiolb.net/feature/certificate-stores/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
