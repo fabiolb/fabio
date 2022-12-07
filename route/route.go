@@ -75,7 +75,9 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		t.Host = opts["host"]
 		t.ProxyProto = opts["pxyproto"] == "true"
 
-		if t.Host != "" && (t.URL.Scheme == "https" || opts["proto"] == "https") {
+		// if Host is "dst", we don't need a special transport to override the sni because
+		// this is already the default behavior.
+		if t.Host != "" && t.Host != "dst" && (t.URL.Scheme == "https" || opts["proto"] == "https") {
 			t.Transport = transport.NewTransport(&tls.Config{ServerName: t.Host, InsecureSkipVerify: t.TLSSkipVerify})
 		}
 
