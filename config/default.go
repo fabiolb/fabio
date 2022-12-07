@@ -15,6 +15,7 @@ var defaultValues = struct {
 	IdleTimeout           time.Duration
 	UIListenerValue       string
 	GZIPContentTypesValue string
+	BGPPeersValue         string
 }{
 	ListenerValue:   ":9999",
 	UIListenerValue: ":9998",
@@ -122,4 +123,20 @@ var defaultConfig = &Config{
 	},
 
 	GlobCacheSize: 1000,
+
+	BGP: BGP{
+		BGPEnabled:        false,
+		Asn:               65000,
+		AnycastAddresses:  nil,
+		RouterID:          "",
+		ListenPort:        179,
+		ListenAddresses:   []string{"0.0.0.0"},
+		Peers:             nil,
+		EnableGRPC:        false,
+		GRPCListenAddress: "127.0.0.1:50051",
+	},
+}
+
+var defaultBGPPeer = &BGPPeer{
+	MultiHopLength: 2,
 }

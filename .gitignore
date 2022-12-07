@@ -22,3 +22,5 @@ demo/cert/
 dist/
 *.app
 *.hugo_build.lock
+*~
+

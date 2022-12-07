@@ -25,3 +25,4 @@ The following list provides a list of features supported by fabio.
  * [Traffic Shaping](/feature/traffic-shaping/) - forward N% of traffic upstream without knowing the number of instances
  * [Web UI](/feature/web-ui/) - web ui to examine the current routing table
  * [Websocket Support](/feature/websockets/) - websocket support
+ * [BGP Support](/feature/bgp) - bgp support

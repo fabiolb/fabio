@@ -19,5 +19,5 @@ jobs:
         uses: actions/checkout@v3
       - name: Test
         run: |
-          export PATH=$PATH:$HOME/bin
+          export PATH=$PATH:$HOME/bin:$HOME/go/bin
           make github
