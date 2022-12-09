@@ -1,5 +1,18 @@
 ## Changelog
 
+### [v1.6.3](https://github.com/fabiolb/fabio/releases/tag/v1.6.3) - 9 December 2022
+
+
+#### Improvements
+
+* [PR #907] - Add option to make admin source links clickable. (@KTruesdellENA @Kamilcuk)
+* [PR #909] - Add integration with gobgp so that we can publish anycast addresses.
+
+#### Bug Fixes
+
+* [PR #908] - Change the shutdown procedure to deregister fabio from the registry and then shutdown the proxy (@martinivanov)
+* [PR #917 Bug #916] - Don't use "dst" literal as sni name on https backends with host=dst is set
+
 ### [v1.6.2](https://github.com/fabiolb/fabio/releases/tag/v1.6.2) - 13 September 2022
 
 * [Issue #903 PR #904](https://github.com/fabiolb/fabio/pull/904) - Improve TLS Cipher Suite parser in the config 
