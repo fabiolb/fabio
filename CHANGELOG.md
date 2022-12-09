@@ -6,7 +6,7 @@
 #### Improvements
 
 * [PR #907] - Add option to make admin source links clickable. (@KTruesdellENA @Kamilcuk)
-* [PR #909] - Add integration with gobgp so that we can publish anycast addresses.
+* [PR #909] - Add integration with gobgp so that we can publish anycast addresses. (@nathanejohnson)
 
 #### Bug Fixes
 
