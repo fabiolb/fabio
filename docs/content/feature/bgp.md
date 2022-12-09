@@ -3,6 +3,10 @@ title: "BGP"
 since: "1.6.3"
 ---
 
+NOTE: This feature does not work on Windows at present since the gobgp project
+does not support windows.
+
+
 This feature integrates the functionality of [gobgpd](https://github.com/osrg/gobgp)
 with fabio.  This is particularly useful in the scenario where we are using
 anycast IP addresses and want to dynamically advertise to upstream routers

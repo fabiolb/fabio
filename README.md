@@ -82,9 +82,10 @@ It supports ([Full feature list](https://fabiolb.net/feature/))
 * [Prometheus](https://fabiolb.net/feature/metrics/),
 * [Circonus](https://fabiolb.net/feature/metrics/),
 * [Graphite](https://fabiolb.net/feature/metrics/),
-* [StatsD](https://fabiolb.net/feature/metrics/) and
-* [DataDog](https://fabiolb.net/feature/metrics/) metrics
-* [WebUI](https://fabiolb.net/feature/web-ui/)
+* [StatsD](https://fabiolb.net/feature/metrics/),
+* [DataDog](https://fabiolb.net/feature/metrics/) for metrics,
+* [WebUI](https://fabiolb.net/feature/web-ui/) and
+* [Advertising BGP anycast addresses](https://fabiolb.net/feature/bgp/) on non-windows platforms.
 
 [Watch](https://www.youtube.com/watch?v=gf43TcWjBrE&list=PL81sUbsFNc5b-Gd59Lpz7BW0eHJBt0GvE&index=1)
 Kelsey Hightower demo Consul, Nomad, Vault and fabio at HashiConf EU 2016.
