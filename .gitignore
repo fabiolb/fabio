@@ -23,4 +23,4 @@ dist/
 *.app
 *.hugo_build.lock
 *~
-
+.RELEASE.CHANGELOG.md

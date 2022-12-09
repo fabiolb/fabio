@@ -10,6 +10,7 @@ LAST_TAG ?= $(shell git describe --tags --first-parent --abbrev=0)
 # e.g. 1.5.5
 VERSION ?= $(shell git describe --tags --first-parent --abbrev=0 | cut -c 2-)
 
+
 # GOFLAGS is the flags for the go compiler.
 GOFLAGS ?= -mod=vendor -ldflags "-X main.version=$(CUR_TAG)"
 
@@ -112,11 +113,19 @@ tag:
 	build/tag.sh
 
 # gorelease runs goreleaser to build and publish the artifacts
-.PHONY: gorelease
-gorelease:
+.PHONY: gorelease .RELEASE.CHANGELOG.md
+gorelease: changelog
 	[ -x "$(GORELEASER)" ] || ( echo "goreleaser not installed"; exit 1)
-	GOVERSION=$(GOVERSION) goreleaser --rm-dist
+	GOVERSION=$(GOVERSION) goreleaser --rm-dist --release-notes=.RELEASE.CHANGELOG.md
 
+.PHONY: goreleasedryrun
+goreleasedryrun: changelog
+	[ -x "$(GORELEASER)" ] || ( echo "goreleaser not installed"; exit 1)
+	GOVERSION=$(GOVERSION) goreleaser --rm-dist --skip-publish --skip-validate --release-notes=.RELEASE.CHANGELOG.md
+
+.PHONY: changelog
+changelog:
+	RELEASE=$(CUR_TAG) build/releasenotes.pl <CHANGELOG.md > .RELEASE.CHANGELOG.md
 # homebrew updates the brew recipe since goreleaser can only
 # handle taps right now.
 .PHONY: homebrew
