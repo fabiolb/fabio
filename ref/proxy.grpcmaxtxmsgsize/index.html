@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
 
-    <title>proxy.noroutestatus</title>
+    <title>proxy.grpcmaxtxmsgsize</title>
 
     
     <link href="/css/theDocs.all.min.css" rel="stylesheet">
@@ -204,7 +204,7 @@
       
         <li><a href="https://fabiolb.net/ref/proxy.grpcmaxrxmsgsize/">proxy.grpcmaxrxmsgsize</a></li>
       
-        <li><a href="https://fabiolb.net/ref/proxy.grpcmaxtxmsgsize/">proxy.grpcmaxtxmsgsize</a></li>
+        <li><a class="active" href="https://fabiolb.net/ref/proxy.grpcmaxtxmsgsize/">proxy.grpcmaxtxmsgsize</a></li>
       
         <li><a href="https://fabiolb.net/ref/proxy.grpcshutdowntimeout/">proxy.grpcshutdowntimeout</a></li>
       
@@ -230,7 +230,7 @@
       
         <li><a href="https://fabiolb.net/ref/proxy.maxconn/">proxy.maxconn</a></li>
       
-        <li><a class="active" href="https://fabiolb.net/ref/proxy.noroutestatus/">proxy.noroutestatus</a></li>
+        <li><a href="https://fabiolb.net/ref/proxy.noroutestatus/">proxy.noroutestatus</a></li>
       
         <li><a href="https://fabiolb.net/ref/proxy.responseheadertimeout/">proxy.responseheadertimeout</a></li>
       
@@ -360,11 +360,12 @@
 
       
       <section>
-        <h2>proxy.noroutestatus</h2>
-        <p><code>proxy.noroutestatus</code> configures the response code when no route was found.</p>
-<p>The default is</p>
-<pre><code>proxy.noroutestatus = 404
+        <h2>proxy.grpcmaxtxmsgsize</h2>
+        <p><code>proxy.grpcmaxtxmsgsize</code> configures the grpc max transmit message size in bytes.  The default
+value is</p>
+<pre><code>proxy.grpcmaxtxmsgsize = 4194304
 </code></pre>
+<p>which is 4MB</p>
 
         
       </section>

@@ -547,6 +547,36 @@ proxy.globalflushinterval = 0 </description>
     </item>
     
     <item>
+      <title>proxy.grpcmaxrxmsgsize</title>
+      <link>https://fabiolb.net/ref/proxy.grpcmaxrxmsgsize/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.grpcmaxrxmsgsize/</guid>
+      <description>proxy.grpcmaxrxmsgsize configures the grpc max receive message size in bytes. The default value is
+proxy.grpcmaxrxmsgsize = 4194304 which is 4MB</description>
+    </item>
+    
+    <item>
+      <title>proxy.grpcmaxtxmsgsize</title>
+      <link>https://fabiolb.net/ref/proxy.grpcmaxtxmsgsize/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.grpcmaxtxmsgsize/</guid>
+      <description>proxy.grpcmaxtxmsgsize configures the grpc max transmit message size in bytes. The default value is
+proxy.grpcmaxtxmsgsize = 4194304 which is 4MB</description>
+    </item>
+    
+    <item>
+      <title>proxy.grpcshutdowntimeout</title>
+      <link>https://fabiolb.net/ref/proxy.grpcshutdowntimeout/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiolb.net/ref/proxy.grpcshutdowntimeout/</guid>
+      <description>proxy.grpcshutdowntimeout configures the amount of time fabio will wait to attempt to close the connection while waiting for grpc traffic to finish to a backend that&amp;rsquo;s been deregistered. The default value is
+proxy.grpcshutdowntimeout = 2s </description>
+    </item>
+    
+    <item>
       <title>proxy.gzip.contenttype</title>
       <link>https://fabiolb.net/ref/proxy.gzip.contenttype/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

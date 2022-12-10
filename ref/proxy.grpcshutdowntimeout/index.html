@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
 
-    <title>proxy.noroutestatus</title>
+    <title>proxy.grpcshutdowntimeout</title>
 
     
     <link href="/css/theDocs.all.min.css" rel="stylesheet">
@@ -206,7 +206,7 @@
       
         <li><a href="https://fabiolb.net/ref/proxy.grpcmaxtxmsgsize/">proxy.grpcmaxtxmsgsize</a></li>
       
-        <li><a href="https://fabiolb.net/ref/proxy.grpcshutdowntimeout/">proxy.grpcshutdowntimeout</a></li>
+        <li><a class="active" href="https://fabiolb.net/ref/proxy.grpcshutdowntimeout/">proxy.grpcshutdowntimeout</a></li>
       
         <li><a href="https://fabiolb.net/ref/proxy.gzip.contenttype/">proxy.gzip.contenttype</a></li>
       
@@ -230,7 +230,7 @@
       
         <li><a href="https://fabiolb.net/ref/proxy.maxconn/">proxy.maxconn</a></li>
       
-        <li><a class="active" href="https://fabiolb.net/ref/proxy.noroutestatus/">proxy.noroutestatus</a></li>
+        <li><a href="https://fabiolb.net/ref/proxy.noroutestatus/">proxy.noroutestatus</a></li>
       
         <li><a href="https://fabiolb.net/ref/proxy.responseheadertimeout/">proxy.responseheadertimeout</a></li>
       
@@ -360,10 +360,11 @@
 
       
       <section>
-        <h2>proxy.noroutestatus</h2>
-        <p><code>proxy.noroutestatus</code> configures the response code when no route was found.</p>
-<p>The default is</p>
-<pre><code>proxy.noroutestatus = 404
+        <h2>proxy.grpcshutdowntimeout</h2>
+        <p><code>proxy.grpcshutdowntimeout</code> configures the amount of time fabio will wait to attempt
+to close the connection while waiting for grpc traffic to finish to a backend that&rsquo;s been
+deregistered.  The default value is</p>
+<pre><code>proxy.grpcshutdowntimeout = 2s
 </code></pre>
 
         

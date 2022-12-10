@@ -168,6 +168,12 @@
   </url><url>
     <loc>https://fabiolb.net/ref/proxy.globalflushinterval/</loc>
   </url><url>
+    <loc>https://fabiolb.net/ref/proxy.grpcmaxrxmsgsize/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/proxy.grpcmaxtxmsgsize/</loc>
+  </url><url>
+    <loc>https://fabiolb.net/ref/proxy.grpcshutdowntimeout/</loc>
+  </url><url>
     <loc>https://fabiolb.net/ref/proxy.gzip.contenttype/</loc>
   </url><url>
     <loc>https://fabiolb.net/ref/proxy.header.clientip/</loc>
