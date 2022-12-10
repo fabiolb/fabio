@@ -43,18 +43,19 @@ var defaultConfig = &Config{
 		},
 	},
 	Proxy: Proxy{
-		MaxConn:             10000,
-		Strategy:            "rnd",
-		Matcher:             "prefix",
-		NoRouteStatus:       404,
-		DialTimeout:         30 * time.Second,
-		FlushInterval:       time.Second,
-		GlobalFlushInterval: 0,
-		LocalIP:             LocalIPString(),
-		AuthSchemes:         map[string]AuthScheme{},
-		IdleConnTimeout:     15 * time.Second,
-		GRPCMaxRxMsgSize:    4 * 1024 * 1024, // 4M
-		GRPCMaxTxMsgSize:    4 * 1024 * 1024, // 4M
+		MaxConn:              10000,
+		Strategy:             "rnd",
+		Matcher:              "prefix",
+		NoRouteStatus:        404,
+		DialTimeout:          30 * time.Second,
+		FlushInterval:        time.Second,
+		GlobalFlushInterval:  0,
+		LocalIP:              LocalIPString(),
+		AuthSchemes:          map[string]AuthScheme{},
+		IdleConnTimeout:      15 * time.Second,
+		GRPCMaxRxMsgSize:     4 * 1024 * 1024, // 4M
+		GRPCMaxTxMsgSize:     4 * 1024 * 1024, // 4M
+		GRPCGShutdownTimeout: time.Second * 2,
 	},
 	Registry: Registry{
 		Backend: "consul",

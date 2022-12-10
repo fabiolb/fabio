@@ -94,6 +94,7 @@ type Proxy struct {
 	AuthSchemes           map[string]AuthScheme
 	GRPCMaxRxMsgSize      int
 	GRPCMaxTxMsgSize      int
+	GRPCGShutdownTimeout  time.Duration
 }
 
 type STSHeader struct {
