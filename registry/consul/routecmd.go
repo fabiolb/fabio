@@ -55,6 +55,7 @@ func (r routecmd) build() []string {
 
 			var weight string
 			var ropts []string
+			var only string
 			for _, o := range strings.Fields(opts) {
 				switch {
 				case o == "proto=tcp":
@@ -68,6 +69,9 @@ func (r routecmd) build() []string {
 
 				case o == "proto=grpc":
 					dst = "grpc://" + addr
+
+				case strings.HasPrefix(o, "only="):
+					only = o[len("only="):]
 
 				case strings.HasPrefix(o, "weight="):
 					weight = o[len("weight="):]
@@ -86,18 +90,20 @@ func (r routecmd) build() []string {
 				}
 			}
 
-			cfg := "route add " + name + " " + route + " " + dst
-			if weight != "" {
-				cfg += " weight " + weight
-			}
-			if len(svctags) > 0 {
-				cfg += " tags " + strconv.Quote(strings.Join(svctags, ","))
-			}
-			if len(ropts) > 0 {
-				cfg += " opts " + strconv.Quote(strings.Join(ropts, " "))
-			}
+			if (only == "") || (only == strconv.Itoa(port)) {
+				cfg := "route add " + name + " " + route + " " + dst
+				if weight != "" {
+					cfg += " weight " + weight
+				}
+				if len(svctags) > 0 {
+					cfg += " tags " + strconv.Quote(strings.Join(svctags, ","))
+				}
+				if len(ropts) > 0 {
+					cfg += " opts " + strconv.Quote(strings.Join(ropts, " "))
+				}
 
-			config = append(config, cfg)
+				config = append(config, cfg)
+			}
 		}
 	}
 	return config
