@@ -191,6 +191,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.DurationVar(&cfg.Registry.Retry, "registry.retry", defaultConfig.Registry.Retry, "retry interval during startup")
 	f.StringVar(&cfg.Registry.File.RoutesPath, "registry.file.path", defaultConfig.Registry.File.RoutesPath, "path to file based routing table")
 	f.StringVar(&cfg.Registry.File.NoRouteHTMLPath, "registry.file.noroutehtmlpath", defaultConfig.Registry.File.NoRouteHTMLPath, "path to file for HTML returned when no route is found")
+	f.DurationVar(&cfg.Registry.File.Interval, "registry.file.interval", defaultConfig.Registry.File.Interval, "check file changed interval")
 	f.StringVar(&cfg.Registry.Static.Routes, "registry.static.routes", defaultConfig.Registry.Static.Routes, "static routes")
 	f.StringVar(&cfg.Registry.Static.NoRouteHTML, "registry.static.noroutehtml", defaultConfig.Registry.Static.NoRouteHTML, "HTML which is returned when no route is found")
 	f.StringVar(&cfg.Registry.Consul.Addr, "registry.consul.addr", defaultConfig.Registry.Consul.Addr, "address of the consul agent")
