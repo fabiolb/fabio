@@ -48,8 +48,11 @@ func (w *ServiceMonitor) Watch(updates chan string) {
 		}
 		log.Printf("[DEBUG] consul: Health changed to #%d", meta.LastIndex)
 
+		prefixedChecks := checksWithTagPrefix(w.config.TagPrefix, checks)
+		log.Printf("[DEBUG] consul: only %d of %d checks have the configured tag prefix", len(prefixedChecks), len(checks))
+
 		// determine which services have passing health checks
-		passing := passingServices(checks, w.config.ServiceStatus, w.strict)
+		passing := passingServices(prefixedChecks, w.config.ServiceStatus, w.strict)
 
 		// build the config for the passing services
 		updates <- w.makeConfig(passing)
@@ -137,4 +140,23 @@ func (w *ServiceMonitor) serviceConfig(name string, passing map[string]bool) (co
 		config = append(config, cmds...)
 	}
 	return config
+}
+
+// checksWithTagPrefix filters a list of Consul Health Checks to only the Checks with a Tag that begins with the prefix
+func checksWithTagPrefix(prefix string, checks api.HealthChecks) api.HealthChecks {
+	checksWithPrefix := make(api.HealthChecks, 0, len(checks))
+	for _, c := range checks {
+		if c.CheckID == "serfHealth" || c.CheckID == "_node_maintenance" || strings.HasPrefix(c.CheckID, "_service_maintenance") {
+			checksWithPrefix = append(checksWithPrefix, c)
+			continue
+		}
+		for _, t := range c.ServiceTags {
+			if strings.HasPrefix(t, prefix) {
+				checksWithPrefix = append(checksWithPrefix, c)
+				break
+			}
+		}
+	}
+
+	return checksWithPrefix
 }
