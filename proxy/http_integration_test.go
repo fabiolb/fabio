@@ -496,7 +496,7 @@ func testProxyLogOutput(t *testing.T, bodySize int, cfg config.Proxy) {
 		"upstream_service:svc-a",
 	}
 
-	data := string(b.Bytes())
+	data := b.String()
 	data = data[:len(data)-1] // strip \n
 	got := strings.Split(data, ";")
 	sort.Strings(got)
