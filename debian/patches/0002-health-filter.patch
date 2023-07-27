@@ -1,0 +1,53 @@
+diff --git a/config/config.go b/config/config.go
+index 33bbe7a..a1804e7 100644
+--- a/config/config.go
++++ b/config/config.go
+@@ -166,6 +166,7 @@ type Consul struct {
+ 	ServiceMonitors    int
+ 	TLS                ConsulTlS
+ 	PollInterval       time.Duration
++	HealthFilter       string
+ }
+ 
+ type Custom struct {
+diff --git a/config/default.go b/config/default.go
+index 7209d9f..6d7fd33 100644
+--- a/config/default.go
++++ b/config/default.go
+@@ -71,6 +71,7 @@ var defaultConfig = &Config{
+ 			CheckScheme:     "http",
+ 			ChecksRequired:  "one",
+ 			PollInterval:    0,
++			HealthFilter:    "",
+ 		},
+ 		Custom: Custom{
+ 			Host:               "",
+diff --git a/config/load.go b/config/load.go
+index f1411ce..ac588a1 100644
+--- a/config/load.go
++++ b/config/load.go
+@@ -197,6 +197,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
+ 	f.StringVar(&cfg.Registry.Consul.ChecksRequired, "registry.consul.checksRequired", defaultConfig.Registry.Consul.ChecksRequired, "number of checks which must pass: one or all")
+ 	f.IntVar(&cfg.Registry.Consul.ServiceMonitors, "registry.consul.serviceMonitors", defaultConfig.Registry.Consul.ServiceMonitors, "concurrency for route updates")
+ 	f.DurationVar(&cfg.Registry.Consul.PollInterval, "registry.consul.pollinterval", defaultConfig.Registry.Consul.PollInterval, "poll interval for route updates")
++	f.StringVar(&cfg.Registry.Consul.HealthFilter, "registry.consul.healthFilter", defaultConfig.Registry.Consul.HealthFilter, "health check query filter")
+ 	f.IntVar(&cfg.Runtime.GOGC, "runtime.gogc", defaultConfig.Runtime.GOGC, "sets runtime.GOGC")
+ 	f.IntVar(&cfg.Runtime.GOMAXPROCS, "runtime.gomaxprocs", defaultConfig.Runtime.GOMAXPROCS, "sets runtime.GOMAXPROCS")
+ 	f.StringVar(&cfg.UI.Access, "ui.access", defaultConfig.UI.Access, "access mode, one of [ro, rw]")
+diff --git a/registry/consul/service.go b/registry/consul/service.go
+index 040cf1e..8a15329 100644
+--- a/registry/consul/service.go
++++ b/registry/consul/service.go
+@@ -35,10 +35,10 @@ func (w *ServiceMonitor) Watch(updates chan string) {
+ 	var q *api.QueryOptions
+ 	for {
+ 		if w.config.PollInterval != 0 {
+-			q = &api.QueryOptions{RequireConsistent: true}
++			q = &api.QueryOptions{RequireConsistent: true, Filter: w.config.HealthFilter}
+ 			time.Sleep(w.config.PollInterval)
+ 		} else {
+-			q = &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex}
++			q = &api.QueryOptions{RequireConsistent: true, WaitIndex: lastIndex, Filter: w.config.HealthFilter}
+ 		}
+ 		checks, meta, err := w.client.Health().State("any", q)
+ 		if err != nil {
