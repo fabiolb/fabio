@@ -130,10 +130,10 @@ type itemType string
 
 const (
 	itemText      itemType = "TEXT"
-	itemEqual              = "EQUAL"
-	itemSemicolon          = "SEMICOLON"
-	itemComma              = "COMMA"
-	itemError              = "ERROR"
+	itemEqual     itemType = "EQUAL"
+	itemSemicolon itemType = "SEMICOLON"
+	itemComma     itemType = "COMMA"
+	itemError     itemType = "ERROR"
 )
 
 func (t itemType) String() string {
@@ -146,17 +146,17 @@ const (
 
 	// lexer states
 	stateStart    state = "start"
-	stateText           = "text"
-	stateQText          = "qtext"
-	stateQTextEnd       = "qtextend"
-	stateQTextEsc       = "qtextesc"
+	stateText     state = "text"
+	stateQText    state = "qtext"
+	stateQTextEnd state = "qtextend"
+	stateQTextEsc state = "qtextesc"
 
 	// parser states
-	stateFirstKey      = "first-key"
-	stateKey           = "key"
-	stateEqual         = "equal"
-	stateVal           = "val"
-	stateAfterFirstKey = "equal-comma-semicolon"
+	stateFirstKey state = "first-key"
+	stateKey      state = "key"
+	stateEqual    state = "equal"
+	stateVal      state = "val"
+	stateAfterFirstKey state = "equal-comma-semicolon"
 )
 
 func lex(s []rune) (itemType, string, int) {

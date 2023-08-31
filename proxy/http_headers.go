@@ -135,7 +135,6 @@ func addHeaders(r *http.Request, cfg config.Proxy, stripPath string) error {
 }
 
 var tlsver = map[uint16]string{
-	tls.VersionSSL30: "ssl30",
 	tls.VersionTLS10: "tls10",
 	tls.VersionTLS11: "tls11",
 	tls.VersionTLS12: "tls12",
@@ -156,7 +155,7 @@ func uint16base16(n uint16) string {
 	return string(b)
 }
 
-// i32toa is a faster implentation of strconv.Itoa() without importing another library
+// i32toa is a faster implementation of strconv.Itoa() without importing another library
 // https://stackoverflow.com/a/39444005
 func i32toa(n int32) string {
 	buf := [11]byte{}

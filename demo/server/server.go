@@ -46,6 +46,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/fabiolb/fabio/proxy/tcp"
 
@@ -165,7 +166,7 @@ func main() {
 
 	// run until we get a signal
 	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, os.Kill)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	<-quit
 
 	// deregister service

@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
 	gkm "github.com/go-kit/kit/metrics"
 	"github.com/go-kit/kit/metrics/statsd"
 )

@@ -178,7 +178,6 @@ func newGrpcProxy(cfg *config.Config, tlscfg *tls.Config, statsHandler *proxy.Gr
 	handler := grpc_proxy.TransparentHandler(proxy.GetGRPCDirector(tlscfg, cfg))
 
 	return []grpc.ServerOption{
-		grpc.CustomCodec(grpc_proxy.Codec()),
 		grpc.UnknownServiceHandler(handler),
 		grpc.StreamInterceptor(proxyInterceptor.Stream),
 		grpc.StatsHandler(statsHandler),
@@ -276,7 +275,7 @@ func lookupHostMatcher(cfg *config.Config) func(context.Context, string) bool {
 		if proto, ok = t.Opts["proto"]; !ok && t.URL != nil {
 			proto = t.URL.Scheme
 		}
-		return "tcp" == proto
+		return proto == "tcp"
 	}
 }
 
@@ -286,7 +285,7 @@ func makeTLSConfig(l config.Listen) (*tls.Config, error) {
 	}
 	src, err := cert.NewSource(l.CertSource)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create cert source %s. %s", l.CertSource.Name, err)
+		return nil, fmt.Errorf("failed to create cert source %s. %s", l.CertSource.Name, err)
 	}
 	tlscfg, err := cert.TLSConfig(src, l.StrictMatch, l.TLSMinVersion, l.TLSMaxVersion, l.TLSCiphers)
 	if err != nil {
@@ -451,7 +450,7 @@ func startServers(cfg *config.Config, stats metrics.Provider) {
 						ports = unique(ports)
 					}
 					for _, port := range difference(lastPorts, ports) {
-						log.Printf("[DEBUG] Dynamic TCP listener on %s eligable for termination", port)
+						log.Printf("[DEBUG] Dynamic TCP listener on %s eligible for termination", port)
 						proxy.CloseProxy(port)
 					}
 					for _, port := range ports {

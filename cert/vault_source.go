@@ -68,11 +68,11 @@ func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error)
 		}
 
 		var b []byte
-		switch v.(type) {
+		switch v := v.(type) {
 		case string:
-			b = []byte(v.(string))
+			b = []byte(v)
 		case []byte:
-			b = v.([]byte)
+			b = v
 		default:
 			log.Printf("[WARN] cert: key %s has type %T", name, v)
 			return
@@ -143,8 +143,7 @@ func (s *VaultSource) isKVv2(path string, client *api.Client) (string, bool, err
 }
 
 func (s *VaultSource) kvPreflightVersionRequest(client *api.Client, path string) (string, int, error) {
-	r := client.NewRequest("GET", "/v1/sys/internal/ui/mounts/"+path)
-	resp, err := client.RawRequest(r)
+	resp, err := client.Logical().ReadRaw("sys/internal/ui/mounts/"+path)
 	if resp != nil {
 		defer resp.Body.Close()
 	}

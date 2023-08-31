@@ -2,7 +2,7 @@ package metrics
 
 import (
 	"bytes"
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
 	"github.com/go-kit/kit/metrics/dogstatsd"
 	"reflect"
 	"testing"

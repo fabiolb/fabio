@@ -38,7 +38,7 @@ func TestExit(t *testing.T) {
 	// wait for listeners to return
 	Wait()
 
-	out := string(b.Bytes())
+	out := b.String()
 	if !strings.Contains("a\n b\n a\nb\n b\na\n", out) {
 		t.Errorf("log.Fatal did not happen: %q", out)
 	}

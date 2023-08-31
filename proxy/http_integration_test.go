@@ -255,8 +255,8 @@ func TestProxyHost(t *testing.T) {
 
 	proxy := httptest.NewServer(&HTTPProxy{
 		Transport: &http.Transport{
-			Dial: func(network, addr string) (net.Conn, error) {
-				addr = server.URL[len("http://"):]
+			Dial: func(network, _ string) (net.Conn, error) {
+				addr := server.URL[len("http://"):]
 				return net.Dial(network, addr)
 			},
 		},
@@ -496,7 +496,7 @@ func testProxyLogOutput(t *testing.T, bodySize int, cfg config.Proxy) {
 		"upstream_service:svc-a",
 	}
 
-	data := string(b.Bytes())
+	data := b.String()
 	data = data[:len(data)-1] // strip \n
 	got := strings.Split(data, ";")
 	sort.Strings(got)

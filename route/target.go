@@ -103,12 +103,8 @@ func (t *Target) BuildRedirectURL(requestURL *url.URL) {
 		}
 		// strip path before replacement
 		if t.StripPath != "" {
-			if strings.HasPrefix(replacePath, t.StripPath) {
-				replacePath = replacePath[len(t.StripPath):]
-			}
-			if strings.HasPrefix(replaceRawPath, t.StripPath) {
-				replaceRawPath = replaceRawPath[len(t.StripPath):]
-			}
+			replacePath = strings.TrimPrefix(replacePath, t.StripPath)
+			replaceRawPath = strings.TrimPrefix(replaceRawPath, t.StripPath)
 		}
 		// add prepend path
 		if t.PrependPath != "" {
@@ -126,7 +122,5 @@ func (t *Target) BuildRedirectURL(requestURL *url.URL) {
 	if t.RedirectURL.Path == "" {
 		t.RedirectURL.Path = "/"
 	}
-	if strings.Contains(t.RedirectURL.Host, "$host") {
-		t.RedirectURL.Host = strings.Replace(t.RedirectURL.Host, "$host", requestURL.Host, 1)
-	}
+	t.RedirectURL.Host = strings.Replace(t.RedirectURL.Host, "$host", requestURL.Host, 1)
 }

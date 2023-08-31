@@ -15,12 +15,12 @@ import (
 	"github.com/fabiolb/fabio/route"
 
 	gkm "github.com/go-kit/kit/metrics"
-	grpc_proxy "github.com/mwitkow/grpc-proxy/proxy"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/stats"
 	"google.golang.org/grpc/status"
@@ -261,7 +261,7 @@ func (p *grpcConnectionPool) Get(ctx context.Context, target *route.Target) (*gr
 
 func (p *grpcConnectionPool) newConnection(ctx context.Context, target *route.Target) (*grpc.ClientConn, error) {
 	opts := []grpc.DialOption{
-		grpc.WithDefaultCallOptions(grpc.CallCustomCodec(grpc_proxy.Codec()), grpc.MaxCallRecvMsgSize(p.cfg.Proxy.GRPCMaxRxMsgSize)),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(p.cfg.Proxy.GRPCMaxRxMsgSize)),
 	}
 
 	if target.URL.Scheme == "grpcs" && p.tlscfg != nil {
@@ -275,10 +275,10 @@ func (p *grpcConnectionPool) newConnection(ctx context.Context, target *route.Ta
 				ServerName: target.Opts["grpcservername"],
 			})))
 	} else {
-		opts = append(opts, grpc.WithInsecure())
+		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	}
 
-	conn, err := grpc.DialContext(ctx, target.URL.Host, opts...)
+	conn, err := grpc.NewClient(target.URL.Host, opts...)
 
 	if err == nil {
 		p.Set(target, conn)

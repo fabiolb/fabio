@@ -495,5 +495,5 @@ func BenchmarkUint16Base16(b *testing.B) {
 			s = uint16base16(uint16(i))
 		}
 	})
-	_ = s == s // use the var to make go1.10 vet happy
+	fmt.Sprintf("hello %v", s) // use the var to make go1.10 vet happy
 }

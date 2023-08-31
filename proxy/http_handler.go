@@ -61,6 +61,4 @@ func httpProxyErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
 	if statusCode != StatusClientClosedRequest {
 		log.Print("[ERROR] ", err)
 	}
-
-	return
 }

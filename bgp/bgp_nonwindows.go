@@ -359,7 +359,7 @@ func (bgph *BGPHandler) DeleteRoutes(ctx context.Context, routes []string) error
 }
 
 func ValidateConfig(config *config.BGP) error {
-	if config.BGPEnabled == false {
+	if !config.BGPEnabled {
 		return nil
 	}
 

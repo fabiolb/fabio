@@ -76,7 +76,7 @@ route add tcproute example2.com/ tcp://%s opts "proto=tcp"`
 		if proto, ok = t.Opts["proto"]; !ok && t.URL != nil {
 			proto = t.URL.Scheme
 		}
-		return "tcp" == proto
+		return proto == "tcp"
 	}
 
 	// get an unused port for use for the proxy.  the rest of the tests just
