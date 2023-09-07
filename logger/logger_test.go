@@ -2,7 +2,7 @@ package logger
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"sort"
@@ -221,7 +221,7 @@ func BenchmarkLog(b *testing.B) {
 		sort.Strings(keys)
 		format := strings.Join(keys, " ")
 
-		l, err := New(ioutil.Discard, format)
+		l, err := New(io.Discard, format)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -243,7 +243,7 @@ func BenchmarkLog(b *testing.B) {
 
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			t.Execute(ioutil.Discard, e)
+			t.Execute(io.Discard, e)
 		}
 	})
 }
