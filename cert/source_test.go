@@ -10,7 +10,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"math/big"
 	"net/http"
@@ -261,7 +260,7 @@ func TestConsulSource(t *testing.T) {
 				return false
 			}
 
-			n, err := io.Copy(ioutil.Discard, resp.Body)
+			n, err := io.Copy(io.Discard, resp.Body)
 			return err == nil && n > 10
 		}
 
@@ -582,7 +581,7 @@ func testSource(t *testing.T, source Source, rootCAs *x509.CertPool, sleep time.
 	// disable log output for the next call to prevent
 	// confusing log messages since they are expected
 	// http: TLS handshake error from 127.0.0.1:55044: remote error: bad certificate
-	log.SetOutput(ioutil.Discard)
+	log.SetOutput(io.Discard)
 	defer log.SetOutput(os.Stderr)
 
 	// fail calls https://localhost.org/ for which certificate validation
@@ -642,7 +641,7 @@ func roundtrip(serverName string, srvConfig *tls.Config, client *http.Client) (c
 	}
 	defer resp.Body.Close()
 
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return 0, "", err
 	}
@@ -676,7 +675,7 @@ func http20Client(rootCAs *x509.CertPool) (*http.Client, error) {
 }
 
 func tempDir() string {
-	dir, err := ioutil.TempDir("", "fabio")
+	dir, err := os.MkdirTemp("", "fabio")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -684,7 +683,7 @@ func tempDir() string {
 }
 
 func writeFile(filename string, data []byte) {
-	if err := ioutil.WriteFile(filename, data, 0644); err != nil {
+	if err := os.WriteFile(filename, data, 0644); err != nil {
 		panic(err.Error())
 	}
 }

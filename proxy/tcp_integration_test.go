@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
 	"net"
 	"net/url"
 	"os"
@@ -104,16 +103,16 @@ func TestTCPProxyWithTLS(t *testing.T) {
 	defer srv.Close()
 
 	// setup cert source
-	dir, err := ioutil.TempDir("", "fabio")
+	dir, err := os.MkdirTemp("", "fabio")
 	if err != nil {
-		t.Fatal("ioutil.TempDir", err)
+		t.Fatal("os.MkdirTemp", err)
 	}
 	defer os.RemoveAll(dir)
 
 	mustWrite := func(name string, data []byte) {
 		path := filepath.Join(dir, name)
-		if err := ioutil.WriteFile(path, data, 0644); err != nil {
-			t.Fatalf("ioutil.WriteFile: %s", err)
+		if err := os.WriteFile(path, data, 0644); err != nil {
+			t.Fatalf("os.WriteFile: %s", err)
 		}
 	}
 	mustWrite("example.com-key.pem", internal.LocalhostKey)
@@ -288,16 +287,16 @@ func TestTCPProxyWithTLSWithProxyProto(t *testing.T) {
 	defer srv.Close()
 
 	// setup cert source
-	dir, err := ioutil.TempDir("", "fabio")
+	dir, err := os.MkdirTemp("", "fabio")
 	if err != nil {
-		t.Fatal("ioutil.TempDir", err)
+		t.Fatal("os.MkdirTemp", err)
 	}
 	defer os.RemoveAll(dir)
 
 	mustWrite := func(name string, data []byte) {
 		path := filepath.Join(dir, name)
-		if err := ioutil.WriteFile(path, data, 0644); err != nil {
-			t.Fatalf("ioutil.WriteFile: %s", err)
+		if err := os.WriteFile(path, data, 0644); err != nil {
+			t.Fatalf("os.WriteFile: %s", err)
 		}
 	}
 	mustWrite("example.com-key.pem", internal.LocalhostKey)

@@ -3,7 +3,7 @@ package cert
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
+	"os"
 
 	"github.com/fabiolb/fabio/exit"
 )
@@ -26,7 +26,7 @@ func (s FileSource) LoadClientCAs() (*x509.CertPool, error) {
 		if s.ClientAuthFile == "" {
 			return nil, nil
 		}
-		pemBlock, err := ioutil.ReadFile(path)
+		pemBlock, err := os.ReadFile(path)
 		return map[string][]byte{path: pemBlock}, err
 	})
 }

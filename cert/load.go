@@ -5,7 +5,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -34,7 +34,7 @@ func loadURL(listURL string) (pemBlocks map[string][]byte, err error) {
 			return nil, err
 		}
 		defer resp.Body.Close()
-		return ioutil.ReadAll(resp.Body)
+		return io.ReadAll(resp.Body)
 	}
 
 	// fetch the file with the list of filenames
@@ -88,7 +88,7 @@ func loadPath(root string) (pemBlocks map[string][]byte, err error) {
 			return nil
 		}
 
-		buf, err := ioutil.ReadFile(path)
+		buf, err := os.ReadFile(path)
 		if err != nil {
 			return fmt.Errorf("cert: %s", err)
 		}

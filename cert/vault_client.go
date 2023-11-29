@@ -3,7 +3,6 @@ package cert
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -186,7 +185,7 @@ func getVaultToken(c string) string {
 		return token
 	}
 	if cArray[0] == "file" {
-		b, err := ioutil.ReadFile(cArray[1]) // just pass the file name
+		b, err := os.ReadFile(cArray[1]) // just pass the file name
 		if err != nil {
 			log.Printf("[WARN] vault: Failed to fetch token from  %s", c)
 		} else {

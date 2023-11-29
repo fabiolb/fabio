@@ -3,7 +3,6 @@ package auth
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"reflect"
@@ -38,7 +37,7 @@ func (rw *responseWriter) WriteHeader(statusCode int) {
 }
 
 func createBasicAuthFile(contents string) (string, error) {
-	dir, err := ioutil.TempDir("", "basicauth")
+	dir, err := os.MkdirTemp("", "basicauth")
 
 	if err != nil {
 		return "", fmt.Errorf("could not create temp dir: %s", err)
@@ -46,7 +45,7 @@ func createBasicAuthFile(contents string) (string, error) {
 
 	filename := fmt.Sprintf("%s/%s", dir, uuid.NewUUID())
 
-	err = ioutil.WriteFile(filename, []byte(contents), 0666)
+	err = os.WriteFile(filename, []byte(contents), 0666)
 
 	if err != nil {
 		return "", fmt.Errorf("could not write password file: %s", err)

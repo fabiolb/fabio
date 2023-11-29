@@ -4,7 +4,7 @@ package gzip
 import (
 	"bytes"
 	"compress/gzip"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
@@ -31,7 +31,7 @@ func Test_GzipHandler_CompressableType(t *testing.T) {
 	assertEqual(resp.Header.Get("Content-Type"), "text/plain; charset=utf-8")
 	assertEqual(resp.Header.Get("Content-Encoding"), "gzip")
 
-	gzBytes, err := ioutil.ReadAll(resp.Body)
+	gzBytes, err := io.ReadAll(resp.Body)
 	assertEqual(err, nil)
 	assertEqual(resp.Header.Get("Content-Length"), strconv.Itoa(len(gzBytes)))
 
@@ -39,7 +39,7 @@ func Test_GzipHandler_CompressableType(t *testing.T) {
 	assertEqual(err, nil)
 	defer reader.Close()
 
-	bytes, err := ioutil.ReadAll(reader)
+	bytes, err := io.ReadAll(reader)
 	assertEqual(err, nil)
 
 	assertEqual(string(bytes), "Hello World")
@@ -63,7 +63,7 @@ func Test_GzipHandler_NotCompressingTwice(t *testing.T) {
 	assertEqual(err, nil)
 	defer reader.Close()
 
-	bytes, err := ioutil.ReadAll(reader)
+	bytes, err := io.ReadAll(reader)
 	assertEqual(err, nil)
 
 	assertEqual(string(bytes), "Hello World")
@@ -83,7 +83,7 @@ func Test_GzipHandler_CompressableType_NoAccept(t *testing.T) {
 
 	assertEqual(resp.Header.Get("Content-Encoding"), "")
 
-	bytes, err := ioutil.ReadAll(resp.Body)
+	bytes, err := io.ReadAll(resp.Body)
 	assertEqual(err, nil)
 
 	assertEqual(string(bytes), "Hello World")
@@ -103,7 +103,7 @@ func Test_GzipHandler_NonCompressableType(t *testing.T) {
 
 	assertEqual(resp.Header.Get("Content-Encoding"), "")
 
-	bytes, err := ioutil.ReadAll(resp.Body)
+	bytes, err := io.ReadAll(resp.Body)
 	assertEqual(err, nil)
 
 	assertEqual(bytes, []byte{42})

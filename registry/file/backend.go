@@ -3,8 +3,8 @@
 package file
 
 import (
-	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/registry"
@@ -12,12 +12,12 @@ import (
 )
 
 func NewBackend(cfg *config.File) (registry.Backend, error) {
-	routes, err := ioutil.ReadFile(cfg.RoutesPath)
+	routes, err := os.ReadFile(cfg.RoutesPath)
 	if err != nil {
 		log.Println("[ERROR] Cannot read routes from ", cfg.RoutesPath)
 		return nil, err
 	}
-	noroutehtml, err := ioutil.ReadFile(cfg.NoRouteHTMLPath)
+	noroutehtml, err := os.ReadFile(cfg.NoRouteHTMLPath)
 	if err != nil {
 		log.Println("[ERROR] Cannot read no route HTML from ", cfg.NoRouteHTMLPath)
 		return nil, err

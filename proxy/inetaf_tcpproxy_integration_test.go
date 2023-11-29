@@ -5,7 +5,7 @@ import (
 	"context"
 	"crypto/x509"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -146,7 +146,7 @@ route add tcproute example2.com/ tcp://%s opts "proto=tcp"`
 				t.Errorf("error on request %s", err)
 				return
 			}
-			body, err := ioutil.ReadAll(resp.Body)
+			body, err := io.ReadAll(resp.Body)
 			resp.Body.Close()
 			if err != nil {
 				t.Errorf("error reading body: %s", err)
