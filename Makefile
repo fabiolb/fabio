@@ -171,7 +171,6 @@ travis-pages:
 github:
 	wget -q -O ~/consul.zip https://releases.hashicorp.com/consul/$(CI_CONSUL_VERSION)/consul_$(CI_CONSUL_VERSION)_linux_amd64.zip
 	wget -q -O ~/vault.zip https://releases.hashicorp.com/vault/$(CI_VAULT_VERSION)/vault_$(CI_VAULT_VERSION)_linux_amd64.zip
-	wget -q -O ~/vault.zip https://releases.hashicorp.com/vault/$(CI_VAULT_VERSION)/vault_$(CI_VAULT_VERSION)_linux_amd64.zip
 	wget -q -O ~/gobgp.tar.gz https://github.com/osrg/gobgp/releases/download/v$(CI_GOBGP_VERSION)/gobgp_$(CI_GOBGP_VERSION)_linux_amd64.tar.gz
 	unzip -o -d ~/bin ~/consul.zip
 	unzip -o -d ~/bin ~/vault.zip
