@@ -26,6 +26,9 @@ type routecmd struct {
 func (r routecmd) build() []string {
 	var svctags, routetags []string
 	for _, t := range r.svc.ServiceTags {
+
+		t = strings.TrimSpace(t)
+
 		if strings.HasPrefix(t, r.prefix) {
 			routetags = append(routetags, t)
 		} else {
