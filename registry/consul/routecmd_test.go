@@ -29,6 +29,53 @@ func TestRouteCmd(t *testing.T) {
 			},
 		},
 		{
+			name: "http single tag with a space",
+			r: routecmd{
+				prefix: "p-",
+				svc: &api.CatalogService{
+					ServiceName:    "svc-1",
+					ServiceAddress: "1.1.1.1",
+					ServicePort:    2222,
+					ServiceTags:    []string{` p-foo/bar`},
+				},
+			},
+			cfg: []string{
+				`route add svc-1 foo/bar http://1.1.1.1:2222/`,
+			},
+		},
+		{
+			name: "http multiple tags",
+			r: routecmd{
+				prefix: "p-",
+				svc: &api.CatalogService{
+					ServiceName:    "svc-1",
+					ServiceAddress: "1.1.1.1",
+					ServicePort:    2222,
+					ServiceTags:    []string{`p-foo/bar`, `p-test/foo`},
+				},
+			},
+			cfg: []string{
+				`route add svc-1 foo/bar http://1.1.1.1:2222/`,
+				`route add svc-1 test/foo http://1.1.1.1:2222/`,
+			},
+		},
+		{
+			name: "http multiple routes with space prefix route",
+			r: routecmd{
+				prefix: "p-",
+				svc: &api.CatalogService{
+					ServiceName:    "svc-1",
+					ServiceAddress: "1.1.1.1",
+					ServicePort:    2222,
+					ServiceTags:    []string{`p-foo/bar`, `  p-test/foo`},
+				},
+			},
+			cfg: []string{
+				`route add svc-1 foo/bar http://1.1.1.1:2222/`,
+				`route add svc-1 test/foo http://1.1.1.1:2222/`,
+			},
+		},
+		{
 			name: "tcp",
 			r: routecmd{
 				prefix: "p-",
