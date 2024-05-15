@@ -1,0 +1,21 @@
+diff --git a/registry/consul/service.go b/registry/consul/service.go
+index 040cf1e..b509c89 100644
+--- a/registry/consul/service.go
++++ b/registry/consul/service.go
+@@ -70,6 +70,16 @@ func (w *ServiceMonitor) makeConfig(checks []*api.HealthCheck) string {
+ 		// https://www.consul.io/api/agent/service.html#id
+ 		name, id := check.ServiceName, fmt.Sprintf("%s.%s", check.Node, check.ServiceID)
+ 
++		hasPrefix := false
++		for _, serviceTag := range check.ServiceTags {
++			if strings.HasPrefix(serviceTag, w.config.TagPrefix) {
++				hasPrefix = true
++			}
++		}
++		if !hasPrefix {
++			continue
++		}
++
+ 		if _, ok := m[name]; !ok {
+ 			m[name] = map[string]bool{}
+ 		}

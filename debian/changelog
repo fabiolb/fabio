@@ -1,3 +1,9 @@
+fabio (1.6.0-1.5) hrt; urgency=medium
+
+  * Skip services that don’t have a tag that matches the prefix
+
+ -- Mark Knapp <mknapp@hudson-trading.com>  Wed, 15 May 2024 12:42:13 -0400
+
 fabio (1.6.0-1.4) hrt; urgency=medium
 
   * Add the ability to pass filter query options to consul health state query
