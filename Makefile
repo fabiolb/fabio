@@ -12,7 +12,7 @@ VERSION ?= $(shell git describe --tags --first-parent --abbrev=0 | cut -c 2-)
 
 
 # GOFLAGS is the flags for the go compiler.
-GOFLAGS ?= -mod=vendor -ldflags "-X main.version=$(CUR_TAG)"
+GOFLAGS ?= -ldflags "-X main.version=$(CUR_TAG)"
 
 # GOVERSION is the current go version, e.g. go1.9.2
 GOVERSION ?= $(shell go version | awk '{print $$3;}')
@@ -64,12 +64,11 @@ test: build
 .PHONY: mod
 mod:
 	go mod tidy
-	go mod vendor
 
 # gofmt runs gofmt on the code
 .PHONY: gofmt
 gofmt:
-	gofmt -s -w `find . -type f -name '*.go' | grep -v vendor`
+	gofmt -s -w `find . -type f -name '*.go'`
 
 
 beta: $(BETA_OSES)

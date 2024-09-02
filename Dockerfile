@@ -11,8 +11,9 @@ RUN cd /usr/local/bin && unzip vault_${vault_version}_linux_amd64.zip
 RUN apk update && apk add --no-cache git
 WORKDIR /src
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go test -mod=vendor -trimpath -ldflags "-s -w" ./...
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor -trimpath -ldflags "-s -w"
+RUN go mod tidy
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go test -trimpath -ldflags "-s -w" ./...
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-s -w"
 
 FROM alpine:3.16
 RUN apk update && apk add --no-cache ca-certificates
