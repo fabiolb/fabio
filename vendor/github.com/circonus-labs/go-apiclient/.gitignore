@@ -1,9 +1,0 @@
-.DS_Store
-env.sh
-NOTES.md
-
-.vscode/
-
-vendor/
-
-examples/go.*
