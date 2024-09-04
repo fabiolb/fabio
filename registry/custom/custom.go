@@ -46,6 +46,13 @@ func customRoutes(cfg *config.Custom, ch chan string) {
 	for {
 		log.Printf("[DEBUG] Custom Registry starting request %s \n", time.Now())
 		resp, err := client.Do(req)
+		if resp != nil {
+			defer func() {
+				if err := resp.Body.Close(); err != nil {
+					log.Printf("Error Can not close HTTP resp body - %s -%s \n", URL, err.Error())
+				}
+			}()
+		}
 		if err != nil {
 			ch <- fmt.Sprintf("Error Sending HTTPs Request To Custom be - %s -%s", URL, err.Error())
 			time.Sleep(cfg.PollInterval)
