@@ -8,12 +8,13 @@ ARG vault_version=1.11.0
 ADD https://releases.hashicorp.com/vault/${vault_version}/vault_${vault_version}_linux_amd64.zip /usr/local/bin
 RUN cd /usr/local/bin && unzip vault_${vault_version}_linux_amd64.zip
 
-RUN apk update && apk add --no-cache git
+RUN apk update && apk add --no-cache git libcap
 WORKDIR /src
 COPY . .
 RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go test -trimpath -ldflags "-s -w" ./...
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-s -w"
+RUN setcap cap_net_bind_service=+ep /src/fabio
 
 FROM alpine:3.16
 RUN apk update && apk add --no-cache ca-certificates
