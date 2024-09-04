@@ -19,7 +19,8 @@ RUN setcap cap_net_bind_service=+ep /src/fabio
 FROM alpine:3.16
 RUN apk update && apk add --no-cache ca-certificates
 COPY --from=build /src/fabio /usr/bin
-ADD fabio.properties /etc/fabio/fabio.properties
+COPY --chown=nobody:nogroup fabio.properties /etc/fabio/fabio.properties
+USER nobody:nogroup
 EXPOSE 9998 9999
 ENTRYPOINT ["/usr/bin/fabio"]
 CMD ["-cfg", "/etc/fabio/fabio.properties"]
