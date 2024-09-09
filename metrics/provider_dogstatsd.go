@@ -6,9 +6,9 @@ import (
 	"net"
 	"time"
 
-	"github.com/go-kit/kit/log"
 	gkm "github.com/go-kit/kit/metrics"
 	"github.com/go-kit/kit/metrics/dogstatsd"
+	"github.com/go-kit/log"
 )
 
 type DogstatsdProvider struct {
