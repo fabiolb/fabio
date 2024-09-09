@@ -1,22 +1,20 @@
-on: [ push, pull_request ]
+on: [push, pull_request]
 name: Build
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [ ubuntu-latest ]
-        go: [ '1.23.0' ]
-    runs-on: ${{matrix.os}}
+    runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Install Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go }}
+          go-version-file: 'go.mod'
+          check-latest: true
+          cache: true
       - name: Set Hosts
         run: |
           echo "127.0.0.1	example.com example2.com" | sudo tee -a /etc/hosts
-      - name: Checkout code
-        uses: actions/checkout@v3
       - name: Test
         run: |
           export PATH=$PATH:$HOME/bin:$HOME/go/bin
