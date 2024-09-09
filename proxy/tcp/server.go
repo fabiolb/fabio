@@ -24,9 +24,14 @@ func (f HandlerFunc) ServeTCP(in net.Conn) error {
 
 // Server implements a generic TCP server.
 type Server struct {
-	Handler      Handler
-	conns        map[net.Conn]bool
-	Addr         string
+	Handler Handler
+	conns   map[net.Conn]bool
+	Addr    string
+	// ListenAddr is the actual address the server is listening on.
+	// This is used for route lookup when PROXY protocol is enabled,
+	// since in.LocalAddr() returns the destination from the PROXY header.
+	ListenAddr string
+
 	listeners    []net.Listener
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
