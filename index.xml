@@ -1447,7 +1447,7 @@ To use TCP Dynamic proxy support the service needs to advertise urlprefix-127.0.
       <guid>https://fabiolb.net/feature/tcp-proxy/</guid>
       <description>fabio can run a transparent TCP proxy which dynamically forwards an incoming connection on a given port to services which advertise that port. To use TCP proxy support the service needs to advertise urlprefix-:1234 proto=tcp in Consul. In addition, fabio needs to be configured to listen on that port:
 fabio -proxy.addr &amp;#39;:1234;proto=tcp&amp;#39; TCP proxy support can be combined with Certificate Stores to provide TLS termination on fabio.
-fabio -proxy.cs &amp;#39;cs=ssl;type=path;path=/etc/ssl&amp;#39; -proxy.</description>
+fabio -proxy.cs &amp;#39;cs=ssl;type=path;cert=/etc/ssl&amp;#39; -proxy.</description>
     </item>
     
     <item>

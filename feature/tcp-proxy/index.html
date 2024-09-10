@@ -205,7 +205,7 @@ proxy support the service needs to advertise <code>urlprefix-:1234 proto=tcp</co
 Consul. In addition, fabio needs to be configured to listen on that port:</p>
 <pre tabindex="0"><code>fabio -proxy.addr &#39;:1234;proto=tcp&#39;
 </code></pre><p>TCP proxy support can be combined with <a href="/feature/certificate-stores/">Certificate Stores</a> to provide TLS termination on fabio.</p>
-<pre tabindex="0"><code>fabio -proxy.cs &#39;cs=ssl;type=path;path=/etc/ssl&#39; -proxy.addr &#39;:1234;proto=tcp;cs=ssl&#39;
+<pre tabindex="0"><code>fabio -proxy.cs &#39;cs=ssl;type=path;cert=/etc/ssl&#39; -proxy.addr &#39;:1234;proto=tcp;cs=ssl&#39;
 </code></pre>
         
       </section>
@@ -227,7 +227,7 @@ Consul. In addition, fabio needs to be configured to listen on that port:</p>
                 Copyright &copy; 2020-2024 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 9 Sep 2024 22:16
+                Last updated on 10 Sep 2024 06:04
             </p>
           </div>
           <div class="col-md-6 col-sm-6">
