@@ -1,6 +1,6 @@
+version: 2
 builds:
-  -
-    binary: fabio
+  - binary: fabio
     env:
       - CGO_ENABLED=0
     goos:
@@ -17,25 +17,26 @@ builds:
       - arm64
     goarm:
       - 7
-
 archives:
   - id: bin
     name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Os }}_{{ .Arch }}'
     format: binary
-
 source:
   enabled: true
   name_template: '{{ .ProjectName }}-{{.Version }}.src'
   prefix_template: '{{ .ProjectName }}-{{.Version }}/'
-
-
 checksum:
   name_template: '{{.ProjectName}}-{{.Version}}.sha256'
-
 signs:
-  -
-    artifacts: checksum
-
+  - artifacts: checksum
+    args:
+      - "--batch"
+      - "--local-user"
+      - "{{ .Env.GPG_FINGERPRINT }}"
+      - "--output"
+      - "${signature}"
+      - "--detach-sign"
+      - "${artifact}"
 dockers:
   - dockerfile: Dockerfile-goreleaser
     use: buildx
@@ -52,7 +53,6 @@ dockers:
       - "--label=org.opencontainers.image.version={{.Version}}"
     extra_files:
       - fabio.properties
-      
   - dockerfile: Dockerfile-goreleaser
     use: buildx
     goos: linux
@@ -68,7 +68,6 @@ dockers:
       - "--label=org.opencontainers.image.version={{.Version}}"
     extra_files:
       - fabio.properties
-
 docker_manifests:
   - name_template: 'fabiolb/fabio:latest'
     image_templates:
