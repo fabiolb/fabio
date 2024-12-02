@@ -570,7 +570,7 @@ func parseTLSCiphers(s string) ([]uint16, error) {
 }
 
 func parseUint16(s string) (uint16, error) {
-	n, err := strconv.ParseUint(s, 10, 16)
+	n, err := strconv.ParseUint(s, 0, 16)
 	if err != nil {
 		return 0, err
 	}
