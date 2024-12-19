@@ -10,25 +10,25 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/hashicorp/consul/api v1.29.4
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/hashicorp/go-sockaddr v1.0.6
-	github.com/hashicorp/vault/api v1.14.0
-	github.com/hashicorp/vault/sdk v0.13.0
+	github.com/hashicorp/go-sockaddr v1.0.7
+	github.com/hashicorp/vault/api v1.15.0
+	github.com/hashicorp/vault/sdk v0.14.0
 	github.com/inetaf/tcpproxy v0.0.0-20200125044825-b6bb9b5b8252
-	github.com/magiconair/properties v1.8.7
+	github.com/magiconair/properties v1.8.9
 	github.com/mwitkow/grpc-proxy v0.0.0-20230212185441-f345521cb9c9
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/openzipkin-contrib/zipkin-go-opentracing v0.3.5
-	github.com/osrg/gobgp/v3 v3.29.0
+	github.com/osrg/gobgp/v3 v3.32.0
 	github.com/pascaldekloe/goe v0.1.1
 	github.com/pkg/profile v1.7.0
-	github.com/prometheus/client_golang v1.20.2
+	github.com/prometheus/client_golang v1.20.5
 	github.com/rogpeppe/fastuuid v1.2.0
 	github.com/sergi/go-diff v1.3.1
-	github.com/tg123/go-htpasswd v1.2.2
-	golang.org/x/net v0.28.0
-	golang.org/x/sync v0.8.0
-	google.golang.org/grpc v1.66.0
-	google.golang.org/protobuf v1.34.2
+	github.com/tg123/go-htpasswd v1.2.3
+	golang.org/x/net v0.33.0
+	golang.org/x/sync v0.10.0
+	google.golang.org/grpc v1.69.2
+	google.golang.org/protobuf v1.35.1
 )
 
 require (
@@ -39,7 +39,7 @@ require (
 	github.com/apache/thrift v0.13.0 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
+	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/circonus-labs/go-apiclient v0.7.15 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -93,14 +93,14 @@ require (
 	github.com/spf13/viper v1.16.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/tv42/httpunix v0.0.0-20191220191345-2ba4b9c3382c // indirect
-	github.com/vishvananda/netlink v1.2.1-beta.2 // indirect
+	github.com/vishvananda/netlink v1.2.1 // indirect
 	github.com/vishvananda/netns v0.0.4 // indirect
-	golang.org/x/crypto v0.26.0 // indirect
+	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63 // indirect
-	golang.org/x/sys v0.23.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
-	golang.org/x/time v0.3.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/time v0.5.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241015192408-796eee8c2d53 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
