@@ -56,8 +56,7 @@ refactoring has never been easier.
 fabio is developed and maintained by The Fabio Authors.
 
 It powers some of the largest websites in
-Australia ([gumtree.com.au](http://www.gumtree.com.au))
-and Italy ([www.kijiji.it](http://www.kijiji.it/)).
+Australia ([gumtree.com.au](http://www.gumtree.com.au)).
 It delivers 23.000 req/sec every day since Sep 2015 without problems.
 
 It integrates with
