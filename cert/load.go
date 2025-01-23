@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -16,6 +17,7 @@ import (
 	"strings"
 )
 
+// MaxSize is the limit for individual certificate sizes.
 const MaxSize = 1 << 20 // 1MB
 
 func loadURL(listURL string) (pemBlocks map[string][]byte, err error) {
@@ -105,6 +107,7 @@ func loadPath(root string) (pemBlocks map[string][]byte, err error) {
 }
 
 func loadCertificates(pemBlocks map[string][]byte) ([]tls.Certificate, error) {
+	var errs []error
 	var n []string
 	x := map[string]tls.Certificate{}
 
@@ -127,12 +130,14 @@ func loadCertificates(pemBlocks map[string][]byte) ([]tls.Certificate, error) {
 
 		cert, key := pemBlocks[certFile], pemBlocks[keyFile]
 		if cert == nil || key == nil {
-			return nil, fmt.Errorf("cert: cannot load certificate %s", name)
+			errs = append(errs, fmt.Errorf("cert: cannot load certificate %s", name))
+			continue
 		}
 
 		c, err := tls.X509KeyPair(cert, key)
 		if err != nil {
-			return nil, fmt.Errorf("cert: invalid certificate %s. %s", name, err)
+			errs = append(errs, fmt.Errorf("cert: invalid certificate %s. %s", name, err))
+			continue
 		}
 
 		x[certFile] = c
@@ -148,7 +153,7 @@ func loadCertificates(pemBlocks map[string][]byte) ([]tls.Certificate, error) {
 		certs = append(certs, x[certFile])
 	}
 
-	return certs, nil
+	return certs, errors.Join(errs...)
 }
 
 // base returns the rawurl with the last element of the path
