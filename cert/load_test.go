@@ -42,7 +42,7 @@ func TestReplaceSuffix(t *testing.T) {
 func TestUpgradeCACertificate(t *testing.T) {
 	// generated at
 	// https://eu-west-1.console.aws.amazon.com/apigateway/home?region=eu-west-1#/client-certificates
-	const awsApiGWCert = `
+	const awsAPIGWCert = `
 -----BEGIN CERTIFICATE-----
 MIIC6DCCAdCgAwIBAgIIZAgycYqDRqQwDQYJKoZIhvcNAQELBQAwNDELMAkGA1UE
 BhMCVVMxEDAOBgNVBAcTB1NlYXR0bGUxEzARBgNVBAMTCkFwaUdhdGV3YXkwHhcN
@@ -62,7 +62,7 @@ kqBgtRrHux3BRxPRqS4jM4akdplFhejHExVatOxfS+DEXzFefi+aMb7qApB1YjV/
 n/iFVG4Y6zyXQY2RzTt+ZB2VPR72X4wqS9fBeQ==
 -----END CERTIFICATE-----`
 
-	p, rest := pem.Decode([]byte(awsApiGWCert))
+	p, rest := pem.Decode([]byte(awsAPIGWCert))
 	if len(rest) > 0 {
 		t.Fatal("want only one cert")
 	}

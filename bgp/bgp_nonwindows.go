@@ -19,8 +19,6 @@ import (
 	"google.golang.org/protobuf/proto"
 	apb "google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/hashicorp/go-multierror"
-
 	api "github.com/osrg/gobgp/v3/api"
 	bgpconfig "github.com/osrg/gobgp/v3/pkg/config"
 	"github.com/osrg/gobgp/v3/pkg/server"
@@ -229,7 +227,7 @@ func (bgph *BGPHandler) setPolicies() error {
 }
 
 func (bgph *BGPHandler) addNeighbors(ctx context.Context, peers []config.BGPPeer) error {
-	var result error
+	var errs []error
 	peerCount := 0
 	for _, peer := range peers {
 		var hop *api.EbgpMultihop
@@ -263,19 +261,19 @@ func (bgph *BGPHandler) addNeighbors(ctx context.Context, peers []config.BGPPeer
 			},
 		})
 		if err != nil {
-			result = multierror.Append(result, err)
+			errs = append(errs, err)
 			continue
 		}
 		peerCount++
 	}
 	if peerCount == 0 {
-		result = multierror.Append(result, ErrNoPeersAdded)
+		errs = append(errs, ErrNoPeersAdded)
 	}
-	return result
+	return errors.Join(errs...)
 }
 
 func (bgph *BGPHandler) AddRoutes(ctx context.Context, routes []string) error {
-	var result error
+	var errs []error
 	// Add our Anycast routes
 
 	routesAdded := 0
@@ -283,7 +281,7 @@ func (bgph *BGPHandler) AddRoutes(ctx context.Context, routes []string) error {
 	for _, addr := range routes {
 		_, ipnet, err := net.ParseCIDR(addr)
 		if err != nil {
-			result = multierror.Append(result, err)
+			errs = append(errs, err)
 			continue
 		}
 		prefixLen, _ := ipnet.Mask.Size()
@@ -307,25 +305,25 @@ func (bgph *BGPHandler) AddRoutes(ctx context.Context, routes []string) error {
 		})
 		if err != nil {
 			log.Printf("[ERROR] bgp error adding path for %s: %s", addr, err)
-			result = multierror.Append(result, fmt.Errorf("error adding %s: %w", addr, err))
+			errs = append(errs, fmt.Errorf("error adding %s: %w", addr, err))
 		} else {
 			log.Printf("[INFO] bgp successfully added path for %s", addr)
 			routesAdded++
 		}
 	}
 	if routesAdded == 0 {
-		result = multierror.Append(result, ErrNoRoutesAdded)
+		errs = append(errs, ErrNoRoutesAdded)
 	}
-	return result
+	return errors.Join(errs...)
 }
 
 func (bgph *BGPHandler) DeleteRoutes(ctx context.Context, routes []string) error {
-	var result error
+	var errs []error
 	delCount := 0
 	for _, addr := range routes {
 		_, ipnet, err := net.ParseCIDR(addr)
 		if err != nil {
-			result = multierror.Append(result, err)
+			errs = append(errs, err)
 			continue
 		}
 		prefixLen, _ := ipnet.Mask.Size()
@@ -349,15 +347,15 @@ func (bgph *BGPHandler) DeleteRoutes(ctx context.Context, routes []string) error
 			},
 		})
 		if err != nil {
-			result = multierror.Append(result, err)
+			errs = append(errs, err)
 			continue
 		}
 		delCount++
 	}
 	if delCount == 0 {
-		result = multierror.Append(result, ErrNoRoutesDeleted)
+		errs = append(errs, ErrNoRoutesDeleted)
 	}
-	return result
+	return errors.Join(errs...)
 }
 
 func ValidateConfig(config *config.BGP) error {
