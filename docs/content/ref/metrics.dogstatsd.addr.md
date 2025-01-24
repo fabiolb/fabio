@@ -9,4 +9,4 @@ This is required when [metrics.target](/ref/metrics.target/) is set to `dogstats
 
 The default is
 
-	metrics.statsd.addr =
+	metrics.dogstatsd.addr =
