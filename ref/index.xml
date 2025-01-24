@@ -338,7 +338,7 @@ metrics.circonus.submissionurl = </description>
       <description>metrics.dogstatsd.addr configures the host:port of the dogstatsd server.
 This is required when metrics.target is set to dogstatsd.
 The default is
-metrics.statsd.addr = </description>
+metrics.dogstatsd.addr = </description>
     </item>
     
     <item>
