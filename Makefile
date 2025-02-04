@@ -185,7 +185,7 @@ github-pages:
 	mkdir -p ~/bin
 	tar -C ~/bin -zxf ~/hugo.tgz hugo
 	hugo version
-	(cd docs && hugo --verbose)
+	(cd docs && hugo)
 
 # clean-adm cleans up all downloaded assets in admin/ui
 .PHONY: clean-adm
