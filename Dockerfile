@@ -2,7 +2,7 @@ FROM golang:1.23-alpine3.21 AS build
 
 ARG consul_version=1.19.2
 ADD https://releases.hashicorp.com/consul/${consul_version}/consul_${consul_version}_linux_amd64.zip /usr/local/bin
-RUN cd /usr/local/bin && unzip consul_${consul_version}_linux_amd64.zip
+RUN cd /usr/local/bin && unzip consul_${consul_version}_linux_amd64.zip consul
 
 ARG vault_version=1.17.5
 ADD https://releases.hashicorp.com/vault/${vault_version}/vault_${vault_version}_linux_amd64.zip /usr/local/bin
