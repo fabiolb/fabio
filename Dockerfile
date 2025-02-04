@@ -1,10 +1,10 @@
 FROM golang:1.23-alpine3.20 AS build
 
-ARG consul_version=1.19.2
+ARG consul_version=1.20.2
 ADD https://releases.hashicorp.com/consul/${consul_version}/consul_${consul_version}_linux_amd64.zip /usr/local/bin
 RUN cd /usr/local/bin && unzip consul_${consul_version}_linux_amd64.zip
 
-ARG vault_version=1.17.5
+ARG vault_version=1.18.4
 ADD https://releases.hashicorp.com/vault/${vault_version}/vault_${vault_version}_linux_amd64.zip /usr/local/bin
 RUN cd /usr/local/bin && unzip vault_${vault_version}_linux_amd64.zip
 
