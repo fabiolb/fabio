@@ -4,27 +4,22 @@
     <title>Contributing on fabio - The Consul Load-Balancer</title>
     <link>https://fabiolb.net/contrib/</link>
     <description>Recent content in Contributing on fabio - The Consul Load-Balancer</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://fabiolb.net/contrib/index.xml" rel="self" type="application/rss+xml" />
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://fabiolb.net/contrib/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Guidelines</title>
       <link>https://fabiolb.net/contrib/guidelines/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/contrib/guidelines/</guid>
-      <description>Your contribution is welcome! To make merging code as seamless as possible we ask for the following:
-For small changes and bug fixes go ahead, fork the project, make your changes and send a pull request. Check out the Development page for some useful tips. Larger changes should start with a proposal in an issue. This should ensure that the requested change is in line with the project and similar work is not already underway.</description>
+      <description>&lt;h3 id=&#34;your-contribution-is-welcome&#34;&gt;Your contribution is welcome!&lt;/h3&gt;&#xA;&lt;p&gt;To make merging code as seamless as possible&#xA;we ask for the following:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;For small changes and bug fixes go ahead, fork the project, make your changes&#xA;and send a pull request. Check out the &lt;a href=&#34;https://fabiolb.net/contrib/development/&#34;&gt;Development&lt;/a&gt;&#xA;page for some useful tips.&lt;/li&gt;&#xA;&lt;li&gt;Larger changes should start with a proposal in an issue. This should ensure&#xA;that the requested change is in line with the project and similar work is not&#xA;already underway.&lt;/li&gt;&#xA;&lt;li&gt;Only add libraries if they provide significant value. Consider copying the code&#xA;(attribution) or writing it yourself.&lt;/li&gt;&#xA;&lt;li&gt;Manage dependencies with &lt;code&gt;go mod&lt;/code&gt; and run &lt;code&gt;go mod vendor&lt;/code&gt; afterwards to&#xA;sync the &lt;code&gt;vendor&lt;/code&gt; folder for backwards compatibility.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Once you are ready to send in a pull request, be sure to:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Development</title>
       <link>https://fabiolb.net/contrib/development/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/contrib/development/</guid>
-      <description>For newcomers to Go, you can&amp;rsquo;t just git clone your forked repo and work from there, due to how Go&amp;rsquo;s GOPATH works. You can follow the steps below to get started:
-Fork this repository to your own account (named myfork below) Make sure you have Consul and Vault installed in your $PATH go get github.com/fabiolb/fabio, change to the directory where the code was cloned ($GOPATH/src/github.com/fabiolb/fabio) and add your fork as remote: git remote add myfork git@github.</description>
+      <description>&lt;p&gt;For newcomers to Go, you can&amp;rsquo;t just &lt;code&gt;git clone&lt;/code&gt; your forked repo and work from&#xA;there, due to how Go&amp;rsquo;s &lt;code&gt;GOPATH&lt;/code&gt; works. You can follow the steps below to get started:&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;Fork this repository to your own account (named &lt;code&gt;myfork&lt;/code&gt; below)&lt;/li&gt;&#xA;&lt;li&gt;Make sure you have &lt;a href=&#34;https://www.consul.io/downloads.html&#34;&gt;Consul&lt;/a&gt; and &lt;a href=&#34;https://www.vaultproject.io/downloads.html&#34;&gt;Vault&lt;/a&gt; installed in your &lt;code&gt;$PATH&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;go get github.com/fabiolb/fabio&lt;/code&gt;, change to the directory where the code was cloned&#xA;(&lt;code&gt;$GOPATH/src/github.com/fabiolb/fabio&lt;/code&gt;) and add your fork as remote: &lt;code&gt;git remote add myfork git@github.com:myfork/fabio.git&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;Hack away!&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;go fmt&lt;/code&gt; and &lt;code&gt;make test&lt;/code&gt; your code&lt;/li&gt;&#xA;&lt;li&gt;Commit your changes and &lt;em&gt;push to your own fork&lt;/em&gt;: &lt;code&gt;git push myfork&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;Create a pull-request&lt;/li&gt;&#xA;&lt;/ol&gt;</description>
     </item>
-    
   </channel>
 </rss>

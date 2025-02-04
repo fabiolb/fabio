@@ -220,100 +220,100 @@ and <a href="/ref/metrics.prometheus.buckets/">metrics.prometheus.buckets</a>.</
 <h3 id="metrics-info-for-non-tagged-backends-such-as-circonus-and-statsd_raw">Metrics info (for non-tagged backends, such as circonus and statsd_raw)</h3>
 <p>Fabio reports the following metrics:</p>
 <table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>{route}.rx</code></td>
-<td>timer</td>
-<td>Number of bytes received by fabio for TCP target</td>
-</tr>
-<tr>
-<td><code>{route}.tx</code></td>
-<td>timer</td>
-<td>Number of bytes transmitted by fabio for TCP target</td>
-</tr>
-<tr>
-<td><code>{route}</code></td>
-<td>timer</td>
-<td>Average response time for a route</td>
-</tr>
-<tr>
-<td><code>http.status.code.{code}</code></td>
-<td>timer</td>
-<td>Average response time for all HTTP(S) requests per status code</td>
-</tr>
-<tr>
-<td><code>notfound</code></td>
-<td>counter</td>
-<td>Number of failed HTTP route lookups</td>
-</tr>
-<tr>
-<td><code>requests</code></td>
-<td>timer</td>
-<td>Average response time for all HTTP(S) requests</td>
-</tr>
-<tr>
-<td><code>grpc.requests</code></td>
-<td>timer</td>
-<td>Average response time for all GRPC(S) requests</td>
-</tr>
-<tr>
-<td><code>grpc.noroute</code></td>
-<td>counter</td>
-<td>Number of failed GRPC route lookups</td>
-</tr>
-<tr>
-<td><code>grpc.conn</code></td>
-<td>counter</td>
-<td>Number of established GRPC proxy connections</td>
-</tr>
-<tr>
-<td><code>grpc.status.{code}</code></td>
-<td>timer</td>
-<td>Average response time for all GRPC(S) requests per status code</td>
-</tr>
-<tr>
-<td><code>tcp.conn</code></td>
-<td>counter</td>
-<td>Number of established TCP proxy connections</td>
-</tr>
-<tr>
-<td><code>tcp.connfail</code></td>
-<td>counter</td>
-<td>Number of TCP upstream connection failures</td>
-</tr>
-<tr>
-<td><code>tcp.noroute</code></td>
-<td>counter</td>
-<td>Number of failed TCP upstream route lookups</td>
-</tr>
-<tr>
-<td><code>tcp_sni.conn</code></td>
-<td>counter</td>
-<td>Number of established TCP+SNI proxy connections</td>
-</tr>
-<tr>
-<td><code>tcp_sni.connfail</code></td>
-<td>counter</td>
-<td>Number of failed TCP+SNI proxy connections</td>
-</tr>
-<tr>
-<td><code>tcp_sni.noroute</code></td>
-<td>counter</td>
-<td>Number of failed TCP+SNI upstream route lookups</td>
-</tr>
-<tr>
-<td><code>ws.conn</code></td>
-<td>gauge</td>
-<td>Number of actively open websocket connections</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>{route}.rx</code></td>
+          <td>timer</td>
+          <td>Number of bytes received by fabio for TCP target</td>
+      </tr>
+      <tr>
+          <td><code>{route}.tx</code></td>
+          <td>timer</td>
+          <td>Number of bytes transmitted by fabio for TCP target</td>
+      </tr>
+      <tr>
+          <td><code>{route}</code></td>
+          <td>timer</td>
+          <td>Average response time for a route</td>
+      </tr>
+      <tr>
+          <td><code>http.status.code.{code}</code></td>
+          <td>timer</td>
+          <td>Average response time for all HTTP(S) requests per status code</td>
+      </tr>
+      <tr>
+          <td><code>notfound</code></td>
+          <td>counter</td>
+          <td>Number of failed HTTP route lookups</td>
+      </tr>
+      <tr>
+          <td><code>requests</code></td>
+          <td>timer</td>
+          <td>Average response time for all HTTP(S) requests</td>
+      </tr>
+      <tr>
+          <td><code>grpc.requests</code></td>
+          <td>timer</td>
+          <td>Average response time for all GRPC(S) requests</td>
+      </tr>
+      <tr>
+          <td><code>grpc.noroute</code></td>
+          <td>counter</td>
+          <td>Number of failed GRPC route lookups</td>
+      </tr>
+      <tr>
+          <td><code>grpc.conn</code></td>
+          <td>counter</td>
+          <td>Number of established GRPC proxy connections</td>
+      </tr>
+      <tr>
+          <td><code>grpc.status.{code}</code></td>
+          <td>timer</td>
+          <td>Average response time for all GRPC(S) requests per status code</td>
+      </tr>
+      <tr>
+          <td><code>tcp.conn</code></td>
+          <td>counter</td>
+          <td>Number of established TCP proxy connections</td>
+      </tr>
+      <tr>
+          <td><code>tcp.connfail</code></td>
+          <td>counter</td>
+          <td>Number of TCP upstream connection failures</td>
+      </tr>
+      <tr>
+          <td><code>tcp.noroute</code></td>
+          <td>counter</td>
+          <td>Number of failed TCP upstream route lookups</td>
+      </tr>
+      <tr>
+          <td><code>tcp_sni.conn</code></td>
+          <td>counter</td>
+          <td>Number of established TCP+SNI proxy connections</td>
+      </tr>
+      <tr>
+          <td><code>tcp_sni.connfail</code></td>
+          <td>counter</td>
+          <td>Number of failed TCP+SNI proxy connections</td>
+      </tr>
+      <tr>
+          <td><code>tcp_sni.noroute</code></td>
+          <td>counter</td>
+          <td>Number of failed TCP+SNI upstream route lookups</td>
+      </tr>
+      <tr>
+          <td><code>ws.conn</code></td>
+          <td>gauge</td>
+          <td>Number of actively open websocket connections</td>
+      </tr>
+  </tbody>
 </table>
 <h3 id="legend">Legend</h3>
 <h4 id="timer">timer</h4>
@@ -351,7 +351,7 @@ with the <code>metrics.names</code> template defined in
                 Copyright &copy; 2020-2025 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 24 Jan 2025 05:37
+                Last updated on 4 Feb 2025 23:22
             </p>
           </div>
           <div class="col-md-6 col-sm-6">

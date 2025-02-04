@@ -4,1637 +4,1023 @@
     <title>Overview on fabio - The Consul Load-Balancer</title>
     <link>https://fabiolb.net/</link>
     <description>Recent content in Overview on fabio - The Consul Load-Balancer</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://fabiolb.net/index.xml" rel="self" type="application/rss+xml" />
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://fabiolb.net/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Direct</title>
       <link>https://fabiolb.net/deploy/direct/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/deploy/direct/</guid>
-      <description>In the following setup fabio is configured to listen on the public ip(s) where it can optionally terminate SSL traffic for one or more domains - one ip per domain.
-To scale fabio you can deploy it together with the frontend services which provides high-availability and distributes the network bandwidth.</description>
+      <description>&lt;p&gt;In the following setup fabio is configured to listen on the public ip(s)&#xA;where it can optionally terminate SSL traffic for one or more domains - one ip per domain.&lt;/p&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;p&gt;To scale fabio you can deploy it together with the frontend services which provides&#xA;high-availability and distributes the network bandwidth.&lt;/p&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;!-- raw HTML omitted --&gt;</description>
     </item>
-    
     <item>
       <title>Guidelines</title>
       <link>https://fabiolb.net/contrib/guidelines/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/contrib/guidelines/</guid>
-      <description>Your contribution is welcome! To make merging code as seamless as possible we ask for the following:
-For small changes and bug fixes go ahead, fork the project, make your changes and send a pull request. Check out the Development page for some useful tips. Larger changes should start with a proposal in an issue. This should ensure that the requested change is in line with the project and similar work is not already underway.</description>
+      <description>&lt;h3 id=&#34;your-contribution-is-welcome&#34;&gt;Your contribution is welcome!&lt;/h3&gt;&#xA;&lt;p&gt;To make merging code as seamless as possible&#xA;we ask for the following:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;For small changes and bug fixes go ahead, fork the project, make your changes&#xA;and send a pull request. Check out the &lt;a href=&#34;https://fabiolb.net/contrib/development/&#34;&gt;Development&lt;/a&gt;&#xA;page for some useful tips.&lt;/li&gt;&#xA;&lt;li&gt;Larger changes should start with a proposal in an issue. This should ensure&#xA;that the requested change is in line with the project and similar work is not&#xA;already underway.&lt;/li&gt;&#xA;&lt;li&gt;Only add libraries if they provide significant value. Consider copying the code&#xA;(attribution) or writing it yourself.&lt;/li&gt;&#xA;&lt;li&gt;Manage dependencies with &lt;code&gt;go mod&lt;/code&gt; and run &lt;code&gt;go mod vendor&lt;/code&gt; afterwards to&#xA;sync the &lt;code&gt;vendor&lt;/code&gt; folder for backwards compatibility.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Once you are ready to send in a pull request, be sure to:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Behind existing Gateway</title>
       <link>https://fabiolb.net/deploy/existing-lb/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/deploy/existing-lb/</guid>
-      <description>In the following setup fabio is configured receive all incoming traffic from an existing gateway which also terminates SSL for one or more domains.
-Again, to scale fabio you can deploy it together with the frontend services which provides high-availability and distributes the network bandwidth.</description>
+      <description>&lt;p&gt;In the following setup fabio is configured receive all incoming traffic&#xA;from an existing gateway which also terminates SSL for one or more domains.&lt;/p&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;p&gt;Again, to scale fabio you can deploy it together with the frontend services&#xA;which provides high-availability and distributes the network bandwidth.&lt;/p&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;!-- raw HTML omitted --&gt;</description>
     </item>
-    
     <item>
       <title>Development</title>
       <link>https://fabiolb.net/contrib/development/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/contrib/development/</guid>
-      <description>For newcomers to Go, you can&amp;rsquo;t just git clone your forked repo and work from there, due to how Go&amp;rsquo;s GOPATH works. You can follow the steps below to get started:
-Fork this repository to your own account (named myfork below) Make sure you have Consul and Vault installed in your $PATH go get github.com/fabiolb/fabio, change to the directory where the code was cloned ($GOPATH/src/github.com/fabiolb/fabio) and add your fork as remote: git remote add myfork git@github.</description>
+      <description>&lt;p&gt;For newcomers to Go, you can&amp;rsquo;t just &lt;code&gt;git clone&lt;/code&gt; your forked repo and work from&#xA;there, due to how Go&amp;rsquo;s &lt;code&gt;GOPATH&lt;/code&gt; works. You can follow the steps below to get started:&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;Fork this repository to your own account (named &lt;code&gt;myfork&lt;/code&gt; below)&lt;/li&gt;&#xA;&lt;li&gt;Make sure you have &lt;a href=&#34;https://www.consul.io/downloads.html&#34;&gt;Consul&lt;/a&gt; and &lt;a href=&#34;https://www.vaultproject.io/downloads.html&#34;&gt;Vault&lt;/a&gt; installed in your &lt;code&gt;$PATH&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;go get github.com/fabiolb/fabio&lt;/code&gt;, change to the directory where the code was cloned&#xA;(&lt;code&gt;$GOPATH/src/github.com/fabiolb/fabio&lt;/code&gt;) and add your fork as remote: &lt;code&gt;git remote add myfork git@github.com:myfork/fabio.git&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;Hack away!&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;go fmt&lt;/code&gt; and &lt;code&gt;make test&lt;/code&gt; your code&lt;/li&gt;&#xA;&lt;li&gt;Commit your changes and &lt;em&gt;push to your own fork&lt;/em&gt;: &lt;code&gt;git push myfork&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;Create a pull-request&lt;/li&gt;&#xA;&lt;/ol&gt;</description>
     </item>
-    
     <item>
       <title>Amazon ELB</title>
       <link>https://fabiolb.net/deploy/amazon-elb/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/deploy/amazon-elb/</guid>
-      <description>You can deploy fabio behind an Amazon ELB and enable PROXY protocol support to get the remote address and port of the client.</description>
+      <description>&lt;p&gt;You can deploy fabio behind an Amazon ELB and enable &lt;a href=&#34;http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/enable-proxy-protocol.html&#34;&gt;PROXY protocol support&lt;/a&gt; to get the remote address and port of the client.&lt;/p&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;!-- raw HTML omitted --&gt;</description>
     </item>
-    
     <item>
       <title>Amazon API Gateway</title>
       <link>https://fabiolb.net/deploy/amazon-api-gw/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/deploy/amazon-api-gw/</guid>
-      <description>You can deploy fabio as the target of an Amazon API Gateway.
-or behind an ELB with PROXY protocol support:
-You can authenticate calls from the API Gateway with a client certificate. This requires that you configure an HTTPS listener on fabio with a valid certificate.
-To enable fabio to validate the Amazon generated certificate you need to configure the aws.apigw.cert.cn as follows:
-proxy.addr = 1.2.3.4:9999;your/cert.pem;your/key.pem;api-gw-cert.pem aws.apigw.cert.cn = ApiGateway api-gw-cert.pem is the certificate generated in the AWS Management Console.</description>
+      <description>&lt;p&gt;You can deploy fabio as the target of an &lt;a href=&#34;https://aws.amazon.com/api-gateway/&#34;&gt;Amazon API Gateway&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;p&gt;or behind an ELB with PROXY protocol support:&lt;/p&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;p&gt;You can authenticate calls from the API Gateway with a client certificate. This requires that you&#xA;configure an HTTPS listener on fabio with a valid certificate.&lt;/p&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;p&gt;To enable fabio to validate the Amazon&#xA;generated certificate you need to configure the &lt;code&gt;aws.apigw.cert.cn&lt;/code&gt; as follows:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title></title>
       <link>https://fabiolb.net/ref/proxy.idleconntimeout/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.idleconntimeout/</guid>
-      <description>proxy.idleconntimeout configures idle connection timeout, which influences when to close keep-alive connections.
-The default is
-proxy.idleconntimeout = 15s </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.idleconntimeout&lt;/code&gt; configures idle connection timeout, which influences&#xA;when to close keep-alive connections.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.idleconntimeout     = 15s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title></title>
       <link>https://fabiolb.net/ref/proxy.keepalivetimeout/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.keepalivetimeout/</guid>
-      <description>proxy.keepalivetimeout configures the keep-alive timeout.
-This configures the KeepAliveTimeout of the network dialer.
-The default is
-proxy.keepalivetimeout = 0s </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.keepalivetimeout&lt;/code&gt; configures the keep-alive timeout.&lt;/p&gt;&#xA;&lt;p&gt;This configures the KeepAliveTimeout of the network dialer.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.keepalivetimeout     = 0s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>Access Control</title>
       <link>https://fabiolb.net/feature/access-control/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/access-control/</guid>
-      <description>&lt;p&gt;fabio supports basic ip centric access control per route.  You may
-specify one of &lt;code&gt;allow&lt;/code&gt; or &lt;code&gt;deny&lt;/code&gt; options per route to control access.
-Currently only source ip control is available.&lt;/p&gt;</description>
+      <description>&lt;p&gt;fabio supports basic ip centric access control per route.  You may&#xA;specify one of &lt;code&gt;allow&lt;/code&gt; or &lt;code&gt;deny&lt;/code&gt; options per route to control access.&#xA;Currently only source ip control is available.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Access Logging</title>
       <link>https://fabiolb.net/feature/access-logging/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/access-logging/</guid>
-      <description>&lt;p&gt;Support for writing access logs for HTTP requests
-in the &lt;a href=&#34;https://en.wikipedia.org/wiki/Common_Log_Format&#34;&gt;Common Log Format&lt;/a&gt;
-or the &lt;a href=&#34;https://httpd.apache.org/docs/1.3/logs.html#combined&#34;&gt;Combined Log Format&lt;/a&gt;
-or a custom format to stdout.&lt;/p&gt;</description>
+      <description>&lt;p&gt;Support for writing access logs for HTTP requests&#xA;in the &lt;a href=&#34;https://en.wikipedia.org/wiki/Common_Log_Format&#34;&gt;Common Log Format&lt;/a&gt;&#xA;or the &lt;a href=&#34;https://httpd.apache.org/docs/1.3/logs.html#combined&#34;&gt;Combined Log Format&lt;/a&gt;&#xA;or a custom format to stdout.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Authorization</title>
       <link>https://fabiolb.net/feature/authorization/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/authorization/</guid>
       <description>&lt;p&gt;fabio supports basic http authorization on a per-route basis.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>BGP</title>
       <link>https://fabiolb.net/feature/bgp/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/bgp/</guid>
-      <description>NOTE: This feature does not work on Windows at present since the gobgp project does not support windows.
-This feature integrates the functionality of gobgpd with fabio. This is particularly useful in the scenario where we are using anycast IP addresses and want to dynamically advertise to upstream routers when we&amp;rsquo;re ready to receive traffic. In the past, we&amp;rsquo;ve used external router packages such as quagga or frr to handle this for us, but it&amp;rsquo;s potentially messy to make sure that the route advertisement stops if fabio goes down, and the bgp daemon is started back up once fabio is running again.</description>
+      <description>&lt;p&gt;NOTE: This feature does not work on Windows at present since the gobgp project&#xA;does not support windows.&lt;/p&gt;&#xA;&lt;p&gt;This feature integrates the functionality of &lt;a href=&#34;https://github.com/osrg/gobgp&#34;&gt;gobgpd&lt;/a&gt;&#xA;with fabio.  This is particularly useful in the scenario where we are using&#xA;anycast IP addresses and want to dynamically advertise to upstream routers&#xA;when we&amp;rsquo;re ready to receive traffic.  In the past, we&amp;rsquo;ve used external router&#xA;packages such as quagga or frr to handle this for us, but it&amp;rsquo;s potentially&#xA;messy to make sure that the route advertisement stops if fabio goes down,&#xA;and the bgp daemon is started back up once fabio is running again.&#xA;By integrating the bgp advertisement with the proxy server, we&amp;rsquo;ve made&#xA;sure that when fabio goes down, the route is no longer advertised and&#xA;traffic can be sent to other fabio instances accordingly.  When fabio is back up,&#xA;the route is advertised again.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>bgp.anycastaddresses</title>
       <link>https://fabiolb.net/ref/bgp.anycastaddresses/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.anycastaddresses/</guid>
-      <description>bgp.anycastaddresses sets the anycast addresses we will advertise, separated by comma. Technically this will advertise any route prefix.
-These should already be configured on the host probably hung off loopback. For example, 192.168.5.3/32.
-The default value is
-bgp.anycastaddresses = If bgp is enabled, this must be defined.</description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.anycastaddresses&lt;/code&gt; sets the anycast addresses we will advertise,&#xA;separated by comma.  Technically this will advertise any route prefix.&lt;br&gt;&#xA;These should already be configured on the host probably hung off loopback.&#xA;For example, 192.168.5.3/32.&lt;/p&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.anycastaddresses =&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;If bgp is enabled, this must be defined.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>bgp.asn</title>
       <link>https://fabiolb.net/ref/bgp.asn/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.asn/</guid>
-      <description>bgp.asn sets the asn ID of our router
-The default value is
-bgp.asn = 65000 </description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.asn&lt;/code&gt; sets the asn ID of our router&lt;/p&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.asn = 65000&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>bgp.certfile</title>
       <link>https://fabiolb.net/ref/bgp.certfile/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.certfile/</guid>
-      <description>bgp.certfile is the file path of the certificate, and is required if bgp.grpctls is set to true.
-The default value is
-bgp.certfile = </description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.certfile&lt;/code&gt; is the file path of the certificate, and is required if bgp.grpctls is set to true.&lt;/p&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.certfile =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>bgp.enabled</title>
       <link>https://fabiolb.net/ref/bgp.enabled/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.enabled/</guid>
-      <description>bgp.enabled enables the embedded gobgpd daemon
-The default value is
-bgp.enabled = false </description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.enabled&lt;/code&gt; enables the embedded gobgpd daemon&lt;/p&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.enabled = false&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>bgp.enablegrpc</title>
       <link>https://fabiolb.net/ref/bgp.enablegrpc/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.enablegrpc/</guid>
-      <description>bgp.enablegrpc enables the gobgp grpc interface.
-To be used with the gobgp command line client.
-The default value is
-bgp.enablegrpc = false </description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.enablegrpc&lt;/code&gt; enables the gobgp grpc interface.&lt;br&gt;&#xA;To be used with the gobgp command line client.&lt;/p&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.enablegrpc = false&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>bgp.gobgpdcfgfile</title>
       <link>https://fabiolb.net/ref/bgp.gobgpdcfgfile/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.gobgpdcfgfile/</guid>
-      <description>bgp.gobgpdcfgfile is the optional file path to a gobgpd config file. This overrides the global config items, such as bgp.routerid, bgp.asn etc. This also skips automatically adding gobgpd policies that restrict / disallow accepting prefixes from neighbors. Only use this if you know what you&amp;rsquo;re doing, this is to allow for more flexibility than we expose directly with fabio.
-The default value is
-bgp.gobgpdcfgfile = </description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.gobgpdcfgfile&lt;/code&gt; is the optional file path to a&#xA;gobgpd &lt;a href=&#34;https://github.com/osrg/gobgp/blob/master/docs/sources/configuration.md&#34;&gt;config file&lt;/a&gt;.&#xA;This overrides the global config&#xA;items, such as bgp.routerid, bgp.asn etc.  This also skips automatically adding gobgpd&#xA;&lt;a href=&#34;https://github.com/osrg/gobgp/blob/master/docs/sources/policy.md&#34;&gt;policies&lt;/a&gt;&#xA;that restrict / disallow accepting prefixes from neighbors. Only use&#xA;this if you know what you&amp;rsquo;re doing, this is to allow&#xA;for more flexibility than we expose directly with fabio.&lt;/p&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.gobgpdcfgfile =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>bgp.grpclistenaddress</title>
       <link>https://fabiolb.net/ref/bgp.grpclistenaddress/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.grpclistenaddress/</guid>
-      <description>bgp.grpclistenaddress is the listen interface and port if bgp.enablegrpc is set to true.
-The default value is
-bgp.grpclistenaddress = 127.0.0.1:50051 </description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.grpclistenaddress&lt;/code&gt; is the listen interface and port if bgp.enablegrpc is set to true.&lt;/p&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.grpclistenaddress = 127.0.0.1:50051&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>bgp.grpctls</title>
       <link>https://fabiolb.net/ref/bgp.grpctls/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.grpctls/</guid>
-      <description>bgp.grpctls is whether to enable TLS on the bgp grpc interface.
-The default value is
-bgp.grpctls = false </description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.grpctls&lt;/code&gt; is whether to enable TLS on the bgp grpc interface.&lt;/p&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.grpctls = false&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>bgp.keyfile</title>
       <link>https://fabiolb.net/ref/bgp.keyfile/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.keyfile/</guid>
-      <description>bgp.keyfile is the file path of the key file, and is required if bgp.grpctls is set to true.
-The default value is
-bgp.keyfile = </description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.keyfile&lt;/code&gt; is the file path of the key file, and is required if bgp.grpctls is set to true.&lt;/p&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.keyfile =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>bgp.listenaddresses</title>
       <link>https://fabiolb.net/ref/bgp.listenaddresses/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.listenaddresses/</guid>
-      <description>bgp.listenaddresses sets the listen addresses for bgp, separated by comma.
-The default value is
-bgp.listenaddresses = 0.0.0.0 which listens on all interfaces.</description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.listenaddresses&lt;/code&gt; sets the listen addresses for bgp, separated by comma.&lt;/p&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.listenaddresses = 0.0.0.0&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;which listens on all interfaces.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>bgp.listenport</title>
       <link>https://fabiolb.net/ref/bgp.listenport/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.listenport/</guid>
-      <description>bgp.listenport sets the listen ports for bgp communication from other routers.
-The default value is
-bgp.listenport = 179 The default bgp port is 179.</description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.listenport&lt;/code&gt; sets the listen ports for bgp communication from other routers.&lt;/p&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.listenport = 179&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;The default bgp port is 179.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>bgp.nexthop</title>
       <link>https://fabiolb.net/ref/bgp.nexthop/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.nexthop/</guid>
-      <description>bgp.nexthop sets the next hop address.
-If not set, it uses the bgp.routerid instead.
-The default value is
-bgp.nexthop = </description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.nexthop&lt;/code&gt; sets the next hop address.&lt;br&gt;&#xA;If not set, it uses the &lt;a href=&#34;https://fabiolb.net/ref/bgp.routerid/&#34;&gt;bgp.routerid&lt;/a&gt; instead.&lt;/p&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.nexthop =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>bgp.peers</title>
       <link>https://fabiolb.net/ref/bgp.peers/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.peers/</guid>
-      <description>bgp.peers sets the bgp peers we will advertise routes to. This is required if bgp is enabled. bgp.peers is specified as a comma separated list of neighboraddress and asn pairs, i.e.
-bgp.peers = address=1.2.3.4;asn=65001,address=5.6.7.8;asn=65002 valid parameters for peers are:
-address - required port - optional, defaults to 179 asn - required multihop - optional, defaults to false multihoplength - optional, defaults to 2 password - optional The default value is</description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.peers&lt;/code&gt; sets the bgp peers we will advertise routes to.  This is required if bgp is enabled.&#xA;bgp.peers is specified as a comma separated list of neighboraddress and asn pairs, i.e.&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.peers = address=1.2.3.4;asn=65001,address=5.6.7.8;asn=65002&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;valid parameters for peers are:&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;address              - required&#xA;port                 - optional, defaults to 179&#xA;asn                  - required&#xA;multihop             - optional, defaults to false&#xA;multihoplength       - optional, defaults to 2&#xA;password             - optional&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>bgp.routerid</title>
       <link>https://fabiolb.net/ref/bgp.routerid/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/bgp.routerid/</guid>
-      <description>bgp.routerid is the router id (ip address) of this router.
-This is required if bgp is enabled. This should be the unique IP address, not any anycast. This will also be used as the default nexthop address unless bgp.nexthop is specified.
-The default value is
-bgp.routerid = </description>
+      <description>&lt;p&gt;&lt;code&gt;bgp.routerid&lt;/code&gt; is the router id (ip address) of this router.&lt;br&gt;&#xA;This is required if bgp is enabled.  This should be the unique IP&#xA;address, not any anycast.  This will also be used as&#xA;the default nexthop address unless &lt;a href=&#34;https://fabiolb.net/ref/bgp.nexthop/&#34;&gt;bgp.nexthop&lt;/a&gt;&#xA;is specified.&lt;/p&gt;&#xA;&lt;p&gt;The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;bgp.routerid =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>Binding to Low Ports</title>
       <link>https://fabiolb.net/faq/binding-to-low-ports/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/faq/binding-to-low-ports/</guid>
-      <description>If you want to bind fabio to ports below 1024 - so called privileged ports - without running fabio as root you can use an operating system approach as described below.
-These best practices are taken from https://github.com/fabiolb/fabio/issues/195.
-Linux Provide net_bind_service capability to fabio binary
-$ setcap &amp;#39;cap_net_bind_service=+ep&amp;#39; $(which fabio) When using systemd you can use the following service definition:
-$ cat /etc/systemd/system/fabio.service [Unit] Description=Fabio proxy After=syslog.target After=network.target [Service] LimitMEMLOCK=infinity LimitNOFILE=65535 Type=simple # unprivileged uid and gid User=fabio_user Group=fabio_group WorkingDirectory=/ ExecStart=/path/to/fabio -cfg /path/to/fabio.</description>
+      <description>&lt;p&gt;If you want to bind fabio to ports below 1024 - so called privileged ports -&#xA;without running fabio as &lt;code&gt;root&lt;/code&gt; you can use an operating system approach as&#xA;described below.&lt;/p&gt;&#xA;&lt;p&gt;These best practices are taken from &lt;a href=&#34;https://github.com/fabiolb/fabio/issues/195&#34;&gt;https://github.com/fabiolb/fabio/issues/195&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;h4 id=&#34;linux&#34;&gt;Linux&lt;/h4&gt;&#xA;&lt;p&gt;Provide &lt;code&gt;net_bind_service&lt;/code&gt; capability to fabio binary&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ setcap &amp;#39;cap_net_bind_service=+ep&amp;#39; $(which fabio)&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;When using &lt;code&gt;systemd&lt;/code&gt; you can use the following service definition:&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ cat /etc/systemd/system/fabio.service&#xA;&#xA;[Unit]&#xA;Description=Fabio proxy&#xA;After=syslog.target&#xA;After=network.target&#xA;&#xA;[Service]&#xA;LimitMEMLOCK=infinity&#xA;LimitNOFILE=65535&#xA;Type=simple&#xA;# unprivileged uid and gid&#xA;User=fabio_user&#xA;Group=fabio_group&#xA;WorkingDirectory=/&#xA;ExecStart=/path/to/fabio -cfg /path/to/fabio.conf&#xA;Restart=always&#xA;# no need that fabio messes with /dev&#xA;PrivateDevices=yes&#xA;# dedicated /tmp&#xA;PrivateTmp=yes&#xA;# make /usr, /boot, /etc read only&#xA;ProtectSystem=full&#xA;# /home is not accessible at all&#xA;ProtectHome=yes&#xA;# to be able to bind port &amp;lt; 1024&#xA;AmbientCapabilities=CAP_NET_BIND_SERVICE&#xA;NoNewPrivileges=yes&#xA;# only ipv4, ipv6, unix socket and netlink networking is possible&#xA;# netlink is necessary so that fabio can list available IPs on startup&#xA;RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;h4 id=&#34;solarisillumossmartos&#34;&gt;Solaris/Illumos/SmartOS&lt;/h4&gt;&#xA;&lt;p&gt;Provide &lt;code&gt;net_privaddr&lt;/code&gt; privileges to fabio user&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Certificate Stores</title>
       <link>https://fabiolb.net/feature/certificate-stores/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/certificate-stores/</guid>
-      <description>&lt;p&gt;Support for dynamic certificate stores which allow you to store certificates in
-a central place and update them at runtime or generate them on the fly without
-restart. You can store certificates in files, directories, on HTTP
-servers in &lt;a href=&#34;https://consul.io/&#34;&gt;Consul&lt;/a&gt; or in
-&lt;a href=&#34;https://vaultproject.io/&#34;&gt;Vault&lt;/a&gt;.
-You can use &lt;a href=&#34;https://vaultproject.io/&#34;&gt;Vault&lt;/a&gt; to generate certificates on the fly.&lt;/p&gt;</description>
+      <description>&lt;p&gt;Support for dynamic certificate stores which allow you to store certificates in&#xA;a central place and update them at runtime or generate them on the fly without&#xA;restart. You can store certificates in files, directories, on HTTP&#xA;servers in &lt;a href=&#34;https://consul.io/&#34;&gt;Consul&lt;/a&gt; or in&#xA;&lt;a href=&#34;https://vaultproject.io/&#34;&gt;Vault&lt;/a&gt;.&#xA;You can use &lt;a href=&#34;https://vaultproject.io/&#34;&gt;Vault&lt;/a&gt; to generate certificates on the fly.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Docker Support</title>
       <link>https://fabiolb.net/feature/docker/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/docker/</guid>
-      <description>To run fabio within Docker use the official Docker image fabiolb/fabio and mount your own config file to /etc/fabio/fabio.properties
-docker run -d -p 9999:9999 -p 9998:9998 -v $PWD/fabio/fabio.properties:/etc/fabio/fabio.properties fabiolb/fabio If you want to run the Docker image with one or more SSL certificates then you can store your configuration and certificates in /etc/fabio and mount the entire directory, e.g.
-$ cat ~/fabio/fabio.properties proxy.addr=:443;/etc/fabio/ssl/mycert.pem;/etc/fabio/ssl/mykey.pem docker run -d -p 443:443 -p 9998:9998 -v $PWD/fabio:/etc/fabio fabiolb/fabio The official Docker image contains the root CA certificates from a recent and updated Ubuntu 12.</description>
+      <description>&lt;p&gt;To run fabio within Docker use the official Docker image &lt;code&gt;fabiolb/fabio&lt;/code&gt; and&#xA;mount your own config file to &lt;code&gt;/etc/fabio/fabio.properties&lt;/code&gt;&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;docker run -d -p 9999:9999 -p 9998:9998 -v $PWD/fabio/fabio.properties:/etc/fabio/fabio.properties fabiolb/fabio&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;If you want to run the Docker image with one or more SSL certificates then&#xA;you can store your configuration and certificates in &lt;code&gt;/etc/fabio&lt;/code&gt; and mount&#xA;the entire directory, e.g.&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;$ cat ~/fabio/fabio.properties&#xA;proxy.addr=:443;/etc/fabio/ssl/mycert.pem;/etc/fabio/ssl/mykey.pem&#xA;&#xA;docker run -d -p 443:443 -p 9998:9998 -v $PWD/fabio:/etc/fabio fabiolb/fabio&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;The official Docker image contains the root CA certificates from a recent and updated&#xA;Ubuntu 12.04.5 LTS installation.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Dynamic Reloading</title>
       <link>https://fabiolb.net/feature/dynamic-reloading/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/dynamic-reloading/</guid>
-      <description>fabio builds the routing table from the Consul service registrations, health check status and the user provided route commands stored in the Consul KV store. This is the core feature of fabio - the reason it exists.
-The cluster wide state is stored in the Consul Raft log which provides a consistent view of the available and healthy services in the cluster.
-When the Raft log changes fabio is notified and downloads the list of healthy services and the user defined routes from the KV store and re-builds the routing table.</description>
+      <description>&lt;p&gt;fabio builds the routing table from the Consul service registrations, health&#xA;check status and the user provided &lt;code&gt;route&lt;/code&gt; commands stored in the Consul KV&#xA;store. This is &lt;strong&gt;the&lt;/strong&gt; core feature of fabio - the reason it exists.&lt;/p&gt;&#xA;&lt;p&gt;The cluster wide state is stored in the Consul Raft log which provides a&#xA;consistent view of the available and healthy services in the cluster.&lt;/p&gt;&#xA;&lt;p&gt;When the Raft log changes fabio is notified and downloads the list of&#xA;healthy services and the user defined routes from the KV store and re-builds&#xA;the routing table.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>glob.cache.size</title>
       <link>https://fabiolb.net/ref/glob.cache.size/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/glob.cache.size/</guid>
-      <description>glob.cache.size Sets the globCache size used for matching on route lookups.
-The default is
-glob.cache.size = 1000 </description>
+      <description>&lt;p&gt;&lt;code&gt;glob.cache.size&lt;/code&gt; Sets the globCache size used for matching on route lookups.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;glob.cache.size = 1000&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>glob.matching.disabled</title>
       <link>https://fabiolb.net/ref/glob.matching.disabled/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/glob.matching.disabled/</guid>
-      <description>glob.matching.disabled disables glob matching on route lookups.
-Valid options are true, false
-The default is
-glob.matching.disabled = false </description>
+      <description>&lt;p&gt;&lt;code&gt;glob.matching.disabled&lt;/code&gt; disables glob matching on route lookups.&lt;/p&gt;&#xA;&lt;p&gt;Valid options are &lt;code&gt;true&lt;/code&gt;, &lt;code&gt;false&lt;/code&gt;&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;glob.matching.disabled = false&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>Graceful Shutdown</title>
       <link>https://fabiolb.net/feature/graceful-shutdown/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/graceful-shutdown/</guid>
-      <description>fabio supports a graceful shutdown timeout during which new requests will receive a 503 Service Unavailable response while the active requests can complete. See the proxy.shutdownwait option in the fabio.properties file.</description>
+      <description>&lt;p&gt;fabio supports a graceful shutdown timeout during which new requests will&#xA;receive a &lt;code&gt;503 Service Unavailable&lt;/code&gt; response while the active requests can&#xA;complete. See the &lt;code&gt;proxy.shutdownwait&lt;/code&gt; option in the&#xA;&lt;a href=&#34;https://github.com/eBay/fabio/blob/master/fabio.properties&#34;&gt;fabio.properties&lt;/a&gt;&#xA;file.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>GRPC Proxy</title>
       <link>https://fabiolb.net/feature/grpc-proxy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/grpc-proxy/</guid>
-      <description>fabio can run a transparent GRPC proxy which dynamically forwards an incoming RPC on a given port to services which advertise rpc service or method. To use GRPC proxy support the service needs to advertise urlprefix-/my.service/Method proto=grpc in Consul. In addition, fabio needs to be configured with a grpc listener:
-fabio -proxy.addr &amp;#39;:1234;proto=grpc&amp;#39; As per the HTTP/2 spec, the host header is not required, so host matching is not supported for GRPC proxying.</description>
+      <description>&lt;p&gt;fabio can run a transparent GRPC proxy which dynamically forwards an incoming&#xA;RPC on a given port to services which advertise rpc service or method. To use GRPC&#xA;proxy support the service needs to advertise &lt;code&gt;urlprefix-/my.service/Method proto=grpc&lt;/code&gt; in&#xA;Consul. In addition, fabio needs to be configured with a grpc listener:&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;fabio -proxy.addr &amp;#39;:1234;proto=grpc&amp;#39;&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As per the HTTP/2 spec, the host header is not required, so host matching is not supported for GRPC proxying.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Handling Multiple Protocols</title>
       <link>https://fabiolb.net/faq/multiple-protocol-listeners/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/faq/multiple-protocol-listeners/</guid>
-      <description>It is quite possible for a single fabio instance to serve multiple protocols via distinct listeners.
-In this example:
-proxy.addr = 172.16.20.11:80;proto=http;rt=60s;wt=30s,\ 172.16.20.11:443;proto=https;rt=60s;wt=30s;cs=all;tlsmin=10, \ 172.16.20.11:8443;proto=tcp+sni We are telling fabio to bind to 172.16.20.11 on three different ports (80, 443, and 8443) using three distinct protocols (HTTP, HTTPS, TCP+SNI). You are free to bind to as many address, port, and protocol combinations as needed within a single instance.
-See #490 for context.</description>
+      <description>&lt;p&gt;It is quite possible for a single fabio instance to serve multiple protocols&#xA;via distinct listeners.&lt;/p&gt;&#xA;&lt;p&gt;In this example:&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;proxy.addr = 172.16.20.11:80;proto=http;rt=60s;wt=30s,\&#xA;             172.16.20.11:443;proto=https;rt=60s;wt=30s;cs=all;tlsmin=10, \&#xA;             172.16.20.11:8443;proto=tcp+sni&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We are telling fabio to bind to &lt;code&gt;172.16.20.11&lt;/code&gt; on three different ports&#xA;(&lt;code&gt;80&lt;/code&gt;, &lt;code&gt;443&lt;/code&gt;, and &lt;code&gt;8443&lt;/code&gt;) using three distinct protocols&#xA;(&lt;code&gt;HTTP&lt;/code&gt;, &lt;code&gt;HTTPS&lt;/code&gt;, &lt;code&gt;TCP+SNI&lt;/code&gt;).  You are free to bind to as many address,&#xA;port, and protocol combinations as needed within a single instance.&lt;/p&gt;&#xA;&lt;p&gt;See &lt;a href=&#34;https://github.com/fabiolb/fabio/issues/490&#34;&gt;#490&lt;/a&gt; for context.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>HTTP Compression</title>
       <link>https://fabiolb.net/feature/http-compression/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/http-compression/</guid>
-      <description>Enable dynamic compression of responses when the client sets the Accept-Encoding: gzip header and the name of the requested file matches a regular expression.
-To configure which files should be compressed on the fly set configure a regular expression in the proxy.gzip.contenttype property
-# proxy.gzip.contenttype configures which responses should be compressed. # # By default, responses sent to the client are not compressed even if the # client accepts compressed responses by setting the &amp;#39;Accept-Encoding: gzip&amp;#39; # header.</description>
+      <description>&lt;p&gt;Enable dynamic compression of responses when the client sets the&#xA;&lt;code&gt;Accept-Encoding: gzip&lt;/code&gt; header and the name of the requested file matches&#xA;a regular expression.&lt;/p&gt;&#xA;&lt;p&gt;To configure which files should be compressed on the fly set configure&#xA;a regular expression in the &lt;code&gt;proxy.gzip.contenttype&lt;/code&gt; property&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;# proxy.gzip.contenttype configures which responses should be compressed.&#xA;#&#xA;# By default, responses sent to the client are not compressed even if the&#xA;# client accepts compressed responses by setting the &amp;#39;Accept-Encoding: gzip&amp;#39;&#xA;# header. By setting this value responses are compressed if the Content-Type&#xA;# header of the response matches and the response is not already compressed.&#xA;# The list of compressable content types is defined as a regular expression.&#xA;# The regular expression must follow the rules outlined in golang.org/pkg/regexp.&#xA;#&#xA;# A typical example is&#xA;#&#xA;# proxy.gzip.contenttype = ^(text/.*|application/(javascript|json|font-woff|xml)|.*\+(json|xml))(;.*)?$&#xA;#&#xA;# The default is&#xA;#&#xA;# proxy.gzip.contenttype =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>HTTP Header Support</title>
       <link>https://fabiolb.net/feature/http-headers/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/http-headers/</guid>
-      <description>In addition, to injecting the Forwarded and X-Real-Ip headers the X-Forwarded-For, X-Forwarded-Port and X-Forwarded-Proto headers are added to HTTP(S) and Websocket requests. Custom headers for the ip address and protocol can be configured with the proxy.header.clientip, proxy.header.tls and proxy.header.tls.value options.
-Since version 1.5.3 fabio also sets the X-Forwarded-Host header.</description>
+      <description>&lt;p&gt;In addition, to injecting the &lt;code&gt;Forwarded&lt;/code&gt; and &lt;code&gt;X-Real-Ip&lt;/code&gt; headers the&#xA;&lt;code&gt;X-Forwarded-For&lt;/code&gt;, &lt;code&gt;X-Forwarded-Port&lt;/code&gt; and &lt;code&gt;X-Forwarded-Proto&lt;/code&gt; headers are added&#xA;to HTTP(S) and Websocket requests. Custom headers for the ip address and&#xA;protocol can be configured with the &lt;code&gt;proxy.header.clientip&lt;/code&gt;, &lt;code&gt;proxy.header.tls&lt;/code&gt;&#xA;and &lt;code&gt;proxy.header.tls.value&lt;/code&gt; options.&lt;/p&gt;&#xA;&lt;p&gt;Since version 1.5.3 fabio also sets the &lt;code&gt;X-Forwarded-Host&lt;/code&gt; header.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>HTTP Path Prepending</title>
       <link>https://fabiolb.net/feature/http-path-prepending/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/http-path-prepending/</guid>
-      <description>fabio supports prepending a path to the incoming request. If you want to forward http://host/bar as http://host/foo/bar you can add a prepend=/foo option to the route options as urlprefix-/bar prepend=/foo.
-Path prepending is done after path stripping. If you want to forward http://host/foo/bar as http://host/baz/bar you can add prepend=/baz and strip=/foo options to the route options as urlprefix-/bar prepend=/baz strip=/foo.</description>
+      <description>&lt;p&gt;fabio supports prepending a path to the incoming request. If you want to&#xA;forward &lt;code&gt;http://host/bar&lt;/code&gt; as &lt;code&gt;http://host/foo/bar&lt;/code&gt; you can add a &lt;code&gt;prepend=/foo&lt;/code&gt;&#xA;option to the route options as &lt;code&gt;urlprefix-/bar prepend=/foo&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;Path prepending is done after path stripping. If you want to&#xA;forward &lt;code&gt;http://host/foo/bar&lt;/code&gt; as &lt;code&gt;http://host/baz/bar&lt;/code&gt; you can add&#xA;&lt;code&gt;prepend=/baz&lt;/code&gt; and &lt;code&gt;strip=/foo&lt;/code&gt; options to the route options as&#xA;&lt;code&gt;urlprefix-/bar prepend=/baz strip=/foo&lt;/code&gt;.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>HTTP Path Stripping</title>
       <link>https://fabiolb.net/feature/http-path-stripping/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/http-path-stripping/</guid>
-      <description>fabio supports stripping a path from the incoming request. If you want to forward http://host/foo/bar as http://host/bar you can add a strip=/foo option to the route options as urlprefix-/foo/bar strip=/foo.</description>
+      <description>&lt;p&gt;fabio supports stripping a path from the incoming request. If you want to&#xA;forward &lt;code&gt;http://host/foo/bar&lt;/code&gt; as &lt;code&gt;http://host/bar&lt;/code&gt; you can add a &lt;code&gt;strip=/foo&lt;/code&gt;&#xA;option to the route options as &lt;code&gt;urlprefix-/foo/bar strip=/foo&lt;/code&gt;.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>HTTP Redirects</title>
       <link>https://fabiolb.net/feature/http-redirects/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/http-redirects/</guid>
-      <description>To redirect an HTTP request to another URL you can use the redirect=&amp;lt;code&amp;gt; option. The code is the HTTP status code used for the redirect response and must be between 300-399 for the route to be valid.
-# redirect /path to https://www.google.com/ route add svc /path https://www.google.com/ opts &amp;quot;redirect=301&amp;quot; To use the redirect with the urlprefix- tags you need to specify the target URL in after the code since the target of the request is usually the address of the service that registers the tag.</description>
+      <description>&lt;p&gt;To redirect an HTTP request to another URL you can use the &lt;code&gt;redirect=&amp;lt;code&amp;gt;&lt;/code&gt; option. The &lt;code&gt;code&lt;/code&gt; is the&#xA;HTTP status code used for the redirect response and must be between 300-399 for the route to be valid.&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;# redirect /path to https://www.google.com/&#xA;route add svc /path https://www.google.com/ opts &amp;quot;redirect=301&amp;quot;&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;To use the redirect with the &lt;code&gt;urlprefix-&lt;/code&gt; tags you need to specify the target URL in after the code since&#xA;the target of the request is usually the address of the service that registers the tag.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>HTTPS TCP-SNI Proxy</title>
       <link>https://fabiolb.net/feature/https-tcp-sni-proxy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/https-tcp-sni-proxy/</guid>
-      <description>fabio can run a TCP+SNI routing proxy on a listener, and have fallback to https functionality. This is effectively an amalgam of the TCP-SNI Proxy and the HTTPS functionality.
-To enable this feature configure a listener as follows:
-fabio -proxy.addr=&amp;#39;:443;proto=https+tcp+sni;cs=somecertstore&amp;#39; For host matches that are proto=tcp or have a scheme of tcp://, this will proxy TCP using SNI.
-You would register your service in Consul with a urlprefix- tag that matches the host from the SNI extension for any services that should be proxied TCP (TLS terminated by upstream).</description>
+      <description>&lt;p&gt;fabio can run a TCP+SNI routing proxy on a listener, and have fallback to https functionality.&#xA;This is effectively an amalgam of the TCP-SNI Proxy and the HTTPS functionality.&lt;/p&gt;&#xA;&lt;p&gt;To enable this feature configure a listener as follows:&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;fabio -proxy.addr=&amp;#39;:443;proto=https+tcp+sni;cs=somecertstore&amp;#39;&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;For host matches that are proto=tcp or have a scheme of tcp://, this will proxy TCP using SNI.&lt;/p&gt;&#xA;&lt;p&gt;You would register your service in &lt;a href=&#34;https://consul.io&#34;&gt;Consul&lt;/a&gt; with a &lt;code&gt;urlprefix-&lt;/code&gt; tag that&#xA;matches the host from the SNI extension for any services that should be proxied TCP (TLS&#xA;terminated by upstream).  If the upstream service you&amp;rsquo;d like to proxy TCP responds to&#xA;&lt;code&gt;https://foo.com/...&lt;/code&gt; then you should register a &lt;code&gt;urlprefix-foo.com/ proto=tcp&lt;/code&gt; tag for this&#xA;service.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>HTTPS Upstream</title>
       <link>https://fabiolb.net/feature/https-upstream/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/https-upstream/</guid>
-      <description>To support HTTPS upstream servers add the proto=https option to the urlprefix- tag. The current implementation requires that upstream certificates need to be in the system root CA list. To disable certificate validation for a target set the tlsskipverify=true option.
-urlprefix-/foo proto=https urlprefix-/foo proto=https tlsskipverify=true </description>
+      <description>&lt;p&gt;To support HTTPS upstream servers add the &lt;code&gt;proto=https&lt;/code&gt; option to the&#xA;&lt;code&gt;urlprefix-&lt;/code&gt; tag. The current implementation requires that upstream&#xA;certificates need to be in the system root CA list. To disable certificate&#xA;validation for a target set the &lt;code&gt;tlsskipverify=true&lt;/code&gt; option.&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;urlprefix-/foo proto=https&#xA;urlprefix-/foo proto=https tlsskipverify=true&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>log.access.format</title>
       <link>https://fabiolb.net/ref/log.access.format/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/log.access.format/</guid>
-      <description>log.access.format configures the format of the access log.
-If the value is either common or combined then the logs are written in the Common Log Format or the Combined Log Format as defined below:
-common: $remote_host - - [$time_common] &amp;quot;$request&amp;quot; $response_status $response_body_size combined: $remote_host - - [$time_common] &amp;quot;$request&amp;quot; $response_status $response_body_size &amp;quot;$header.Referer&amp;quot; &amp;quot;$header.User-Agent&amp;quot; Otherwise, the value is interpreted as a custom log format which is defined with the following parameters. Providing an empty format when logging is enabled is an error.</description>
+      <description>&lt;p&gt;&lt;code&gt;log.access.format&lt;/code&gt; configures the format of the access log.&lt;/p&gt;&#xA;&lt;p&gt;If the value is either &lt;code&gt;common&lt;/code&gt; or &lt;code&gt;combined&lt;/code&gt; then the logs are written in&#xA;the Common Log Format or the Combined Log Format as defined below:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;common&lt;/code&gt;:   &lt;code&gt;$remote_host - - [$time_common] &amp;quot;$request&amp;quot; $response_status $response_body_size&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;combined&lt;/code&gt;: &lt;code&gt;$remote_host - - [$time_common] &amp;quot;$request&amp;quot; $response_status $response_body_size &amp;quot;$header.Referer&amp;quot; &amp;quot;$header.User-Agent&amp;quot;&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Otherwise, the value is interpreted as a custom log format which is defined&#xA;with the following parameters. Providing an empty format when logging is&#xA;enabled is an error.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>log.access.target</title>
       <link>https://fabiolb.net/ref/log.access.target/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/log.access.target/</guid>
-      <description>log.access.target configures where the access log is written to.
-Options are stdout. If the value is empty no access log is written.
-The default is
-log.access.target = </description>
+      <description>&lt;p&gt;&lt;code&gt;log.access.target&lt;/code&gt; configures where the access log is written to.&lt;/p&gt;&#xA;&lt;p&gt;Options are &lt;code&gt;stdout&lt;/code&gt;. If the value is empty no access log is written.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;log.access.target =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>log.level</title>
       <link>https://fabiolb.net/ref/log.level/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/log.level/</guid>
-      <description>log.level configures the log level.
-Valid levels are TRACE, DEBUG, INFO, WARN, ERROR and FATAL.
-The default is
-log.level = INFO </description>
+      <description>&lt;p&gt;&lt;code&gt;log.level&lt;/code&gt; configures the log level.&lt;/p&gt;&#xA;&lt;p&gt;Valid levels are &lt;code&gt;TRACE&lt;/code&gt;, &lt;code&gt;DEBUG&lt;/code&gt;, &lt;code&gt;INFO&lt;/code&gt;, &lt;code&gt;WARN&lt;/code&gt;, &lt;code&gt;ERROR&lt;/code&gt; and &lt;code&gt;FATAL&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;log.level = INFO&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>log.routes.format</title>
       <link>https://fabiolb.net/ref/log.routes.format/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/log.routes.format/</guid>
-      <description>log.routes.format configures the log output format of routing table updates.
-Changes to the routing table are written to the standard log. This option configures the output format:
-detail: detailed routing table as ascii tree delta: additions and deletions in config language all: complete routing table in config language The default is
-log.routes.format = delta </description>
+      <description>&lt;p&gt;&lt;code&gt;log.routes.format&lt;/code&gt; configures the log output format of routing table updates.&lt;/p&gt;&#xA;&lt;p&gt;Changes to the routing table are written to the standard log. This option&#xA;configures the output format:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;detail&lt;/code&gt;:   detailed routing table as ascii tree&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;delta&lt;/code&gt;:    additions and deletions in config language&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;all&lt;/code&gt;:      complete routing table in config language&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;log.routes.format = delta&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>Metrics</title>
       <link>https://fabiolb.net/feature/metrics/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/metrics/</guid>
-      <description>Fabio collects metrics per route and service instance as well as running totals to avoid computing large amounts of metrics. The metrics can be sent to Circonus, Graphite, StatsD, DataDog (via statsd - or since v1.6.0 to native protocol with tag support) or stdout. See the metrics.* options in the fabio.properties file. Prometheus is also possible, but it works the reverse of the other metrics platforms. Instead of pushing data to a metrics server, prometheus expects to poll an endpoint for changes.</description>
+      <description>&lt;p&gt;Fabio collects metrics per route and service instance as well as running totals&#xA;to avoid computing large amounts of metrics. The metrics can be sent to&#xA;&lt;a href=&#34;http://www.circonus.com&#34;&gt;Circonus&lt;/a&gt;, &lt;a href=&#34;https://graphiteapp.org&#34;&gt;Graphite&lt;/a&gt;,&#xA;&lt;a href=&#34;https://github.com/etsy/statsd&#34;&gt;StatsD&lt;/a&gt;, &lt;a href=&#34;https://www.datadoghq.com&#34;&gt;DataDog&lt;/a&gt;&#xA;(via statsd - or since v1.6.0 to native protocol with tag support) or stdout. See the &lt;code&gt;metrics.*&lt;/code&gt;&#xA;options in the &lt;a href=&#34;https://github.com/eBay/fabio/blob/master/fabio.properties&#34;&gt;fabio.properties&lt;/a&gt;&#xA;file.  Prometheus is also possible, but it works the reverse of the other metrics platforms.&#xA;Instead of pushing data to a metrics server, prometheus expects to poll an endpoint for changes.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>metrics.circonus.apiapp</title>
       <link>https://fabiolb.net/ref/metrics.circonus.apiapp/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.circonus.apiapp/</guid>
-      <description>metrics.circonus.apiapp configures the API token app to use when submitting metrics to Circonus. See: https://login.circonus.com/user/tokens This is optional when metrics.target is set to circonus.
-The default is
-metrics.circonus.apiapp = fabio </description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.circonus.apiapp&lt;/code&gt; configures the API token app to use when&#xA;submitting metrics to Circonus. See: &lt;a href=&#34;https://login.circonus.com/user/tokens&#34;&gt;https://login.circonus.com/user/tokens&lt;/a&gt;&#xA;This is optional when &lt;a href=&#34;https://fabiolb.net/ref/metrics.target/&#34;&gt;metrics.target&lt;/a&gt; is set to &lt;code&gt;circonus&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;metrics.circonus.apiapp = fabio&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>metrics.circonus.apikey</title>
       <link>https://fabiolb.net/ref/metrics.circonus.apikey/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.circonus.apikey/</guid>
-      <description>metrics.circonus.apikey configures the API token key to use when submitting metrics to Circonus. See: https://login.circonus.com/user/tokens This is optional when metrics.target is set to circonus but metrics.circonus.submissionurl is specified}
-The default is
-metrics.circonus.apikey = </description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.circonus.apikey&lt;/code&gt; configures the API token key to use when&#xA;submitting metrics to Circonus. See: &lt;a href=&#34;https://login.circonus.com/user/tokens&#34;&gt;https://login.circonus.com/user/tokens&lt;/a&gt;&#xA;This is optional when &lt;a href=&#34;https://fabiolb.net/ref/metrics.target/&#34;&gt;metrics.target&lt;/a&gt; is set to &lt;code&gt;circonus&lt;/code&gt;&#xA;but &lt;a href=&#34;https://fabiolb.net/ref/metrics.circonus.submissionurl/&#34;&gt;metrics.circonus.submissionurl&lt;/a&gt; is specified}&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;metrics.circonus.apikey =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>metrics.circonus.apiurl</title>
       <link>https://fabiolb.net/ref/metrics.circonus.apiurl/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.circonus.apiurl/</guid>
-      <description>metrics.circonus.apiurl configures the API URL to use when submitting metrics to Circonus. https://api.circonus.com/v2/ will be used if no specific URL is provided. This is optional when metrics.target is set to circonus.
-The default is
-metrics.circonus.apiurl = </description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.circonus.apiurl&lt;/code&gt; configures the API URL to use when&#xA;submitting metrics to Circonus. &lt;a href=&#34;https://api.circonus.com/v2/&#34;&gt;https://api.circonus.com/v2/&lt;/a&gt;&#xA;will be used if no specific URL is provided.&#xA;This is optional when &lt;a href=&#34;https://fabiolb.net/ref/metrics.target/&#34;&gt;metrics.target&lt;/a&gt; is set to &lt;code&gt;circonus&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;metrics.circonus.apiurl =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>metrics.circonus.brokerid</title>
       <link>https://fabiolb.net/ref/metrics.circonus.brokerid/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.circonus.brokerid/</guid>
-      <description>metrics.circonus.brokerid configures a specific broker to use when creating a check for submitting metrics to Circonus.
-This is optional when metrics.target is set to circonus.
-Optional for public brokers, required for Inside brokers. Only applicable if a check is being created.
-The default is
-metrics.circonus.brokerid = </description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.circonus.brokerid&lt;/code&gt; configures a specific broker to use when&#xA;creating a check for submitting metrics to Circonus.&lt;/p&gt;&#xA;&lt;p&gt;This is optional when &lt;a href=&#34;https://fabiolb.net/ref/metrics.target/&#34;&gt;metrics.target&lt;/a&gt; is set to &lt;code&gt;circonus&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;Optional for public brokers, required for Inside brokers.&#xA;Only applicable if a check is being created.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;metrics.circonus.brokerid =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>metrics.circonus.checkid</title>
       <link>https://fabiolb.net/ref/metrics.circonus.checkid/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.circonus.checkid/</guid>
-      <description>metrics.circonus.checkid configures a specific check to use when submitting metrics to Circonus.
-This is optional when metrics.target is set to circonus.
-An attempt will be made to search for a previously created check, if no applicable check is found, one will be created.
-The default is
-metrics.circonus.checkid = </description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.circonus.checkid&lt;/code&gt; configures a specific check to use when&#xA;submitting metrics to Circonus.&lt;/p&gt;&#xA;&lt;p&gt;This is optional when &lt;a href=&#34;https://fabiolb.net/ref/metrics.target/&#34;&gt;metrics.target&lt;/a&gt; is set to &lt;code&gt;circonus&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;An attempt will be made to search for a previously created check,&#xA;if no applicable check is found, one will be created.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;metrics.circonus.checkid =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>metrics.circonus.submissionurl</title>
       <link>https://fabiolb.net/ref/metrics.circonus.submissionurl/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.circonus.submissionurl/</guid>
-      <description>metrics.circonus.submissionurl configures a specific check submission url for a Check API object of a previously created HTTPTRAP check.
-This is optional when metrics.target is set to circonus but metrics.circonus.apikey is specified}.
-Example http://127.0.0.1:2609/write/fabio
-The default is
-metrics.circonus.submissionurl = </description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.circonus.submissionurl&lt;/code&gt; configures a specific check submission url&#xA;for a Check API object of a previously created HTTPTRAP check.&lt;/p&gt;&#xA;&lt;p&gt;This is optional when &lt;a href=&#34;https://fabiolb.net/ref/metrics.target/&#34;&gt;metrics.target&lt;/a&gt; is set to &lt;code&gt;circonus&lt;/code&gt;&#xA;but &lt;a href=&#34;https://fabiolb.net/ref/metrics.circonus.apikey/&#34;&gt;metrics.circonus.apikey&lt;/a&gt; is specified}.&lt;/p&gt;&#xA;&lt;h4 id=&#34;example&#34;&gt;Example&lt;/h4&gt;&#xA;&lt;p&gt;&lt;code&gt;http://127.0.0.1:2609/write/fabio&lt;/code&gt;&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;metrics.circonus.submissionurl =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>metrics.dogstatsd.addr</title>
       <link>https://fabiolb.net/ref/metrics.dogstatsd.addr/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.dogstatsd.addr/</guid>
-      <description>metrics.dogstatsd.addr configures the host:port of the dogstatsd server.
-This is required when metrics.target is set to dogstatsd.
-The default is
-metrics.dogstatsd.addr = </description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.dogstatsd.addr&lt;/code&gt; configures the host:port of the dogstatsd&#xA;server.&lt;/p&gt;&#xA;&lt;p&gt;This is required when &lt;a href=&#34;https://fabiolb.net/ref/metrics.target/&#34;&gt;metrics.target&lt;/a&gt; is set to &lt;code&gt;dogstatsd&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;metrics.dogstatsd.addr =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>metrics.graphite.addr</title>
       <link>https://fabiolb.net/ref/metrics.graphite.addr/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.graphite.addr/</guid>
-      <description>metrics.graphite.addr configures the host:port of the Graphite server.
-This is required when metrics.target is set to graphite.
-The default is
-metrics.graphite.addr = </description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.graphite.addr&lt;/code&gt; configures the &lt;code&gt;host:port&lt;/code&gt; of the Graphite server.&lt;/p&gt;&#xA;&lt;p&gt;This is required when &lt;a href=&#34;https://fabiolb.net/ref/metrics.target/&#34;&gt;metrics.target&lt;/a&gt; is set to &lt;code&gt;graphite&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;metrics.graphite.addr =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>metrics.interval</title>
       <link>https://fabiolb.net/ref/metrics.interval/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.interval/</guid>
-      <description>metrics.interval configures the interval in which metrics are reported.
-The default is
-metrics.interval = 30s </description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.interval&lt;/code&gt; configures the interval in which metrics are reported.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;metrics.interval = 30s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>metrics.names</title>
       <link>https://fabiolb.net/ref/metrics.names/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.names/</guid>
-      <description>metrics.names configures the template for the route metric names on backends that don&amp;rsquo;t support tags. This is used in circonus, graphite and statsd_raw. dogstatsd and prometheus ignore this. The value is expanded by the text/template package and provides the following variables:
-Service: the service name Host: the host part of the URL prefix Path: the path part of the URL prefix TargetURL: the URL of the target The following additional functions are defined:</description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.names&lt;/code&gt; configures the template for the route metric names&#xA;on backends that don&amp;rsquo;t support tags.  This is used in circonus,&#xA;graphite and statsd_raw.  dogstatsd and prometheus ignore this.&#xA;The value is expanded by the &lt;a href=&#34;https://golang.org/pkg/text/template&#34;&gt;text/template&lt;/a&gt; package and provides&#xA;the following variables:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;Service&lt;/code&gt;:   the service name&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;Host&lt;/code&gt;:      the host part of the URL prefix&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;Path&lt;/code&gt;:      the path part of the URL prefix&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;TargetURL&lt;/code&gt;: the URL of the target&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;The following additional functions are defined:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>metrics.prefix</title>
       <link>https://fabiolb.net/ref/metrics.prefix/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.prefix/</guid>
-      <description>metrics.prefix configures the template for the prefix of all reported metrics.
-Each metric has a unique name which is hard-coded to
-prefix.service.host.path.target-addr The value is expanded by the text/template package and provides the following variables:
-Hostname: the Hostname of the server Exec: the executable name of application The following additional functions are defined:
-clean: lowercase value and replace . and : with _ Template may include regular string parts to customize final prefix</description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.prefix&lt;/code&gt; configures the template for the prefix of all reported metrics.&lt;/p&gt;&#xA;&lt;p&gt;Each metric has a unique name which is hard-coded to&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;prefix.service.host.path.target-addr&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;The value is expanded by the text/template package and provides&#xA;the following variables:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;Hostname&lt;/code&gt;:  the Hostname of the server&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;Exec&lt;/code&gt;:      the executable name of application&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;The following additional functions are defined:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;clean&lt;/code&gt;:     lowercase value and replace &lt;code&gt;.&lt;/code&gt; and &lt;code&gt;:&lt;/code&gt; with &lt;code&gt;_&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Template may include regular string parts to customize final prefix&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>metrics.prometheus.buckets</title>
       <link>https://fabiolb.net/ref/metrics.prometheus.buckets/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.prometheus.buckets/</guid>
-      <description>metrics.prometheus.buckets configures the time buckets for use with histograms, measured in seconds. for instance, .005 is equivalent to 5ms. There is an implied &amp;ldquo;infinity&amp;rdquo; bucket tacked on at the end.
-The default is metrics.prometheus.buckets = .005,.01,.025,.05,.1,.25,.5,1,2.5,5,10</description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.prometheus.buckets&lt;/code&gt; configures the time buckets for use with histograms, measured in seconds.&#xA;for instance, .005 is equivalent to 5ms.  There is an implied &amp;ldquo;infinity&amp;rdquo; bucket tacked on at the end.&lt;/p&gt;&#xA;&lt;p&gt;The default is&#xA;&lt;code&gt;metrics.prometheus.buckets = .005,.01,.025,.05,.1,.25,.5,1,2.5,5,10&lt;/code&gt;&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>metrics.prometheus.path</title>
       <link>https://fabiolb.net/ref/metrics.prometheus.path/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.prometheus.path/</guid>
-      <description>metrics.prometheus.path configures the path to serve up metrics on any configured proxy.addr where proto=prometheus.
-Defaults to /metrics</description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.prometheus.path&lt;/code&gt; configures the path to serve up metrics on any configured&#xA;&lt;a href=&#34;https://fabiolb.net/ref/proxy.addr/&#34;&gt;proxy.addr&lt;/a&gt; where &lt;code&gt;proto=prometheus&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;Defaults to &lt;code&gt;/metrics&lt;/code&gt;&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>metrics.prometheus.subsystem</title>
       <link>https://fabiolb.net/ref/metrics.prometheus.subsystem/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.prometheus.subsystem/</guid>
-      <description>metrics.prometheus.subsystem configures the subsystem name when reporting metrics. This is basically appended to the prefix for metric names.
-See https://prometheus.io/docs/practices/instrumentation/#subsystems for more information.</description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.prometheus.subsystem&lt;/code&gt; configures the subsystem name when reporting&#xA;metrics.  This is basically appended to the prefix for metric names.&lt;/p&gt;&#xA;&lt;p&gt;See &lt;a href=&#34;https://prometheus.io/docs/practices/instrumentation/#subsystems&#34;&gt;https://prometheus.io/docs/practices/instrumentation/#subsystems&lt;/a&gt;&#xA;for more information.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>metrics.retry</title>
       <link>https://fabiolb.net/ref/metrics.retry/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.retry/</guid>
-      <description>metrics.retry configures the interval with which fabio tries to connect to the metrics backend during startup.
-The default is
-metrics.retry = 500ms </description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.retry&lt;/code&gt; configures the interval with which fabio tries to&#xA;connect to the metrics backend during startup.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;metrics.retry = 500ms&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>metrics.statsd.addr</title>
       <link>https://fabiolb.net/ref/metrics.statsd.addr/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.statsd.addr/</guid>
-      <description>metrics.statsd.addr configures the host:port of the StatsD server.
-This is required when metrics.target is set to statsd_raw.
-The default is
-metrics.statsd.addr = </description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.statsd.addr&lt;/code&gt; configures the host:port of the StatsD&#xA;server.&lt;/p&gt;&#xA;&lt;p&gt;This is required when &lt;a href=&#34;https://fabiolb.net/ref/metrics.target/&#34;&gt;metrics.target&lt;/a&gt; is set to &lt;code&gt;statsd_raw&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;metrics.statsd.addr =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>metrics.target</title>
       <link>https://fabiolb.net/ref/metrics.target/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.target/</guid>
-      <description>metrics.target configures the backend the metrics values are sent to.
-Possible values are:
-&amp;lt;empty&amp;gt;: do not report metrics stdout: report metrics to stdout graphite: report metrics to Graphite on metrics.graphite.addr statsd: legacy statsd support, used in v1.5.5 and lower - removed in v1.6 statsd_raw: report metrics to StatsD on metrics.statsd.addr - this was intentionally renamed because anyone upgrading to 1.6 will need to revisit their configuration anyway due to rewrite of this backend.</description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.target&lt;/code&gt; configures the backend the metrics values are sent to.&lt;/p&gt;&#xA;&lt;p&gt;Possible values are:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;&amp;lt;empty&amp;gt;&lt;/code&gt;:  do not report metrics&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;stdout&lt;/code&gt;:   report metrics to stdout&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;graphite&lt;/code&gt;: report metrics to Graphite on &lt;a href=&#34;https://fabiolb.net/ref/metrics.graphite.addr/&#34;&gt;metrics.graphite.addr&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;statsd&lt;/code&gt;: legacy statsd support, used in v1.5.5 and lower - removed in v1.6&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;statsd_raw&lt;/code&gt;: report metrics to StatsD on &lt;a href=&#34;https://fabiolb.net/ref/metrics.statsd.addr/&#34;&gt;metrics.statsd.addr&lt;/a&gt; - this was&#xA;intentionally renamed because anyone upgrading to 1.6 will need to revisit their configuration anyway due to&#xA;rewrite of this backend.  It was quite broken before, the counters never reset, it did not follow the spec so the info was&#xA;likely wrong or people using this were doing some workarounds they&amp;rsquo;ll need to remove anyway.&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;circonus&lt;/code&gt;: report metrics to Circonus (&lt;a href=&#34;https://circonus.com/&#34;&gt;https://circonus.com/&lt;/a&gt;)&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;prometheus&lt;/code&gt;: use prometheus metrics. (&lt;a href=&#34;https://prometheus.io&#34;&gt;https://prometheus.io&lt;/a&gt;)  Must be used in conjuction with a prometheus&#xA;listener in &lt;a href=&#34;https://fabiolb.net/ref/proxy.addr/&#34;&gt;proxy.addr&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;dogstatsd&lt;/code&gt;: use with datadog dogstatsd (&lt;a href=&#34;https://www.datadoghq.com/&#34;&gt;https://www.datadoghq.com/&lt;/a&gt;)&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>metrics.timeout</title>
       <link>https://fabiolb.net/ref/metrics.timeout/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/metrics.timeout/</guid>
-      <description>metrics.timeout configures how long fabio tries to connect to the metrics backend during startup.
-The default is
-metrics.timeout = 10s </description>
+      <description>&lt;p&gt;&lt;code&gt;metrics.timeout&lt;/code&gt; configures how long fabio tries to connect to the metrics&#xA;backend during startup.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;metrics.timeout = 10s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>PROXY Protocol Support</title>
       <link>https://fabiolb.net/feature/proxy-protocol/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/proxy-protocol/</guid>
-      <description>fabio transparently supports the HA Proxy PROXY protocol version 1 which is used by HA Proxy, Amazon ELB and others to transmit the remote address and port of the client without using headers.
-You may control the behavior of PROXY protocol support with the following options on the listener:
-pxyproto: When set to &amp;rsquo;true&amp;rsquo; the listener will respect upstream v1 PROXY protocol headers. NOTE: PROXY protocol was on by default from 1.</description>
+      <description>&lt;p&gt;fabio transparently supports the HA Proxy&#xA;&lt;a href=&#34;http://www.haproxy.org/download/1.5/doc/proxy-protocol.txt&#34;&gt;PROXY protocol&lt;/a&gt; version 1&#xA;which is used by HA Proxy,&#xA;&lt;a href=&#34;http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/enable-proxy-protocol.html&#34;&gt;Amazon ELB&lt;/a&gt;&#xA;and others to transmit the remote address and port of the client without using headers.&lt;/p&gt;&#xA;&lt;p&gt;You may control the behavior of PROXY protocol support with the following&#xA;options on the listener:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;&lt;code&gt;pxyproto&lt;/code&gt;: When set to &amp;rsquo;true&amp;rsquo; the listener will respect upstream v1&#xA;PROXY protocol headers.&#xA;NOTE: PROXY protocol was on by default from 1.1.3 to 1.5.10.&#xA;This changed to off when this option was introduced with&#xA;the 1.5.11 release.&#xA;For more information about the PROXY protocol, please see:&#xA;&lt;a href=&#34;http://www.haproxy.org/download/1.5/doc/proxy-protocol.txt&#34;&gt;http://www.haproxy.org/download/1.5/doc/proxy-protocol.txt&lt;/a&gt;&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>proxy.addr</title>
       <link>https://fabiolb.net/ref/proxy.addr/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.addr/</guid>
-      <description>proxy.addr configures listeners.
-Each listener is configured with and address and a list of optional arguments in the form of
-[host]:port;opt=arg;opt[=arg];... Each listener has a protocol which is configured with the proto option for which it routes and forwards traffic.
-The supported protocols are:
-http for HTTP based protocols https for HTTPS based protocols grpc for GRPC based protocols grpcs for GRPC+TLS based protocols tcp for a raw TCP proxy with or witout TLS support tcp+sni for an SNI aware TCP proxy tcp-dynamic for a consul driven TCP proxy https+tcp+sni for an SNI aware TCP proxy with https fallthrough prometheus for a prometheus metrics endpoint.</description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.addr&lt;/code&gt; configures listeners.&lt;/p&gt;&#xA;&lt;p&gt;Each listener is configured with and address and a&#xA;list of optional arguments in the form of&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;[host]:port;opt=arg;opt[=arg];...&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;Each listener has a protocol which is configured&#xA;with the &lt;code&gt;proto&lt;/code&gt; option for which it routes and&#xA;forwards traffic.&lt;/p&gt;&#xA;&lt;p&gt;The supported protocols are:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;http&lt;/code&gt; for HTTP based protocols&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;https&lt;/code&gt; for HTTPS based protocols&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;grpc&lt;/code&gt; for GRPC based protocols&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;grpcs&lt;/code&gt; for GRPC+TLS based protocols&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;tcp&lt;/code&gt; for a raw TCP proxy with or witout TLS support&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;tcp+sni&lt;/code&gt; for an SNI aware TCP proxy&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;tcp-dynamic&lt;/code&gt; for a consul driven TCP proxy&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;https+tcp+sni&lt;/code&gt; for an SNI aware TCP proxy with https fallthrough&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;prometheus&lt;/code&gt; for a prometheus metrics endpoint.  Used in conjunction with &lt;a href=&#34;https://fabiolb.net/ref/metrics.target/&#34;&gt;metrics.target&lt;/a&gt;&#xA;=prometheus&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;If no &lt;code&gt;proto&lt;/code&gt; option is specified then the protocol&#xA;is either &lt;code&gt;http&lt;/code&gt; or &lt;code&gt;https&lt;/code&gt; depending on whether a&#xA;certificate source is configured via the &lt;code&gt;cs&lt;/code&gt; option&#xA;which contains the name of the certificate source.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>proxy.auth</title>
       <link>https://fabiolb.net/ref/proxy.auth/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.auth/</guid>
-      <description>proxy.auth configures one or more authorization schemes.
-Each authorization scheme is configured with a list of key/value options. Each scheme must have a unique name which can then be referred to in a routing rule.
-name=&amp;lt;name&amp;gt;;type=&amp;lt;type&amp;gt;;opt=arg;opt[=arg];... The following types of authorization schemes are available:
-Basic The basic authorization scheme leverages Http Basic Auth and reads a htpasswd file at startup and credentials are cached until the service exits.
-The file option contains the path to the htpasswd file.</description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.auth&lt;/code&gt; configures one or more authorization schemes.&lt;/p&gt;&#xA;&lt;p&gt;Each authorization scheme is configured with a list of&#xA;key/value options. Each scheme must have a unique&#xA;name which can then be referred to in a routing rule.&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;name=&amp;lt;name&amp;gt;;type=&amp;lt;type&amp;gt;;opt=arg;opt[=arg];...&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;The following types of authorization schemes are available:&lt;/p&gt;&#xA;&lt;h4 id=&#34;basic&#34;&gt;Basic&lt;/h4&gt;&#xA;&lt;p&gt;The basic authorization scheme leverages &lt;a href=&#34;https://en.wikipedia.org/wiki/Basic_access_authentication&#34;&gt;Http Basic Auth&lt;/a&gt; and reads a &lt;a href=&#34;https://httpd.apache.org/docs/2.4/misc/password_encryptions.html&#34;&gt;htpasswd&lt;/a&gt; file at startup and credentials are cached until the service exits.&lt;/p&gt;&#xA;&lt;p&gt;The &lt;code&gt;file&lt;/code&gt; option contains the path to the htpasswd file. The &lt;code&gt;realm&lt;/code&gt; parameter is optional (default is to use the &lt;code&gt;name&lt;/code&gt;). The &lt;code&gt;refresh&lt;/code&gt; option can set the htpasswd file refresh interval. Minimal refresh interval is &lt;code&gt;1s&lt;/code&gt; to void busy loop. By default refresh is disabled i.e. set to zero.&#xA;Note: removing the htpasswd file will cause all requests to fail with HTTP status code 401 (Unauthorized) until the file is restored.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>proxy.cs</title>
       <link>https://fabiolb.net/ref/proxy.cs/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.cs/</guid>
-      <description>proxy.cs configures one or more certificate sources.
-Each certificate source is configured with a list of key/value options. Each source must have a unique name which can then be referred to in a listener configuration.
-cs=&amp;lt;name&amp;gt;;type=&amp;lt;type&amp;gt;;opt=arg;opt[=arg];... All certificates need to be provided in PEM format.
-The following types of certificate sources are available:
-File The file certificate source supports one certificate which is loaded at startup and is cached until the service exits.</description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.cs&lt;/code&gt; configures one or more certificate sources.&lt;/p&gt;&#xA;&lt;p&gt;Each certificate source is configured with a list of&#xA;key/value options. Each source must have a unique&#xA;name which can then be referred to in a listener&#xA;configuration.&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;cs=&amp;lt;name&amp;gt;;type=&amp;lt;type&amp;gt;;opt=arg;opt[=arg];...&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;All certificates need to be provided in PEM format.&lt;/p&gt;&#xA;&lt;p&gt;The following types of certificate sources are available:&lt;/p&gt;&#xA;&lt;h4 id=&#34;file&#34;&gt;File&lt;/h4&gt;&#xA;&lt;p&gt;The &lt;code&gt;file&lt;/code&gt; certificate source supports one certificate which is loaded at&#xA;startup and is cached until the service exits.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>proxy.deregistergraceperiod</title>
       <link>https://fabiolb.net/ref/proxy.deregistergraceperiod/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.deregistergraceperiod/</guid>
-      <description>proxy.deregistergraceperiod configures the time to wait before shutting down the proxies de-registering from the service registry.
-After a signal is caught Fabio will immediately de-register from the service registry and wait for proxy.deregistergraceperiod letting in-flight requests finish after which it will continue with shutting down the proxy.
-The default is
-proxy.deregistergraceperiod = 0s </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.deregistergraceperiod&lt;/code&gt; configures the time to wait before&#xA;shutting down the proxies de-registering from the service registry.&lt;/p&gt;&#xA;&lt;p&gt;After a signal is caught Fabio will immediately de-register from the&#xA;service registry and wait for &lt;code&gt;proxy.deregistergraceperiod&lt;/code&gt; letting&#xA;in-flight requests finish after which it will continue with shutting&#xA;down the proxy.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.deregistergraceperiod = 0s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.dialtimeout</title>
       <link>https://fabiolb.net/ref/proxy.dialtimeout/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.dialtimeout/</guid>
-      <description>proxy.dialtimeout configures the connection timeout for outgoing connections by setting the Timeout of the net.Dialer
-The default is
-proxy.dialtimeout = 30s </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.dialtimeout&lt;/code&gt; configures the connection timeout for&#xA;outgoing connections by setting the &lt;a href=&#34;https://golang.org/pkg/net/#Dialer.Timeout&#34;&gt;Timeout&lt;/a&gt;&#xA;of the &lt;a href=&#34;https://golang.org/pkg/net/#Dialer&#34;&gt;net.Dialer&lt;/a&gt;&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.dialtimeout = 30s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.flushinterval</title>
       <link>https://fabiolb.net/ref/proxy.flushinterval/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.flushinterval/</guid>
-      <description>proxy.flushinterval configures periodic flushing of the response buffer for SSE (server-sent events) connections. They are detected when the Accept header is text/event-stream.
-The default is
-proxy.flushinterval = 1s </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.flushinterval&lt;/code&gt; configures periodic flushing of the&#xA;response buffer for SSE (server-sent events) connections.&#xA;They are detected when the &lt;code&gt;Accept&lt;/code&gt; header is&#xA;&lt;code&gt;text/event-stream&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.flushinterval = 1s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.globalflushinterval</title>
       <link>https://fabiolb.net/ref/proxy.globalflushinterval/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.globalflushinterval/</guid>
-      <description>proxy.globalflushinterval configures periodic flushing of the response buffer for proxied non-SSE connections. By default it is disabled.
-The default is
-proxy.globalflushinterval = 0 </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.globalflushinterval&lt;/code&gt; configures periodic flushing of the&#xA;response buffer for proxied non-SSE connections. By default it is disabled.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.globalflushinterval = 0&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.grpcmaxrxmsgsize</title>
       <link>https://fabiolb.net/ref/proxy.grpcmaxrxmsgsize/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.grpcmaxrxmsgsize/</guid>
-      <description>proxy.grpcmaxrxmsgsize configures the grpc max receive message size in bytes. The default value is
-proxy.grpcmaxrxmsgsize = 4194304 which is 4MB</description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.grpcmaxrxmsgsize&lt;/code&gt; configures the grpc max receive message size in bytes.  The default&#xA;value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.grpcmaxrxmsgsize = 4194304&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;which is 4MB&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>proxy.grpcmaxtxmsgsize</title>
       <link>https://fabiolb.net/ref/proxy.grpcmaxtxmsgsize/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.grpcmaxtxmsgsize/</guid>
-      <description>proxy.grpcmaxtxmsgsize configures the grpc max transmit message size in bytes. The default value is
-proxy.grpcmaxtxmsgsize = 4194304 which is 4MB</description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.grpcmaxtxmsgsize&lt;/code&gt; configures the grpc max transmit message size in bytes.  The default&#xA;value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.grpcmaxtxmsgsize = 4194304&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;which is 4MB&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>proxy.grpcshutdowntimeout</title>
       <link>https://fabiolb.net/ref/proxy.grpcshutdowntimeout/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.grpcshutdowntimeout/</guid>
-      <description>proxy.grpcshutdowntimeout configures the amount of time fabio will wait to attempt to close the connection while waiting for grpc traffic to finish to a backend that&amp;rsquo;s been deregistered. The default value is
-proxy.grpcshutdowntimeout = 2s </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.grpcshutdowntimeout&lt;/code&gt; configures the amount of time fabio will wait to attempt&#xA;to close the connection while waiting for grpc traffic to finish to a backend that&amp;rsquo;s been&#xA;deregistered.  The default value is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.grpcshutdowntimeout = 2s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.gzip.contenttype</title>
       <link>https://fabiolb.net/ref/proxy.gzip.contenttype/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.gzip.contenttype/</guid>
-      <description>proxy.gzip.contenttype configures which responses should be compressed.
-By default, responses sent to the client are not compressed even if the client accepts compressed responses by setting the &amp;lsquo;Accept-Encoding: gzip&amp;rsquo; header. By setting this value responses are compressed if the Content-Type header of the response matches and the response is not already compressed. The list of compressable content types is defined as a regular expression. The regular expression must follow the rules outlined in https://golang.</description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.gzip.contenttype&lt;/code&gt; configures which responses should be compressed.&lt;/p&gt;&#xA;&lt;p&gt;By default, responses sent to the client are not compressed even if the&#xA;client accepts compressed responses by setting the &amp;lsquo;Accept-Encoding: gzip&amp;rsquo;&#xA;header. By setting this value responses are compressed if the &lt;code&gt;Content-Type&lt;/code&gt;&#xA;header of the response matches and the response is not already compressed.&#xA;The list of compressable content types is defined as a regular expression.&#xA;The regular expression must follow the rules outlined in &lt;a href=&#34;https://golang.org/pkg/regexp&#34;&gt;https://golang.org/pkg/regexp&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>proxy.header.clientip</title>
       <link>https://fabiolb.net/ref/proxy.header.clientip/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.header.clientip/</guid>
-      <description>proxy.header.clientip configures the header for the request ip.
-The remote ip address is taken from http.Request.RemoteAddr.
-The default is
-proxy.header.clientip = </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.header.clientip&lt;/code&gt; configures the header for the request ip.&lt;/p&gt;&#xA;&lt;p&gt;The remote ip address is taken from &lt;a href=&#34;https://golang.org/pkg/net/http/#Request.RemoteAddr&#34;&gt;http.Request.RemoteAddr&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.header.clientip =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.header.requestid</title>
       <link>https://fabiolb.net/ref/proxy.header.requestid/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.header.requestid/</guid>
-      <description>proxy.header.requestid configures the header for the adding a unique request id. When set non-empty value the proxy will set this header on every request to the unique UUID value.
-The default is
-proxy.header.requestid = </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.header.requestid&lt;/code&gt; configures the header for the adding a unique request id.&#xA;When set non-empty value the proxy will set this header on every request to the&#xA;unique UUID value.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.header.requestid =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.header.sts.maxage</title>
       <link>https://fabiolb.net/ref/proxy.header.sts.maxage/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.header.sts.maxage/</guid>
-      <description>proxy.header.sts.maxage enables and configures the max-age of HSTS for TLS requests. When set greater than zero this enables the Strict-Transport-Security header and sets the max-age value in the header.
-The default is
-proxy.header.sts.maxage = 0 </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.header.sts.maxage&lt;/code&gt; enables and configures the max-age of HSTS for TLS requests.&#xA;When set greater than zero this enables the Strict-Transport-Security header&#xA;and sets the max-age value in the header.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.header.sts.maxage = 0&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.header.sts.preload</title>
       <link>https://fabiolb.net/ref/proxy.header.sts.preload/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.header.sts.preload/</guid>
-      <description>proxy.header.sts.preload instructs HSTS to include the preload directive. When set to true, the &amp;lsquo;preload&amp;rsquo; option will be added to the Strict-Transport-Security header.
-Sending the preload directive from your site can have PERMANENT CONSEQUENCES and prevent users from accessing your site and any of its subdomains if you find you need to switch back to HTTP. Please read the details at https://hstspreload.org/#removal before sending the header with &amp;ldquo;preload&amp;rdquo;.
-The default is</description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.header.sts.preload&lt;/code&gt; instructs HSTS to include the preload directive.&#xA;When set to true, the &amp;lsquo;preload&amp;rsquo; option will be added to the&#xA;Strict-Transport-Security header.&lt;/p&gt;&#xA;&lt;p&gt;Sending the preload directive from your site can have PERMANENT CONSEQUENCES&#xA;and prevent users from accessing your site and any of its subdomains if you&#xA;find you need to switch back to HTTP. Please read the details at&#xA;&lt;a href=&#34;https://hstspreload.org/#removal&#34;&gt;https://hstspreload.org/#removal&lt;/a&gt;&#xA;before sending the header with &amp;ldquo;preload&amp;rdquo;.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.header.sts.preload = false&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.header.sts.subdomains</title>
       <link>https://fabiolb.net/ref/proxy.header.sts.subdomains/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.header.sts.subdomains/</guid>
-      <description>proxy.header.sts.subdomains instructs HSTS to include subdomains. When set to true, the &amp;lsquo;includeSubDomains&amp;rsquo; option will be added to the Strict-Transport-Security header.
-The default is
-proxy.header.sts.subdomains = false </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.header.sts.subdomains&lt;/code&gt; instructs HSTS to include subdomains.&#xA;When set to true, the &amp;lsquo;includeSubDomains&amp;rsquo; option will be added to&#xA;the Strict-Transport-Security header.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.header.sts.subdomains = false&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.header.tls</title>
       <link>https://fabiolb.net/ref/proxy.header.tls/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.header.tls/</guid>
-      <description>proxy.header.tls configures the header to set for TLS connections.
-When set to a non-empty value the proxy will set this header on every TLS request to the value of proxy.header.tls.value
-The default is
-proxy.header.tls = </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.header.tls&lt;/code&gt; configures the header to set for TLS connections.&lt;/p&gt;&#xA;&lt;p&gt;When set to a non-empty value the proxy will set this header on every&#xA;TLS request to the value of &lt;a href=&#34;https://fabiolb.net/ref/proxy.header.tls.value/&#34;&gt;proxy.header.tls.value&lt;/a&gt;&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.header.tls =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.header.tls.value</title>
       <link>https://fabiolb.net/ref/proxy.header.tls.value/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.header.tls.value/</guid>
-      <description>proxy.header.tls.value configures the value to set the proxy.header.tls header to for TLS connections.
-The default is
-proxy.header.tls.value = </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.header.tls.value&lt;/code&gt; configures the value to set the &lt;a href=&#34;https://fabiolb.net/ref/proxy.header.tls/&#34;&gt;proxy.header.tls&lt;/a&gt; header to for TLS connections.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.header.tls.value =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.localip</title>
       <link>https://fabiolb.net/ref/proxy.localip/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.localip/</guid>
-      <description>proxy.localip configures the ip address of the proxy which is added to the Header configured by header.clientip and to the Forwarded: by= attribute.
-The local non-loopback address is detected during startup but can be overwritten with this property.
-The default is
-proxy.localip = </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.localip&lt;/code&gt; configures the ip address of the proxy which is added&#xA;to the Header configured by &lt;a href=&#34;https://fabiolb.net/ref/header.clientip/&#34;&gt;&lt;code&gt;header.clientip&lt;/code&gt;&lt;/a&gt; and to the &lt;code&gt;Forwarded: by=&lt;/code&gt; attribute.&lt;/p&gt;&#xA;&lt;p&gt;The local non-loopback address is detected during startup&#xA;but can be overwritten with this property.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.localip =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.matcher</title>
       <link>https://fabiolb.net/ref/proxy.matcher/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.matcher/</guid>
-      <description>proxy.matcher configures the path matching algorithm.
-prefix: prefix matching glob: glob matching When prefix matching is enabled then the route path must be a prefix of the request URI, e.g. /foo matches /foo, /foot but not /fo.
-When glob matching is enabled the route is evaluated according to globbing rules provided by the Go path.Match function.
-For example, /foo* matches /foo, /fool and /fools. Also, /foo/*/bar matches /foo/x/bar.
-iprefix matching is similar to prefix, except it uses a case insensitive comparison</description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.matcher&lt;/code&gt; configures the path matching algorithm.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;prefix&lt;/code&gt;: prefix matching&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;glob&lt;/code&gt;:  glob matching&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;When &lt;code&gt;prefix&lt;/code&gt; matching is enabled then the route path must be a&#xA;prefix of the request URI, e.g. &lt;code&gt;/foo&lt;/code&gt; matches &lt;code&gt;/foo&lt;/code&gt;, &lt;code&gt;/foot&lt;/code&gt; but&#xA;not &lt;code&gt;/fo&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;When &lt;code&gt;glob&lt;/code&gt; matching is enabled the route is evaluated according to&#xA;globbing rules provided by the Go &lt;a href=&#34;https://golang.org/pkg/path/#Match&#34;&gt;&lt;code&gt;path.Match&lt;/code&gt;&lt;/a&gt;&#xA;function.&lt;/p&gt;&#xA;&lt;p&gt;For example, &lt;code&gt;/foo*&lt;/code&gt; matches &lt;code&gt;/foo&lt;/code&gt;, &lt;code&gt;/fool&lt;/code&gt; and &lt;code&gt;/fools&lt;/code&gt;. Also, &lt;code&gt;/foo/*/bar&lt;/code&gt;&#xA;matches &lt;code&gt;/foo/x/bar&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;&lt;code&gt;iprefix&lt;/code&gt; matching is similar to &lt;code&gt;prefix&lt;/code&gt;, except it uses a case insensitive comparison&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>proxy.maxconn</title>
       <link>https://fabiolb.net/ref/proxy.maxconn/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.maxconn/</guid>
-      <description>proxy.maxconn configures the maximum number of cached incoming and outgoing connections.
-This configures the MaxIdleConnsPerHost of the http.Transport.
-The default is
-proxy.maxconn = 10000 </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.maxconn&lt;/code&gt; configures the maximum number of cached&#xA;incoming and outgoing connections.&lt;/p&gt;&#xA;&lt;p&gt;This configures the &lt;a href=&#34;https://golang.org/pkg/net/http/#Transport.MaxIdleConnsPerHost&#34;&gt;MaxIdleConnsPerHost&lt;/a&gt;&#xA;of the &lt;a href=&#34;https://golang.org/pkg/net/http/#Transport&#34;&gt;http.Transport&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.maxconn = 10000&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.noroutestatus</title>
       <link>https://fabiolb.net/ref/proxy.noroutestatus/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.noroutestatus/</guid>
-      <description>proxy.noroutestatus configures the response code when no route was found.
-The default is
-proxy.noroutestatus = 404 </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.noroutestatus&lt;/code&gt; configures the response code when no route was found.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.noroutestatus = 404&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.responseheadertimeout</title>
       <link>https://fabiolb.net/ref/proxy.responseheadertimeout/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.responseheadertimeout/</guid>
-      <description>proxy.responseheadertimeout configures the ResponseHeaderTimeout of the http.Transport.
-The default is
-proxy.responseheadertimeout = 0s </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.responseheadertimeout&lt;/code&gt; configures the &lt;a href=&#34;https://golang.org/pkg/net/http/#Transport.ResponseHeaderTimeout&#34;&gt;ResponseHeaderTimeout&lt;/a&gt;&#xA;of the &lt;a href=&#34;https://golang.org/pkg/net/http/#Transport&#34;&gt;http.Transport&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.responseheadertimeout = 0s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.shutdownwait</title>
       <link>https://fabiolb.net/ref/proxy.shutdownwait/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.shutdownwait/</guid>
-      <description>proxy.shutdownwait configures the time for a graceful shutdown.
-After a signal is caught the proxy will immediately suspend routing traffic and respond with a 503 Service Unavailable for the duration of the given period.
-The default is
-proxy.shutdownwait = 0s </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.shutdownwait&lt;/code&gt; configures the time for a graceful shutdown.&lt;/p&gt;&#xA;&lt;p&gt;After a signal is caught the proxy will immediately suspend&#xA;routing traffic and respond with a &lt;code&gt;503 Service Unavailable&lt;/code&gt;&#xA;for the duration of the given period.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.shutdownwait = 0s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>proxy.strategy</title>
       <link>https://fabiolb.net/ref/proxy.strategy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/proxy.strategy/</guid>
-      <description>proxy.strategy configures the load balancing strategy.
-rnd: pseudo-random distribution configures a pseudo-random distribution by using the microsecond fraction of the time of the request.
-rr: round-robin distribution configures a round-robin distribution.
-The default is
-proxy.strategy = rnd </description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.strategy&lt;/code&gt; configures the load balancing strategy.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;&lt;code&gt;rnd&lt;/code&gt;: pseudo-random distribution&#xA;configures a pseudo-random distribution by using the microsecond&#xA;fraction of the time of the request.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;&lt;code&gt;rr&lt;/code&gt;:  round-robin distribution&#xA;configures a round-robin distribution.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.strategy = rnd&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.backend</title>
       <link>https://fabiolb.net/ref/registry.backend/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.backend/</guid>
-      <description>registry.backend configures which backend is used. Supported backends are: consul, static, file, custom. If custom is used fabio makes an api call to a remote system expecting the below json response
-[ { &amp;#34;cmd&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;service&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;src&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;dst&amp;#34;: &amp;#34;string&amp;#34;, &amp;#34;weight&amp;#34;: float, &amp;#34;tags&amp;#34;: [&amp;#34;string&amp;#34;], &amp;#34;opts&amp;#34;: {&amp;#34;string&amp;#34;:&amp;#34;string&amp;#34;} } ] The default is
-registry.backend = consul Short description of the fields required for a custom backend
-To configure routes Fabio uses a Config Language, specified here</description>
+      <description>&lt;p&gt;&lt;code&gt;registry.backend&lt;/code&gt; configures which backend is used.&#xA;Supported backends are: &lt;code&gt;consul&lt;/code&gt;, &lt;code&gt;static&lt;/code&gt;, &lt;code&gt;file&lt;/code&gt;, &lt;code&gt;custom&lt;/code&gt;. If custom is used fabio makes an api&#xA;call to a remote system expecting the below json response&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;[&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; {&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;cmd&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;,&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;service&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;,&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;src&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;,&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;dst&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;,&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;weight&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;float&lt;/span&gt;,&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;tags&amp;#34;&lt;/span&gt;: [&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;],&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;opts&amp;#34;&lt;/span&gt;: {&lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;:&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;}&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; }&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;]&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.backend = consul&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;Short description of the fields required for a custom backend&lt;/p&gt;&#xA;&lt;p&gt;To configure routes Fabio uses a Config Language, specified &lt;a href=&#34;https://fabiolb.net/cfg/&#34;&gt;here&lt;/a&gt;&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.addr</title>
       <link>https://fabiolb.net/ref/registry.consul.addr/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.addr/</guid>
-      <description>registry.consul.addr configures the address of the Consul agent to connect to.
-The default is
-registry.consul.addr = localhost:8500 </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.addr&lt;/code&gt; configures the address of the Consul agent to connect to.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.addr = localhost:8500&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.checksRequired</title>
       <link>https://fabiolb.net/ref/registry.consul.checksrequired/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.checksrequired/</guid>
-      <description>registry.consul.checksRequired configures how many health checks must pass in order for fabio to consider a service available.
-Possible values are:
-one: at least one health check must pass all: all health checks must pass The default is
-registry.consul.checksRequired = one </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.checksRequired&lt;/code&gt; configures how many health checks&#xA;must pass in order for fabio to consider a service available.&lt;/p&gt;&#xA;&lt;p&gt;Possible values are:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;one&lt;/code&gt;: at least one health check must pass&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;all&lt;/code&gt;: all health checks must pass&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.checksRequired = one&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.kvpath</title>
       <link>https://fabiolb.net/ref/registry.consul.kvpath/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.kvpath/</guid>
-      <description>registry.consul.kvpath configures the KV path for manual routes.
-The Consul KV path is watched for changes which get appended to the routing table. This allows for manual overrides and weighted round-robin routes.
-As of version 1.5.7 fabio will treat the kv path as a prefix and combine the values of the key itself and all its subkeys in alphabetical order.
-To see all updates you may want to set -log.routes.format to all.</description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.kvpath&lt;/code&gt; configures the KV path for manual routes.&lt;/p&gt;&#xA;&lt;p&gt;The Consul KV path is watched for changes which get appended to&#xA;the routing table. This allows for manual overrides and weighted&#xA;round-robin routes.&lt;/p&gt;&#xA;&lt;p&gt;As of version 1.5.7 fabio will treat the kv path as a prefix and&#xA;combine the values of the key itself and all its subkeys in&#xA;alphabetical order.&lt;/p&gt;&#xA;&lt;p&gt;To see all updates you may want to set &lt;a href=&#34;https://fabiolb.net/ref/log.routes.format/&#34;&gt;&lt;code&gt;-log.routes.format&lt;/code&gt;&lt;/a&gt;&#xA;to &lt;code&gt;all&lt;/code&gt;.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.noroutehtmlpath</title>
       <link>https://fabiolb.net/ref/registry.consul.noroutehtmlpath/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.noroutehtmlpath/</guid>
-      <description>registry.consul.noroutehtmlpath configures the KV path for the HTML page when no route was found.
-The consul KV path is watched for changes.
-The default is
-registry.consul.noroutehtmlpath = /fabio/noroute.html </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.noroutehtmlpath&lt;/code&gt; configures the KV path for the HTML page when no route was found.&lt;/p&gt;&#xA;&lt;p&gt;The consul KV path is watched for changes.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.noroutehtmlpath = /fabio/noroute.html&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.pollInterval</title>
       <link>https://fabiolb.net/ref/registry.consul.pollinterval/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.pollinterval/</guid>
-      <description>registry.consul.pollInterval configures the poll interval for route updates. If Poll interval is set to 0 the updates will be disabled and fall back to blocking queries. Other values can be any time definition. e.g. 1s, 100ms
-The default is
-registry.consul.pollInterval = 0 </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.pollInterval&lt;/code&gt; configures the poll interval&#xA;for route updates. If Poll interval is set to 0 the updates will&#xA;be disabled and fall back to blocking queries.  Other values can&#xA;be any time definition. e.g. &lt;code&gt;1s, 100ms&lt;/code&gt;&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.pollInterval = 0&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.register.addr</title>
       <link>https://fabiolb.net/ref/registry.consul.register.addr/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.register.addr/</guid>
-      <description>registry.consul.register.addr configures the address for the service registration.
-Fabio registers itself in consul with this host:port address. It must point to the UI/API endpoint configured by ui.addr and defaults to its value.
-The default is
-registry.consul.register.addr = :9998 </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.register.addr&lt;/code&gt; configures the address for the service registration.&lt;/p&gt;&#xA;&lt;p&gt;Fabio registers itself in consul with this &lt;code&gt;host:port&lt;/code&gt; address.&#xA;It must point to the UI/API endpoint configured by &lt;a href=&#34;https://fabiolb.net/ref/ui.addr/&#34;&gt;ui.addr&lt;/a&gt; and defaults to its&#xA;value.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.register.addr = :9998&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.register.checkInterval</title>
       <link>https://fabiolb.net/ref/registry.consul.register.checkinterval/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.register.checkinterval/</guid>
-      <description>registry.consul.register.checkInterval configures the interval for the health check.
-Fabio registers an http health check on http(s)://ui.addr/health and this value tells consul how often to check it.
-The default is
-registry.consul.register.checkInterval = 1s </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.register.checkInterval&lt;/code&gt; configures the interval for the health check.&lt;/p&gt;&#xA;&lt;p&gt;Fabio registers an http health check on http(s)://&lt;a href=&#34;https://fabiolb.net/ref/ui.addr&#34;&gt;ui.addr&lt;/a&gt;/health&#xA;and this value tells consul how often to check it.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.register.checkInterval = 1s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.register.checkTimeout</title>
       <link>https://fabiolb.net/ref/registry.consul.register.checktimeout/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.register.checktimeout/</guid>
-      <description>registry.consul.register.checkTimeout configures the timeout for the health check.
-Fabio registers an http health check on http(s)://ui.addr/health and this value tells Consul how long to wait for a response.
-The default is
-registry.consul.register.checkTimeout = 3s </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.register.checkTimeout&lt;/code&gt; configures the timeout for the health check.&lt;/p&gt;&#xA;&lt;p&gt;Fabio registers an http health check on http(s)://&lt;a href=&#34;https://fabiolb.net/ref/ui.addr&#34;&gt;ui.addr&lt;/a&gt;/health&#xA;and this value tells Consul how long to wait for a response.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.register.checkTimeout = 3s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.register.checkTLSSkipVerify</title>
       <link>https://fabiolb.net/ref/registry.consul.register.checktlsskipverify/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.register.checktlsskipverify/</guid>
-      <description>registry.consul.register.checkTLSSkipVerify configures TLS verification for the health check.
-Fabio registers an http health check on http(s)://ui.addr/health and this value tells consul to skip TLS certificate validation for https checks.
-The default is
-registry.consul.register.checkTLSSkipVerify = false </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.register.checkTLSSkipVerify&lt;/code&gt; configures TLS verification for the health check.&lt;/p&gt;&#xA;&lt;p&gt;Fabio registers an http health check on http(s)://&lt;a href=&#34;https://fabiolb.net/ref/ui.addr&#34;&gt;ui.addr&lt;/a&gt;/health&#xA;and this value tells consul to skip TLS certificate validation for&#xA;https checks.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.register.checkTLSSkipVerify = false&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.register.deregisterCriticalServiceAfter</title>
       <link>https://fabiolb.net/ref/registry.consul.register.deregistercriticalserviceafter/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.register.deregistercriticalserviceafter/</guid>
-      <description>This option is deprecated and has no effect in versions after 1.5.11. Services are now always deregistered shortly after fabio exits for any reason.
-In versions up to and including 1.5.11 registry.consul.register.deregisterCriticalServiceAfter configures the duration after which registered services are removed from Consul after fabio exits abruptly (services are always deregistered immediately when fabio exits normally).
-At the time of this writing, Consul enforces a minimum value of one minute and runs its reaper process every thirty seconds.</description>
+      <description>&lt;p&gt;This option is deprecated and has no effect in versions after 1.5.11. Services&#xA;are now always deregistered shortly after fabio exits for any reason.&lt;/p&gt;&#xA;&lt;p&gt;In versions up to and including 1.5.11&#xA;&lt;code&gt;registry.consul.register.deregisterCriticalServiceAfter&lt;/code&gt; configures the&#xA;duration after which registered services are removed from Consul after fabio&#xA;exits abruptly (services are always deregistered immediately when fabio exits&#xA;normally).&lt;/p&gt;&#xA;&lt;p&gt;At the time of this writing, Consul enforces a minimum value of one minute and runs&#xA;its reaper process every thirty seconds.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.register.enabled</title>
       <link>https://fabiolb.net/ref/registry.consul.register.enabled/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.register.enabled/</guid>
-      <description>registry.consul.register.enabled configures whether fabio registers itself in Consul.
-Fabio will register itself in consul only if this value is set to true which is the default. To disable registration set it to any other value, e.g. false
-The default is
-registry.consul.register.enabled = true </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.register.enabled&lt;/code&gt; configures whether fabio registers itself in Consul.&lt;/p&gt;&#xA;&lt;p&gt;Fabio will register itself in consul only if this value is set to &lt;code&gt;true&lt;/code&gt; which&#xA;is the default. To disable registration set it to any other value, e.g. &lt;code&gt;false&lt;/code&gt;&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.register.enabled = true&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.register.name</title>
       <link>https://fabiolb.net/ref/registry.consul.register.name/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.register.name/</guid>
-      <description>registry.consul.register.name configures the name for the service registration.
-Fabio registers itself in consul under this service name.
-The default is
-registry.consul.register.name = fabio </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.register.name&lt;/code&gt; configures the name for the service registration.&lt;/p&gt;&#xA;&lt;p&gt;Fabio registers itself in consul under this service name.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.register.name = fabio&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.register.tags</title>
       <link>https://fabiolb.net/ref/registry.consul.register.tags/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.register.tags/</guid>
-      <description>registry.consul.register.tags configures the tags for the service registration.
-Fabio registers itself with these tags. You can provide a comma separated list of tags.
-The default is
-registry.consul.register.tags = </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.register.tags&lt;/code&gt; configures the tags for the service registration.&lt;/p&gt;&#xA;&lt;p&gt;Fabio registers itself with these tags. You can provide a comma separated list of tags.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.register.tags =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.service.status</title>
       <link>https://fabiolb.net/ref/registry.consul.service.status/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.service.status/</guid>
-      <description>registry.consul.service.status configures the valid service status values for services included in the routing table.
-The values are a comma separated list of passing, warning, critical and unknown
-The default is
-registry.consul.service.status = passing </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.service.status&lt;/code&gt; configures the valid service status&#xA;values for services included in the routing table.&lt;/p&gt;&#xA;&lt;p&gt;The values are a comma separated list of&#xA;&lt;code&gt;passing&lt;/code&gt;, &lt;code&gt;warning&lt;/code&gt;, &lt;code&gt;critical&lt;/code&gt; and &lt;code&gt;unknown&lt;/code&gt;&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.service.status = passing&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.serviceMonitors</title>
       <link>https://fabiolb.net/ref/registry.consul.servicemonitors/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.servicemonitors/</guid>
-      <description>registry.consul.serviceMonitors configures the concurrency for route updates. Fabio will make up to the configured number of concurrent calls to Consul to fetch status data for route updates.
-The default is
-registry.consul.serviceMonitors = 1 </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.serviceMonitors&lt;/code&gt; configures the concurrency for&#xA;route updates. Fabio will make up to the configured number of&#xA;concurrent calls to Consul to fetch status data for route&#xA;updates.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.serviceMonitors = 1&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.tagprefix</title>
       <link>https://fabiolb.net/ref/registry.consul.tagprefix/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.tagprefix/</guid>
-      <description>registry.consul.tagprefix configures the prefix for tags which define routes.
-Services which define routes publish one or more tags with host/path routes which they serve. These tags must have this prefix to be recognized as routes.
-The default is
-registry.consul.tagprefix = urlprefix- </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.tagprefix&lt;/code&gt; configures the prefix for tags which define routes.&lt;/p&gt;&#xA;&lt;p&gt;Services which define routes publish one or more tags with host/path&#xA;routes which they serve. These tags must have this prefix to be&#xA;recognized as routes.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.tagprefix = urlprefix-&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.consul.token</title>
       <link>https://fabiolb.net/ref/registry.consul.token/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.consul.token/</guid>
-      <description>registry.consul.token configures the acl token for consul.
-The default is
-registry.consul.token = </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.token&lt;/code&gt; configures the acl token for consul.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.token =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.custom.checkTLSSkipVerify</title>
       <link>https://fabiolb.net/ref/registry.custom.checktlsskipverify/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.custom.checktlsskipverify/</guid>
-      <description>registry.custom.checkTLSSkipVerify disables the TLS validation for the API call
-The default is
-registry.custom.checkTLSSkipVerify = false </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.custom.checkTLSSkipVerify&lt;/code&gt; disables the TLS validation for the API call&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.custom.checkTLSSkipVerify = false&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.custom.host</title>
       <link>https://fabiolb.net/ref/registry.custom.host/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.custom.host/</guid>
-      <description>registry.custom.host configures the host:port for fabio to make the API call
-The default is
-registry.custom.host = </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.custom.host&lt;/code&gt; configures the host:port for fabio to make the API call&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.custom.host =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.custom.path</title>
       <link>https://fabiolb.net/ref/registry.custom.path/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.custom.path/</guid>
-      <description>registry.custom.path is the path used in the custom back end API Call
-The path does not need to contain the initial &amp;lsquo;/&amp;rsquo;
-Example:
-registry.custom.path = api/v1/ The default is
-registry.custom.path = </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.custom.path&lt;/code&gt; is the path used in the custom back end API Call&lt;/p&gt;&#xA;&lt;p&gt;The path does not need to contain the initial &amp;lsquo;/&amp;rsquo;&lt;/p&gt;&#xA;&lt;p&gt;Example:&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt; registry.custom.path = api/v1/&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt; registry.custom.path =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.custom.pollinterval</title>
       <link>https://fabiolb.net/ref/registry.custom.pollinginterval/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.custom.pollinginterval/</guid>
-      <description>registry.custom.pollinterval is the length of time between API calls
-The default is
-registry.custom.pollinterval = 10s </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.custom.pollinterval&lt;/code&gt; is the length of time between API calls&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.custom.pollinterval = 10s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.custom.queryparams</title>
       <link>https://fabiolb.net/ref/registry.custom.queryparams/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.custom.queryparams/</guid>
-      <description>registry.custom.queryparams is the query parameters used in the custom back end API Call
-Multiple query parameters should be separated with an &amp;amp;
-Example:
-registry.custom.queryparams = foo=bar&amp;amp;bar=foo The default is
-registry.custom.queryparams = </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.custom.queryparams&lt;/code&gt; is the query parameters used in the custom back&#xA;end API Call&lt;/p&gt;&#xA;&lt;p&gt;Multiple query parameters should be separated with an &amp;amp;&lt;/p&gt;&#xA;&lt;p&gt;Example:&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt; registry.custom.queryparams = foo=bar&amp;amp;bar=foo&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.custom.queryparams =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.custom.scheme</title>
       <link>https://fabiolb.net/ref/registry.custom.scheme/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.custom.scheme/</guid>
-      <description>registry.custom.scheme configures the scheme use to make the API call must be one of http, https
-The default is
-registry.custom.scheme = https </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.custom.scheme&lt;/code&gt; configures the scheme use to make the API call&#xA;must be one of &lt;code&gt;http&lt;/code&gt;, &lt;code&gt;https&lt;/code&gt;&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.custom.scheme = https&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.custom.timeout</title>
       <link>https://fabiolb.net/ref/registry.custom.timeout/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.custom.timeout/</guid>
-      <description>registry.custom.timeout controls the timeout for the API call
-The default is
-registry.custom.timeout = 5s </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.custom.timeout&lt;/code&gt; controls the timeout for the API call&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.custom.timeout = 5s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.file.noroutehtmlpath</title>
       <link>https://fabiolb.net/ref/registry.file.noroutehtmlpath/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.file.noroutehtmlpath/</guid>
-      <description>registry.file.noroutehtmlpath configures the path the HTML page when no route was found.
-The default is
-registry.file.noroutehtmlpath = </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.file.noroutehtmlpath&lt;/code&gt; configures the path the HTML page when no route was found.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.file.noroutehtmlpath =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.file.path</title>
       <link>https://fabiolb.net/ref/registry.file.path/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.file.path/</guid>
-      <description>registry.file.path configures a file based routing table. The value configures the path to the file with the routing table.
-The default is
-registry.file.path = </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.file.path&lt;/code&gt; configures a file based routing table.&#xA;The value configures the path to the file with the routing table.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.file.path =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.retry</title>
       <link>https://fabiolb.net/ref/registry.retry/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.retry/</guid>
-      <description>registry.retry configures the interval with which fabio tries to connect to the registry during startup.
-The default is
-registry.retry = 500ms </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.retry&lt;/code&gt; configures the interval with which fabio tries to&#xA;connect to the registry during startup.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.retry = 500ms&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.static.noroutehtml</title>
       <link>https://fabiolb.net/ref/registry.static.noroutehtmlpath/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.static.noroutehtmlpath/</guid>
-      <description>registry.static.noroutehtml configures the the HTML for the page when no route was found.
-The default is
-registry.static.noroutehtmlpath = </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.static.noroutehtml&lt;/code&gt; configures the the HTML for the page when no route was found.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.static.noroutehtmlpath =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.static.routes</title>
       <link>https://fabiolb.net/ref/registry.static.routes/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.static.routes/</guid>
-      <description>registry.static.routes configures a static routing table.
-Example registry.static.routes = \ route add svc / http://1.2.3.4:5000/ The default is
-registry.static.routes = </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.static.routes&lt;/code&gt; configures a static routing table.&lt;/p&gt;&#xA;&lt;h4 id=&#34;example&#34;&gt;Example&lt;/h4&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.static.routes = \&#xA;&#x9;route add svc / http://1.2.3.4:5000/&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.static.routes =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>registry.timeout</title>
       <link>https://fabiolb.net/ref/registry.timeout/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/registry.timeout/</guid>
-      <description>registry.timeout configures how long fabio tries to connect to the registry backend during startup.
-The default is
-registry.timeout = 10s </description>
+      <description>&lt;p&gt;&lt;code&gt;registry.timeout&lt;/code&gt; configures how long fabio tries to connect to the registry&#xA;backend during startup.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.timeout = 10s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>Request Tracing</title>
       <link>https://fabiolb.net/faq/request-tracing/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/faq/request-tracing/</guid>
-      <description>How do I see which routes fabio is matching for a request? To trace how a request is routed you can add a Trace header with an non- empty value which is truncated at 16 characters to keep the log output short.
-$ curl -v -H &amp;#39;Trace: abc&amp;#39; -H &amp;#39;Host: foo.com&amp;#39; &amp;#39;http://localhost:9999/bar/baz&amp;#39; 2015/09/28 21:56:26 [TRACE] abc Tracing foo.com/bar/baz 2015/09/28 21:56:26 [TRACE] abc No match foo.com/bang 2015/09/28 21:56:26 [TRACE] abc Match foo.</description>
+      <description>&lt;h4 id=&#34;how-do-i-see-which-routes-fabio-is-matching-for-a-request&#34;&gt;How do I see which routes fabio is matching for a request?&lt;/h4&gt;&#xA;&lt;p&gt;To trace how a request is routed you can add a &lt;code&gt;Trace&lt;/code&gt; header with an non-&#xA;empty value which is truncated at 16 characters to keep the log output short.&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ curl -v -H &amp;#39;Trace: abc&amp;#39; -H &amp;#39;Host: foo.com&amp;#39; &amp;#39;http://localhost:9999/bar/baz&amp;#39;&#xA;&#xA;2015/09/28 21:56:26 [TRACE] abc Tracing foo.com/bar/baz&#xA;2015/09/28 21:56:26 [TRACE] abc No match foo.com/bang&#xA;2015/09/28 21:56:26 [TRACE] abc Match foo.com/&#xA;2015/09/28 22:01:34 [TRACE] abc Routing to http://1.2.3.4:8080/&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>runtime.gogc</title>
       <link>https://fabiolb.net/ref/runtime.gogc/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/runtime.gogc/</guid>
-      <description>runtime.gogc configures GOGC (the GC target percentage).
-Setting runtime.gogc is equivalent to setting the GOGC environment variable which also takes precedence over the value from the config file.
-Increasing this value means fewer but longer GC cycles since there is more garbage to collect.
-NOTE - the default for fabio up to 1.5.14 was 800. This changed to 100 in version 1.5.15
-The default is
-runtime.gogc = 100 </description>
+      <description>&lt;p&gt;&lt;code&gt;runtime.gogc&lt;/code&gt; configures GOGC (the GC target percentage).&lt;/p&gt;&#xA;&lt;p&gt;Setting &lt;code&gt;runtime.gogc&lt;/code&gt; is equivalent to setting the &lt;code&gt;GOGC&lt;/code&gt;&#xA;environment variable which also takes precedence over&#xA;the value from the config file.&lt;/p&gt;&#xA;&lt;p&gt;Increasing this value means fewer but longer GC cycles&#xA;since there is more garbage to collect.&lt;/p&gt;&#xA;&lt;p&gt;NOTE - the default for fabio up to 1.5.14 was 800.  This changed&#xA;to 100 in version 1.5.15&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;runtime.gogc = 100&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>runtime.gomaxprocs</title>
       <link>https://fabiolb.net/ref/runtime.gomaxprocs/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/runtime.gomaxprocs/</guid>
-      <description>runtime.gomaxprocs configures GOMAXPROCS.
-Setting runtime.gomaxprocs is equivalent to setting the GOMAXPROCS environment variable which also takes precedence over the value from the config file.
-If runtime.gomaxprocs &amp;lt; 0 then all CPU cores are used.
-The default is
-runtime.gomaxprocs = -1 </description>
+      <description>&lt;p&gt;&lt;code&gt;runtime.gomaxprocs&lt;/code&gt; configures GOMAXPROCS.&lt;/p&gt;&#xA;&lt;p&gt;Setting &lt;code&gt;runtime.gomaxprocs&lt;/code&gt; is equivalent to setting the &lt;code&gt;GOMAXPROCS&lt;/code&gt;&#xA;environment variable which also takes precedence over&#xA;the value from the config file.&lt;/p&gt;&#xA;&lt;p&gt;If &lt;code&gt;runtime.gomaxprocs&lt;/code&gt; &amp;lt; 0 then all CPU cores are used.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;runtime.gomaxprocs = -1&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>Server Sent Events (SSE)</title>
       <link>https://fabiolb.net/feature/sse/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/sse/</guid>
-      <description>fabio detects SSE connections if the Accept header is set to text/event-stream and enables automatic flushing of the response buffer to forward data to the client. The default is set to 1s and can be configured with the proxy.flushinterval parameter.</description>
+      <description>&lt;p&gt;fabio detects &lt;a href=&#34;http://www.w3.org/TR/eventsource/&#34;&gt;SSE&lt;/a&gt; connections if the&#xA;&lt;code&gt;Accept&lt;/code&gt; header is set to &lt;code&gt;text/event-stream&lt;/code&gt; and enables automatic flushing of&#xA;the response buffer to forward data to the client. The default is set to &lt;code&gt;1s&lt;/code&gt;&#xA;and can be configured with the &lt;code&gt;proxy.flushinterval&lt;/code&gt; parameter.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>TCP Dynamic Proxy</title>
       <link>https://fabiolb.net/feature/tcp-dynamic-proxy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/tcp-dynamic-proxy/</guid>
-      <description>The TCP dynamic proxy is similar to the TCP Proxy, but the listener is started from the Consul urlprefix tag. Also, the service is defined with IP and port, so that multiple services can be defined on the load balancer using the same TCP port. Connections are forwarded to services based on the combination of ip:port
-To use TCP Dynamic proxy support the service needs to advertise urlprefix-127.0.0.1:1234 proto=tcp in Consul.</description>
+      <description>&lt;p&gt;The TCP dynamic proxy is similar to the TCP Proxy, but the listener is started from the Consul urlprefix tag.&#xA;Also, the service is defined with IP and port, so that multiple services can be defined on the load balancer using&#xA;the same TCP port.  Connections are forwarded to services based on the combination of ip:port&lt;/p&gt;&#xA;&lt;p&gt;To use TCP Dynamic proxy support the service needs to advertise &lt;code&gt;urlprefix-127.0.0.1:1234 proto=tcp&lt;/code&gt; in&#xA;Consul. In addition, fabio needs to be configured with a placeholder for the proxy.addr.:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>TCP Proxy</title>
       <link>https://fabiolb.net/feature/tcp-proxy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/tcp-proxy/</guid>
-      <description>fabio can run a transparent TCP proxy which dynamically forwards an incoming connection on a given port to services which advertise that port. To use TCP proxy support the service needs to advertise urlprefix-:1234 proto=tcp in Consul. In addition, fabio needs to be configured to listen on that port:
-fabio -proxy.addr &amp;#39;:1234;proto=tcp&amp;#39; TCP proxy support can be combined with Certificate Stores to provide TLS termination on fabio.
-fabio -proxy.cs &amp;#39;cs=ssl;type=path;cert=/etc/ssl&amp;#39; -proxy.</description>
+      <description>&lt;p&gt;fabio can run a transparent TCP proxy which dynamically forwards an incoming&#xA;connection on a given port to services which advertise that port. To use TCP&#xA;proxy support the service needs to advertise &lt;code&gt;urlprefix-:1234 proto=tcp&lt;/code&gt; in&#xA;Consul. In addition, fabio needs to be configured to listen on that port:&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;fabio -proxy.addr &amp;#39;:1234;proto=tcp&amp;#39;&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;TCP proxy support can be combined with &lt;a href=&#34;https://fabiolb.net/feature/certificate-stores/&#34;&gt;Certificate Stores&lt;/a&gt; to provide TLS termination on fabio.&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;fabio -proxy.cs &amp;#39;cs=ssl;type=path;cert=/etc/ssl&amp;#39; -proxy.addr &amp;#39;:1234;proto=tcp;cs=ssl&amp;#39;&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>TCP-SNI Proxy</title>
       <link>https://fabiolb.net/feature/tcp-sni-proxy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/tcp-sni-proxy/</guid>
-      <description>fabio can run a transparent TCP proxy with SNI support which can forward any TLS connection without re-encrypting the traffic. fabio captures the ClientHello packet which is the first packet of the TLS handshake and extracts the server name from the SNI extension and uses it for finding the upstream server to forward the connection to. It then replays the ClientHello packet and then transparently forwards all traffic between client and server as a byte stream.</description>
+      <description>&lt;p&gt;fabio can run a transparent TCP proxy with SNI support which can forward any TLS connection&#xA;&lt;strong&gt;without re-encrypting the traffic&lt;/strong&gt;. fabio captures the &lt;code&gt;ClientHello&lt;/code&gt; packet which is the&#xA;first packet of the TLS handshake and extracts the server name from the SNI extension and&#xA;uses it for finding the upstream server to forward the connection to. It then replays the&#xA;&lt;code&gt;ClientHello&lt;/code&gt; packet and then transparently forwards all traffic between client and server&#xA;as a byte stream.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Test fabio with curl</title>
       <link>https://fabiolb.net/faq/request-debugging/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/faq/request-debugging/</guid>
-      <description>How do I send a request to fabio via curl? curl -v -H &amp;#39;Host: foo.com&amp;#39; &amp;#39;http://localhost:9999/path&amp;#39; The -x or --proxy options will most likely not work as you expect as they send the full URL instead of just the request URI which usually does not match any route but the default one - if configured.</description>
+      <description>&lt;h5 id=&#34;how-do-i-send-a-request-to-fabio-via-curl&#34;&gt;How do I send a request to fabio via &lt;code&gt;curl&lt;/code&gt;?&lt;/h5&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;curl -v -H &amp;#39;Host: foo.com&amp;#39; &amp;#39;http://localhost:9999/path&amp;#39;&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The &lt;code&gt;-x&lt;/code&gt; or &lt;code&gt;--proxy&lt;/code&gt; options will most likely not work as you expect as they&#xA;send the full URL instead of just the request URI which usually does not match&#xA;any route but the default one - if configured.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Traffic Shaping</title>
       <link>https://fabiolb.net/feature/traffic-shaping/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/traffic-shaping/</guid>
-      <description>fabio allows to control the amount of traffic a set of service instances will receive. You can use this feature to direct a fixed percentage of traffic to a newer version of an existing service for testing (&amp;ldquo;Canary testing&amp;rdquo;). See Manual Overrides for a complete description of the route weight command.
-The following command will allocate 5% of traffic to www.kjca.dev/auth/ to all instances of service-b which match tags version-15 and dc-fra.</description>
+      <description>&lt;p&gt;fabio allows to control the amount of traffic a set of service instances will&#xA;receive. You can use this feature to direct a fixed percentage of traffic to a&#xA;newer version of an existing service for testing (&amp;ldquo;Canary testing&amp;rdquo;). See&#xA;&lt;a href=&#34;./Routing#manual-overrides&#34;&gt;Manual Overrides&lt;/a&gt; for a complete description of the &lt;code&gt;route weight&lt;/code&gt; command.&lt;/p&gt;&#xA;&lt;p&gt;The following command will allocate 5% of traffic to &lt;code&gt;www.kjca.dev/auth/&lt;/code&gt; to&#xA;all instances of &lt;code&gt;service-b&lt;/code&gt; which match tags &lt;code&gt;version-15&lt;/code&gt; and &lt;code&gt;dc-fra&lt;/code&gt;. This&#xA;is independent of the number of actual instances running. The remaining 95%&#xA;of the traffic will be distributed evenly across the remaining instances&#xA;publishing the same prefix.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>ui.access</title>
       <link>https://fabiolb.net/ref/ui.access/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/ui.access/</guid>
-      <description>ui.access configures the access mode for the UI.
-ro: read-only access rw: read-write access The default is
-ui.access = rw </description>
+      <description>&lt;p&gt;&lt;code&gt;ui.access&lt;/code&gt; configures the access mode for the UI.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;ro&lt;/code&gt;:  read-only access&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;rw&lt;/code&gt;:  read-write access&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;ui.access = rw&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>ui.addr</title>
       <link>https://fabiolb.net/ref/ui.addr/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/ui.addr/</guid>
-      <description>ui.addr configures the address the UI is listening on.
-The listener uses the same syntax as proxy.addr but supports only a single listener.
-To enable HTTPS configure a certificate source. You should use a different certificate source than the one you use for the external connections, e.g. cs=ui.
-The default is
-ui.addr = :9998 </description>
+      <description>&lt;p&gt;&lt;code&gt;ui.addr&lt;/code&gt; configures the address the UI is listening on.&lt;/p&gt;&#xA;&lt;p&gt;The listener uses the same syntax as &lt;a href=&#34;https://fabiolb.net/ref/proxy.addr/&#34;&gt;proxy.addr&lt;/a&gt; but&#xA;supports only a single listener.&lt;/p&gt;&#xA;&lt;p&gt;To enable HTTPS configure a certificate source. You should use a different&#xA;certificate source than the one you use for the external connections, e.g.&#xA;&lt;code&gt;cs=ui&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;ui.addr = :9998&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>ui.color</title>
       <link>https://fabiolb.net/ref/ui.color/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/ui.color/</guid>
-      <description>ui.color configures the background color of the UI. Color names are from http://materializecss.com/color.html
-The default is
-ui.color = light-green </description>
+      <description>&lt;p&gt;&lt;code&gt;ui.color&lt;/code&gt; configures the background color of the UI.&#xA;Color names are from &lt;a href=&#34;http://materializecss.com/color.html&#34;&gt;http://materializecss.com/color.html&lt;/a&gt;&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;ui.color = light-green&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>ui.routingtable.source.host</title>
       <link>https://fabiolb.net/ref/ui.routingtable.source.host/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/ui.routingtable.source.host/</guid>
-      <description>ui.routingtable.source.host configures an optional host or base address for the link in the source column.
-This is only used when the source is not a separate server (does not begin with &amp;lsquo;/&amp;rsquo;, e.g. &amp;lsquo;dev.google.net&amp;rsquo;). If source is subdirectory it will set the link for the source to this host. If this is not set, and the source link is enabled, the link will default to current host.
-This is only applicable if the linkenabled is set to true.</description>
+      <description>&lt;p&gt;&lt;code&gt;ui.routingtable.source.host&lt;/code&gt; configures an optional host or base address for the link in the source column.&lt;/p&gt;&#xA;&lt;p&gt;This is only used when the source is not a separate server (does not begin with &amp;lsquo;/&amp;rsquo;, e.g. &amp;lsquo;dev.google.net&amp;rsquo;). If source is subdirectory it will set the link for the source to this host.&#xA;If this is not set, and the source link is enabled, the link will default to current host.&lt;/p&gt;&#xA;&lt;p&gt;This is only applicable if the &lt;a href=&#34;https://fabiolb.net/ref/ui.routingtable.source.linkenabled/&#34;&gt;linkenabled&lt;/a&gt; is set to true.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>ui.routingtable.source.linkenabled</title>
       <link>https://fabiolb.net/ref/ui.routingtable.source.linkenabled/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/ui.routingtable.source.linkenabled/</guid>
-      <description>ui.routingtable.source.linkenabled optionally configures if the routing table&amp;rsquo;s column &amp;ldquo;source&amp;rdquo; should be a clickable link.
-The default is
-ui.routingtable.source.linkenabled = false </description>
+      <description>&lt;p&gt;&lt;code&gt;ui.routingtable.source.linkenabled&lt;/code&gt; optionally configures if the routing table&amp;rsquo;s column &amp;ldquo;source&amp;rdquo; should be a clickable link.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;ui.routingtable.source.linkenabled = false&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>ui.routingtable.source.newtab</title>
       <link>https://fabiolb.net/ref/ui.routingtable.source.newtab/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/ui.routingtable.source.newtab/</guid>
-      <description>ui.routingtable.source.scheme configures the scheme protocol for the link of the source on the routing table. This is useful when the scheme is different than the current page or to force the traffic to a certain protocol.
-This is only applicable if the linkenabled is set to true.
-The default is
-ui.routingtable.source.scheme = http </description>
+      <description>&lt;p&gt;&lt;code&gt;ui.routingtable.source.scheme&lt;/code&gt; configures the scheme protocol for the link of the source on the routing table.  This is useful when the scheme is different than the current page&#xA;or to force the traffic to a certain protocol.&lt;/p&gt;&#xA;&lt;p&gt;This is only applicable if the &lt;a href=&#34;https://fabiolb.net/ref/ui.routingtable.source.linkenabled/&#34;&gt;linkenabled&lt;/a&gt; is set to true.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;ui.routingtable.source.scheme = http&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>ui.routingtable.source.port</title>
       <link>https://fabiolb.net/ref/ui.routingtable.source.port/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/ui.routingtable.source.port/</guid>
-      <description>ui.routingtable.source.port configures an optional port for the routing table source column link. This is used in conjunction with the scheme and host.
-If the source is not a separate server (does not begin with &amp;lsquo;/&amp;rsquo;, e.g. &amp;lsquo;dev.google.net&amp;rsquo;), and the host is set, this will use the port that is set, or default to the current scheme protocol port (80 for http or 443 for https).
-This is only applicable if the linkenabled is set to true.</description>
+      <description>&lt;p&gt;&lt;code&gt;ui.routingtable.source.port&lt;/code&gt; configures an optional port for the routing table source column link.  This is used in conjunction with the &lt;a href=&#34;https://fabiolb.net/ref/ui.routingtable.source.scheme/&#34;&gt;scheme&lt;/a&gt; and &lt;a href=&#34;https://fabiolb.net/ref/ui.routingtable.source.host/&#34;&gt;host&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;p&gt;If the source is not a separate server (does not begin with &amp;lsquo;/&amp;rsquo;, e.g. &amp;lsquo;dev.google.net&amp;rsquo;), and the &lt;a href=&#34;https://fabiolb.net/ref/ui.routingtable.source.host/&#34;&gt;host&lt;/a&gt; is set, this will use the port that is set, or default to the current scheme protocol port (80 for http or 443 for https).&lt;/p&gt;&#xA;&lt;p&gt;This is only applicable if the &lt;a href=&#34;https://fabiolb.net/ref/ui.routingtable.source.linkenabled/&#34;&gt;linkenabled&lt;/a&gt; is set to true.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>ui.routingtable.source.scheme</title>
       <link>https://fabiolb.net/ref/ui.routingtable.source.scheme/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/ui.routingtable.source.scheme/</guid>
-      <description>ui.routingtable.source.scheme configures the scheme protocol for the link of the source on the routing table. This is useful when the scheme is different than the current page or to force the traffic to a certain protocol.
-This is only applicable if the linkenabled is set to true.
-The default is
-ui.routingtable.source.scheme = http </description>
+      <description>&lt;p&gt;&lt;code&gt;ui.routingtable.source.scheme&lt;/code&gt; configures the scheme protocol for the link of the source on the routing table.  This is useful when the scheme is different than the current page or to force the traffic to a certain protocol.&lt;/p&gt;&#xA;&lt;p&gt;This is only applicable if the &lt;a href=&#34;https://fabiolb.net/ref/ui.routingtable.source.linkenabled/&#34;&gt;linkenabled&lt;/a&gt; is set to true.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;ui.routingtable.source.scheme = http&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>ui.title</title>
       <link>https://fabiolb.net/ref/ui.title/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/ref/ui.title/</guid>
-      <description>ui.title configures an optional title for the UI.
-The default is
-ui.title = </description>
+      <description>&lt;p&gt;&lt;code&gt;ui.title&lt;/code&gt; configures an optional title for the UI.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;ui.title =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>Vault Support</title>
       <link>https://fabiolb.net/feature/vault/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/vault/</guid>
-      <description>fabio can use Vault as a secure key/value store to store certificates.
-As of 1.5.3 fabio can use the PKI support of Vault to generate TLS certificates on demand. See fabio.properties for details.</description>
+      <description>&lt;p&gt;fabio can use &lt;a href=&#34;https://vaultproject.io&#34;&gt;Vault&lt;/a&gt; as a secure key/value store to store certificates.&lt;/p&gt;&#xA;&lt;p&gt;As of 1.5.3 fabio can use the PKI support of Vault to generate TLS certificates on demand.&#xA;See &lt;a href=&#34;https://github.com/fabiolb/fabio/blob/master/fabio.properties&#34;&gt;fabio.properties&lt;/a&gt; for details.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Verifying Releases</title>
       <link>https://fabiolb.net/faq/verifying-releases/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/faq/verifying-releases/</guid>
-      <description>fabio releases can be verified by comparing the SHA256 checksum and by verifying the checksums with a GPG key.
-You can verify the SHA256 checksums with the GPG key below. You can also download it from most key servers using the ID
-For fabio release 5.14 and newer:
-76462AB9B0C185ABC66FD98F59861FC4870361CA
------BEGIN PGP PUBLIC KEY BLOCK----- mQINBF40mfQBEADHOlocoiOY66SLZtzJjCNKFeerYH2zHNU3sLK+sHp/76MUrPV4 uDG3T6a6QK0HUKLy/hxKh/wftNCOaSYTwNVbYJ1EYBnBEgxuKNM8K5xOCKjwWrXF J80xoXBJXXmJvOFHEoWjUnDAMVUJyf3bt0sT0vOA5OTdbd2LhimDOpeIiO/umZKp 0ZsDcjUPUuIenqnKyk4UwAfXdWxrj2g5/But1n3nasvgtEtQg9CaSloh6Zgzcy+3 I+jpCn2FLOay+THABkM+XmjSYudkIFlqsZwkB2GxwTaRXENt8QUK7i4GWVCcPN6x gYgIz9uLZQXkkxGZvasC5fUm/W6F0pyz1wUbbizhDuBhoez3XdJdhW8nWCT6rg5M ejgkSVoG/fqoG9SoFXeTlQjZJSc8+0pTgWsqnuwmM+eFllvORSKS7uwBNg7jvFPv 4yLGCR5bGxTX7VM4XPkLR2pUF/nHmSohiGOWpqw+PRVwOWBBMi+r4c4SckR4MMOB NK+KJTQnildsnqw/mvf98Op4GrAtD4MQDFRKD2TSIq60qFTe6MF77P50Z33r6x5x CPN7XYTzZKPPiHf5uWtyOvH3V+vxHX2N0zAsRADXW+Jsly/Wwt0k8Km3beaF/Jvw AFQwneh50L5Pv+Tb+8b6xS8gvIeGPgs4lcxRDxFEcFKN58OjtDelN212cQARAQAB tCVhZG1pbkBmYWJpb2xiLm5ldCA8YWRtaW5AZmFiaW9sYi5uZXQ+iQJUBBMBCgA+ FiEEdkYqubDBhavGb9mPWYYfxIcDYcoFAl40mfQCGwMFCQk/xgAFCwkIBwMFFQoJ CAsFFgIDAQACHgECF4AACgkQWYYfxIcDYcqCgQ/8CfH2EBmBlHB7jlI4nFu17fqV WTXxhuo2UcTCQ3G8at32V27FZTFq64rtY7/QmY3HyHhdn77NXzIlLDsaD07IEBpw GFf05V1vVm/Y+DB/3vmHr+bEP5bB4RZqYz+U1cSGTEg2S3sOuz416gJdoCFN8Lin 1fHRuGfZTJ2j2oQhUsYbt+GBpPm7xtpqK4yfCd4gT2vhDzbDG9QSLMrrLh/aA6Ya IcZZCsXpnRPhfvPrp0LuIY9Lml+EaMfNxsoXYl2W5c+BpXG93ThSLKPc8XM/7e4A CkRWNLKihVZNDmGCIy2FIFIV9YlEIhAAtZPhsUE3rnrIUgHETPYwDvAJB4pbJrLe bwnRuWZlYNsPZp8W4RxbQVcHpsg+sWoyAkykWxs9FbxgXEGd0+wP5tumFquyfijg eQLnsFU7KlQA+5Rh6ulrvzMNHFBYLoPa+U1soR6Jg0hCPhkzc+6tzTrmUCg7H7+i 49szuN2KZr6k5GR+f2p9mOlnHmjJSJVULtnBQJMfTEnqzszvw9OgO1j72x7hTVRO UQSV6NXr0GFr293iTJS1x2/zFETCZelxVwbyp0t/psDz8nv6aXMcSjzcoWgmRRcP zpfNidLLp3Ym9XKtz7kvPI/PRTsHoO+qw6H6Kw8jMxxIv5hApCI/YOt5GFBlXmZq hBckyt1rS0kW5zQsStS5Ag0EXjSZ9AEQAMrim1LXqnqdMJlc6sj++TZgoLeYmtSI 4n/J1AGk9/BIumJKgCL5TPvUhz7HUWjhOqhtH/1/EyxPTI25Up7QcQKb0TYG/6Gn 3mIeBsvTdPZWmwq0e7aCrTSU8bYNnuMKAFxlPPG/lu7v1QQkaPgbEMOZI7cDA7V8 TLs/uQcAjGPdu2f2mJ/m+kgjeOwud+43CF4aI2/eVd39DqjjDrRImUc3OXypE4vW PRq2ooSnS7VE0yU3QBubdPB8Y7x7R5bDE9fgLjZ9t//bSLgZfVzZoc7TvycH9opk zr1LD4XEdZYFWc1h7++ci+f75/QQppPto3ItK61oUnpyO5J0Bl/Ay7086xU8b5Be mPFDVMUE8SW2a+baaDKwbYUvImSI2CwNkCuYieGuAueMkY+Coe7AdaDhtuzINkby e9ALGGbpRi/ByURQoW9akQt+ap7I8/bdp+IFYWT8K1HFogd5y0+TYaatpnT9jJYM 64GtnDhyD2ncyLNM1a7YOn4e+WWiK8datzn962VsaSXjAPKvVROkgLoedDU9oiDm ITDZgcsyY6ATgYmzlN2Qm8ubig1adZdGWsWzv0d9Qj8AEzsPqRVrQ6Ofc/sNi5Y3 ELSOpWUOetbKEBFYe3oA2Bu6LOqd3lcKittWke3RMkehKFqxFdmBwjcrCtIjLicv IemWK6rAAYmJABEBAAGJAjwEGAEKACYWIQR2Riq5sMGFq8Zv2Y9Zhh/EhwNhygUC XjSZ9AIbDAUJCT/GAAAKCRBZhh/EhwNhyrzoEACe9SVpr6TaFvIcfcvj9d4FOmiK Tgm64SEnYDDs6JhzD3p38Ut80d6y2vg9WUMUA3dhftbAyr/rqkZghiV3UhWJGPJm AGWVG3p5TpSPCloFUlHHMWXCJm4UAoo75ud15PYD8CtUfOYc68A7a+9f+1dC5gRy rVjBltWshsai+CjksRlg64wGMvJL7ghcsGoxFOzU/khGvo5JZ3OzObscYLxBKPnY sUPerHnKB63CYxNfkd2aziapE7zXqoN1ZAFKwsBp38CiuBIT+8bb6+vAy9azfW/J mGqjn4vfBUpdTsPbRRRI3CAoUN8R5QqVCCzV6hcv2p921ZWNpO0QxaHJYq0W3mwH ls5eJOWJwx3qZ8ZB84fnuUb1YhzNjOSJDjgE8ZJ1iHf+ZTpqNRNbsyshfPcI5FYR /PKPXTGNTeTFAXiQ/UjxFK/UEVWs3mDfqtyvC+Z5s7jCGabPwoOvWeHGMHUWWZRv NU+TL+pUMWY29wKsDsk7zriokCDApNnJJb52/tIzk/XHMLPBjGSoYinKYMALYbAp 6UvSeJ6cJ/+5vwXJadMyiYrsPPQiuVCUfVg6KcX6B/+2MaKoyY3s8DaZ1vFdtZcg 1tjLI383GOEuDGfUDOgrlTikgpxbT2q4Zq80aQhPD8mMlpqdTO4UWfvwwx0FPH04 5xVKlvTztaHhtaWHkg== =b3Un -----END PGP PUBLIC KEY BLOCK----- For release 5.</description>
+      <description>&lt;p&gt;fabio releases can be verified by comparing the SHA256 checksum&#xA;and by verifying the checksums with a GPG key.&lt;/p&gt;&#xA;&lt;p&gt;You can verify the SHA256 checksums with the GPG key below.&#xA;You can also download it from most key servers using the ID&lt;/p&gt;&#xA;&lt;p&gt;For fabio release 5.14 and newer:&lt;/p&gt;&#xA;&lt;p&gt;&lt;a href=&#34;https://keyserver.ubuntu.com/pks/lookup?search=76462AB9B0C185ABC66FD98F59861FC4870361CA&amp;amp;fingerprint=on&amp;amp;op=index&#34;&gt;&lt;code&gt;76462AB9B0C185ABC66FD98F59861FC4870361CA&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;-----BEGIN PGP PUBLIC KEY BLOCK-----&#xA;&#xA;mQINBF40mfQBEADHOlocoiOY66SLZtzJjCNKFeerYH2zHNU3sLK+sHp/76MUrPV4&#xA;uDG3T6a6QK0HUKLy/hxKh/wftNCOaSYTwNVbYJ1EYBnBEgxuKNM8K5xOCKjwWrXF&#xA;J80xoXBJXXmJvOFHEoWjUnDAMVUJyf3bt0sT0vOA5OTdbd2LhimDOpeIiO/umZKp&#xA;0ZsDcjUPUuIenqnKyk4UwAfXdWxrj2g5/But1n3nasvgtEtQg9CaSloh6Zgzcy+3&#xA;I+jpCn2FLOay+THABkM+XmjSYudkIFlqsZwkB2GxwTaRXENt8QUK7i4GWVCcPN6x&#xA;gYgIz9uLZQXkkxGZvasC5fUm/W6F0pyz1wUbbizhDuBhoez3XdJdhW8nWCT6rg5M&#xA;ejgkSVoG/fqoG9SoFXeTlQjZJSc8+0pTgWsqnuwmM+eFllvORSKS7uwBNg7jvFPv&#xA;4yLGCR5bGxTX7VM4XPkLR2pUF/nHmSohiGOWpqw+PRVwOWBBMi+r4c4SckR4MMOB&#xA;NK+KJTQnildsnqw/mvf98Op4GrAtD4MQDFRKD2TSIq60qFTe6MF77P50Z33r6x5x&#xA;CPN7XYTzZKPPiHf5uWtyOvH3V+vxHX2N0zAsRADXW+Jsly/Wwt0k8Km3beaF/Jvw&#xA;AFQwneh50L5Pv+Tb+8b6xS8gvIeGPgs4lcxRDxFEcFKN58OjtDelN212cQARAQAB&#xA;tCVhZG1pbkBmYWJpb2xiLm5ldCA8YWRtaW5AZmFiaW9sYi5uZXQ+iQJUBBMBCgA+&#xA;FiEEdkYqubDBhavGb9mPWYYfxIcDYcoFAl40mfQCGwMFCQk/xgAFCwkIBwMFFQoJ&#xA;CAsFFgIDAQACHgECF4AACgkQWYYfxIcDYcqCgQ/8CfH2EBmBlHB7jlI4nFu17fqV&#xA;WTXxhuo2UcTCQ3G8at32V27FZTFq64rtY7/QmY3HyHhdn77NXzIlLDsaD07IEBpw&#xA;GFf05V1vVm/Y+DB/3vmHr+bEP5bB4RZqYz+U1cSGTEg2S3sOuz416gJdoCFN8Lin&#xA;1fHRuGfZTJ2j2oQhUsYbt+GBpPm7xtpqK4yfCd4gT2vhDzbDG9QSLMrrLh/aA6Ya&#xA;IcZZCsXpnRPhfvPrp0LuIY9Lml+EaMfNxsoXYl2W5c+BpXG93ThSLKPc8XM/7e4A&#xA;CkRWNLKihVZNDmGCIy2FIFIV9YlEIhAAtZPhsUE3rnrIUgHETPYwDvAJB4pbJrLe&#xA;bwnRuWZlYNsPZp8W4RxbQVcHpsg+sWoyAkykWxs9FbxgXEGd0+wP5tumFquyfijg&#xA;eQLnsFU7KlQA+5Rh6ulrvzMNHFBYLoPa+U1soR6Jg0hCPhkzc+6tzTrmUCg7H7+i&#xA;49szuN2KZr6k5GR+f2p9mOlnHmjJSJVULtnBQJMfTEnqzszvw9OgO1j72x7hTVRO&#xA;UQSV6NXr0GFr293iTJS1x2/zFETCZelxVwbyp0t/psDz8nv6aXMcSjzcoWgmRRcP&#xA;zpfNidLLp3Ym9XKtz7kvPI/PRTsHoO+qw6H6Kw8jMxxIv5hApCI/YOt5GFBlXmZq&#xA;hBckyt1rS0kW5zQsStS5Ag0EXjSZ9AEQAMrim1LXqnqdMJlc6sj++TZgoLeYmtSI&#xA;4n/J1AGk9/BIumJKgCL5TPvUhz7HUWjhOqhtH/1/EyxPTI25Up7QcQKb0TYG/6Gn&#xA;3mIeBsvTdPZWmwq0e7aCrTSU8bYNnuMKAFxlPPG/lu7v1QQkaPgbEMOZI7cDA7V8&#xA;TLs/uQcAjGPdu2f2mJ/m+kgjeOwud+43CF4aI2/eVd39DqjjDrRImUc3OXypE4vW&#xA;PRq2ooSnS7VE0yU3QBubdPB8Y7x7R5bDE9fgLjZ9t//bSLgZfVzZoc7TvycH9opk&#xA;zr1LD4XEdZYFWc1h7++ci+f75/QQppPto3ItK61oUnpyO5J0Bl/Ay7086xU8b5Be&#xA;mPFDVMUE8SW2a+baaDKwbYUvImSI2CwNkCuYieGuAueMkY+Coe7AdaDhtuzINkby&#xA;e9ALGGbpRi/ByURQoW9akQt+ap7I8/bdp+IFYWT8K1HFogd5y0+TYaatpnT9jJYM&#xA;64GtnDhyD2ncyLNM1a7YOn4e+WWiK8datzn962VsaSXjAPKvVROkgLoedDU9oiDm&#xA;ITDZgcsyY6ATgYmzlN2Qm8ubig1adZdGWsWzv0d9Qj8AEzsPqRVrQ6Ofc/sNi5Y3&#xA;ELSOpWUOetbKEBFYe3oA2Bu6LOqd3lcKittWke3RMkehKFqxFdmBwjcrCtIjLicv&#xA;IemWK6rAAYmJABEBAAGJAjwEGAEKACYWIQR2Riq5sMGFq8Zv2Y9Zhh/EhwNhygUC&#xA;XjSZ9AIbDAUJCT/GAAAKCRBZhh/EhwNhyrzoEACe9SVpr6TaFvIcfcvj9d4FOmiK&#xA;Tgm64SEnYDDs6JhzD3p38Ut80d6y2vg9WUMUA3dhftbAyr/rqkZghiV3UhWJGPJm&#xA;AGWVG3p5TpSPCloFUlHHMWXCJm4UAoo75ud15PYD8CtUfOYc68A7a+9f+1dC5gRy&#xA;rVjBltWshsai+CjksRlg64wGMvJL7ghcsGoxFOzU/khGvo5JZ3OzObscYLxBKPnY&#xA;sUPerHnKB63CYxNfkd2aziapE7zXqoN1ZAFKwsBp38CiuBIT+8bb6+vAy9azfW/J&#xA;mGqjn4vfBUpdTsPbRRRI3CAoUN8R5QqVCCzV6hcv2p921ZWNpO0QxaHJYq0W3mwH&#xA;ls5eJOWJwx3qZ8ZB84fnuUb1YhzNjOSJDjgE8ZJ1iHf+ZTpqNRNbsyshfPcI5FYR&#xA;/PKPXTGNTeTFAXiQ/UjxFK/UEVWs3mDfqtyvC+Z5s7jCGabPwoOvWeHGMHUWWZRv&#xA;NU+TL+pUMWY29wKsDsk7zriokCDApNnJJb52/tIzk/XHMLPBjGSoYinKYMALYbAp&#xA;6UvSeJ6cJ/+5vwXJadMyiYrsPPQiuVCUfVg6KcX6B/+2MaKoyY3s8DaZ1vFdtZcg&#xA;1tjLI383GOEuDGfUDOgrlTikgpxbT2q4Zq80aQhPD8mMlpqdTO4UWfvwwx0FPH04&#xA;5xVKlvTztaHhtaWHkg==&#xA;=b3Un&#xA;-----END PGP PUBLIC KEY BLOCK-----&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;For release 5.13 and older:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Web UI</title>
       <link>https://fabiolb.net/feature/web-ui/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/web-ui/</guid>
-      <description>fabio supports a Web UI to examine the current routing table and manage the manual overrides. By default it listens on http://0.0.0.0:9998/ which can be changed with the ui.addr option. The ui.title and ui.color options allow customization of the title and the color of the header bar.</description>
+      <description>&lt;p&gt;fabio supports a Web UI to examine the current routing table and manage the&#xA;manual overrides. By default it listens on &lt;code&gt;http://0.0.0.0:9998/&lt;/code&gt; which can be&#xA;changed with the &lt;code&gt;ui.addr&lt;/code&gt; option. The &lt;code&gt;ui.title&lt;/code&gt; and &lt;code&gt;ui.color&lt;/code&gt; options allow&#xA;customization of the title and the color of the header bar.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Websockets</title>
       <link>https://fabiolb.net/feature/websockets/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/websockets/</guid>
-      <description>fabio transparently supports Websocket connections by detecting the Upgrade: websocket header in the incoming HTTP(S) request.
-Websocket support has been implemented with the websocket library from golang.org/x/net/websocket.
-You can test the websocket support with the demo/wsclient and demo/server which implements a simple echo server.
-./server -addr 127.0.0.1:5000 -name ws-a -prefix /echo -proto ws ./wsclient -url ws://127.0.0.1:9999/echo You can also run multiple web socket servers on different ports but the same endpoint.</description>
+      <description>&lt;p&gt;fabio transparently supports Websocket connections by detecting the &lt;code&gt;Upgrade: websocket&lt;/code&gt; header in the incoming HTTP(S) request.&lt;/p&gt;&#xA;&lt;p&gt;Websocket support has been implemented with the websocket library from&#xA;&lt;a href=&#34;http://golang.org/x/net/websocket&#34;&gt;golang.org/x/net/websocket&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;p&gt;You can test the websocket support with the &lt;code&gt;demo/wsclient&lt;/code&gt; and &lt;code&gt;demo/server&lt;/code&gt; which&#xA;implements a simple echo server.&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;./server -addr 127.0.0.1:5000 -name ws-a -prefix /echo -proto ws&#xA;./wsclient -url ws://127.0.0.1:9999/echo&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;You can also run multiple web socket servers on different ports but the same endpoint.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Why &#39;Fabio&#39;?</title>
       <link>https://fabiolb.net/faq/why-fabio/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/faq/why-fabio/</guid>
-      <description>When I was writing fabio my son was watching &amp;ldquo;Finding Nemo&amp;rdquo; almost every day and Dory keeps getting Nemos&amp;rsquo; name wrong.
-One of the names she called him was &amp;ldquo;Fabio&amp;rdquo;. Hence the name.
-So no, this isn&amp;rsquo;t about the first male super-model &amp;hellip;</description>
+      <description>&lt;p&gt;When I was writing fabio my son was watching &amp;ldquo;Finding Nemo&amp;rdquo; almost every day and Dory keeps getting Nemos&amp;rsquo; name wrong.&lt;/p&gt;&#xA;&lt;p&gt;One of the names she called him was &amp;ldquo;Fabio&amp;rdquo;. Hence the name.&lt;/p&gt;&#xA;&lt;p&gt;So no, this isn&amp;rsquo;t about the first male super-model &amp;hellip;&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

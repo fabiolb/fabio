@@ -4,276 +4,190 @@
     <title>Features on fabio - The Consul Load-Balancer</title>
     <link>https://fabiolb.net/feature/</link>
     <description>Recent content in Features on fabio - The Consul Load-Balancer</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://fabiolb.net/feature/index.xml" rel="self" type="application/rss+xml" />
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://fabiolb.net/feature/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Access Control</title>
       <link>https://fabiolb.net/feature/access-control/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/access-control/</guid>
-      <description>&lt;p&gt;fabio supports basic ip centric access control per route.  You may
-specify one of &lt;code&gt;allow&lt;/code&gt; or &lt;code&gt;deny&lt;/code&gt; options per route to control access.
-Currently only source ip control is available.&lt;/p&gt;</description>
+      <description>&lt;p&gt;fabio supports basic ip centric access control per route.  You may&#xA;specify one of &lt;code&gt;allow&lt;/code&gt; or &lt;code&gt;deny&lt;/code&gt; options per route to control access.&#xA;Currently only source ip control is available.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Access Logging</title>
       <link>https://fabiolb.net/feature/access-logging/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/access-logging/</guid>
-      <description>&lt;p&gt;Support for writing access logs for HTTP requests
-in the &lt;a href=&#34;https://en.wikipedia.org/wiki/Common_Log_Format&#34;&gt;Common Log Format&lt;/a&gt;
-or the &lt;a href=&#34;https://httpd.apache.org/docs/1.3/logs.html#combined&#34;&gt;Combined Log Format&lt;/a&gt;
-or a custom format to stdout.&lt;/p&gt;</description>
+      <description>&lt;p&gt;Support for writing access logs for HTTP requests&#xA;in the &lt;a href=&#34;https://en.wikipedia.org/wiki/Common_Log_Format&#34;&gt;Common Log Format&lt;/a&gt;&#xA;or the &lt;a href=&#34;https://httpd.apache.org/docs/1.3/logs.html#combined&#34;&gt;Combined Log Format&lt;/a&gt;&#xA;or a custom format to stdout.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Authorization</title>
       <link>https://fabiolb.net/feature/authorization/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/authorization/</guid>
       <description>&lt;p&gt;fabio supports basic http authorization on a per-route basis.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>BGP</title>
       <link>https://fabiolb.net/feature/bgp/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/bgp/</guid>
-      <description>NOTE: This feature does not work on Windows at present since the gobgp project does not support windows.
-This feature integrates the functionality of gobgpd with fabio. This is particularly useful in the scenario where we are using anycast IP addresses and want to dynamically advertise to upstream routers when we&amp;rsquo;re ready to receive traffic. In the past, we&amp;rsquo;ve used external router packages such as quagga or frr to handle this for us, but it&amp;rsquo;s potentially messy to make sure that the route advertisement stops if fabio goes down, and the bgp daemon is started back up once fabio is running again.</description>
+      <description>&lt;p&gt;NOTE: This feature does not work on Windows at present since the gobgp project&#xA;does not support windows.&lt;/p&gt;&#xA;&lt;p&gt;This feature integrates the functionality of &lt;a href=&#34;https://github.com/osrg/gobgp&#34;&gt;gobgpd&lt;/a&gt;&#xA;with fabio.  This is particularly useful in the scenario where we are using&#xA;anycast IP addresses and want to dynamically advertise to upstream routers&#xA;when we&amp;rsquo;re ready to receive traffic.  In the past, we&amp;rsquo;ve used external router&#xA;packages such as quagga or frr to handle this for us, but it&amp;rsquo;s potentially&#xA;messy to make sure that the route advertisement stops if fabio goes down,&#xA;and the bgp daemon is started back up once fabio is running again.&#xA;By integrating the bgp advertisement with the proxy server, we&amp;rsquo;ve made&#xA;sure that when fabio goes down, the route is no longer advertised and&#xA;traffic can be sent to other fabio instances accordingly.  When fabio is back up,&#xA;the route is advertised again.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Certificate Stores</title>
       <link>https://fabiolb.net/feature/certificate-stores/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/certificate-stores/</guid>
-      <description>&lt;p&gt;Support for dynamic certificate stores which allow you to store certificates in
-a central place and update them at runtime or generate them on the fly without
-restart. You can store certificates in files, directories, on HTTP
-servers in &lt;a href=&#34;https://consul.io/&#34;&gt;Consul&lt;/a&gt; or in
-&lt;a href=&#34;https://vaultproject.io/&#34;&gt;Vault&lt;/a&gt;.
-You can use &lt;a href=&#34;https://vaultproject.io/&#34;&gt;Vault&lt;/a&gt; to generate certificates on the fly.&lt;/p&gt;</description>
+      <description>&lt;p&gt;Support for dynamic certificate stores which allow you to store certificates in&#xA;a central place and update them at runtime or generate them on the fly without&#xA;restart. You can store certificates in files, directories, on HTTP&#xA;servers in &lt;a href=&#34;https://consul.io/&#34;&gt;Consul&lt;/a&gt; or in&#xA;&lt;a href=&#34;https://vaultproject.io/&#34;&gt;Vault&lt;/a&gt;.&#xA;You can use &lt;a href=&#34;https://vaultproject.io/&#34;&gt;Vault&lt;/a&gt; to generate certificates on the fly.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Docker Support</title>
       <link>https://fabiolb.net/feature/docker/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/docker/</guid>
-      <description>To run fabio within Docker use the official Docker image fabiolb/fabio and mount your own config file to /etc/fabio/fabio.properties
-docker run -d -p 9999:9999 -p 9998:9998 -v $PWD/fabio/fabio.properties:/etc/fabio/fabio.properties fabiolb/fabio If you want to run the Docker image with one or more SSL certificates then you can store your configuration and certificates in /etc/fabio and mount the entire directory, e.g.
-$ cat ~/fabio/fabio.properties proxy.addr=:443;/etc/fabio/ssl/mycert.pem;/etc/fabio/ssl/mykey.pem docker run -d -p 443:443 -p 9998:9998 -v $PWD/fabio:/etc/fabio fabiolb/fabio The official Docker image contains the root CA certificates from a recent and updated Ubuntu 12.</description>
+      <description>&lt;p&gt;To run fabio within Docker use the official Docker image &lt;code&gt;fabiolb/fabio&lt;/code&gt; and&#xA;mount your own config file to &lt;code&gt;/etc/fabio/fabio.properties&lt;/code&gt;&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;docker run -d -p 9999:9999 -p 9998:9998 -v $PWD/fabio/fabio.properties:/etc/fabio/fabio.properties fabiolb/fabio&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;If you want to run the Docker image with one or more SSL certificates then&#xA;you can store your configuration and certificates in &lt;code&gt;/etc/fabio&lt;/code&gt; and mount&#xA;the entire directory, e.g.&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;$ cat ~/fabio/fabio.properties&#xA;proxy.addr=:443;/etc/fabio/ssl/mycert.pem;/etc/fabio/ssl/mykey.pem&#xA;&#xA;docker run -d -p 443:443 -p 9998:9998 -v $PWD/fabio:/etc/fabio fabiolb/fabio&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;The official Docker image contains the root CA certificates from a recent and updated&#xA;Ubuntu 12.04.5 LTS installation.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Dynamic Reloading</title>
       <link>https://fabiolb.net/feature/dynamic-reloading/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/dynamic-reloading/</guid>
-      <description>fabio builds the routing table from the Consul service registrations, health check status and the user provided route commands stored in the Consul KV store. This is the core feature of fabio - the reason it exists.
-The cluster wide state is stored in the Consul Raft log which provides a consistent view of the available and healthy services in the cluster.
-When the Raft log changes fabio is notified and downloads the list of healthy services and the user defined routes from the KV store and re-builds the routing table.</description>
+      <description>&lt;p&gt;fabio builds the routing table from the Consul service registrations, health&#xA;check status and the user provided &lt;code&gt;route&lt;/code&gt; commands stored in the Consul KV&#xA;store. This is &lt;strong&gt;the&lt;/strong&gt; core feature of fabio - the reason it exists.&lt;/p&gt;&#xA;&lt;p&gt;The cluster wide state is stored in the Consul Raft log which provides a&#xA;consistent view of the available and healthy services in the cluster.&lt;/p&gt;&#xA;&lt;p&gt;When the Raft log changes fabio is notified and downloads the list of&#xA;healthy services and the user defined routes from the KV store and re-builds&#xA;the routing table.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Graceful Shutdown</title>
       <link>https://fabiolb.net/feature/graceful-shutdown/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/graceful-shutdown/</guid>
-      <description>fabio supports a graceful shutdown timeout during which new requests will receive a 503 Service Unavailable response while the active requests can complete. See the proxy.shutdownwait option in the fabio.properties file.</description>
+      <description>&lt;p&gt;fabio supports a graceful shutdown timeout during which new requests will&#xA;receive a &lt;code&gt;503 Service Unavailable&lt;/code&gt; response while the active requests can&#xA;complete. See the &lt;code&gt;proxy.shutdownwait&lt;/code&gt; option in the&#xA;&lt;a href=&#34;https://github.com/eBay/fabio/blob/master/fabio.properties&#34;&gt;fabio.properties&lt;/a&gt;&#xA;file.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>GRPC Proxy</title>
       <link>https://fabiolb.net/feature/grpc-proxy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/grpc-proxy/</guid>
-      <description>fabio can run a transparent GRPC proxy which dynamically forwards an incoming RPC on a given port to services which advertise rpc service or method. To use GRPC proxy support the service needs to advertise urlprefix-/my.service/Method proto=grpc in Consul. In addition, fabio needs to be configured with a grpc listener:
-fabio -proxy.addr &amp;#39;:1234;proto=grpc&amp;#39; As per the HTTP/2 spec, the host header is not required, so host matching is not supported for GRPC proxying.</description>
+      <description>&lt;p&gt;fabio can run a transparent GRPC proxy which dynamically forwards an incoming&#xA;RPC on a given port to services which advertise rpc service or method. To use GRPC&#xA;proxy support the service needs to advertise &lt;code&gt;urlprefix-/my.service/Method proto=grpc&lt;/code&gt; in&#xA;Consul. In addition, fabio needs to be configured with a grpc listener:&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;fabio -proxy.addr &amp;#39;:1234;proto=grpc&amp;#39;&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As per the HTTP/2 spec, the host header is not required, so host matching is not supported for GRPC proxying.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>HTTP Compression</title>
       <link>https://fabiolb.net/feature/http-compression/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/http-compression/</guid>
-      <description>Enable dynamic compression of responses when the client sets the Accept-Encoding: gzip header and the name of the requested file matches a regular expression.
-To configure which files should be compressed on the fly set configure a regular expression in the proxy.gzip.contenttype property
-# proxy.gzip.contenttype configures which responses should be compressed. # # By default, responses sent to the client are not compressed even if the # client accepts compressed responses by setting the &amp;#39;Accept-Encoding: gzip&amp;#39; # header.</description>
+      <description>&lt;p&gt;Enable dynamic compression of responses when the client sets the&#xA;&lt;code&gt;Accept-Encoding: gzip&lt;/code&gt; header and the name of the requested file matches&#xA;a regular expression.&lt;/p&gt;&#xA;&lt;p&gt;To configure which files should be compressed on the fly set configure&#xA;a regular expression in the &lt;code&gt;proxy.gzip.contenttype&lt;/code&gt; property&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;# proxy.gzip.contenttype configures which responses should be compressed.&#xA;#&#xA;# By default, responses sent to the client are not compressed even if the&#xA;# client accepts compressed responses by setting the &amp;#39;Accept-Encoding: gzip&amp;#39;&#xA;# header. By setting this value responses are compressed if the Content-Type&#xA;# header of the response matches and the response is not already compressed.&#xA;# The list of compressable content types is defined as a regular expression.&#xA;# The regular expression must follow the rules outlined in golang.org/pkg/regexp.&#xA;#&#xA;# A typical example is&#xA;#&#xA;# proxy.gzip.contenttype = ^(text/.*|application/(javascript|json|font-woff|xml)|.*\+(json|xml))(;.*)?$&#xA;#&#xA;# The default is&#xA;#&#xA;# proxy.gzip.contenttype =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>HTTP Header Support</title>
       <link>https://fabiolb.net/feature/http-headers/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/http-headers/</guid>
-      <description>In addition, to injecting the Forwarded and X-Real-Ip headers the X-Forwarded-For, X-Forwarded-Port and X-Forwarded-Proto headers are added to HTTP(S) and Websocket requests. Custom headers for the ip address and protocol can be configured with the proxy.header.clientip, proxy.header.tls and proxy.header.tls.value options.
-Since version 1.5.3 fabio also sets the X-Forwarded-Host header.</description>
+      <description>&lt;p&gt;In addition, to injecting the &lt;code&gt;Forwarded&lt;/code&gt; and &lt;code&gt;X-Real-Ip&lt;/code&gt; headers the&#xA;&lt;code&gt;X-Forwarded-For&lt;/code&gt;, &lt;code&gt;X-Forwarded-Port&lt;/code&gt; and &lt;code&gt;X-Forwarded-Proto&lt;/code&gt; headers are added&#xA;to HTTP(S) and Websocket requests. Custom headers for the ip address and&#xA;protocol can be configured with the &lt;code&gt;proxy.header.clientip&lt;/code&gt;, &lt;code&gt;proxy.header.tls&lt;/code&gt;&#xA;and &lt;code&gt;proxy.header.tls.value&lt;/code&gt; options.&lt;/p&gt;&#xA;&lt;p&gt;Since version 1.5.3 fabio also sets the &lt;code&gt;X-Forwarded-Host&lt;/code&gt; header.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>HTTP Path Prepending</title>
       <link>https://fabiolb.net/feature/http-path-prepending/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/http-path-prepending/</guid>
-      <description>fabio supports prepending a path to the incoming request. If you want to forward http://host/bar as http://host/foo/bar you can add a prepend=/foo option to the route options as urlprefix-/bar prepend=/foo.
-Path prepending is done after path stripping. If you want to forward http://host/foo/bar as http://host/baz/bar you can add prepend=/baz and strip=/foo options to the route options as urlprefix-/bar prepend=/baz strip=/foo.</description>
+      <description>&lt;p&gt;fabio supports prepending a path to the incoming request. If you want to&#xA;forward &lt;code&gt;http://host/bar&lt;/code&gt; as &lt;code&gt;http://host/foo/bar&lt;/code&gt; you can add a &lt;code&gt;prepend=/foo&lt;/code&gt;&#xA;option to the route options as &lt;code&gt;urlprefix-/bar prepend=/foo&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;Path prepending is done after path stripping. If you want to&#xA;forward &lt;code&gt;http://host/foo/bar&lt;/code&gt; as &lt;code&gt;http://host/baz/bar&lt;/code&gt; you can add&#xA;&lt;code&gt;prepend=/baz&lt;/code&gt; and &lt;code&gt;strip=/foo&lt;/code&gt; options to the route options as&#xA;&lt;code&gt;urlprefix-/bar prepend=/baz strip=/foo&lt;/code&gt;.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>HTTP Path Stripping</title>
       <link>https://fabiolb.net/feature/http-path-stripping/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/http-path-stripping/</guid>
-      <description>fabio supports stripping a path from the incoming request. If you want to forward http://host/foo/bar as http://host/bar you can add a strip=/foo option to the route options as urlprefix-/foo/bar strip=/foo.</description>
+      <description>&lt;p&gt;fabio supports stripping a path from the incoming request. If you want to&#xA;forward &lt;code&gt;http://host/foo/bar&lt;/code&gt; as &lt;code&gt;http://host/bar&lt;/code&gt; you can add a &lt;code&gt;strip=/foo&lt;/code&gt;&#xA;option to the route options as &lt;code&gt;urlprefix-/foo/bar strip=/foo&lt;/code&gt;.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>HTTP Redirects</title>
       <link>https://fabiolb.net/feature/http-redirects/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/http-redirects/</guid>
-      <description>To redirect an HTTP request to another URL you can use the redirect=&amp;lt;code&amp;gt; option. The code is the HTTP status code used for the redirect response and must be between 300-399 for the route to be valid.
-# redirect /path to https://www.google.com/ route add svc /path https://www.google.com/ opts &amp;quot;redirect=301&amp;quot; To use the redirect with the urlprefix- tags you need to specify the target URL in after the code since the target of the request is usually the address of the service that registers the tag.</description>
+      <description>&lt;p&gt;To redirect an HTTP request to another URL you can use the &lt;code&gt;redirect=&amp;lt;code&amp;gt;&lt;/code&gt; option. The &lt;code&gt;code&lt;/code&gt; is the&#xA;HTTP status code used for the redirect response and must be between 300-399 for the route to be valid.&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;# redirect /path to https://www.google.com/&#xA;route add svc /path https://www.google.com/ opts &amp;quot;redirect=301&amp;quot;&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;To use the redirect with the &lt;code&gt;urlprefix-&lt;/code&gt; tags you need to specify the target URL in after the code since&#xA;the target of the request is usually the address of the service that registers the tag.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>HTTPS TCP-SNI Proxy</title>
       <link>https://fabiolb.net/feature/https-tcp-sni-proxy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/https-tcp-sni-proxy/</guid>
-      <description>fabio can run a TCP+SNI routing proxy on a listener, and have fallback to https functionality. This is effectively an amalgam of the TCP-SNI Proxy and the HTTPS functionality.
-To enable this feature configure a listener as follows:
-fabio -proxy.addr=&amp;#39;:443;proto=https+tcp+sni;cs=somecertstore&amp;#39; For host matches that are proto=tcp or have a scheme of tcp://, this will proxy TCP using SNI.
-You would register your service in Consul with a urlprefix- tag that matches the host from the SNI extension for any services that should be proxied TCP (TLS terminated by upstream).</description>
+      <description>&lt;p&gt;fabio can run a TCP+SNI routing proxy on a listener, and have fallback to https functionality.&#xA;This is effectively an amalgam of the TCP-SNI Proxy and the HTTPS functionality.&lt;/p&gt;&#xA;&lt;p&gt;To enable this feature configure a listener as follows:&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;fabio -proxy.addr=&amp;#39;:443;proto=https+tcp+sni;cs=somecertstore&amp;#39;&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;For host matches that are proto=tcp or have a scheme of tcp://, this will proxy TCP using SNI.&lt;/p&gt;&#xA;&lt;p&gt;You would register your service in &lt;a href=&#34;https://consul.io&#34;&gt;Consul&lt;/a&gt; with a &lt;code&gt;urlprefix-&lt;/code&gt; tag that&#xA;matches the host from the SNI extension for any services that should be proxied TCP (TLS&#xA;terminated by upstream).  If the upstream service you&amp;rsquo;d like to proxy TCP responds to&#xA;&lt;code&gt;https://foo.com/...&lt;/code&gt; then you should register a &lt;code&gt;urlprefix-foo.com/ proto=tcp&lt;/code&gt; tag for this&#xA;service.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>HTTPS Upstream</title>
       <link>https://fabiolb.net/feature/https-upstream/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/https-upstream/</guid>
-      <description>To support HTTPS upstream servers add the proto=https option to the urlprefix- tag. The current implementation requires that upstream certificates need to be in the system root CA list. To disable certificate validation for a target set the tlsskipverify=true option.
-urlprefix-/foo proto=https urlprefix-/foo proto=https tlsskipverify=true </description>
+      <description>&lt;p&gt;To support HTTPS upstream servers add the &lt;code&gt;proto=https&lt;/code&gt; option to the&#xA;&lt;code&gt;urlprefix-&lt;/code&gt; tag. The current implementation requires that upstream&#xA;certificates need to be in the system root CA list. To disable certificate&#xA;validation for a target set the &lt;code&gt;tlsskipverify=true&lt;/code&gt; option.&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;urlprefix-/foo proto=https&#xA;urlprefix-/foo proto=https tlsskipverify=true&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>Metrics</title>
       <link>https://fabiolb.net/feature/metrics/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/metrics/</guid>
-      <description>Fabio collects metrics per route and service instance as well as running totals to avoid computing large amounts of metrics. The metrics can be sent to Circonus, Graphite, StatsD, DataDog (via statsd - or since v1.6.0 to native protocol with tag support) or stdout. See the metrics.* options in the fabio.properties file. Prometheus is also possible, but it works the reverse of the other metrics platforms. Instead of pushing data to a metrics server, prometheus expects to poll an endpoint for changes.</description>
+      <description>&lt;p&gt;Fabio collects metrics per route and service instance as well as running totals&#xA;to avoid computing large amounts of metrics. The metrics can be sent to&#xA;&lt;a href=&#34;http://www.circonus.com&#34;&gt;Circonus&lt;/a&gt;, &lt;a href=&#34;https://graphiteapp.org&#34;&gt;Graphite&lt;/a&gt;,&#xA;&lt;a href=&#34;https://github.com/etsy/statsd&#34;&gt;StatsD&lt;/a&gt;, &lt;a href=&#34;https://www.datadoghq.com&#34;&gt;DataDog&lt;/a&gt;&#xA;(via statsd - or since v1.6.0 to native protocol with tag support) or stdout. See the &lt;code&gt;metrics.*&lt;/code&gt;&#xA;options in the &lt;a href=&#34;https://github.com/eBay/fabio/blob/master/fabio.properties&#34;&gt;fabio.properties&lt;/a&gt;&#xA;file.  Prometheus is also possible, but it works the reverse of the other metrics platforms.&#xA;Instead of pushing data to a metrics server, prometheus expects to poll an endpoint for changes.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>PROXY Protocol Support</title>
       <link>https://fabiolb.net/feature/proxy-protocol/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/proxy-protocol/</guid>
-      <description>fabio transparently supports the HA Proxy PROXY protocol version 1 which is used by HA Proxy, Amazon ELB and others to transmit the remote address and port of the client without using headers.
-You may control the behavior of PROXY protocol support with the following options on the listener:
-pxyproto: When set to &amp;rsquo;true&amp;rsquo; the listener will respect upstream v1 PROXY protocol headers. NOTE: PROXY protocol was on by default from 1.</description>
+      <description>&lt;p&gt;fabio transparently supports the HA Proxy&#xA;&lt;a href=&#34;http://www.haproxy.org/download/1.5/doc/proxy-protocol.txt&#34;&gt;PROXY protocol&lt;/a&gt; version 1&#xA;which is used by HA Proxy,&#xA;&lt;a href=&#34;http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/enable-proxy-protocol.html&#34;&gt;Amazon ELB&lt;/a&gt;&#xA;and others to transmit the remote address and port of the client without using headers.&lt;/p&gt;&#xA;&lt;p&gt;You may control the behavior of PROXY protocol support with the following&#xA;options on the listener:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;&lt;code&gt;pxyproto&lt;/code&gt;: When set to &amp;rsquo;true&amp;rsquo; the listener will respect upstream v1&#xA;PROXY protocol headers.&#xA;NOTE: PROXY protocol was on by default from 1.1.3 to 1.5.10.&#xA;This changed to off when this option was introduced with&#xA;the 1.5.11 release.&#xA;For more information about the PROXY protocol, please see:&#xA;&lt;a href=&#34;http://www.haproxy.org/download/1.5/doc/proxy-protocol.txt&#34;&gt;http://www.haproxy.org/download/1.5/doc/proxy-protocol.txt&lt;/a&gt;&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Server Sent Events (SSE)</title>
       <link>https://fabiolb.net/feature/sse/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/sse/</guid>
-      <description>fabio detects SSE connections if the Accept header is set to text/event-stream and enables automatic flushing of the response buffer to forward data to the client. The default is set to 1s and can be configured with the proxy.flushinterval parameter.</description>
+      <description>&lt;p&gt;fabio detects &lt;a href=&#34;http://www.w3.org/TR/eventsource/&#34;&gt;SSE&lt;/a&gt; connections if the&#xA;&lt;code&gt;Accept&lt;/code&gt; header is set to &lt;code&gt;text/event-stream&lt;/code&gt; and enables automatic flushing of&#xA;the response buffer to forward data to the client. The default is set to &lt;code&gt;1s&lt;/code&gt;&#xA;and can be configured with the &lt;code&gt;proxy.flushinterval&lt;/code&gt; parameter.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>TCP Dynamic Proxy</title>
       <link>https://fabiolb.net/feature/tcp-dynamic-proxy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/tcp-dynamic-proxy/</guid>
-      <description>The TCP dynamic proxy is similar to the TCP Proxy, but the listener is started from the Consul urlprefix tag. Also, the service is defined with IP and port, so that multiple services can be defined on the load balancer using the same TCP port. Connections are forwarded to services based on the combination of ip:port
-To use TCP Dynamic proxy support the service needs to advertise urlprefix-127.0.0.1:1234 proto=tcp in Consul.</description>
+      <description>&lt;p&gt;The TCP dynamic proxy is similar to the TCP Proxy, but the listener is started from the Consul urlprefix tag.&#xA;Also, the service is defined with IP and port, so that multiple services can be defined on the load balancer using&#xA;the same TCP port.  Connections are forwarded to services based on the combination of ip:port&lt;/p&gt;&#xA;&lt;p&gt;To use TCP Dynamic proxy support the service needs to advertise &lt;code&gt;urlprefix-127.0.0.1:1234 proto=tcp&lt;/code&gt; in&#xA;Consul. In addition, fabio needs to be configured with a placeholder for the proxy.addr.:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>TCP Proxy</title>
       <link>https://fabiolb.net/feature/tcp-proxy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/tcp-proxy/</guid>
-      <description>fabio can run a transparent TCP proxy which dynamically forwards an incoming connection on a given port to services which advertise that port. To use TCP proxy support the service needs to advertise urlprefix-:1234 proto=tcp in Consul. In addition, fabio needs to be configured to listen on that port:
-fabio -proxy.addr &amp;#39;:1234;proto=tcp&amp;#39; TCP proxy support can be combined with Certificate Stores to provide TLS termination on fabio.
-fabio -proxy.cs &amp;#39;cs=ssl;type=path;cert=/etc/ssl&amp;#39; -proxy.</description>
+      <description>&lt;p&gt;fabio can run a transparent TCP proxy which dynamically forwards an incoming&#xA;connection on a given port to services which advertise that port. To use TCP&#xA;proxy support the service needs to advertise &lt;code&gt;urlprefix-:1234 proto=tcp&lt;/code&gt; in&#xA;Consul. In addition, fabio needs to be configured to listen on that port:&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;fabio -proxy.addr &amp;#39;:1234;proto=tcp&amp;#39;&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;TCP proxy support can be combined with &lt;a href=&#34;https://fabiolb.net/feature/certificate-stores/&#34;&gt;Certificate Stores&lt;/a&gt; to provide TLS termination on fabio.&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;fabio -proxy.cs &amp;#39;cs=ssl;type=path;cert=/etc/ssl&amp;#39; -proxy.addr &amp;#39;:1234;proto=tcp;cs=ssl&amp;#39;&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
-    
     <item>
       <title>TCP-SNI Proxy</title>
       <link>https://fabiolb.net/feature/tcp-sni-proxy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/tcp-sni-proxy/</guid>
-      <description>fabio can run a transparent TCP proxy with SNI support which can forward any TLS connection without re-encrypting the traffic. fabio captures the ClientHello packet which is the first packet of the TLS handshake and extracts the server name from the SNI extension and uses it for finding the upstream server to forward the connection to. It then replays the ClientHello packet and then transparently forwards all traffic between client and server as a byte stream.</description>
+      <description>&lt;p&gt;fabio can run a transparent TCP proxy with SNI support which can forward any TLS connection&#xA;&lt;strong&gt;without re-encrypting the traffic&lt;/strong&gt;. fabio captures the &lt;code&gt;ClientHello&lt;/code&gt; packet which is the&#xA;first packet of the TLS handshake and extracts the server name from the SNI extension and&#xA;uses it for finding the upstream server to forward the connection to. It then replays the&#xA;&lt;code&gt;ClientHello&lt;/code&gt; packet and then transparently forwards all traffic between client and server&#xA;as a byte stream.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Traffic Shaping</title>
       <link>https://fabiolb.net/feature/traffic-shaping/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/traffic-shaping/</guid>
-      <description>fabio allows to control the amount of traffic a set of service instances will receive. You can use this feature to direct a fixed percentage of traffic to a newer version of an existing service for testing (&amp;ldquo;Canary testing&amp;rdquo;). See Manual Overrides for a complete description of the route weight command.
-The following command will allocate 5% of traffic to www.kjca.dev/auth/ to all instances of service-b which match tags version-15 and dc-fra.</description>
+      <description>&lt;p&gt;fabio allows to control the amount of traffic a set of service instances will&#xA;receive. You can use this feature to direct a fixed percentage of traffic to a&#xA;newer version of an existing service for testing (&amp;ldquo;Canary testing&amp;rdquo;). See&#xA;&lt;a href=&#34;./Routing#manual-overrides&#34;&gt;Manual Overrides&lt;/a&gt; for a complete description of the &lt;code&gt;route weight&lt;/code&gt; command.&lt;/p&gt;&#xA;&lt;p&gt;The following command will allocate 5% of traffic to &lt;code&gt;www.kjca.dev/auth/&lt;/code&gt; to&#xA;all instances of &lt;code&gt;service-b&lt;/code&gt; which match tags &lt;code&gt;version-15&lt;/code&gt; and &lt;code&gt;dc-fra&lt;/code&gt;. This&#xA;is independent of the number of actual instances running. The remaining 95%&#xA;of the traffic will be distributed evenly across the remaining instances&#xA;publishing the same prefix.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Vault Support</title>
       <link>https://fabiolb.net/feature/vault/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/vault/</guid>
-      <description>fabio can use Vault as a secure key/value store to store certificates.
-As of 1.5.3 fabio can use the PKI support of Vault to generate TLS certificates on demand. See fabio.properties for details.</description>
+      <description>&lt;p&gt;fabio can use &lt;a href=&#34;https://vaultproject.io&#34;&gt;Vault&lt;/a&gt; as a secure key/value store to store certificates.&lt;/p&gt;&#xA;&lt;p&gt;As of 1.5.3 fabio can use the PKI support of Vault to generate TLS certificates on demand.&#xA;See &lt;a href=&#34;https://github.com/fabiolb/fabio/blob/master/fabio.properties&#34;&gt;fabio.properties&lt;/a&gt; for details.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Web UI</title>
       <link>https://fabiolb.net/feature/web-ui/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/web-ui/</guid>
-      <description>fabio supports a Web UI to examine the current routing table and manage the manual overrides. By default it listens on http://0.0.0.0:9998/ which can be changed with the ui.addr option. The ui.title and ui.color options allow customization of the title and the color of the header bar.</description>
+      <description>&lt;p&gt;fabio supports a Web UI to examine the current routing table and manage the&#xA;manual overrides. By default it listens on &lt;code&gt;http://0.0.0.0:9998/&lt;/code&gt; which can be&#xA;changed with the &lt;code&gt;ui.addr&lt;/code&gt; option. The &lt;code&gt;ui.title&lt;/code&gt; and &lt;code&gt;ui.color&lt;/code&gt; options allow&#xA;customization of the title and the color of the header bar.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Websockets</title>
       <link>https://fabiolb.net/feature/websockets/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://fabiolb.net/feature/websockets/</guid>
-      <description>fabio transparently supports Websocket connections by detecting the Upgrade: websocket header in the incoming HTTP(S) request.
-Websocket support has been implemented with the websocket library from golang.org/x/net/websocket.
-You can test the websocket support with the demo/wsclient and demo/server which implements a simple echo server.
-./server -addr 127.0.0.1:5000 -name ws-a -prefix /echo -proto ws ./wsclient -url ws://127.0.0.1:9999/echo You can also run multiple web socket servers on different ports but the same endpoint.</description>
+      <description>&lt;p&gt;fabio transparently supports Websocket connections by detecting the &lt;code&gt;Upgrade: websocket&lt;/code&gt; header in the incoming HTTP(S) request.&lt;/p&gt;&#xA;&lt;p&gt;Websocket support has been implemented with the websocket library from&#xA;&lt;a href=&#34;http://golang.org/x/net/websocket&#34;&gt;golang.org/x/net/websocket&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;p&gt;You can test the websocket support with the &lt;code&gt;demo/wsclient&lt;/code&gt; and &lt;code&gt;demo/server&lt;/code&gt; which&#xA;implements a simple echo server.&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;./server -addr 127.0.0.1:5000 -name ws-a -prefix /echo -proto ws&#xA;./wsclient -url ws://127.0.0.1:9999/echo&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;You can also run multiple web socket servers on different ports but the same endpoint.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

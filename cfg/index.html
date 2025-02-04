@@ -158,58 +158,58 @@ table contains comments on the source of the fragment.</p>
 <p>Add a route for a service <code>svc</code> for the <code>src</code> (e.g. <code>/path</code> or <code>:port</code>) to a <code>dst</code> (e.g. <code>URL</code> or <code>host:port</code>).</p>
 <p><code>route add &lt;svc&gt; &lt;src&gt; &lt;dst&gt;[ weight &lt;w&gt;][ tags &quot;&lt;t1&gt;,&lt;t2&gt;,...&quot;][ opts &quot;k1=v1 k2=v2 ...&quot;]</code></p>
 <table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>allow=ip:10.0.0.0/8,ip:fe80::/10</code></td>
-<td>Restrict access to source addresses within the <code>10.0.0.0/8</code> or <code>fe80::/10</code> CIDR mask.  All other requests will be denied.</td>
-</tr>
-<tr>
-<td><code>deny=ip:10.0.0.0/8,ip:fe80::1234</code></td>
-<td>Deny requests that source from the <code>10.0.0.0/8</code> CIDR mask or <code>fe80::1234</code>.  All other requests will be allowed.</td>
-</tr>
-<tr>
-<td><code>strip=/path</code></td>
-<td>Forward <code>/path/to/file</code> as <code>/to/file</code></td>
-</tr>
-<tr>
-<td><code>prepend=/prefix</code></td>
-<td>Forward <code>/path/to/file</code> as <code>/prefix/path/to/file</code></td>
-</tr>
-<tr>
-<td><code>proto=tcp</code></td>
-<td>Upstream service is TCP, <code>dst</code> must be <code>:port</code></td>
-</tr>
-<tr>
-<td><code>pxyproto=true</code></td>
-<td>Enables PROXY protocol on outbount TCP connection</td>
-</tr>
-<tr>
-<td><code>proto=https</code></td>
-<td>Upstream service is HTTPS</td>
-</tr>
-<tr>
-<td><code>tlsskipverify=true</code></td>
-<td>Disable TLS cert validation for HTTPS upstream</td>
-</tr>
-<tr>
-<td><code>host=name</code></td>
-<td>Set the <code>Host</code> header to <code>name</code>. If <code>name == 'dst'</code> then the <code>Host</code> header will be set to the registered upstream host name</td>
-</tr>
-<tr>
-<td><code>register=name</code></td>
-<td>Register fabio as new service <code>name</code>. Useful for registering hostnames for host specific routes.</td>
-</tr>
-<tr>
-<td><code>auth=name</code></td>
-<td>Specify an auth scheme to use (must be registered with the fabio server using <code>proxy.auth</code>)</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th>Option</th>
+          <th>Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>allow=ip:10.0.0.0/8,ip:fe80::/10</code></td>
+          <td>Restrict access to source addresses within the <code>10.0.0.0/8</code> or <code>fe80::/10</code> CIDR mask.  All other requests will be denied.</td>
+      </tr>
+      <tr>
+          <td><code>deny=ip:10.0.0.0/8,ip:fe80::1234</code></td>
+          <td>Deny requests that source from the <code>10.0.0.0/8</code> CIDR mask or <code>fe80::1234</code>.  All other requests will be allowed.</td>
+      </tr>
+      <tr>
+          <td><code>strip=/path</code></td>
+          <td>Forward <code>/path/to/file</code> as <code>/to/file</code></td>
+      </tr>
+      <tr>
+          <td><code>prepend=/prefix</code></td>
+          <td>Forward <code>/path/to/file</code> as <code>/prefix/path/to/file</code></td>
+      </tr>
+      <tr>
+          <td><code>proto=tcp</code></td>
+          <td>Upstream service is TCP, <code>dst</code> must be <code>:port</code></td>
+      </tr>
+      <tr>
+          <td><code>pxyproto=true</code></td>
+          <td>Enables PROXY protocol on outbount TCP connection</td>
+      </tr>
+      <tr>
+          <td><code>proto=https</code></td>
+          <td>Upstream service is HTTPS</td>
+      </tr>
+      <tr>
+          <td><code>tlsskipverify=true</code></td>
+          <td>Disable TLS cert validation for HTTPS upstream</td>
+      </tr>
+      <tr>
+          <td><code>host=name</code></td>
+          <td>Set the <code>Host</code> header to <code>name</code>. If <code>name == 'dst'</code> then the <code>Host</code> header will be set to the registered upstream host name</td>
+      </tr>
+      <tr>
+          <td><code>register=name</code></td>
+          <td>Register fabio as new service <code>name</code>. Useful for registering hostnames for host specific routes.</td>
+      </tr>
+      <tr>
+          <td><code>auth=name</code></td>
+          <td>Specify an auth scheme to use (must be registered with the fabio server using <code>proxy.auth</code>)</td>
+      </tr>
+  </tbody>
 </table>
 <h5 id="example">Example</h5>
 <pre tabindex="0"><code># route traffic for product-svc to 1.2.3.4:8000 and :9000
@@ -308,7 +308,7 @@ route add service-c www.somedomain.com/ http://host-z:12345/
                 Copyright &copy; 2020-2025 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 24 Jan 2025 05:37
+                Last updated on 4 Feb 2025 23:22
             </p>
           </div>
           <div class="col-md-6 col-sm-6">

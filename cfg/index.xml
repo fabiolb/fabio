@@ -4,7 +4,8 @@
     <title>Config Language on fabio - The Consul Load-Balancer</title>
     <link>https://fabiolb.net/cfg/</link>
     <description>Recent content in Config Language on fabio - The Consul Load-Balancer</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://fabiolb.net/cfg/index.xml" rel="self" type="application/rss+xml" />
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://fabiolb.net/cfg/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

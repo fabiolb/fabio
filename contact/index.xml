@@ -4,7 +4,8 @@
     <title>Contact on fabio - The Consul Load-Balancer</title>
     <link>https://fabiolb.net/contact/</link>
     <description>Recent content in Contact on fabio - The Consul Load-Balancer</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://fabiolb.net/contact/index.xml" rel="self" type="application/rss+xml" />
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://fabiolb.net/contact/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>
