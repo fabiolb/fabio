@@ -145,10 +145,8 @@ github.com/google/pprof v0.0.0-20250208200701-d0013a598941/go.mod h1:vavhavw2zAx
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
-github.com/hashicorp/consul/api v1.29.4 h1:P6slzxDLBOxUSj3fWo2o65VuKtbtOXFi7TSSgtXutuE=
-github.com/hashicorp/consul/api v1.29.4/go.mod h1:HUlfw+l2Zy68ceJavv2zAyArl2fqhGWnMycyt56sBgg=
-github.com/hashicorp/consul/proto-public v0.6.2 h1:+DA/3g/IiKlJZb88NBn0ZgXrxJp2NlvCZdEyl+qxvL0=
-github.com/hashicorp/consul/proto-public v0.6.2/go.mod h1:cXXbOg74KBNGajC+o8RlA502Esf0R9prcoJgiOX/2Tg=
+github.com/hashicorp/consul/api v1.31.0 h1:32BUNLembeSRek0G/ZAM6WNfdEwYdYo8oQ4+JoqGkNQ=
+github.com/hashicorp/consul/api v1.31.0/go.mod h1:2ZGIiXM3A610NmDULmCHd/aqBJj8CkMfOhswhOafxRg=
 github.com/hashicorp/consul/sdk v0.16.1 h1:V8TxTnImoPD5cj0U9Spl0TUxcytjcbbJeADFF07KdHg=
 github.com/hashicorp/consul/sdk v0.16.1/go.mod h1:fSXvwxB2hmh1FMZCNl6PwX0Q/1wdWtHJcZ7Ea5tns0s=
 github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=
