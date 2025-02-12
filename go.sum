@@ -207,8 +207,8 @@ github.com/hashicorp/vault/sdk v0.15.0 h1:xNo1lL2shm0yE4coXNZkTV/6++2GfEh+/cCAfB
 github.com/hashicorp/vault/sdk v0.15.0/go.mod h1:2Wj2tHIgfz0gNWgEPWBbCXFIiPrq96E8FTjPNV9J1Bc=
 github.com/ianlancetaylor/demangle v0.0.0-20210905161508-09a460cdf81d/go.mod h1:aYm2/VgdVmcIU8iMfdMvDMsRAQjcfZSKFby6HOFvi/w=
 github.com/ianlancetaylor/demangle v0.0.0-20230524184225-eabc099b10ab/go.mod h1:gx7rwoVhcfuVKG5uya9Hs3Sxj7EIvldVofAWIUtGouw=
-github.com/inetaf/tcpproxy v0.0.0-20250203165043-ded522cbd03f h1:hPcDyz0u+Zo14n0fpJggxL9JMAmZIK97TVLcLJLPMDI=
-github.com/inetaf/tcpproxy v0.0.0-20250203165043-ded522cbd03f/go.mod h1:Di7LXRyUcnvAcLicFhtM9/MlZl/TNgRSDHORM2c6CMI=
+github.com/inetaf/tcpproxy v0.0.0-20200125044825-b6bb9b5b8252 h1:jeqlfkFa5h+Ak/I33QpU4p01nFhw0G5IFm/Rsenne2Y=
+github.com/inetaf/tcpproxy v0.0.0-20200125044825-b6bb9b5b8252/go.mod h1:R6mExYS3O0XXjOZye3GtXfbuGF4hWQnF45CFWoj7O6g=
 github.com/jcmturner/aescts/v2 v2.0.0 h1:9YKLH6ey7H4eDBXW8khjYslgyqG2xZikXP0EQFKrle8=
 github.com/jcmturner/aescts/v2 v2.0.0/go.mod h1:AiaICIRyfYg35RUkr8yESTqvSy7csK90qZ5xfvvsoNs=
 github.com/jcmturner/dnsutils/v2 v2.0.0 h1:lltnkeZGL0wILNvrNiVCR6Ro5PGU/SeBvVO/8c/iPbo=
