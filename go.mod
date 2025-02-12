@@ -17,7 +17,7 @@ require (
 	github.com/mwitkow/grpc-proxy v0.0.0-20230212185441-f345521cb9c9
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/openzipkin-contrib/zipkin-go-opentracing v0.3.5
-	github.com/osrg/gobgp/v3 v3.32.0
+	github.com/osrg/gobgp/v3 v3.34.0
 	github.com/pascaldekloe/goe v0.1.1
 	github.com/pkg/profile v1.7.0
 	github.com/prometheus/client_golang v1.20.5

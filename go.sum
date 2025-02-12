@@ -264,8 +264,8 @@ github.com/opentracing/opentracing-go v1.2.0 h1:uEJPy/1a5RIPAJ0Ov+OIO8OxWu77jEv+
 github.com/opentracing/opentracing-go v1.2.0/go.mod h1:GxEUsuufX4nBwe+T+Wl9TAgYrxe9dPLANfrWvHYVTgc=
 github.com/openzipkin-contrib/zipkin-go-opentracing v0.3.5 h1:82Tnq9OJpn+h5xgGpss5/mOv3KXdjtkdorFSOUusjM8=
 github.com/openzipkin-contrib/zipkin-go-opentracing v0.3.5/go.mod h1:uVHyebswE1cCXr2A73cRM2frx5ld1RJUCJkFNZ90ZiI=
-github.com/osrg/gobgp/v3 v3.32.0 h1:B2krh/44etYQAuLq+iMkORxIvXj+cGIpuR6qDGNGagM=
-github.com/osrg/gobgp/v3 v3.32.0/go.mod h1:8m+kgkdaWrByxg5EWpNUO2r/mopodrNBOUBhMnW/yGQ=
+github.com/osrg/gobgp/v3 v3.34.0 h1:DDIWsAIE7j1dwhSV3tGsTKs9OO8MTOS4atErebZxTtA=
+github.com/osrg/gobgp/v3 v3.34.0/go.mod h1:l2nPaHaLmIoKbFxMUzKon/h6c9BTzCp5zJI9Dhnrx5c=
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pascaldekloe/goe v0.1.0/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pascaldekloe/goe v0.1.1 h1:Ah6WQ56rZONR3RW3qWa2NCZ6JAVvSpUcoLBaOmYFt9Q=
