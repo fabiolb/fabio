@@ -3,7 +3,7 @@ module github.com/fabiolb/fabio
 go 1.23
 
 require (
-	github.com/armon/go-proxyproto v0.0.0-20180202201750-5b7edb60ff5f
+	github.com/armon/go-proxyproto v0.0.0-20210323213023-7e956b284f0a
 	github.com/circonus-labs/circonus-gometrics/v3 v3.4.7
 	github.com/go-kit/kit v0.13.0
 	github.com/go-kit/log v0.2.1
@@ -12,7 +12,7 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.7
 	github.com/hashicorp/vault/api v1.15.0
 	github.com/hashicorp/vault/sdk v0.14.0
-	github.com/inetaf/tcpproxy v0.0.0-20200125044825-b6bb9b5b8252
+	github.com/inetaf/tcpproxy v0.0.0-20250203165043-ded522cbd03f
 	github.com/magiconair/properties v1.8.9
 	github.com/mwitkow/grpc-proxy v0.0.0-20230212185441-f345521cb9c9
 	github.com/opentracing/opentracing-go v1.2.0
@@ -69,13 +69,13 @@ require (
 	github.com/hashicorp/hcl v1.0.1-vault-5 // indirect
 	github.com/hashicorp/serf v0.10.1 // indirect
 	github.com/k-sone/critbitgo v1.4.0 // indirect
-	github.com/klauspost/compress v1.17.9 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/klauspost/compress v1.17.11 // indirect
+	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/openhistogram/circonusllhist v0.3.0 // indirect
+	github.com/openhistogram/circonusllhist v0.4.1 // indirect
 	github.com/opentracing-contrib/go-observer v0.0.0-20170622124052-a52f23424492 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
