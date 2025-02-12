@@ -5,7 +5,7 @@ go 1.23.3
 toolchain go1.24.0
 
 require (
-	github.com/armon/go-proxyproto v0.1.0
+	github.com/armon/go-proxyproto v0.0.0-20180202201750-5b7edb60ff5f
 	github.com/circonus-labs/circonus-gometrics/v3 v3.4.7
 	github.com/go-kit/kit v0.13.0
 	github.com/go-kit/log v0.2.1
@@ -37,7 +37,7 @@ require (
 	github.com/Shopify/sarama v1.19.0 // indirect
 	github.com/Shopify/toxiproxy v2.1.4+incompatible // indirect
 	github.com/VividCortex/gohistogram v1.0.0 // indirect
-	github.com/apache/thrift v0.13.0 // indirect
+	github.com/apache/thrift v0.21.0 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
