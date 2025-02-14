@@ -1,6 +1,6 @@
 module github.com/fabiolb/fabio
 
-go 1.23.3
+go 1.24.0
 
 require (
 	github.com/armon/go-proxyproto v0.0.0-20180202201750-5b7edb60ff5f

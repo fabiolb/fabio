@@ -10,5 +10,5 @@ type VersionHandler struct {
 }
 
 func (h *VersionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, h.Version)
+	fmt.Fprintf(w, "%s", h.Version)
 }

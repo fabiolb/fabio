@@ -22,21 +22,19 @@ func (l bgpLogger) Fatal(msg string, fields bgplog.Fields) {
 }
 
 func (l bgpLogger) Error(msg string, fields bgplog.Fields) {
-	log.Printf(convertMsgFields("ERROR", msg, fields))
+	log.Printf("%s", convertMsgFields("ERROR", msg, fields))
 }
 
 func (l bgpLogger) Warn(msg string, fields bgplog.Fields) {
-	log.Printf(convertMsgFields("WARN", msg, fields))
-
+	log.Printf("%s", convertMsgFields("WARN", msg, fields))
 }
 
 func (l bgpLogger) Info(msg string, fields bgplog.Fields) {
-	log.Printf(convertMsgFields("INFO", msg, fields))
+	log.Printf("%s", convertMsgFields("INFO", msg, fields))
 }
 
 func (l bgpLogger) Debug(msg string, fields bgplog.Fields) {
-	log.Printf(convertMsgFields("DEBUG", msg, fields))
-
+	log.Printf("%s", convertMsgFields("DEBUG", msg, fields))
 }
 
 func (l bgpLogger) SetLevel(level bgplog.LogLevel) {
