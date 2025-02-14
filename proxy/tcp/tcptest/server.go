@@ -13,8 +13,6 @@ import (
 
 // Server is a TCP test server that binds to a random port.
 type Server struct {
-	// Addr is the address the server is listening on in the form ipaddr:port.
-	Addr     string
 	Listener net.Listener
 
 	// TLS is the optional TLS configuration, populated with a new config
@@ -28,6 +26,8 @@ type Server struct {
 
 	// srv is the actual running server.
 	srv *tcp.Server
+	// Addr is the address the server is listening on in the form ipaddr:port.
+	Addr string
 }
 
 func (s *Server) Start() {
@@ -127,7 +127,7 @@ func NewUnstartedServerWithProxyProto(h tcp.Handler) *Server {
 	return &Server{
 		Listener: &proxyproto.Listener{
 			Listener:           newLocalListener(),
-			ProxyHeaderTimeout: time.Duration(100 * time.Millisecond),
+			ProxyHeaderTimeout: 100 * time.Millisecond,
 		},
 		Config: &tcp.Server{Handler: h},
 	}

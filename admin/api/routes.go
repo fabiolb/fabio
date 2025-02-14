@@ -18,9 +18,9 @@ type apiRoute struct {
 	Src     string   `json:"src"`
 	Dst     string   `json:"dst"`
 	Opts    string   `json:"opts"`
-	Weight  float64  `json:"weight"`
-	Tags    []string `json:"tags,omitempty"`
 	Cmd     string   `json:"cmd"`
+	Tags    []string `json:"tags,omitempty"`
+	Weight  float64  `json:"weight"`
 	Rate1   float64  `json:"rate1"`
 	Pct99   float64  `json:"pct99"`
 }

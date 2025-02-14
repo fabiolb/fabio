@@ -71,14 +71,14 @@ var oldRandInt = func(n int) int {
 var result int // prevent compiler optimization
 func BenchmarkOldRandIntn(b *testing.B) {
 	var r int // more shields against compiler optimization
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		r = oldRandInt(i)
 	}
 	result = r
 }
 func BenchmarkMathRandIntn(b *testing.B) {
 	var r int // more shields against compiler optimization
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		r = randIntn(i)
 	}
 	result = r

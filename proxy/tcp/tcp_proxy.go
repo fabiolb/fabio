@@ -12,13 +12,6 @@ import (
 
 // Proxy implements a generic TCP proxying handler.
 type Proxy struct {
-	// DialTimeout sets the timeout for establishing the outbound
-	// connection.
-	DialTimeout time.Duration
-
-	// Lookup returns a target host for the given request.
-	// The proxy will panic if this value is nil.
-	Lookup func(host string) *route.Target
 
 	// Conn counts the number of connections.
 	Conn gkm.Counter
@@ -28,6 +21,14 @@ type Proxy struct {
 
 	// Noroute counts the failed Lookup() calls.
 	Noroute gkm.Counter
+
+	// Lookup returns a target host for the given request.
+	// The proxy will panic if this value is nil.
+	Lookup func(host string) *route.Target
+
+	// DialTimeout sets the timeout for establishing the outbound
+	// connection.
+	DialTimeout time.Duration
 }
 
 func (p *Proxy) ServeTCP(in net.Conn) error {

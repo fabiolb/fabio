@@ -13,8 +13,8 @@ import (
 
 // basic is an implementation of AuthScheme
 type basic struct {
-	realm   string
 	secrets *htpasswd.File
+	realm   string
 }
 
 func newBasicAuth(cfg config.BasicAuth) (AuthScheme, error) {

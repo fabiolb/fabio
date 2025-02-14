@@ -116,16 +116,16 @@ func TestTCPProxyWithTLS(t *testing.T) {
 
 	// start tcp proxy
 	proxyAddr := "127.0.0.1:57779"
+	cs := config.CertSource{Name: "cs", Type: "path", CertPath: dir}
+	src, err := cert.NewSource(cs)
+	if err != nil {
+		t.Fatal("cert.NewSource: ", err)
+	}
+	cfg, err := cert.TLSConfig(src, false, 0, 0, nil)
+	if err != nil {
+		t.Fatal("cert.TLSConfig: ", err)
+	}
 	go func() {
-		cs := config.CertSource{Name: "cs", Type: "path", CertPath: dir}
-		src, err := cert.NewSource(cs)
-		if err != nil {
-			t.Fatal("cert.NewSource: ", err)
-		}
-		cfg, err := cert.TLSConfig(src, false, 0, 0, nil)
-		if err != nil {
-			t.Fatal("cert.TLSConfig: ", err)
-		}
 
 		h := &tcp.Proxy{
 			Lookup: func(string) *route.Target {
@@ -151,7 +151,7 @@ func TestTCPProxyWithTLS(t *testing.T) {
 	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
 		t.Fatal("could not parse cert")
 	}
-	cfg := &tls.Config{
+	cfg = &tls.Config{
 		RootCAs:    rootCAs,
 		ServerName: "example.com",
 	}
@@ -296,16 +296,16 @@ func TestTCPProxyWithTLSWithProxyProto(t *testing.T) {
 
 	// start tcp proxy
 	proxyAddr := "127.0.0.1:57779"
+	cs := config.CertSource{Name: "cs", Type: "path", CertPath: dir}
+	src, err := cert.NewSource(cs)
+	if err != nil {
+		t.Fatal("cert.NewSource: ", err)
+	}
+	cfg, err := cert.TLSConfig(src, false, 0, 0, nil)
+	if err != nil {
+		t.Fatal("cert.TLSConfig: ", err)
+	}
 	go func() {
-		cs := config.CertSource{Name: "cs", Type: "path", CertPath: dir}
-		src, err := cert.NewSource(cs)
-		if err != nil {
-			t.Fatal("cert.NewSource: ", err)
-		}
-		cfg, err := cert.TLSConfig(src, false, 0, 0, nil)
-		if err != nil {
-			t.Fatal("cert.TLSConfig: ", err)
-		}
 
 		h := &tcp.Proxy{
 			Lookup: func(string) *route.Target {
@@ -331,7 +331,7 @@ func TestTCPProxyWithTLSWithProxyProto(t *testing.T) {
 	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
 		t.Fatal("could not parse cert")
 	}
-	cfg := &tls.Config{
+	cfg = &tls.Config{
 		RootCAs:    rootCAs,
 		ServerName: "example.com",
 	}

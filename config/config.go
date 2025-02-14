@@ -7,56 +7,56 @@ import (
 )
 
 type Config struct {
-	Proxy                Proxy
-	Registry             Registry
-	Listen               []Listen
 	Log                  Log
-	Metrics              Metrics
-	UI                   UI
-	Runtime              Runtime
-	Tracing              Tracing
 	ProfileMode          string
 	ProfilePath          string
+	Tracing              Tracing
+	Listen               []Listen
+	Metrics              Metrics
+	BGP                  BGP
+	UI                   UI
+	Registry             Registry
+	Proxy                Proxy
+	Runtime              Runtime
+	GlobCacheSize        int
 	Insecure             bool
 	GlobMatchingDisabled bool
-	GlobCacheSize        int
-	BGP                  BGP
 }
 
 type CertSource struct {
+	Header          http.Header
 	Name            string
 	Type            string
 	CertPath        string
 	KeyPath         string
 	ClientCAPath    string
 	CAUpgradeCN     string
-	Refresh         time.Duration
-	Header          http.Header
 	VaultFetchToken string
+	Refresh         time.Duration
 }
 
 type Listen struct {
+	CertSource         CertSource
 	Addr               string
 	Proto              string
+	TLSCiphers         []uint16
 	ReadTimeout        time.Duration
 	WriteTimeout       time.Duration
 	IdleTimeout        time.Duration
-	CertSource         CertSource
-	StrictMatch        bool
-	TLSMinVersion      uint16
-	TLSMaxVersion      uint16
-	TLSCiphers         []uint16
-	ProxyProto         bool
 	ProxyHeaderTimeout time.Duration
 	Refresh            time.Duration
+	TLSMinVersion      uint16
+	TLSMaxVersion      uint16
+	StrictMatch        bool
+	ProxyProto         bool
 }
 
 type Source struct {
-	LinkEnabled bool
-	NewTab      bool
 	Scheme      string
 	Host        string
 	Port        string
+	LinkEnabled bool
+	NewTab      bool
 }
 
 type RoutingTable struct {
@@ -64,16 +64,24 @@ type RoutingTable struct {
 }
 
 type UI struct {
-	Listen       Listen
+	RoutingTable RoutingTable
 	Color        string
 	Title        string
 	Access       string
-	RoutingTable RoutingTable
+	Listen       Listen
 }
 
 type Proxy struct {
+	GZIPContentTypes      *regexp.Regexp
+	AuthSchemes           map[string]AuthScheme
 	Strategy              string
 	Matcher               string
+	LocalIP               string
+	ClientIPHeader        string
+	TLSHeader             string
+	TLSHeaderValue        string
+	RequestID             string
+	STSHeader             STSHeader
 	NoRouteStatus         int
 	MaxConn               int
 	ShutdownWait          time.Duration
@@ -84,14 +92,6 @@ type Proxy struct {
 	IdleConnTimeout       time.Duration
 	FlushInterval         time.Duration
 	GlobalFlushInterval   time.Duration
-	LocalIP               string
-	ClientIPHeader        string
-	TLSHeader             string
-	TLSHeaderValue        string
-	GZIPContentTypes      *regexp.Regexp
-	RequestID             string
-	STSHeader             STSHeader
-	AuthSchemes           map[string]AuthScheme
 	GRPCMaxRxMsgSize      int
 	GRPCMaxTxMsgSize      int
 	GRPCGShutdownTimeout  time.Duration
@@ -131,25 +131,25 @@ type Log struct {
 }
 
 type Metrics struct {
+	Circonus      Circonus
 	Target        string
 	Prefix        string
 	Names         string
-	Interval      time.Duration
-	Timeout       time.Duration
-	Retry         time.Duration
 	GraphiteAddr  string
 	StatsDAddr    string
 	DogstatsdAddr string
-	Circonus      Circonus
 	Prometheus    Prometheus
+	Interval      time.Duration
+	Timeout       time.Duration
+	Retry         time.Duration
 }
 
 type Registry struct {
-	Backend string
 	Static  Static
 	File    File
-	Consul  Consul
+	Backend string
 	Custom  Custom
+	Consul  Consul
 	Timeout time.Duration
 	Retry   time.Duration
 }
@@ -171,20 +171,20 @@ type Consul struct {
 	KVPath             string
 	NoRouteHTMLPath    string
 	TagPrefix          string
-	Register           bool
 	Namespace          string
 	ServiceAddr        string
 	ServiceName        string
+	CheckScheme        string
+	ChecksRequired     string
+	TLS                ConsulTlS
 	ServiceTags        []string
 	ServiceStatus      []string
 	CheckInterval      time.Duration
 	CheckTimeout       time.Duration
-	CheckScheme        string
-	CheckTLSSkipVerify bool
-	ChecksRequired     string
 	ServiceMonitors    int
-	TLS                ConsulTlS
 	PollInterval       time.Duration
+	Register           bool
+	CheckTLSSkipVerify bool
 	RequireConsistent  bool
 	AllowStale         bool
 }
@@ -194,21 +194,21 @@ type Custom struct {
 	Path               string
 	QueryParams        string
 	Scheme             string
-	CheckTLSSkipVerify bool
-	PollInterval       time.Duration
 	NoRouteHTML        string
+	PollInterval       time.Duration
 	Timeout            time.Duration
+	CheckTLSSkipVerify bool
 }
 
 type Tracing struct {
-	TracingEnabled bool
 	CollectorType  string
 	ConnectString  string
 	ServiceName    string
 	Topic          string
-	SamplerRate    float64
 	SpanHost       string
 	SpanName       string
+	SamplerRate    float64
+	TracingEnabled bool
 	TraceID128Bit  bool
 }
 
@@ -219,10 +219,10 @@ type AuthScheme struct {
 }
 
 type BasicAuth struct {
+	ModTime time.Time // the htpasswd file last modification time
 	Realm   string
 	File    string
 	Refresh time.Duration
-	ModTime time.Time // the htpasswd file last modification time
 }
 
 type ConsulTlS struct {
@@ -234,27 +234,27 @@ type ConsulTlS struct {
 }
 
 type BGP struct {
-	BGPEnabled        bool
-	Asn               uint
-	AnycastAddresses  []string
 	RouterID          string
-	ListenPort        int
-	ListenAddresses   []string
-	Peers             []BGPPeer
-	EnableGRPC        bool
 	GRPCListenAddress string
-	GRPCTLS           bool
 	CertFile          string
 	KeyFile           string
 	GOBGPDCfgFile     string
 	NextHop           string
+	AnycastAddresses  []string
+	ListenAddresses   []string
+	Peers             []BGPPeer
+	Asn               uint
+	ListenPort        int
+	BGPEnabled        bool
+	EnableGRPC        bool
+	GRPCTLS           bool
 }
 
 type BGPPeer struct {
 	NeighborAddress string
+	Password        string
 	NeighborPort    uint
 	Asn             uint
-	MultiHop        bool
 	MultiHopLength  uint
-	Password        string
+	MultiHop        bool
 }

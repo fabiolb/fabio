@@ -284,7 +284,7 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
-			desc: "-proxy.addr with with prometheus and https",
+			desc: "-proxy.addr with prometheus and https",
 			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true;proto=prometheus", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;hdr=a: b;caupgcn=furb"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{
@@ -1185,7 +1185,7 @@ func TestLoad(t *testing.T) {
 
 				// replace 'URL' with the actual server url in the command line args
 				for i := range tt.args {
-					tt.args[i] = strings.Replace(tt.args[i], "URL", srv.URL, -1)
+					tt.args[i] = strings.ReplaceAll(tt.args[i], "URL", srv.URL)
 				}
 
 			case tt.path != "":

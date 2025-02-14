@@ -79,8 +79,8 @@ func getCertificate(cs certstore, clientHello *tls.ClientHelloInfo, strictMatch 
 }
 
 type certstore struct {
-	Certificates      []tls.Certificate
 	NameToCertificate map[string]*tls.Certificate
+	Certificates      []tls.Certificate
 }
 
 // BuildNameToCertificate parses Certificates and builds NameToCertificate
