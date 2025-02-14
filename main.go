@@ -77,7 +77,7 @@ func main() {
 		log.Printf("[INFO] Cannot set log level to %s", cfg.Log.Level)
 	}
 
-	log.Printf("[INFO] Runtime config\n" + toJSON(cfg))
+	log.Printf("%s", "[INFO] Runtime config\n" + toJSON(cfg))
 	log.Printf("[INFO] Version %s starting", version)
 	log.Printf("[INFO] Go runtime is %s", runtime.Version())
 
