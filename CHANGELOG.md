@@ -1,5 +1,34 @@
 # Changelog
 
+## [v1.6.5](https://github.com/fabiolb/fabio/tree/v1.6.5) (2025-02-28)
+
+[Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.4...v1.6.5)
+
+**Implemented enhancements:**
+
+- Unable to load correct certificates if 1 invalid one is in consul k/v [\#941](https://github.com/fabiolb/fabio/issues/941)
+- Use a Go 1.24.0 [\#971](https://github.com/fabiolb/fabio/pull/971) ([aleksraiden](https://github.com/aleksraiden))
+- Report all certificate errors instead of stopping at the first. \(\#941\) [\#964](https://github.com/fabiolb/fabio/pull/964) ([tristanmorgan](https://github.com/tristanmorgan))
+
+**Closed issues:**
+
+- Please bump golang.org/x/sys dependency to enable a build on riscv64-freebsd [\#927](https://github.com/fabiolb/fabio/issues/927)
+- Fabio is using Datadog reserved tag keys  [\#923](https://github.com/fabiolb/fabio/issues/923)
+
+**Merged pull requests:**
+
+- Update deps to latest [\#975](https://github.com/fabiolb/fabio/pull/975) ([aleksraiden](https://github.com/aleksraiden))
+- updating godeps [\#969](https://github.com/fabiolb/fabio/pull/969) ([aleksraiden](https://github.com/aleksraiden))
+- Update Hugo config to work with version bump in \#965 [\#967](https://github.com/fabiolb/fabio/pull/967) ([tristanmorgan](https://github.com/tristanmorgan))
+- Use Alpine3.21 as base docker image [\#966](https://github.com/fabiolb/fabio/pull/966) ([aleksraiden](https://github.com/aleksraiden))
+- update CI components [\#965](https://github.com/fabiolb/fabio/pull/965) ([aleksraiden](https://github.com/aleksraiden))
+- README: remove mention to www.kijiji.it \(decommissioned in 2022\) [\#963](https://github.com/fabiolb/fabio/pull/963) ([marco-m-pix4d](https://github.com/marco-m-pix4d))
+- Update dependancies again. [\#962](https://github.com/fabiolb/fabio/pull/962) ([tristanmorgan](https://github.com/tristanmorgan))
+- Use ParseUint to test for overflow directly [\#961](https://github.com/fabiolb/fabio/pull/961) ([dcarbone](https://github.com/dcarbone))
+- Fix small typo in DogStatsD config ref. [\#960](https://github.com/fabiolb/fabio/pull/960) ([tristanmorgan](https://github.com/tristanmorgan))
+- Rebuild CHANGELOG [\#959](https://github.com/fabiolb/fabio/pull/959) ([tristanmorgan](https://github.com/tristanmorgan))
+- Adds handling of Datadog reserved tag keys [\#924](https://github.com/fabiolb/fabio/pull/924) ([froque](https://github.com/froque))
+
 ## [v1.6.4](https://github.com/fabiolb/fabio/tree/v1.6.4) (2024-11-27)
 
 [Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.3...v1.6.4)
