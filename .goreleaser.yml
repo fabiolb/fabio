@@ -20,7 +20,8 @@ builds:
 archives:
   - id: bin
     name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Os }}_{{ .Arch }}'
-    format: binary
+    formats:
+      - binary
 source:
   enabled: true
   name_template: '{{ .ProjectName }}-{{.Version }}.src'
