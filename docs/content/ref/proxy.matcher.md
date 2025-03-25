@@ -6,6 +6,7 @@ title: "proxy.matcher"
 `proxy.matcher` configures the path matching algorithm.
 
 * `prefix`: prefix matching
+* `iprefix`: case insensitive prefix matching
 * `glob`:  glob matching
 
 When `prefix` matching is enabled then the route path must be a
