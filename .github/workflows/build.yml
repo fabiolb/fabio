@@ -1,5 +1,7 @@
 on: [push, pull_request]
 name: Build
+permissions:
+  contents: read
 jobs:
   golangci:
     name: lint
