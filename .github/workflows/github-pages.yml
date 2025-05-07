@@ -1,10 +1,10 @@
 name: github pages
-
+permissions:
+  contents: write
 on:
   push:
     branches:
     - master
-
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
