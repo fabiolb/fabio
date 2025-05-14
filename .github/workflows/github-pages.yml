@@ -4,21 +4,21 @@ permissions:
 on:
   push:
     branches:
-    - master
+      - master
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: build
-      run: |
-        export PATH=${PATH}:${HOME}/bin
-        make github-pages
-    - name: deploy
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/public
-        cname: fabiolb.net
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: build
+        run: |
+          export PATH=${PATH}:${HOME}/bin
+          make github-pages
+      - name: deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/public
+          cname: fabiolb.net
