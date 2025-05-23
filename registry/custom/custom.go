@@ -44,39 +44,47 @@ func customRoutes(cfg *config.Custom, ch chan string) {
 	req.Close = true
 
 	for {
-		log.Printf("[DEBUG] Custom Registry starting request %s \n", time.Now())
-		resp, err := client.Do(req)
-		if err != nil {
-			ch <- fmt.Sprintf("Error Sending HTTPs Request To Custom be - %s -%s", URL, err.Error())
-			time.Sleep(cfg.PollInterval)
-			continue
-		}
+		func() {
+			log.Printf("[DEBUG] Custom Registry starting request %s \n", time.Now())
+			resp, err := client.Do(req)
+			if resp != nil {
+				defer func() {
+					if err := resp.Body.Close(); err != nil {
+						log.Printf("Error Can not close HTTP resp body - %s -%s \n", URL, err.Error())
+					}
+				}()
+			}
+			if err != nil {
+				ch <- fmt.Sprintf("Error Sending HTTPs Request To Custom be - %s -%s", URL, err.Error())
+				time.Sleep(cfg.PollInterval)
+				return
+			}
 
-		if resp.StatusCode != 200 {
-			ch <- fmt.Sprintf("Error Non-200 return (%v) from  -%s", resp.StatusCode, URL)
-			time.Sleep(cfg.PollInterval)
-			continue
-		}
-		log.Printf("[DEBUG] Custom Registry begin decoding json %s \n", time.Now())
-		decoder := json.NewDecoder(resp.Body)
-		err = decoder.Decode(&Routes)
-		if err != nil {
-			ch <- fmt.Sprintf("Error decoding request - %s -%s", URL, err.Error())
-			time.Sleep(cfg.PollInterval)
-			continue
-		}
+			if resp.StatusCode != 200 {
+				ch <- fmt.Sprintf("Error Non-200 return (%v) from  -%s", resp.StatusCode, URL)
+				time.Sleep(cfg.PollInterval)
+				return
+			}
+			log.Printf("[DEBUG] Custom Registry begin decoding json %s \n", time.Now())
+			decoder := json.NewDecoder(resp.Body)
+			err = decoder.Decode(&Routes)
+			if err != nil {
+				ch <- fmt.Sprintf("Error decoding request - %s -%s", URL, err.Error())
+				time.Sleep(cfg.PollInterval)
+				return
+			}
 
-		log.Printf("[DEBUG] Custom Registry building table %s \n", time.Now())
-		t, err := route.NewTableCustom(Routes)
-		if err != nil {
-			ch <- fmt.Sprintf("Error generating new table - %s", err.Error())
-		}
-		log.Printf("[DEBUG] Custom Registry building table complete %s \n", time.Now())
-		route.SetTable(t)
-		log.Printf("[DEBUG] Custom Registry table set complete %s \n", time.Now())
-		ch <- "OK"
-		time.Sleep(cfg.PollInterval)
-
+			log.Printf("[DEBUG] Custom Registry building table %s \n", time.Now())
+			t, err := route.NewTableCustom(Routes)
+			if err != nil {
+				ch <- fmt.Sprintf("Error generating new table - %s", err.Error())
+			}
+			log.Printf("[DEBUG] Custom Registry building table complete %s \n", time.Now())
+			route.SetTable(t)
+			log.Printf("[DEBUG] Custom Registry table set complete %s \n", time.Now())
+			ch <- "OK"
+			time.Sleep(cfg.PollInterval)
+		}()
 	}
 
 }
