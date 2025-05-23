@@ -3,8 +3,8 @@ package metrics
 import (
 	"bufio"
 	"bytes"
-	"github.com/go-kit/log"
 	"github.com/go-kit/kit/metrics/statsd"
+	"github.com/go-kit/log"
 	"io"
 	"regexp"
 	"strconv"

@@ -83,18 +83,18 @@ const (
 )
 
 type clientHelloMsg struct {
-	raw                          []byte
-	vers                         uint16
-	random                       []byte
-	sessionId                    []byte
-	compressionMethods           []uint8
-	nextProtoNeg                 bool
-	serverName                   string
-	ocspStapling                 bool
-	scts                         bool
-	ticketSupported              bool
-	sessionTicket                []uint8
-	alpnProtocols                []string
+	raw                []byte
+	vers               uint16
+	random             []byte
+	sessionId          []byte
+	compressionMethods []uint8
+	nextProtoNeg       bool
+	serverName         string
+	ocspStapling       bool
+	scts               bool
+	ticketSupported    bool
+	sessionTicket      []uint8
+	alpnProtocols      []string
 }
 
 func (m *clientHelloMsg) unmarshal(data []byte) bool {

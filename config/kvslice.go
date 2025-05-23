@@ -152,10 +152,10 @@ const (
 	stateQTextEsc state = "qtextesc"
 
 	// parser states
-	stateFirstKey state = "first-key"
-	stateKey      state = "key"
-	stateEqual    state = "equal"
-	stateVal      state = "val"
+	stateFirstKey      state = "first-key"
+	stateKey           state = "key"
+	stateEqual         state = "equal"
+	stateVal           state = "val"
 	stateAfterFirstKey state = "equal-comma-semicolon"
 )
 

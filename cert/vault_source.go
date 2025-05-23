@@ -143,7 +143,7 @@ func (s *VaultSource) isKVv2(path string, client *api.Client) (string, bool, err
 }
 
 func (s *VaultSource) kvPreflightVersionRequest(client *api.Client, path string) (string, int, error) {
-	resp, err := client.Logical().ReadRaw("sys/internal/ui/mounts/"+path)
+	resp, err := client.Logical().ReadRaw("sys/internal/ui/mounts/" + path)
 	if resp != nil {
 		defer resp.Body.Close()
 	}
