@@ -52,7 +52,7 @@ func TestLoadAuthSchemes(t *testing.T) {
 			t.Fatalf("could not create file on disk %s", err)
 		}
 
-		result, err := LoadAuthSchemes(map[string]config.AuthScheme{
+		result, _ := LoadAuthSchemes(map[string]config.AuthScheme{
 			"myauth": {
 				Name: "myauth",
 				Type: "basic",

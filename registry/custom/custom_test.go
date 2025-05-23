@@ -42,9 +42,6 @@ func TestCustomRoutes(t *testing.T) {
 		fmt.Printf("Failed to get routes for custom backend - %s", resp)
 		t.FailNow()
 	}
-
-	return
-
 }
 
 func handleTest(w http.ResponseWriter, r *http.Request) {

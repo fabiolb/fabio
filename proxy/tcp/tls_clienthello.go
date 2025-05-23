@@ -17,16 +17,16 @@ func clientHelloBufferSize(data []byte) (int, error) {
 	// byte 1-2: version (should be 0x3000 < v < 0x3003)
 	// byte 3-4: rec len
 	if len(data) < 9 {
-		return 0, errors.New("At least 9 bytes required to determine client hello length")
+		return 0, errors.New("at least 9 bytes required to determine client hello length")
 	}
 
 	if data[0] != 0x16 {
-		return 0, errors.New("Not a TLS handshake")
+		return 0, errors.New("not a TLS handshake")
 	}
 
 	recordLength := int(data[3])<<8 | int(data[4])
 	if recordLength <= 0 || recordLength > 16384 {
-		return 0, errors.New("Invalid TLS record length")
+		return 0, errors.New("invalid TLS record length")
 	}
 
 	// Handshake record header
@@ -34,12 +34,12 @@ func clientHelloBufferSize(data []byte) (int, error) {
 	// byte   5: hs msg type (should be 0x01 == client_hello)
 	// byte 6-8: hs msg len
 	if data[5] != 0x01 {
-		return 0, errors.New("Not a client hello")
+		return 0, errors.New("not a client hello")
 	}
 
 	handshakeLength := int(data[6])<<16 | int(data[7])<<8 | int(data[8])
 	if handshakeLength <= 0 || handshakeLength > recordLength-4 {
-		return 0, errors.New("Invalid client hello length (fragmentation not implemented)")
+		return 0, errors.New("invalid client hello length (fragmentation not implemented)")
 	}
 
 	return handshakeLength + 9, nil //9 for the header bytes
@@ -87,20 +87,14 @@ type clientHelloMsg struct {
 	vers               uint16
 	random             []byte
 	sessionId          []byte
-	cipherSuites       []uint16
 	compressionMethods []uint8
 	nextProtoNeg       bool
 	serverName         string
 	ocspStapling       bool
 	scts               bool
-	// supportedCurves              []CurveID
-	supportedPoints []uint8
-	ticketSupported bool
-	sessionTicket   []uint8
-	//signatureAndHashes           []signatureAndHash
-	secureRenegotiation          []byte
-	secureRenegotiationSupported bool
-	alpnProtocols                []string
+	ticketSupported    bool
+	sessionTicket      []uint8
+	alpnProtocols      []string
 }
 
 func (m *clientHelloMsg) unmarshal(data []byte) bool {

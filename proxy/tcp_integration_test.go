@@ -277,7 +277,7 @@ func TestTCPProxyWithProxyProto(t *testing.T) {
 
 // TestTCPProxyWithTLSWithProxyProto tests proxying an encrypted TCP connection
 // to an unencrypted upstream TCP server with proxy protocol enabled.
-// The proxy extract the proxy protocl header and terminates the TLS connection.
+// The proxy extract the proxy protocol header and terminates the TLS connection.
 func TestTCPProxyWithTLSWithProxyProto(t *testing.T) {
 	srv := tcptest.NewServerWithProxyProto(proxyHandler)
 	defer srv.Close()

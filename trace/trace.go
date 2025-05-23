@@ -39,7 +39,7 @@ func CreateCollector(collectorType, connectString, topic string) zipkin.Collecto
 			zipkin.KafkaTopic(topic),
 		)
 	default:
-		err = fmt.Errorf("Unknown collector type.")
+		err = fmt.Errorf("unknown collector type")
 	}
 
 	if err != nil {

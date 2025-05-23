@@ -19,7 +19,6 @@ func TestGracefulShutdown(t *testing.T) {
 	trigger := make(chan bool)
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		<-trigger
-		return
 	}))
 	defer srv.Close()
 

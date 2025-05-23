@@ -54,6 +54,9 @@ func createBasicAuth(user string, password string, t *testing.T) (AuthScheme, er
 	contents := fmt.Sprintf("%s:%s", user, password)
 
 	filename, err := createBasicAuthFile(contents, t)
+	if err != nil {
+		return nil, fmt.Errorf("could not create basic auth: %s", err)
+	}
 
 	a, err := newBasicAuth(config.BasicAuth{
 		File:  filename,
@@ -198,7 +201,7 @@ func TestBasic_Authorised_should_fail_without_htpasswd_file(t *testing.T) {
 		t.Fatalf("removing htpasswd file: %s", err)
 	}
 
-	time.Sleep(2 * time.Second) // ensure htpasswd file refresh happend
+	time.Sleep(2 * time.Second) // ensure htpasswd file refresh happened
 
 	t.Run("should not authorize after removing htpasswd file", func(t *testing.T) {
 		if got, want := a.Authorized(r, w), false; !reflect.DeepEqual(got, want) {

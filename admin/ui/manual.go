@@ -13,11 +13,6 @@ type ManualHandler struct {
 	Commands string
 }
 
-type paths struct {
-	Path string
-	Name string
-}
-
 func (h *ManualHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := r.RequestURI[len(h.BasePath):]
 	data := struct {
