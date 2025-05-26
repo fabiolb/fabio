@@ -24,6 +24,6 @@ func NewTransport(tlscfg *tls.Config) *http.Transport {
 	}
 }
 
-func SetConfig(cfg *config.Config) {
-	cfg = cfg
+func SetConfig(ncfg *config.Config) {
+	cfg = ncfg
 }

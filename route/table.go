@@ -80,7 +80,6 @@ func hostpath(prefix string) (host string, path string) {
 	}
 
 	p := strings.SplitN(prefix, "/", 2)
-	host, path = p[0], ""
 	if len(p) == 1 {
 		return p[0], "/"
 	}

@@ -269,12 +269,6 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func key(code int) string {
-	b := []byte("http.status.")
-	b = strconv.AppendInt(b, int64(code), 10)
-	return string(b)
-}
-
 // responseWriter wraps an http.ResponseWriter to capture the status code and
 // the size of the response. It also implements http.Hijacker to forward
 // hijacking the connection to the wrapped writer if supported.

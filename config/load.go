@@ -537,7 +537,6 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 }
 
 var tlsver = map[string]uint16{
-	"ssl30": tls.VersionSSL30,
 	"tls10": tls.VersionTLS10,
 	"tls11": tls.VersionTLS11,
 	"tls12": tls.VersionTLS12,
