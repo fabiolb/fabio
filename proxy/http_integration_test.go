@@ -36,6 +36,11 @@ const (
 // Global GlobCache for Testing
 var globCache = route.NewGlobCache(1000)
 
+const (
+	legitHeader1 = "Legit-Header1"
+	legitHeader2 = "Legit-Header2"
+)
+
 func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 	var hdr http.Header = make(http.Header)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -55,12 +60,23 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 	req, _ := http.NewRequest("GET", proxy.URL, nil)
 	req.Host = "foo.com"
 	req.Header.Set("X-Forwarded-For", "3.3.3.3")
+	req.Header.Set(legitHeader1, "asdf")
+	req.Header.Set(legitHeader2, "qwerty")
+	req.Header.Set("Connection",
+		fmt.Sprintf("keep-alive, x-forwarded-for, x-forwarded-host, %s, %s",
+			strings.ToLower(legitHeader1), strings.ToLower(legitHeader2)))
 	mustDo(req)
 
 	if got, want := hdr.Get("X-Forwarded-For"), "3.3.3.3, 127.0.0.1"; got != want {
 		t.Errorf("got %v want %v", got, want)
 	}
 	if got, want := hdr.Get("X-Forwarded-Host"), "foo.com"; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+	if got, want := hdr.Get(legitHeader1), ""; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+	if got, want := hdr.Get(legitHeader2), ""; got != want {
 		t.Errorf("got %v want %v", got, want)
 	}
 }
