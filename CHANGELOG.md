@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.6.7](https://github.com/fabiolb/fabio/tree/v1.6.7) (2025-05-30)
+
+[Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.6...v1.6.7)
+
+**Merged pull requests:**
+
+- Bump go.mod pins to latest point release. [\#993](https://github.com/fabiolb/fabio/pull/993) ([tristanmorgan](https://github.com/tristanmorgan))
+
 ## [v1.6.6](https://github.com/fabiolb/fabio/tree/v1.6.6) (2025-05-26)
 
 [Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.5...v1.6.6)
