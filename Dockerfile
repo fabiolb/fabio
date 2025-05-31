@@ -6,7 +6,7 @@ RUN cd /usr/local/bin && unzip consul_${consul_version}_linux_amd64.zip consul
 
 ARG vault_version=1.18.4
 ADD https://releases.hashicorp.com/vault/${vault_version}/vault_${vault_version}_linux_amd64.zip /usr/local/bin
-RUN cd /usr/local/bin && unzip vault_${vault_version}_linux_amd64.zip
+RUN cd /usr/local/bin && unzip vault_${vault_version}_linux_amd64.zip vault
 
 RUN apk update && apk add --no-cache git libcap
 WORKDIR /src
