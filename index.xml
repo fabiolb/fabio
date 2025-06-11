@@ -673,6 +673,13 @@
       <description>&lt;p&gt;&lt;code&gt;registry.consul.kvpath&lt;/code&gt; configures the KV path for manual routes.&lt;/p&gt;&#xA;&lt;p&gt;The Consul KV path is watched for changes which get appended to&#xA;the routing table. This allows for manual overrides and weighted&#xA;round-robin routes.&lt;/p&gt;&#xA;&lt;p&gt;As of version 1.5.7 fabio will treat the kv path as a prefix and&#xA;combine the values of the key itself and all its subkeys in&#xA;alphabetical order.&lt;/p&gt;&#xA;&lt;p&gt;To see all updates you may want to set &lt;a href=&#34;https://fabiolb.net/ref/log.routes.format/&#34;&gt;&lt;code&gt;-log.routes.format&lt;/code&gt;&lt;/a&gt;&#xA;to &lt;code&gt;all&lt;/code&gt;.&lt;/p&gt;</description>
     </item>
     <item>
+      <title>registry.consul.namespace</title>
+      <link>https://fabiolb.net/ref/registry.consul.namespace/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://fabiolb.net/ref/registry.consul.namespace/</guid>
+      <description>&lt;p&gt;&lt;code&gt;registry.consul.namespace&lt;/code&gt; configures the consul namespace in which fabio will register itself.&lt;/p&gt;&#xA;&lt;p&gt;Namespaces are a feature only available in the enterprise version of consul. In the open-source&#xA;version or with an empty namespace option fabio will be registered in the default namespace. Only&#xA;services running in the same consul namespace will be picked up by fabio.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.consul.namespace = &#xA;&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
+    <item>
       <title>registry.consul.noroutehtmlpath</title>
       <link>https://fabiolb.net/ref/registry.consul.noroutehtmlpath/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

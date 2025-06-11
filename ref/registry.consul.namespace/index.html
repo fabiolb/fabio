@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
 
-    <title>registry.static.routes</title>
+    <title>registry.consul.namespace</title>
 
     
     <link href="/css/theDocs.all.min.css" rel="stylesheet">
@@ -246,7 +246,7 @@
       
         <li><a href="https://fabiolb.net/ref/registry.consul.kvpath/">registry.consul.kvpath</a></li>
       
-        <li><a href="https://fabiolb.net/ref/registry.consul.namespace/">registry.consul.namespace</a></li>
+        <li><a class="active" href="https://fabiolb.net/ref/registry.consul.namespace/">registry.consul.namespace</a></li>
       
         <li><a href="https://fabiolb.net/ref/registry.consul.noroutehtmlpath/">registry.consul.noroutehtmlpath</a></li>
       
@@ -298,7 +298,7 @@
       
         <li><a href="https://fabiolb.net/ref/registry.static.noroutehtmlpath/">registry.static.noroutehtml</a></li>
       
-        <li><a class="active" href="https://fabiolb.net/ref/registry.static.routes/">registry.static.routes</a></li>
+        <li><a href="https://fabiolb.net/ref/registry.static.routes/">registry.static.routes</a></li>
       
         <li><a href="https://fabiolb.net/ref/registry.timeout/">registry.timeout</a></li>
       
@@ -362,14 +362,13 @@
 
       
       <section>
-        <h2>registry.static.routes</h2>
-        <p><code>registry.static.routes</code> configures a static routing table.</p>
-<h4 id="example">Example</h4>
-<pre><code>registry.static.routes = \
-	route add svc / http://1.2.3.4:5000/
-</code></pre>
+        <h2>registry.consul.namespace</h2>
+        <p><code>registry.consul.namespace</code> configures the consul namespace in which fabio will register itself.</p>
+<p>Namespaces are a feature only available in the enterprise version of consul. In the open-source
+version or with an empty namespace option fabio will be registered in the default namespace. Only
+services running in the same consul namespace will be picked up by fabio.</p>
 <p>The default is</p>
-<pre><code>registry.static.routes =
+<pre><code>registry.consul.namespace = 
 </code></pre>
 
         

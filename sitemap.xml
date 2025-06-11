@@ -212,6 +212,8 @@
   </url><url>
     <loc>https://fabiolb.net/ref/registry.consul.kvpath/</loc>
   </url><url>
+    <loc>https://fabiolb.net/ref/registry.consul.namespace/</loc>
+  </url><url>
     <loc>https://fabiolb.net/ref/registry.consul.noroutehtmlpath/</loc>
   </url><url>
     <loc>https://fabiolb.net/ref/registry.consul.pollinterval/</loc>
