@@ -5,7 +5,7 @@ import (
 	"context"
 	"crypto/x509"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -22,9 +22,11 @@ import (
 // 127.0.0.1	example.com
 // 127.0.0.1	example2.com
 // and then set the environment FABIO_IHAVEHOSTENTRIES=true
-// This also runs in TRAVIS by default, since .travis.yml adds these aliases.
+// This also runs in Github Actions by default, since the workflow adds these aliases.
 func TestProxyTCPAndHTTPS(t *testing.T) {
-	if os.Getenv("TRAVIS") != "true" && os.Getenv("FABIO_IHAVEHOSTENTRIES") != "true" {
+	if os.Getenv("TRAVIS") != "true" &&
+		os.Getenv("CI") != "true" &&
+		os.Getenv("FABIO_IHAVEHOSTENTRIES") != "true" {
 		t.Skip("skipping because env FABIO_IHAVEHOSTENTRIES is not set to true")
 	}
 
@@ -74,7 +76,7 @@ route add tcproute example2.com/ tcp://%s opts "proto=tcp"`
 		if proto, ok = t.Opts["proto"]; !ok && t.URL != nil {
 			proto = t.URL.Scheme
 		}
-		return "tcp" == proto
+		return proto == "tcp"
 	}
 
 	// get an unused port for use for the proxy.  the rest of the tests just
@@ -144,7 +146,7 @@ route add tcproute example2.com/ tcp://%s opts "proto=tcp"`
 				t.Errorf("error on request %s", err)
 				return
 			}
-			body, err := ioutil.ReadAll(resp.Body)
+			body, err := io.ReadAll(resp.Body)
 			resp.Body.Close()
 			if err != nil {
 				t.Errorf("error reading body: %s", err)

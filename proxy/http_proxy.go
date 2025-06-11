@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"crypto/tls"
 	"errors"
+	gkm "github.com/go-kit/kit/metrics"
 	"io"
 	"net"
 	"net/http"
@@ -15,13 +16,30 @@ import (
 	"github.com/fabiolb/fabio/auth"
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/logger"
-	"github.com/fabiolb/fabio/metrics"
 	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy/gzip"
 	"github.com/fabiolb/fabio/route"
 	"github.com/fabiolb/fabio/trace"
 	"github.com/fabiolb/fabio/uuid"
 )
+
+type HttpStatsHandler struct {
+	// Requests is a histogram metric which is updated for every request.
+	Requests gkm.Histogram
+
+	// Noroute is a counter metric which is updated for every request
+	// where Lookup() returns nil.
+	Noroute gkm.Counter
+
+	// WSConn counts the number of open web socket connections.
+	WSConn gkm.Gauge
+
+	// StatusTimer is a histogram for given status codes
+	StatusTimer gkm.Histogram
+
+	// RedirectCounter - counts redirects
+	RedirectCounter gkm.Counter
+}
 
 // HTTPProxy is a dynamic reverse proxy for HTTP and HTTPS protocols.
 type HTTPProxy struct {
@@ -45,13 +63,6 @@ type HTTPProxy struct {
 	// The proxy will panic if this value is nil.
 	Lookup func(*http.Request) *route.Target
 
-	// Requests is a timer metric which is updated for every request.
-	Requests metrics.Timer
-
-	// Noroute is a counter metric which is updated for every request
-	// where Lookup() returns nil.
-	Noroute metrics.Counter
-
 	// Logger is the access logger for the requests.
 	Logger logger.Logger
 
@@ -64,6 +75,9 @@ type HTTPProxy struct {
 
 	// Auth schemes registered with the server
 	AuthSchemes map[string]auth.AuthScheme
+
+	// stats contains all of the stats bits
+	Stats HttpStatsHandler
 }
 
 func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -119,10 +133,9 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if t.RedirectCode != 0 && t.RedirectURL != nil {
 		http.Redirect(w, r, t.RedirectURL.String(), t.RedirectCode)
-		if t.Timer != nil {
-			t.Timer.Update(0)
+		if p.Stats.RedirectCounter != nil {
+			p.Stats.RedirectCounter.With("code", strconv.Itoa(t.RedirectCode)).Add(1)
 		}
-		metrics.DefaultRegistry.GetTimer(key(t.RedirectCode)).Update(0)
 		return
 	}
 
@@ -157,6 +170,15 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if t.PrependPath != "" {
+		targetURL.Path = t.PrependPath + targetURL.Path
+		// ensure absolute path after stripping to maintain compliance with
+		// section 5.3 of RFC7230 (https://tools.ietf.org/html/rfc7230#section-5.3)
+		if !strings.HasPrefix(targetURL.Path, "/") {
+			targetURL.Path = "/" + targetURL.Path
+		}
+	}
+
 	if err := addHeaders(r, p.Config, t.StripPath); err != nil {
 		http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
 		return
@@ -173,7 +195,9 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	upgrade, accept := r.Header.Get("Upgrade"), r.Header.Get("Accept")
 
 	tr := p.Transport
-	if t.TLSSkipVerify {
+	if t.Transport != nil {
+		tr = t.Transport
+	} else if t.TLSSkipVerify {
 		tr = p.InsecureTransport
 	}
 
@@ -184,9 +208,9 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if targetURL.Scheme == "https" || targetURL.Scheme == "wss" {
 			h = newWSHandler(targetURL.Host, func(network, address string) (net.Conn, error) {
 				return tls.Dial(network, address, tr.(*http.Transport).TLSClientConfig)
-			})
+			}, p.Stats.WSConn)
 		} else {
-			h = newWSHandler(targetURL.Host, net.Dial)
+			h = newWSHandler(targetURL.Host, net.Dial, p.Stats.WSConn)
 		}
 
 	case accept == "text/event-stream":
@@ -213,17 +237,19 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	end := timeNow()
 	dur := end.Sub(start)
 
-	if p.Requests != nil {
-		p.Requests.Update(dur)
+	if p.Stats.Requests != nil {
+		p.Stats.Requests.Observe(dur.Seconds())
 	}
 	if t.Timer != nil {
-		t.Timer.Update(dur)
+		t.Timer.Observe(dur.Seconds())
 	}
 	if rw.code <= 0 {
 		return
 	}
 
-	metrics.DefaultRegistry.GetTimer(key(rw.code)).Update(dur)
+	if p.Stats.StatusTimer != nil {
+		p.Stats.StatusTimer.With("code", strconv.Itoa(rw.code)).Observe(dur.Seconds())
+	}
 
 	// write access log
 	if p.Logger != nil {
@@ -241,12 +267,6 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			UpstreamURL:     targetURL,
 		})
 	}
-}
-
-func key(code int) string {
-	b := []byte("http.status.")
-	b = strconv.AppendInt(b, int64(code), 10)
-	return string(b)
 }
 
 // responseWriter wraps an http.ResponseWriter to capture the status code and

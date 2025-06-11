@@ -8,7 +8,7 @@ import (
 
 // parseKVSlice parses a configuration string in the form
 //
-//   key=val;key=val,key=val;key=val
+//	key=val;key=val,key=val;key=val
 //
 // into a list of string maps. maps are separated by comma and key/value
 // pairs within a map are separated by semicolons. The first key/value
@@ -16,7 +16,7 @@ import (
 // empty key. This allows support of legacy configuration formats which
 // are
 //
-//   val;opt1=val1;opt2=val2;...
+//	val;opt1=val1;opt2=val2;...
 func parseKVSlice(in string) ([]map[string]string, error) {
 	var keyOrFirstVal string
 	maps := []map[string]string{}
@@ -130,10 +130,10 @@ type itemType string
 
 const (
 	itemText      itemType = "TEXT"
-	itemEqual              = "EQUAL"
-	itemSemicolon          = "SEMICOLON"
-	itemComma              = "COMMA"
-	itemError              = "ERROR"
+	itemEqual     itemType = "EQUAL"
+	itemSemicolon itemType = "SEMICOLON"
+	itemComma     itemType = "COMMA"
+	itemError     itemType = "ERROR"
 )
 
 func (t itemType) String() string {
@@ -146,17 +146,17 @@ const (
 
 	// lexer states
 	stateStart    state = "start"
-	stateText           = "text"
-	stateQText          = "qtext"
-	stateQTextEnd       = "qtextend"
-	stateQTextEsc       = "qtextesc"
+	stateText     state = "text"
+	stateQText    state = "qtext"
+	stateQTextEnd state = "qtextend"
+	stateQTextEsc state = "qtextesc"
 
 	// parser states
-	stateFirstKey      = "first-key"
-	stateKey           = "key"
-	stateEqual         = "equal"
-	stateVal           = "val"
-	stateAfterFirstKey = "equal-comma-semicolon"
+	stateFirstKey      state = "first-key"
+	stateKey           state = "key"
+	stateEqual         state = "equal"
+	stateVal           state = "val"
+	stateAfterFirstKey state = "equal-comma-semicolon"
 )
 
 func lex(s []rune) (itemType, string, int) {

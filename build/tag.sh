@@ -9,7 +9,7 @@ v=$1
 
 [[ -n "$v" ]] || read -p "Enter version (e.g. 1.0.4): " v
 if [[ -z "$v" ]]; then
-	echo "Usage: $0 <version> (e.g. 1.0.4)"
+	echo "Usage: $0 <version> <remote>"
 	exit 1
 fi
 
@@ -23,5 +23,16 @@ fi
 
 sed -i '' -e "s|^var version .*$|var version = \"$v\"|" $basedir/main.go
 git add $basedir/main.go
-git commit -S -m "Release v$v"
+git commit -S -m "Release v$v" || true
 git tag -s v$v -m "Tag v${v}"
+
+remote=$2
+
+[[ -n "$origin" ]] || read -p "Enter remote (e.g. origin): " origin
+
+if [[ -z "$origin" ]]; then
+	echo "Usage: $0 <version> <remote>"
+	exit 1
+fi
+
+git push $remote $version

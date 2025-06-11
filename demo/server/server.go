@@ -4,34 +4,33 @@
 //
 // During startup the server performs the following steps:
 //
-// * Add a handler for each prefix which provides a unique
-//   response for that instance and endpoint
-// * Add a `/health` handler for the consul health check
-// * Register the service in consul with the listen address,
-//   a health check under the given name and with one `urlprefix-`
-//   tag per prefix
-// * Install a signal handler to deregister the service on exit
+//   - Add a handler for each prefix which provides a unique
+//     response for that instance and endpoint
+//   - Add a `/health` handler for the consul health check
+//   - Register the service in consul with the listen address,
+//     a health check under the given name and with one `urlprefix-`
+//     tag per prefix
+//   - Install a signal handler to deregister the service on exit
 //
 // If the protocol is set to "ws" the registered endpoints function
 // as websocket echo servers.
 //
 // Example:
 //
-//   # http server
-//   ./server -addr 127.0.0.1:5000 -name svc-a -prefix /foo -prefix /bar
-//   ./server -addr 127.0.0.1:5001 -name svc-b -prefix /baz -prefix /bar
-//   ./server -addr 127.0.0.1:5002 -name svc-c -prefix "/gogl redirect=301,https://www.google.de/"
+//	# http server
+//	./server -addr 127.0.0.1:5000 -name svc-a -prefix /foo -prefix /bar
+//	./server -addr 127.0.0.1:5001 -name svc-b -prefix /baz -prefix /bar
+//	./server -addr 127.0.0.1:5002 -name svc-c -prefix "/gogl redirect=301,https://www.google.de/"
 //
-//   # https server
-//   ./server -addr 127.0.0.1:5000 -name svc-a -proto https -certFile ... -keyFile ... -prefix /foo
-//   ./server -addr 127.0.0.1:5000 -name svc-a -proto https -certFile ... -keyFile ... -prefix "/foo tlsskipverify=true"
+//	# https server
+//	./server -addr 127.0.0.1:5000 -name svc-a -proto https -certFile ... -keyFile ... -prefix /foo
+//	./server -addr 127.0.0.1:5000 -name svc-a -proto https -certFile ... -keyFile ... -prefix "/foo tlsskipverify=true"
 //
-//   # websocket server
-//   ./server -addr 127.0.0.1:6000 -name ws-a -proto ws -prefix /echo1 -prefix /echo2
+//	# websocket server
+//	./server -addr 127.0.0.1:6000 -name ws-a -proto ws -prefix /echo1 -prefix /echo2
 //
-//   # tcp server
-//   ./server -addr 127.0.0.1:7000 -name tcp-a -proto tcp -prefix :1234
-//
+//	# tcp server
+//	./server -addr 127.0.0.1:7000 -name tcp-a -proto tcp -prefix :1234
 package main
 
 import (
@@ -47,6 +46,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/fabiolb/fabio/proxy/tcp"
 
@@ -166,7 +166,7 @@ func main() {
 
 	// run until we get a signal
 	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, os.Kill)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	<-quit
 
 	// deregister service

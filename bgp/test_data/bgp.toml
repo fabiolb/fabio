@@ -1,0 +1,15 @@
+[[neighbors]]
+  [neighbors.config]
+    neighbor-address = "127.0.0.2"
+    peer-as = 65000
+  [neighbors.transport.config]
+    remote-port = 1790
+    passive-mode = false
+    local-address = "127.0.0.3"
+
+[global.config]
+  as = 65001
+  router-id = "127.0.0.3"
+  port = 1790
+  #port = 179
+  local-address-list = [ "127.0.0.3" ]

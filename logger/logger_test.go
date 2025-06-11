@@ -2,7 +2,7 @@ package logger
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"sort"
@@ -45,7 +45,7 @@ func TestParse(t *testing.T) {
 		}
 		var b bytes.Buffer
 		p.write(&b, &Event{Start: time.Time{}, End: time.Time{}, Request: req})
-		if got, want := string(b.Bytes()), tt.out; got != want {
+		if got, want := b.String(), tt.out; got != want {
 			t.Errorf("%d: got %q want %q", i, got, want)
 		}
 	}
@@ -135,7 +135,7 @@ func TestLog(t *testing.T) {
 			}
 
 			l.Log(e)
-			if got, want := string(b.Bytes()), tt.out; got != want {
+			if got, want := b.String(), tt.out; got != want {
 				t.Errorf("got %q want %q", got, want)
 			}
 		})
@@ -168,7 +168,7 @@ func TestAtoi(t *testing.T) {
 	for i, tt := range tests {
 		var b bytes.Buffer
 		atoi(&b, tt.i, tt.pad)
-		if got, want := string(b.Bytes()), tt.s; got != want {
+		if got, want := b.String(), tt.s; got != want {
 			t.Errorf("%d: got %q want %q", i, got, want)
 		}
 	}
@@ -221,7 +221,7 @@ func BenchmarkLog(b *testing.B) {
 		sort.Strings(keys)
 		format := strings.Join(keys, " ")
 
-		l, err := New(ioutil.Discard, format)
+		l, err := New(io.Discard, format)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -243,7 +243,7 @@ func BenchmarkLog(b *testing.B) {
 
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			t.Execute(ioutil.Discard, e)
+			t.Execute(io.Discard, e)
 		}
 	})
 }

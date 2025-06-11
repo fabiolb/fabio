@@ -17,9 +17,21 @@ import (
 	"github.com/magiconair/properties"
 )
 
+var tlsciphers map[string]uint16
+
+func loadCiphers() {
+	tlsciphers = make(map[string]uint16)
+	for _, c := range tls.CipherSuites() {
+		tlsciphers[c.Name] = c.ID
+	}
+	for _, c := range tls.InsecureCipherSuites() {
+		tlsciphers[c.Name] = c.ID
+	}
+}
+
 func Load(args, environ []string) (cfg *Config, err error) {
 	var props *properties.Properties
-
+	loadCiphers()
 	cmdline, path, version, err := parse(args)
 	switch {
 	case err != nil:
@@ -120,15 +132,19 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 
 	var obsoleteStr string
 
+	var bgpPeersValue string
+
 	f.BoolVar(&cfg.Insecure, "insecure", defaultConfig.Insecure, "allow fabio to run as root when set to true")
 	f.IntVar(&cfg.Proxy.MaxConn, "proxy.maxconn", defaultConfig.Proxy.MaxConn, "maximum number of cached connections")
 	f.StringVar(&cfg.Proxy.Strategy, "proxy.strategy", defaultConfig.Proxy.Strategy, "load balancing strategy")
 	f.StringVar(&cfg.Proxy.Matcher, "proxy.matcher", defaultConfig.Proxy.Matcher, "path matching algorithm")
 	f.IntVar(&cfg.Proxy.NoRouteStatus, "proxy.noroutestatus", defaultConfig.Proxy.NoRouteStatus, "status code for invalid route. Must be three digits")
 	f.DurationVar(&cfg.Proxy.ShutdownWait, "proxy.shutdownwait", defaultConfig.Proxy.ShutdownWait, "time for graceful shutdown")
+	f.DurationVar(&cfg.Proxy.DeregisterGracePeriod, "proxy.deregistergraceperiod", defaultConfig.Proxy.DeregisterGracePeriod, "time to wait after deregistering from a registry")
 	f.DurationVar(&cfg.Proxy.DialTimeout, "proxy.dialtimeout", defaultConfig.Proxy.DialTimeout, "connection timeout for backend connections")
 	f.DurationVar(&cfg.Proxy.ResponseHeaderTimeout, "proxy.responseheadertimeout", defaultConfig.Proxy.ResponseHeaderTimeout, "response header timeout")
 	f.DurationVar(&cfg.Proxy.KeepAliveTimeout, "proxy.keepalivetimeout", defaultConfig.Proxy.KeepAliveTimeout, "keep-alive timeout")
+	f.DurationVar(&cfg.Proxy.IdleConnTimeout, "proxy.idleconntimeout", defaultConfig.Proxy.IdleConnTimeout, "idle timeout, when to close (keep-alive) connections")
 	f.StringVar(&cfg.Proxy.LocalIP, "proxy.localip", defaultConfig.Proxy.LocalIP, "fabio address in Forward headers")
 	f.StringVar(&cfg.Proxy.ClientIPHeader, "proxy.header.clientip", defaultConfig.Proxy.ClientIPHeader, "header for the request ip")
 	f.StringVar(&cfg.Proxy.TLSHeader, "proxy.header.tls", defaultConfig.Proxy.TLSHeader, "header for TLS connections")
@@ -137,6 +153,9 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.IntVar(&cfg.Proxy.STSHeader.MaxAge, "proxy.header.sts.maxage", defaultConfig.Proxy.STSHeader.MaxAge, "enable and set the max-age value for HSTS")
 	f.BoolVar(&cfg.Proxy.STSHeader.Subdomains, "proxy.header.sts.subdomains", defaultConfig.Proxy.STSHeader.Subdomains, "direct HSTS to include subdomains")
 	f.BoolVar(&cfg.Proxy.STSHeader.Preload, "proxy.header.sts.preload", defaultConfig.Proxy.STSHeader.Preload, "direct HSTS to pass the preload directive")
+	f.IntVar(&cfg.Proxy.GRPCMaxRxMsgSize, "proxy.grpcmaxrxmsgsize", defaultConfig.Proxy.GRPCMaxRxMsgSize, "max grpc receive message size (in bytes)")
+	f.IntVar(&cfg.Proxy.GRPCMaxTxMsgSize, "proxy.grpcmaxtxmsgsize", defaultConfig.Proxy.GRPCMaxTxMsgSize, "max grpc transmit message size (in bytes)")
+	f.DurationVar(&cfg.Proxy.GRPCGShutdownTimeout, "proxy.grpcshutdowntimeout", defaultConfig.Proxy.GRPCGShutdownTimeout, "amount of time to wait for graceful shutdown of grpc backend")
 	f.StringVar(&gzipContentTypesValue, "proxy.gzip.contenttype", defaultValues.GZIPContentTypesValue, "regexp of content types to compress")
 	f.StringVar(&listenerValue, "proxy.addr", defaultValues.ListenerValue, "listener config")
 	f.StringVar(&certSourcesValue, "proxy.cs", defaultValues.CertSourcesValue, "certificate sources")
@@ -157,12 +176,16 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.DurationVar(&cfg.Metrics.Retry, "metrics.retry", defaultConfig.Metrics.Retry, "retry interval during startup")
 	f.StringVar(&cfg.Metrics.GraphiteAddr, "metrics.graphite.addr", defaultConfig.Metrics.GraphiteAddr, "graphite server address")
 	f.StringVar(&cfg.Metrics.StatsDAddr, "metrics.statsd.addr", defaultConfig.Metrics.StatsDAddr, "statsd server address")
+	f.StringVar(&cfg.Metrics.DogstatsdAddr, "metrics.dogstatsd.addr", defaultConfig.Metrics.DogstatsdAddr, "dogstatsd server address")
 	f.StringVar(&cfg.Metrics.Circonus.APIKey, "metrics.circonus.apikey", defaultConfig.Metrics.Circonus.APIKey, "Circonus API token key")
 	f.StringVar(&cfg.Metrics.Circonus.APIApp, "metrics.circonus.apiapp", defaultConfig.Metrics.Circonus.APIApp, "Circonus API token app")
 	f.StringVar(&cfg.Metrics.Circonus.APIURL, "metrics.circonus.apiurl", defaultConfig.Metrics.Circonus.APIURL, "Circonus API URL")
 	f.StringVar(&cfg.Metrics.Circonus.BrokerID, "metrics.circonus.brokerid", defaultConfig.Metrics.Circonus.BrokerID, "Circonus Broker ID")
 	f.StringVar(&cfg.Metrics.Circonus.CheckID, "metrics.circonus.checkid", defaultConfig.Metrics.Circonus.CheckID, "Circonus Check ID")
 	f.StringVar(&cfg.Metrics.Circonus.SubmissionURL, "metrics.circonus.submissionurl", defaultConfig.Metrics.Circonus.SubmissionURL, "Circonus Check SubmissionURL")
+	f.StringVar(&cfg.Metrics.Prometheus.Subsystem, "metrics.prometheus.subsystem", defaultConfig.Metrics.Prometheus.Subsystem, "Prometheus system")
+	f.StringVar(&cfg.Metrics.Prometheus.Path, "metrics.prometheus.path", defaultConfig.Metrics.Prometheus.Path, "Prometheus http handler path")
+	f.FloatSliceVar(&cfg.Metrics.Prometheus.Buckets, "metrics.prometheus.buckets", defaultConfig.Metrics.Prometheus.Buckets, "Prometheus histogram buckets")
 	f.StringVar(&cfg.Registry.Backend, "registry.backend", defaultConfig.Registry.Backend, "registry backend")
 	f.DurationVar(&cfg.Registry.Timeout, "registry.timeout", defaultConfig.Registry.Timeout, "timeout for registry to become available")
 	f.DurationVar(&cfg.Registry.Retry, "registry.retry", defaultConfig.Registry.Retry, "retry interval during startup")
@@ -193,12 +216,21 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Registry.Consul.ChecksRequired, "registry.consul.checksRequired", defaultConfig.Registry.Consul.ChecksRequired, "number of checks which must pass: one or all")
 	f.IntVar(&cfg.Registry.Consul.ServiceMonitors, "registry.consul.serviceMonitors", defaultConfig.Registry.Consul.ServiceMonitors, "concurrency for route updates")
 	f.DurationVar(&cfg.Registry.Consul.PollInterval, "registry.consul.pollinterval", defaultConfig.Registry.Consul.PollInterval, "poll interval for route updates")
+	f.BoolVar(&cfg.Registry.Consul.RequireConsistent, "registry.consul.requireConsistent", defaultConfig.Registry.Consul.RequireConsistent, "is consistent read mode on consul queries required")
+	f.BoolVar(&cfg.Registry.Consul.AllowStale, "registry.consul.allowStale", defaultConfig.Registry.Consul.AllowStale, "is stale read mode on consul queries allowed")
 	f.IntVar(&cfg.Runtime.GOGC, "runtime.gogc", defaultConfig.Runtime.GOGC, "sets runtime.GOGC")
 	f.IntVar(&cfg.Runtime.GOMAXPROCS, "runtime.gomaxprocs", defaultConfig.Runtime.GOMAXPROCS, "sets runtime.GOMAXPROCS")
 	f.StringVar(&cfg.UI.Access, "ui.access", defaultConfig.UI.Access, "access mode, one of [ro, rw]")
 	f.StringVar(&uiListenerValue, "ui.addr", defaultValues.UIListenerValue, "Address the UI/API is listening on")
 	f.StringVar(&cfg.UI.Color, "ui.color", defaultConfig.UI.Color, "background color of the UI")
 	f.StringVar(&cfg.UI.Title, "ui.title", defaultConfig.UI.Title, "optional title for the UI")
+
+	f.BoolVar(&cfg.UI.RoutingTable.Source.LinkEnabled, "ui.routingtable.source.linkenabled", defaultConfig.UI.RoutingTable.Source.LinkEnabled, "optional true/false flag if the source in the routing table of the admin UI should have a link")
+	f.BoolVar(&cfg.UI.RoutingTable.Source.NewTab, "ui.routingtable.source.newtab", defaultConfig.UI.RoutingTable.Source.NewTab, "optional true/false flag if the source link should be opened in a new tab, not affected if linkenabled is false")
+	f.StringVar(&cfg.UI.RoutingTable.Source.Scheme, "ui.routingtable.source.scheme", defaultConfig.UI.RoutingTable.Source.Scheme, "optional protocol scheme for the source link on the routing table in the admin UI, not affected if linkenabled is false")
+	f.StringVar(&cfg.UI.RoutingTable.Source.Host, "ui.routingtable.source.host", defaultConfig.UI.RoutingTable.Source.Host, "optional host for the source link on the routing table in the admin UI, not affected if linkenabled is false")
+	f.StringVar(&cfg.UI.RoutingTable.Source.Port, "ui.routingtable.source.port", defaultConfig.UI.RoutingTable.Source.Port, "optional port for the host of the source link on the routing table in the admin UI, not affected if linkenabled is false")
+
 	f.StringVar(&cfg.ProfileMode, "profile.mode", defaultConfig.ProfileMode, "enable profiling mode, one of [cpu, mem, mutex, block, trace]")
 	f.StringVar(&cfg.ProfilePath, "profile.path", defaultConfig.ProfilePath, "path to profile dump file")
 	f.BoolVar(&cfg.Tracing.TracingEnabled, "tracing.TracingEnabled", defaultConfig.Tracing.TracingEnabled, "Enable/Disable OpenTrace, one of [true, false]")
@@ -222,6 +254,17 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&cfg.Registry.Custom.Path, "registry.custom.path", defaultConfig.Registry.Custom.Path, "custom back end path in the URL")
 	f.StringVar(&cfg.Registry.Custom.QueryParams, "registry.custom.queryparams", defaultConfig.Registry.Custom.QueryParams, "custom back end query parameters in the URL")
 
+	f.BoolVar(&cfg.BGP.BGPEnabled, "bgp.enabled", defaultConfig.BGP.BGPEnabled, "enabled bgp announcements")
+	f.UintVar(&cfg.BGP.Asn, "bgp.asn", defaultConfig.BGP.Asn, "our BGP asn")
+	f.StringSliceVar(&cfg.BGP.AnycastAddresses, "bgp.anycastaddresses", defaultConfig.BGP.AnycastAddresses, "comma separated list of CIDRs to broadcast - required if bgp is enabled")
+	f.StringVar(&cfg.BGP.RouterID, "bgp.routerid", defaultConfig.BGP.RouterID, "our router ID - required if bgp is enabled")
+	f.IntVar(&cfg.BGP.ListenPort, "bgp.listenport", defaultConfig.BGP.ListenPort, "bgp listen port.  -1 means disabled")
+	f.StringSliceVar(&cfg.BGP.ListenAddresses, "bgp.listenaddresses", defaultConfig.BGP.ListenAddresses, "bgp listen address")
+	f.StringVar(&bgpPeersValue, "bgp.peers", defaultValues.BGPPeersValue, "bgp peers.  comma separated list of neighboraddress=1.2.3.4;asn=65001")
+	f.BoolVar(&cfg.BGP.EnableGRPC, "bgp.enablegrpc", defaultConfig.BGP.EnableGRPC, "enable bgp grpc listener for use with gobgp cli")
+	f.StringVar(&cfg.BGP.GRPCListenAddress, "bgp.grpclistenaddress", defaultConfig.BGP.GRPCListenAddress, "bgp grpc cli listen address")
+	f.StringVar(&cfg.BGP.NextHop, "bgp.nexthop", defaultConfig.BGP.NextHop, "specify the next-hop.  defaults to bgp.routerid")
+	f.StringVar(&cfg.BGP.GOBGPDCfgFile, "bgp.gobgpdcfgfile", defaultConfig.BGP.GOBGPDCfgFile, "specify path to gobgpd config file.  overrides settings")
 	// deprecated flags
 	var proxyLogRoutes string
 	f.StringVar(&proxyLogRoutes, "proxy.log.routes", "", "deprecated. use log.routes.format instead")
@@ -323,6 +366,10 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 		return nil, fmt.Errorf("proxy.noroutestatus must be between 100 and 999")
 	}
 
+	if cfg.Registry.Consul.AllowStale && cfg.Registry.Consul.RequireConsistent {
+		return nil, fmt.Errorf("registry.consul.allowStale and registry.consul.requireConsistent cannot both be true")
+	}
+
 	// handle deprecations
 	deprecate := func(name, msg string) {
 		if f.IsSet(name) {
@@ -333,6 +380,11 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 
 	if proxyLogRoutes != "" {
 		cfg.Log.RoutesFormat = proxyLogRoutes
+	}
+
+	cfg.BGP.Peers, err = parseBGPPeers(bgpPeersValue)
+	if err != nil {
+		return nil, err
 	}
 
 	return cfg, nil
@@ -386,7 +438,7 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 		case "proto":
 			l.Proto = v
 			switch l.Proto {
-			case "tcp", "tcp+sni", "tcp-dynamic", "http", "https", "grpc", "grpcs", "https+tcp+sni":
+			case "tcp", "tcp+sni", "tcp-dynamic", "http", "https", "grpc", "grpcs", "https+tcp+sni", "prometheus":
 				// ok
 			default:
 				return Listen{}, fmt.Errorf("unknown protocol %q", v)
@@ -462,8 +514,8 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 	if l.Addr == "" {
 		return Listen{}, fmt.Errorf("need listening host:port")
 	}
-	if csName != "" && l.Proto != "https" && l.Proto != "tcp" && l.Proto != "tcp-dynamic" && l.Proto != "grpcs" && l.Proto != "https+tcp+sni" {
-		return Listen{}, fmt.Errorf("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', or 'grpcs'")
+	if csName != "" && l.Proto != "https" && l.Proto != "tcp" && l.Proto != "tcp-dynamic" && l.Proto != "grpcs" && l.Proto != "prometheus" && l.Proto != "https+tcp+sni" {
+		return Listen{}, fmt.Errorf("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', 'prometheus', or 'grpcs'")
 	}
 	if csName == "" && l.Proto == "https" {
 		return Listen{}, fmt.Errorf("proto 'https' requires cert source")
@@ -486,35 +538,10 @@ func parseListen(cfg map[string]string, cs map[string]CertSource, readTimeout, w
 }
 
 var tlsver = map[string]uint16{
-	"ssl30": tls.VersionSSL30,
 	"tls10": tls.VersionTLS10,
 	"tls11": tls.VersionTLS11,
 	"tls12": tls.VersionTLS12,
-}
-
-var tlsciphers = map[string]uint16{
-	"TLS_RSA_WITH_RC4_128_SHA":                0x0005,
-	"TLS_RSA_WITH_3DES_EDE_CBC_SHA":           0x000a,
-	"TLS_RSA_WITH_AES_128_CBC_SHA":            0x002f,
-	"TLS_RSA_WITH_AES_256_CBC_SHA":            0x0035,
-	"TLS_RSA_WITH_AES_128_CBC_SHA256":         0x003c,
-	"TLS_RSA_WITH_AES_128_GCM_SHA256":         0x009c,
-	"TLS_RSA_WITH_AES_256_GCM_SHA384":         0x009d,
-	"TLS_ECDHE_ECDSA_WITH_RC4_128_SHA":        0xc007,
-	"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA":    0xc009,
-	"TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA":    0xc00a,
-	"TLS_ECDHE_RSA_WITH_RC4_128_SHA":          0xc011,
-	"TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA":     0xc012,
-	"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA":      0xc013,
-	"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA":      0xc014,
-	"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256": 0xc023,
-	"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256":   0xc027,
-	"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256":   0xc02f,
-	"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256": 0xc02b,
-	"TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384":   0xc030,
-	"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384": 0xc02c,
-	"TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305":    0xcca8,
-	"TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305":  0xcca9,
+	"tls13": tls.VersionTLS13,
 }
 
 func parseTLSVersion(s string) (uint16, error) {
@@ -543,12 +570,9 @@ func parseTLSCiphers(s string) ([]uint16, error) {
 }
 
 func parseUint16(s string) (uint16, error) {
-	n, err := strconv.ParseUint(s, 0, 32)
+	n, err := strconv.ParseUint(s, 0, 16)
 	if err != nil {
 		return 0, err
-	}
-	if n > 1<<16 {
-		return 0, fmt.Errorf("%d out of range: [0..65535]", n)
 	}
 	return uint16(n), nil
 }
@@ -696,4 +720,58 @@ func parseAuthScheme(cfg map[string]string) (a AuthScheme, err error) {
 	}
 
 	return
+}
+
+func parseBGPPeers(cfgs string) ([]BGPPeer, error) {
+	kvs, err := parseKVSlice(cfgs)
+	if err != nil {
+		return nil, err
+	}
+	var peers []BGPPeer
+	for _, cfg := range kvs {
+		peer, err := parseBGPPeer(cfg)
+		if err != nil {
+			return nil, err
+		}
+		peers = append(peers, peer)
+	}
+	return peers, nil
+}
+
+func parseBGPPeer(cfg map[string]string) (BGPPeer, error) {
+	var peer = *defaultBGPPeer
+	for k, v := range cfg {
+		switch k {
+		case "address":
+			peer.NeighborAddress = v
+		case "port":
+			u, err := strconv.ParseUint(v, 10, 32)
+			if err != nil {
+				return peer, err
+			}
+			peer.NeighborPort = uint(u)
+		case "asn":
+			u, err := strconv.ParseUint(v, 10, 32)
+			if err != nil {
+				return peer, err
+			}
+			peer.Asn = uint(u)
+		case "multihop":
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				return peer, err
+			}
+			peer.MultiHop = b
+		case "multihoplength":
+			u, err := strconv.ParseUint(v, 10, 32)
+			if err != nil {
+				return peer, err
+			}
+			peer.MultiHopLength = uint(u)
+		case "password":
+			peer.Password = v
+		}
+
+	}
+	return peer, nil
 }

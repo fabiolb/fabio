@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
 	"net"
 	"net/url"
 	"os"
@@ -104,16 +103,12 @@ func TestTCPProxyWithTLS(t *testing.T) {
 	defer srv.Close()
 
 	// setup cert source
-	dir, err := ioutil.TempDir("", "fabio")
-	if err != nil {
-		t.Fatal("ioutil.TempDir", err)
-	}
-	defer os.RemoveAll(dir)
+	dir := t.TempDir()
 
 	mustWrite := func(name string, data []byte) {
 		path := filepath.Join(dir, name)
-		if err := ioutil.WriteFile(path, data, 0644); err != nil {
-			t.Fatalf("ioutil.WriteFile: %s", err)
+		if err := os.WriteFile(path, data, 0644); err != nil {
+			t.Fatalf("os.WriteFile: %s", err)
 		}
 	}
 	mustWrite("example.com-key.pem", internal.LocalhostKey)
@@ -282,22 +277,18 @@ func TestTCPProxyWithProxyProto(t *testing.T) {
 
 // TestTCPProxyWithTLSWithProxyProto tests proxying an encrypted TCP connection
 // to an unencrypted upstream TCP server with proxy protocol enabled.
-// The proxy extract the proxy protocl header and terminates the TLS connection.
+// The proxy extract the proxy protocol header and terminates the TLS connection.
 func TestTCPProxyWithTLSWithProxyProto(t *testing.T) {
 	srv := tcptest.NewServerWithProxyProto(proxyHandler)
 	defer srv.Close()
 
 	// setup cert source
-	dir, err := ioutil.TempDir("", "fabio")
-	if err != nil {
-		t.Fatal("ioutil.TempDir", err)
-	}
-	defer os.RemoveAll(dir)
+	dir := t.TempDir()
 
 	mustWrite := func(name string, data []byte) {
 		path := filepath.Join(dir, name)
-		if err := ioutil.WriteFile(path, data, 0644); err != nil {
-			t.Fatalf("ioutil.WriteFile: %s", err)
+		if err := os.WriteFile(path, data, 0644); err != nil {
+			t.Fatalf("os.WriteFile: %s", err)
 		}
 	}
 	mustWrite("example.com-key.pem", internal.LocalhostKey)

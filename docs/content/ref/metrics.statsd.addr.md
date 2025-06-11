@@ -5,7 +5,7 @@ title: "metrics.statsd.addr"
 `metrics.statsd.addr` configures the host:port of the StatsD
 server. 
 
-This is required when [metrics.target](/ref/metrics.target/) is set to `statsd`.
+This is required when [metrics.target](/ref/metrics.target/) is set to `statsd_raw`.
 
 The default is
 

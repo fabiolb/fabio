@@ -2,7 +2,9 @@
 title: "metrics.names"
 ---
 
-`metrics.names` configures the template for the route metric names.
+`metrics.names` configures the template for the route metric names
+on backends that don't support tags.  This is used in circonus,
+graphite and statsd_raw.  dogstatsd and prometheus ignore this.
 The value is expanded by the [text/template](https://golang.org/pkg/text/template) package and provides
 the following variables:
 

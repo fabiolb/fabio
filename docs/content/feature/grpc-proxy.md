@@ -14,6 +14,54 @@ fabio -proxy.addr ':1234;proto=grpc'
 
 As per the HTTP/2 spec, the host header is not required, so host matching is not supported for GRPC proxying.
 
+To route to a particular grpc service(s), set the 'dsthost'='name' in metadata, the grpc traffic will be routed to the service advertising `urlprefix-name/my.service/Method proto=grpc`.
+
+For example in Go grpc request:
+```
+	md := metadata.Pairs("dsthost", "testonly")
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+```
+To make RPC using the context with the metadata will try to access the service with tag
+```
+ urlprefix-testonly/my.service/Method proto=grpc
+```
+
+first, if no such service exits, fall back to the service with tag 
+```
+ urlprefix-/my.service/Method proto=grpc
+```
+
+Equivalent metadata in Java:
+```
+public class GrpcClientHeaderInterceptor implements ClientInterceptor {
+
+    private String dstHost;
+
+    public GrpcClientHeaderInterceptor(String dstHost) {
+        this.dstHost = dstHost;
+    }
+
+    @VisibleForTesting
+    static final Metadata.Key<String> CUSTOM_HEADER_KEY =
+            Metadata.Key.of("dsthost", Metadata.ASCII_STRING_MARSHALLER);
+
+    @Override
+    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method,
+                                                               CallOptions callOptions, Channel next) {
+        ClientCall<ReqT, RespT> call = next.newCall(method, callOptions);
+        return new SimpleForwardingClientCall<ReqT, RespT>(call) {
+            @Override
+            public void start(Listener<RespT> responseListener, Metadata headers) {
+                /* put custom header */
+                headers.put(CUSTOM_HEADER_KEY, "testonly");
+            }
+
+        };
+    }
+}
+```
+
+
 GRPC proxy support can be combined with [Certificate Stores](/feature/certificate-stores/) to provide TLS termination on fabio. Configure `proxy.addr` with `proto=grpcs`.
 
 ```

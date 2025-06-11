@@ -6,7 +6,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -33,8 +33,13 @@ const (
 	globDisabled = true
 )
 
-//Global GlobCache for Testing
+// Global GlobCache for Testing
 var globCache = route.NewGlobCache(1000)
+
+const (
+	legitHeader1 = "Legit-Header1"
+	legitHeader2 = "Legit-Header2"
+)
 
 func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 	var hdr http.Header = make(http.Header)
@@ -55,12 +60,23 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 	req, _ := http.NewRequest("GET", proxy.URL, nil)
 	req.Host = "foo.com"
 	req.Header.Set("X-Forwarded-For", "3.3.3.3")
+	req.Header.Set(legitHeader1, "asdf")
+	req.Header.Set(legitHeader2, "qwerty")
+	req.Header.Set("Connection",
+		fmt.Sprintf("keep-alive, x-forwarded-for, x-forwarded-host, %s, %s",
+			strings.ToLower(legitHeader1), strings.ToLower(legitHeader2)))
 	mustDo(req)
 
 	if got, want := hdr.Get("X-Forwarded-For"), "3.3.3.3, 127.0.0.1"; got != want {
 		t.Errorf("got %v want %v", got, want)
 	}
 	if got, want := hdr.Get("X-Forwarded-Host"), "foo.com"; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+	if got, want := hdr.Get(legitHeader1), ""; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+	if got, want := hdr.Get(legitHeader2), ""; got != want {
 		t.Errorf("got %v want %v", got, want)
 	}
 }
@@ -211,6 +227,34 @@ func TestProxyStripsPath(t *testing.T) {
 	}
 }
 
+func TestProxyPrependsPath(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.RequestURI {
+		case "/foo/bar":
+			w.Write([]byte("OK"))
+		default:
+			w.WriteHeader(404)
+		}
+	}))
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Transport: http.DefaultTransport,
+		Lookup: func(r *http.Request) *route.Target {
+			tbl, _ := route.NewTable(bytes.NewBufferString("route add mock /bar " + server.URL + ` opts "prepend=/foo"`))
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
+		},
+	})
+	defer proxy.Close()
+
+	resp, body := mustGet(proxy.URL + "/bar")
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
+		t.Fatalf("got status %d want %d", got, want)
+	}
+	if got, want := string(body), "OK"; got != want {
+		t.Fatalf("got body %q want %q", got, want)
+	}
+}
+
 func TestProxyHost(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, r.Host)
@@ -227,8 +271,8 @@ func TestProxyHost(t *testing.T) {
 
 	proxy := httptest.NewServer(&HTTPProxy{
 		Transport: &http.Transport{
-			Dial: func(network, addr string) (net.Conn, error) {
-				addr = server.URL[len("http://"):]
+			Dial: func(network, _ string) (net.Conn, error) {
+				addr := server.URL[len("http://"):]
 				return net.Dial(network, addr)
 			},
 		},
@@ -468,7 +512,7 @@ func testProxyLogOutput(t *testing.T, bodySize int, cfg config.Proxy) {
 		"upstream_service:svc-a",
 	}
 
-	data := string(b.Bytes())
+	data := b.String()
 	data = data[:len(data)-1] // strip \n
 	got := strings.Split(data, ";")
 	sort.Strings(got)
@@ -499,6 +543,48 @@ func TestProxyHTTPSUpstream(t *testing.T) {
 	if got, want := string(body), "OK"; got != want {
 		t.Fatalf("got body %q want %q", got, want)
 	}
+}
+
+type sniHandler struct {
+	sni string
+}
+
+func (s *sniHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	if request.TLS != nil {
+		s.sni = request.TLS.ServerName
+	}
+	writer.Write([]byte(`OK`))
+}
+
+func TestProxyHTTPSTransport(t *testing.T) {
+	sni := &sniHandler{}
+
+	server := httptest.NewUnstartedServer(sni)
+	server.TLS = tlsServerConfig()
+	server.StartTLS()
+	defer server.Close()
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Config:    config.Proxy{},
+		Transport: &http.Transport{TLSClientConfig: tlsClientConfig()},
+		Lookup: func(r *http.Request) *route.Target {
+			tbl, _ := route.NewTable(bytes.NewBufferString("route add srv / " + server.URL + ` opts "proto=https host=foo.com tlsskipverify=true"`))
+			return tbl.Lookup(r, "", route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
+		},
+	})
+	defer proxy.Close()
+
+	resp, body := mustGet(proxy.URL)
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
+		t.Fatalf("got status %d want %d", got, want)
+	}
+	if got, want := string(body), "OK"; got != want {
+		t.Fatalf("got body %q want %q", got, want)
+	}
+	if got, want := sni.sni, "foo.com"; got != want {
+		t.Fatalf("got sni %q want %q", got, want)
+	}
+
 }
 
 func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
@@ -680,7 +766,7 @@ func mustDo(req *http.Request) (*http.Response, []byte) {
 		panic(err)
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		panic(err)
 	}

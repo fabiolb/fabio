@@ -55,6 +55,20 @@ func TestAddHeaders(t *testing.T) {
 			"",
 		},
 
+		{"https request hack",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Connection": {"keep-alive", "X-Real-Ip"}}},
+			config.Proxy{},
+			"",
+			http.Header{
+				"Connection":        []string{"keep-alive"},
+				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": []string{"http"},
+				"X-Forwarded-Port":  []string{"80"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
+			"",
+		},
+
 		{"ws request",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Upgrade": {"websocket"}}},
 			config.Proxy{},
@@ -495,5 +509,5 @@ func BenchmarkUint16Base16(b *testing.B) {
 			s = uint16base16(uint16(i))
 		}
 	})
-	_ = s == s // use the var to make go1.10 vet happy
+	b.Logf("BenchmarkUint16Base16 %v", s) // use the var to make go1.10 vet happy
 }

@@ -11,7 +11,7 @@
   <p align="center" style="margin-top: 16px">
     <a href="https://github.com/fabiolb/fabio/releases/latest"><img alt="Release" src="https://img.shields.io/github/release/fabiolb/fabio.svg?style=flat-square"></a>
     <a href="https://raw.githubusercontent.com/fabiolb/fabio/master/LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
-    <a href="https://travis-ci.com/github/fabiolb/fabio"><img alt="Travis CI Status" src="https://travis-ci.com/fabiolb/fabio.svg?branch=master"></a>
+    <a href="https://github.com/fabiolb/fabio/actions/workflows/build.yml"><img alt="Github Actions Build Status" src="https://github.com/fabiolb/fabio/actions/workflows/build.yml/badge.svg"></a>
     <a href="https://github.com/fabiolb/fabio/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/fabiolb/fabio/total.svg?style=flat-square"></a>
     <a href="https://hub.docker.com/r/fabiolb/fabio/"><img alt="Docker Pulls fabiolb" src="https://img.shields.io/docker/pulls/fabiolb/fabio.svg?style=flat-square&label=docker+pulls+fabiolb"></a>
   </p>
@@ -21,15 +21,22 @@
 
 #### Notes
 
-1) From release 1.5.15 onward, fabio changes the default GOGC from 800 back to
+1) From release 1.6.1 onward, the minimum golang version supported is 1.16. 
+2) From release 1.6.0 onward, metrics backend statsd is no longer supported.  statsd_raw
+works similarly, though it actually resets counters appropriately.  If you are using datadog,
+you should consider using the new dogstatsd backend, which has support for tags now.  Graphite
+histogram functionality has changed slightly since switching to gokit framework, so something to be aware of.
+ Prometheus functionality is now supported natively.
+
+3) From release 1.5.15 onward, fabio changes the default GOGC from 800 back to
 the golang default of 100.  Apparently this made some sense back in the golang 1.5 days, but with
 changes introduced with golang 1.12 and others, this is probably no longer a very good default.
 This is still configurable, as always, but the new default should make the most sense for most users.
 
-2) From release 1.5.14, release hashes are signed with a new PGP key.
+4) From release 1.5.14, release hashes are signed with a new PGP key.
 See details [here](https://fabiolb.net/faq/verifying-releases/).
 
-3) From release 1.5.14 onward, fabio binary releases are compiled with golang 1.15+.  
+5) From release 1.5.14 onward, fabio binary releases are compiled with golang 1.15+.  
 This means that the fabio will no longer validate upstream https certificates that do 
 not have SAN extensions matching the server name.  This may be a concern if fabio is 
 communicating with https backends with misconfigured certificates.  If this is a problem,
@@ -49,9 +56,7 @@ refactoring has never been easier.
 fabio is developed and maintained by The Fabio Authors.
 
 It powers some of the largest websites in
-The Netherlands ([marktplaats.nl](http://www.marktplaats.nl/)),
-Australia ([gumtree.com.au](http://www.gumtree.com.au))
-and Italy ([www.kijiji.it](http://www.kijiji.it/)).
+Australia ([gumtree.com.au](http://www.gumtree.com.au)).
 It delivers 23.000 req/sec every day since Sep 2015 without problems.
 
 It integrates with
@@ -67,16 +72,19 @@ It supports ([Full feature list](https://fabiolb.net/feature/))
 * [Raw TCP proxy](https://fabiolb.net/feature/tcp-proxy/)
 * [TCP+SNI proxy for full end-to-end TLS](https://fabiolb.net/feature/tcp-sni-proxy/) without decryption
 * [HTTPS+TCP+SNI proxy for TCP+SNI with HTTPS fallback](https://fabiolb.net/feature/https-tcp-sni-proxy/)
-* [TCP dyanamic proxy](https://fabiolb.net/feature/tcp-dynamic-proxy/)
+* [TCP dynamic proxy](https://fabiolb.net/feature/tcp-dynamic-proxy/)
 * [HTTPS upstream support](https://fabiolb.net/feature/https-upstream/)
 * [Websockets](https://fabiolb.net/feature/websockets/) and
-  [SSE](https://fabiolb.net/feature/sse/)
+* [SSE](https://fabiolb.net/feature/sse/)
 * [Dynamic reloading without restart](https://fabiolb.net/feature/dynamic-reloading/)
 * [Traffic shaping](https://fabiolb.net/feature/traffic-shaping/) for "blue/green" deployments,
+* [Prometheus](https://fabiolb.net/feature/metrics/),
 * [Circonus](https://fabiolb.net/feature/metrics/),
-  [Graphite](https://fabiolb.net/feature/metrics/) and
-  [StatsD/DataDog](https://fabiolb.net/feature/metrics/) metrics
-* [WebUI](https://fabiolb.net/feature/web-ui/)
+* [Graphite](https://fabiolb.net/feature/metrics/),
+* [StatsD](https://fabiolb.net/feature/metrics/),
+* [DataDog](https://fabiolb.net/feature/metrics/) for metrics,
+* [WebUI](https://fabiolb.net/feature/web-ui/) and
+* [Advertising BGP anycast addresses](https://fabiolb.net/feature/bgp/) on non-windows platforms.
 
 [Watch](https://www.youtube.com/watch?v=gf43TcWjBrE&list=PL81sUbsFNc5b-Gd59Lpz7BW0eHJBt0GvE&index=1)
 Kelsey Hightower demo Consul, Nomad, Vault and fabio at HashiConf EU 2016.
@@ -89,7 +97,7 @@ The full documentation is on [fabiolb.net](https://fabiolb.net/)
    [Docker](https://hub.docker.com/r/fabiolb/fabio/) or [Homebrew](http://brew.sh).
     ```shell
 	# go 1.15 or higher is required
-    go get github.com/fabiolb/fabio                     (>= go1.15)
+    go install github.com/fabiolb/fabio@latest          (>= go1.15)
 
     brew install fabio                                  (OSX/macOS stable)
     brew install --devel fabio                          (OSX/macOS devel)
@@ -167,6 +175,3 @@ This project exists thanks to all the people who contribute. [[Contribute](CONTR
 
 See [LICENSE](https://github.com/fabiolb/fabio/blob/master/LICENSE) for details.
 
-## Stargazers over Time
-
-[![Stargazers over time](https://starcharts.herokuapp.com/fabiolb/fabio.svg)](https://starcharts.herokuapp.com/fabiolb/fabio)

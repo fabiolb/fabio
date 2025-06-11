@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -278,6 +277,29 @@ func TestLoad(t *testing.T) {
 						Basic: BasicAuth{
 							File:  "/some/file/on/disk",
 							Realm: "realm",
+						},
+					},
+				}
+				return cfg
+			},
+		},
+		{
+			desc: "-proxy.addr with with prometheus and https",
+			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true;proto=prometheus", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;hdr=a: b;caupgcn=furb"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Listen = []Listen{
+					{
+						Addr:        ":5555",
+						Proto:       "prometheus",
+						StrictMatch: true,
+						CertSource: CertSource{
+							Name:         "name",
+							Type:         "path",
+							CertPath:     "foo",
+							ClientCAPath: "bar",
+							Refresh:      2 * time.Second,
+							Header:       http.Header{"A": []string{"b"}},
+							CAUpgradeCN:  "furb",
 						},
 					},
 				}
@@ -1065,13 +1087,13 @@ func TestLoad(t *testing.T) {
 			desc: "-proxy.addr with cert source and proto 'http' requires proto 'https', 'tcp', or 'grpcs'",
 			args: []string{"-proxy.addr", ":5555;cs=name;proto=http", "-proxy.cs", "cs=name;type=path;cert=value"},
 			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', or 'grpcs'"),
+			err:  errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', 'prometheus', or 'grpcs'"),
 		},
 		{
 			desc: "-proxy.addr with cert source and proto 'tcp+sni' requires proto 'https', 'tcp' or 'grpcs'",
 			args: []string{"-proxy.addr", ":5555;cs=name;proto=tcp+sni", "-proxy.cs", "cs=name;type=path;cert=value"},
 			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', or 'grpcs'"),
+			err:  errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', 'prometheus', or 'grpcs'"),
 		},
 		{
 			desc: "-proxy.noroutestatus too small",
@@ -1125,6 +1147,24 @@ func TestLoad(t *testing.T) {
 			cfg:  func(cfg *Config) *Config { return nil },
 			err:  errInvalidConfig,
 		},
+		{
+			desc: "valid bgp peers",
+			args: []string{"-bgp.peers", "address=127.0.0.3;port=1179;asn=65000;" +
+				"multihop=true;multihoplength=5;password=hunter2"},
+			cfg: func(cfg *Config) *Config {
+				cfg.BGP.Peers = []BGPPeer{
+					{
+						NeighborAddress: "127.0.0.3",
+						NeighborPort:    1179,
+						Asn:             65000,
+						MultiHop:        true,
+						MultiHopLength:  5,
+						Password:        "hunter2",
+					},
+				}
+				return cfg
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -1149,7 +1189,7 @@ func TestLoad(t *testing.T) {
 				}
 
 			case tt.path != "":
-				if err := ioutil.WriteFile(tt.path, []byte(tt.data), 0600); err != nil {
+				if err := os.WriteFile(tt.path, []byte(tt.data), 0600); err != nil {
 					t.Fatalf("error writing file: %s", err)
 				}
 				defer os.Remove(tt.path)

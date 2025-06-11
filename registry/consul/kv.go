@@ -10,12 +10,12 @@ import (
 
 // watchKV monitors a key in the KV store for changes.
 // The intended use case is to add additional route commands to the routing table.
-func watchKV(client *api.Client, path string, config chan string, separator bool) {
+func watchKV(client *api.Client, path string, config chan string, separator bool, requireConsistent bool, allowStale bool) {
 	var lastIndex uint64
 	var lastValue string
 
 	for {
-		value, index, err := listKV(client, path, lastIndex, separator)
+		value, index, err := listKV(client, path, lastIndex, separator, requireConsistent, allowStale)
 		if err != nil {
 			log.Printf("[WARN] consul: Error fetching config from %s. %v", path, err)
 			time.Sleep(time.Second)
@@ -30,8 +30,8 @@ func watchKV(client *api.Client, path string, config chan string, separator bool
 	}
 }
 
-func listKeys(client *api.Client, path string, waitIndex uint64) ([]string, uint64, error) {
-	q := &api.QueryOptions{RequireConsistent: true, WaitIndex: waitIndex}
+func listKeys(client *api.Client, path string, waitIndex uint64, requireConsistent bool, allowStale bool) ([]string, uint64, error) {
+	q := &api.QueryOptions{RequireConsistent: requireConsistent, AllowStale: allowStale, WaitIndex: waitIndex}
 	kvpairs, meta, err := client.KV().List(path, q)
 	if err != nil {
 		return nil, 0, err
@@ -46,8 +46,8 @@ func listKeys(client *api.Client, path string, waitIndex uint64) ([]string, uint
 	return keys, meta.LastIndex, nil
 }
 
-func listKV(client *api.Client, path string, waitIndex uint64, separator bool) (string, uint64, error) {
-	q := &api.QueryOptions{RequireConsistent: true, WaitIndex: waitIndex}
+func listKV(client *api.Client, path string, waitIndex uint64, separator bool, requireConsistent bool, allowStale bool) (string, uint64, error) {
+	q := &api.QueryOptions{RequireConsistent: requireConsistent, AllowStale: allowStale, WaitIndex: waitIndex}
 	kvpairs, meta, err := client.KV().List(path, q)
 	if err != nil {
 		return "", 0, err
@@ -66,8 +66,8 @@ func listKV(client *api.Client, path string, waitIndex uint64, separator bool) (
 	return strings.Join(s, "\n\n"), meta.LastIndex, nil
 }
 
-func getKV(client *api.Client, key string, waitIndex uint64) (string, uint64, error) {
-	q := &api.QueryOptions{RequireConsistent: true, WaitIndex: waitIndex}
+func getKV(client *api.Client, key string, waitIndex uint64, requireConsistent bool, allowStale bool) (string, uint64, error) {
+	q := &api.QueryOptions{RequireConsistent: requireConsistent, AllowStale: allowStale, WaitIndex: waitIndex}
 	kvpair, meta, err := client.KV().Get(key, q)
 	if err != nil {
 		return "", 0, err

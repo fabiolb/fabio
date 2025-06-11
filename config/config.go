@@ -20,6 +20,7 @@ type Config struct {
 	Insecure             bool
 	GlobMatchingDisabled bool
 	GlobCacheSize        int
+	BGP                  BGP
 }
 
 type CertSource struct {
@@ -50,11 +51,24 @@ type Listen struct {
 	Refresh            time.Duration
 }
 
+type Source struct {
+	LinkEnabled bool
+	NewTab      bool
+	Scheme      string
+	Host        string
+	Port        string
+}
+
+type RoutingTable struct {
+	Source Source
+}
+
 type UI struct {
-	Listen Listen
-	Color  string
-	Title  string
-	Access string
+	Listen       Listen
+	Color        string
+	Title        string
+	Access       string
+	RoutingTable RoutingTable
 }
 
 type Proxy struct {
@@ -63,9 +77,11 @@ type Proxy struct {
 	NoRouteStatus         int
 	MaxConn               int
 	ShutdownWait          time.Duration
+	DeregisterGracePeriod time.Duration
 	DialTimeout           time.Duration
 	ResponseHeaderTimeout time.Duration
 	KeepAliveTimeout      time.Duration
+	IdleConnTimeout       time.Duration
 	FlushInterval         time.Duration
 	GlobalFlushInterval   time.Duration
 	LocalIP               string
@@ -76,6 +92,9 @@ type Proxy struct {
 	RequestID             string
 	STSHeader             STSHeader
 	AuthSchemes           map[string]AuthScheme
+	GRPCMaxRxMsgSize      int
+	GRPCMaxTxMsgSize      int
+	GRPCGShutdownTimeout  time.Duration
 }
 
 type STSHeader struct {
@@ -98,6 +117,12 @@ type Circonus struct {
 	SubmissionURL string
 }
 
+type Prometheus struct {
+	Subsystem string
+	Path      string
+	Buckets   []float64
+}
+
 type Log struct {
 	AccessFormat string
 	AccessTarget string
@@ -106,15 +131,17 @@ type Log struct {
 }
 
 type Metrics struct {
-	Target       string
-	Prefix       string
-	Names        string
-	Interval     time.Duration
-	Timeout      time.Duration
-	Retry        time.Duration
-	GraphiteAddr string
-	StatsDAddr   string
-	Circonus     Circonus
+	Target        string
+	Prefix        string
+	Names         string
+	Interval      time.Duration
+	Timeout       time.Duration
+	Retry         time.Duration
+	GraphiteAddr  string
+	StatsDAddr    string
+	DogstatsdAddr string
+	Circonus      Circonus
+	Prometheus    Prometheus
 }
 
 type Registry struct {
@@ -158,6 +185,8 @@ type Consul struct {
 	ServiceMonitors    int
 	TLS                ConsulTlS
 	PollInterval       time.Duration
+	RequireConsistent  bool
+	AllowStale         bool
 }
 
 type Custom struct {
@@ -202,4 +231,30 @@ type ConsulTlS struct {
 	CAFile             string
 	CAPath             string
 	InsecureSkipVerify bool
+}
+
+type BGP struct {
+	BGPEnabled        bool
+	Asn               uint
+	AnycastAddresses  []string
+	RouterID          string
+	ListenPort        int
+	ListenAddresses   []string
+	Peers             []BGPPeer
+	EnableGRPC        bool
+	GRPCListenAddress string
+	GRPCTLS           bool
+	CertFile          string
+	KeyFile           string
+	GOBGPDCfgFile     string
+	NextHop           string
+}
+
+type BGPPeer struct {
+	NeighborAddress string
+	NeighborPort    uint
+	Asn             uint
+	MultiHop        bool
+	MultiHopLength  uint
+	Password        string
 }

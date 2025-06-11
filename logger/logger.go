@@ -5,38 +5,37 @@
 // takes place. Text between two fields is printed verbatim. See the common
 // log file formats for an example.
 //
-//   $header.<name>           - request http header (name: [a-zA-Z0-9-]+)
-//   $remote_addr             - host:port of remote client
-//   $remote_host             - host of remote client
-//   $remote_port             - port of remote client
-//   $request                 - request <method> <uri> <proto>
-//   $request_args            - request query parameters
-//   $request_host            - request host header (aka server name)
-//   $request_method          - request method
-//   $request_scheme          - request scheme
-//   $request_uri             - request URI
-//   $request_url             - request URL
-//   $request_proto           - request protocol
-//   $response_body_size      - response body size in bytes
-//   $response_status         - response status code
-//   $response_time_ms        - response time in S.sss format
-//   $response_time_us        - response time in S.ssssss format
-//   $response_time_ns        - response time in S.sssssssss format
-//   $time_rfc3339            - log timestamp in YYYY-MM-DDTHH:MM:SSZ format
-//   $time_rfc3339_ms         - log timestamp in YYYY-MM-DDTHH:MM:SS.sssZ format
-//   $time_rfc3339_us         - log timestamp in YYYY-MM-DDTHH:MM:SS.ssssssZ format
-//   $time_rfc3339_ns         - log timestamp in YYYY-MM-DDTHH:MM:SS.sssssssssZ format
-//   $time_unix_ms            - log timestamp in unix epoch ms
-//   $time_unix_us            - log timestamp in unix epoch us
-//   $time_unix_ns            - log timestamp in unix epoch ns
-//   $time_common             - log timestamp in DD/MMM/YYYY:HH:MM:SS -ZZZZ
-//   $upstream_addr           - host:port of upstream server
-//   $upstream_host           - host of upstream server
-//   $upstream_port           - port of upstream server
-//   $upstream_request_scheme - upstream request scheme
-//   $upstream_request_uri    - upstream request URI
-//   $upstream_request_url    - upstream request URL
-//
+//	$header.<name>           - request http header (name: [a-zA-Z0-9-]+)
+//	$remote_addr             - host:port of remote client
+//	$remote_host             - host of remote client
+//	$remote_port             - port of remote client
+//	$request                 - request <method> <uri> <proto>
+//	$request_args            - request query parameters
+//	$request_host            - request host header (aka server name)
+//	$request_method          - request method
+//	$request_scheme          - request scheme
+//	$request_uri             - request URI
+//	$request_url             - request URL
+//	$request_proto           - request protocol
+//	$response_body_size      - response body size in bytes
+//	$response_status         - response status code
+//	$response_time_ms        - response time in S.sss format
+//	$response_time_us        - response time in S.ssssss format
+//	$response_time_ns        - response time in S.sssssssss format
+//	$time_rfc3339            - log timestamp in YYYY-MM-DDTHH:MM:SSZ format
+//	$time_rfc3339_ms         - log timestamp in YYYY-MM-DDTHH:MM:SS.sssZ format
+//	$time_rfc3339_us         - log timestamp in YYYY-MM-DDTHH:MM:SS.ssssssZ format
+//	$time_rfc3339_ns         - log timestamp in YYYY-MM-DDTHH:MM:SS.sssssssssZ format
+//	$time_unix_ms            - log timestamp in unix epoch ms
+//	$time_unix_us            - log timestamp in unix epoch us
+//	$time_unix_ns            - log timestamp in unix epoch ns
+//	$time_common             - log timestamp in DD/MMM/YYYY:HH:MM:SS -ZZZZ
+//	$upstream_addr           - host:port of upstream server
+//	$upstream_host           - host of upstream server
+//	$upstream_port           - port of upstream server
+//	$upstream_request_scheme - upstream request scheme
+//	$upstream_request_uri    - upstream request URI
+//	$upstream_request_url    - upstream request URL
 package logger
 
 import (

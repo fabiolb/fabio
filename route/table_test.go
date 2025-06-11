@@ -19,7 +19,7 @@ const (
 	globDisabled = true
 )
 
-//Global GlobCache for Testing
+// Global GlobCache for Testing
 var globCache = NewGlobCache(1000)
 
 func TestTableParse(t *testing.T) {

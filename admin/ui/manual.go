@@ -13,11 +13,6 @@ type ManualHandler struct {
 	Commands string
 }
 
-type paths struct {
-	Path string
-	Name string
-}
-
 func (h *ManualHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := r.RequestURI[len(h.BasePath):]
 	data := struct {
@@ -38,16 +33,17 @@ var funcs = template.FuncMap{
 	},
 }
 
-var tmplManual = template.Must(template.New("manual").Funcs(funcs).Parse(`
+var tmplManual = template.Must(template.New("manual").Funcs(funcs).Parse( // language=HTML
+	`
 <!doctype html>
 <html lang="en">
 <head>
 	<meta charset="utf-8">
 	<title>fabio{{if .Title}} - {{.Title}}{{end}}</title>
-	<script type="text/javascript" src="/assets/code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="/assets/code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="/assets/fonts/material-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
-    <script src="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+    <link rel="stylesheet" href="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 	<style type="text/css">
@@ -63,10 +59,10 @@ var tmplManual = template.Must(template.New("manual").Funcs(funcs).Parse(`
 
 	<div class="container">
 		<div class="nav-wrapper">
-		<a href="/" class="brand-logo"><img style="margin: 15px 0" class="logo" src="/assets/logo.bw.svg"> {{if .Title}} - {{.Title}}{{end}}</a>
+		<a href="/" class="brand-logo"><img alt="Fabio Logo" style="margin: 15px 0" class="logo" src="/assets/logo.bw.svg"> {{if .Title}} - {{.Title}}{{end}}</a>
 			<ul id="nav-mobile" class="right hide-on-med-and-down">
 				<li><a href="/routes">Routes</a></li>
-                <li><a class="dropdown-button" href="#!" data-activates="overrides">Overrides<i class="material-icons right">arrow_drop_down</i></a></li>
+                <li><a class="dropdown-trigger dropdown-button" href="#" data-target="overrides">Overrides<i class="material-icons right">arrow_drop_down</i></a></li>
 				<li><a href="https://github.com/fabiolb/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
 				<li><a href="https://github.com/fabiolb/fabio">Github</a></li>
 			</ul>
@@ -103,19 +99,21 @@ var tmplManual = template.Must(template.New("manual").Funcs(funcs).Parse(`
 
 <script>
 $(function(){
-	var params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
+	$('.dropdown-trigger').dropdown();
+	let params={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){params[key] = value;});
 
 	$.get({{.APIPath}}, function(data) {
+		const $ta1 = $("#textarea1");
 		$("input[name=version]").val(data.version);
 		$("textarea>label").val("Version " + data.version);
-		$("#textarea1").val(data.value);
-		$("#textarea1").trigger('autoresize');
+		$ta1.val(data.value);
+		M.textareaAutoResize($('#textarea1'));
 	});
 
 	$.get('/api/paths', function(data) {
-		var d = $("#overrides");
+		const d = $("#overrides");
 		$.each(data, function(idx, val) {
-			var path = val;
+			let path = val;
 			if (val == "") {
 				val = "default"
 			}
@@ -132,7 +130,7 @@ $(function(){
 	});
 
 	$("button[name=save]").click(function() {
-		var data = {
+		const data = {
 			value   : $("#textarea1").val(),
 			version : $("input[name=version]").val()
 		}

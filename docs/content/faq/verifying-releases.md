@@ -10,7 +10,7 @@ You can also download it from most key servers using the ID
 
 For fabio release 5.14 and newer:
 
-[`76462AB9B0C185ABC66FD98F59861FC4870361CA`](http://pgp.key-server.io/search/0x76462AB9B0C185ABC66FD98F59861FC4870361CA)
+[`76462AB9B0C185ABC66FD98F59861FC4870361CA`](https://keyserver.ubuntu.com/pks/lookup?search=76462AB9B0C185ABC66FD98F59861FC4870361CA&fingerprint=on&op=index)
 
     -----BEGIN PGP PUBLIC KEY BLOCK-----
 

@@ -1,10 +1,10 @@
 package route
 
 import (
+	gkm "github.com/go-kit/kit/metrics"
+	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/fabiolb/fabio/metrics"
 )
 
 type Target struct {
@@ -20,6 +20,10 @@ type Target struct {
 	// StripPath will be removed from the front of the outgoing
 	// request path
 	StripPath string
+
+	// PrependPath will be added to the front of the outgoing
+	// request path (after StripPath has been removed)
+	PrependPath string
 
 	// TLSSkipVerify disables certificate validation for upstream
 	// TLS connections.
@@ -49,11 +53,12 @@ type Target struct {
 	// Weight is the actual weight for this service in percent.
 	Weight float64
 
-	// Timer measures throughput and latency of this target
-	Timer metrics.Timer
+	// Histogram measures throughput and latency of this target
+	Timer gkm.Histogram
 
-	// TimerName is the name of the timer in the metrics registry
-	TimerName string
+	// Counters for rx and tx
+	RxCounter gkm.Counter
+	TxCounter gkm.Counter
 
 	// accessRules is map of access information for the target.
 	accessRules map[string][]interface{}
@@ -63,6 +68,9 @@ type Target struct {
 
 	// ProxyProto enables PROXY Protocol on upstream connection
 	ProxyProto bool
+
+	// Transport allows for different types of transports
+	Transport *http.Transport
 }
 
 func (t *Target) BuildRedirectURL(requestURL *url.URL) {
@@ -83,23 +91,29 @@ func (t *Target) BuildRedirectURL(requestURL *url.URL) {
 		t.RedirectURL.Path = strings.Replace(t.RedirectURL.Path, "/$path", "$path", 1)
 		t.RedirectURL.RawPath = strings.Replace(t.RedirectURL.RawPath, "/$path", "$path", 1)
 	}
-	// insert passed request path, remove strip path, set quer
+	// remove strip path, insert passed request path, set query
 	if strings.Contains(t.RedirectURL.Path, "$path") {
-		// replace in not raw path
-		t.RedirectURL.Path = strings.Replace(t.RedirectURL.Path, "$path", requestURL.Path, 1)
-		// replace in raw path - determine replacement first
+		// set replacement paths
+		replacePath := requestURL.Path
 		var replaceRawPath string
 		if requestURL.RawPath == "" {
 			replaceRawPath = requestURL.Path
 		} else {
 			replaceRawPath = requestURL.RawPath
 		}
-		t.RedirectURL.RawPath = strings.Replace(t.RedirectURL.RawPath, "$path", replaceRawPath, 1)
-		// remove stip path
-		if t.StripPath != "" && strings.HasPrefix(t.RedirectURL.Path, t.StripPath) {
-			t.RedirectURL.Path = t.RedirectURL.Path[len(t.StripPath):]
-			t.RedirectURL.RawPath = t.RedirectURL.RawPath[len(t.StripPath):]
+		// strip path before replacement
+		if t.StripPath != "" {
+			replacePath = strings.TrimPrefix(replacePath, t.StripPath)
+			replaceRawPath = strings.TrimPrefix(replaceRawPath, t.StripPath)
 		}
+		// add prepend path
+		if t.PrependPath != "" {
+			replacePath = t.PrependPath + replacePath
+			replaceRawPath = t.PrependPath + replaceRawPath
+		}
+		// do path replacement
+		t.RedirectURL.Path = strings.Replace(t.RedirectURL.Path, "$path", replacePath, 1)
+		t.RedirectURL.RawPath = strings.Replace(t.RedirectURL.RawPath, "$path", replaceRawPath, 1)
 		// set query
 		if t.RedirectURL.RawQuery == "" && requestURL.RawQuery != "" {
 			t.RedirectURL.RawQuery = requestURL.RawQuery
@@ -108,7 +122,5 @@ func (t *Target) BuildRedirectURL(requestURL *url.URL) {
 	if t.RedirectURL.Path == "" {
 		t.RedirectURL.Path = "/"
 	}
-	if strings.Contains(t.RedirectURL.Host, "$host") {
-		t.RedirectURL.Host = strings.Replace(t.RedirectURL.Host, "$host", requestURL.Host, 1)
-	}
+	t.RedirectURL.Host = strings.Replace(t.RedirectURL.Host, "$host", requestURL.Host, 1)
 }
