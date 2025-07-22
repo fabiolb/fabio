@@ -740,7 +740,7 @@
       <link>https://fabiolb.net/ref/ui.routingtable.source.newtab/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://fabiolb.net/ref/ui.routingtable.source.newtab/</guid>
-      <description>&lt;p&gt;&lt;code&gt;ui.routingtable.source.scheme&lt;/code&gt; configures the scheme protocol for the link of the source on the routing table.  This is useful when the scheme is different than the current page&#xA;or to force the traffic to a certain protocol.&lt;/p&gt;&#xA;&lt;p&gt;This is only applicable if the &lt;a href=&#34;https://fabiolb.net/ref/ui.routingtable.source.linkenabled/&#34;&gt;linkenabled&lt;/a&gt; is set to true.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;ui.routingtable.source.scheme = http&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
+      <description>&lt;p&gt;&lt;code&gt;ui.routingtable.source.newtab&lt;/code&gt; configures if the source link should open in a new tab.&lt;/p&gt;&#xA;&lt;p&gt;This is only applicable if the &lt;a href=&#34;https://fabiolb.net/ref/ui.routingtable.source.linkenabled/&#34;&gt;linkenabled&lt;/a&gt; is set to true.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;ui.routingtable.source.newtab = true&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
     <item>
       <title>ui.routingtable.source.port</title>
