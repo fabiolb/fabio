@@ -65,6 +65,7 @@ var tmplManual = template.Must(template.New("manual").Funcs(funcs).Parse( // lan
                 <li><a class="dropdown-trigger dropdown-button" href="#" data-target="overrides">Overrides<i class="material-icons right">arrow_drop_down</i></a></li>
 				<li><a href="https://github.com/fabiolb/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
 				<li><a href="https://github.com/fabiolb/fabio">Github</a></li>
+				<li><a href="https://fabiolb.net">Fabiolb.net</a></li>
 			</ul>
 		</div>
 	</div>
