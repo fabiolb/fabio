@@ -32,10 +32,7 @@ func parseKVSlice(in string) ([]map[string]string, error) {
 	v := ""
 	s := []rune(in)
 	state := stateFirstKey
-	for {
-		if len(s) == 0 {
-			break
-		}
+	for len(s) > 0 {
 		typ, val, n := lex(s)
 		s = s[n:]
 		// fmt.Println("parse:", "typ:", typ, "val:", val, "v:", v, "state:", string(state), "s:", string(s))

@@ -10,12 +10,12 @@ var defaultValues = struct {
 	ListenerValue         string
 	CertSourcesValue      string
 	AuthSchemesValue      string
-	ReadTimeout           time.Duration
-	WriteTimeout          time.Duration
-	IdleTimeout           time.Duration
 	UIListenerValue       string
 	GZIPContentTypesValue string
 	BGPPeersValue         string
+	ReadTimeout           time.Duration
+	WriteTimeout          time.Duration
+	IdleTimeout           time.Duration
 }{
 	ListenerValue:   ":9999",
 	UIListenerValue: ":9998",

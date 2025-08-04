@@ -24,7 +24,7 @@ var globCache = NewGlobCache(1000)
 
 func TestTableParse(t *testing.T) {
 	genRoutes := func(n int, format string) (a []string) {
-		for i := 0; i < n; i++ {
+		for i := range n {
 			a = append(a, fmt.Sprintf(format, i))
 		}
 		return a

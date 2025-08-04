@@ -42,7 +42,7 @@ const (
 )
 
 func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
-	var hdr http.Header = make(http.Header)
+	var hdr = make(http.Header)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		hdr = r.Header
 	}))
@@ -826,7 +826,7 @@ func BenchmarkProxyLogger(b *testing.B) {
 		Proto:      "HTTP/1.1",
 	}
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		proxy.ServeHTTP(httptest.NewRecorder(), req)
 	}
 }

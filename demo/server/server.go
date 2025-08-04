@@ -62,9 +62,9 @@ type Args struct {
 	token    string
 	certFile string
 	keyFile  string
-	status   int
 	prefixes []string
 	tags     []string
+	status   int
 }
 
 type stringsVar []string

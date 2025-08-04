@@ -11,10 +11,10 @@ import (
 )
 
 type Service struct {
+	TargetURL *url.URL
 	Service   string
 	Host      string
 	Path      string
-	TargetURL *url.URL
 }
 
 // DefaultNames contains the default template for route metric names for backends that don't
@@ -122,8 +122,8 @@ func clean(s string) string {
 	if s == "" {
 		return "_"
 	}
-	s = strings.Replace(s, ".", "_", -1)
-	s = strings.Replace(s, ":", "_", -1)
+	s = strings.ReplaceAll(s, ".", "_")
+	s = strings.ReplaceAll(s, ":", "_")
 	return strings.ToLower(s)
 }
 
@@ -145,9 +145,9 @@ func TargetName(service, host, path, target string) (string, error) {
 	var name bytes.Buffer
 
 	data := struct {
-		Service, Host, Path string
 		TargetURL           *url.URL
-	}{service, host, path, targetURL}
+		Service, Host, Path string
+	}{targetURL, service, host, path}
 
 	if err := names.Execute(&name, data); err != nil {
 		return "", err

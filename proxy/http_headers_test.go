@@ -444,14 +444,7 @@ func TestAddResponseHeaders(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			err := addResponseHeaders(w, tt.r, tt.cfg)
-
-			if err != nil {
-				if got, want := err.Error(), tt.err; got != want {
-					t.Fatalf("%d: %s\ngot  %q\nwant %q", i, tt.desc, got, want)
-				}
-				return
-			}
+			addResponseHeaders(w, tt.r, tt.cfg)
 
 			if tt.err != "" {
 				t.Fatalf("%d: got nil want %q", i, tt.err)
@@ -488,7 +481,7 @@ func TestLocalPort(t *testing.T) {
 }
 
 func TestUint16Base16(t *testing.T) {
-	for i := uint16(0); i <= 9999; i++ {
+	for i := range uint16(9999) {
 		if got, want := uint16base16(i), fmt.Sprintf("0x%04x", i); got != want {
 			t.Fatalf("got %q for %04x want %q", got, i, want)
 		}
@@ -500,12 +493,12 @@ func BenchmarkUint16Base16(b *testing.B) {
 	// optimize the body of the loop away.
 	var s string
 	b.Run("fmt.Sprintf", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for i := range b.N {
 			s = fmt.Sprintf("0x%04x", uint16(i))
 		}
 	})
 	b.Run("uint16base16", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for i := range b.N {
 			s = uint16base16(uint16(i))
 		}
 	})

@@ -349,10 +349,7 @@ func parse(format string, fields map[string]field) (p pattern, err error) {
 	}
 
 	s := []rune(format)
-	for {
-		if len(s) == 0 {
-			break
-		}
+	for len(s) > 0 {
 		typ, n := lex(s)
 		val := string(s[:n])
 		s = s[n:]

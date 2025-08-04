@@ -12,7 +12,7 @@ import (
 )
 
 // addResponseHeaders adds/updates headers in the response
-func addResponseHeaders(w http.ResponseWriter, r *http.Request, cfg config.Proxy) error {
+func addResponseHeaders(w http.ResponseWriter, r *http.Request, cfg config.Proxy) {
 	if r.TLS != nil && cfg.STSHeader.MaxAge > 0 {
 		sts := "max-age=" + i32toa(int32(cfg.STSHeader.MaxAge))
 		if cfg.STSHeader.Subdomains {
@@ -23,8 +23,6 @@ func addResponseHeaders(w http.ResponseWriter, r *http.Request, cfg config.Proxy
 		}
 		w.Header().Set("Strict-Transport-Security", sts)
 	}
-
-	return nil
 }
 
 var protectHeaders = map[string]bool{

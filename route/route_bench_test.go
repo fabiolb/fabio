@@ -87,12 +87,12 @@ func BenchmarkPrefixMatcherRRPicker500Routes(b *testing.B) {
 // domains * paths * depth.
 func makeRoutes(domains, paths, depth, urls int) Table {
 	s := ""
-	for i := 0; i < domains; i++ {
+	for i := range domains {
 		prefix := fmt.Sprintf("www.host-%d.com/", i)
-		for j := 0; j < paths; j++ {
-			for k := 0; k < depth; k++ {
+		for range paths {
+			for k := range depth {
 				prefix += fmt.Sprintf("path-%d/", k)
-				for l := 0; l < urls; l++ {
+				for range urls {
 					s += fmt.Sprintf("route add svc %s http://host:12345/\n", prefix)
 				}
 			}

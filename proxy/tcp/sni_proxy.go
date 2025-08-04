@@ -17,13 +17,6 @@ import (
 // transparently allowing to route a TLS connection based on the SNI header
 // without decrypting it.
 type SNIProxy struct {
-	// DialTimeout sets the timeout for establishing the outbound
-	// connection.
-	DialTimeout time.Duration
-
-	// Lookup returns a target host for the given server name.
-	// The proxy will panic if this value is nil.
-	Lookup func(host string) *route.Target
 
 	// Conn counts the number of connections.
 	Conn gkm.Counter
@@ -33,6 +26,14 @@ type SNIProxy struct {
 
 	// Noroute counts the failed Lookup() calls.
 	Noroute gkm.Counter
+
+	// Lookup returns a target host for the given server name.
+	// The proxy will panic if this value is nil.
+	Lookup func(host string) *route.Target
+
+	// DialTimeout sets the timeout for establishing the outbound
+	// connection.
+	DialTimeout time.Duration
 }
 
 func (p *SNIProxy) ServeTCP(in net.Conn) error {

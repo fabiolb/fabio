@@ -16,13 +16,13 @@ import (
 // vaultClient wraps an *api.Client and takes care of token renewal
 // automatically.
 type vaultClient struct {
+	client           *api.Client
 	addr             string // overrides the default config
 	token            string // overrides the VAULT_TOKEN environment variable
 	fetchVaultToken  string
 	prevFetchedToken string
 
-	client *api.Client
-	mu     sync.Mutex
+	mu sync.Mutex
 }
 
 func NewVaultClient(fetchVaultToken string) *vaultClient {
@@ -129,10 +129,10 @@ func (c *vaultClient) keepTokenAlive() {
 
 	b, _ := json.Marshal(resp.Data)
 	var data struct {
+		ExpireTime  time.Time `json:"expire_time"`
 		TTL         int       `json:"ttl"`
 		CreationTTL int       `json:"creation_ttl"`
 		Renewable   bool      `json:"renewable"`
-		ExpireTime  time.Time `json:"expire_time"`
 	}
 	if err := json.Unmarshal(b, &data); err != nil {
 		log.Printf("[WARN] vault: lookup-self failed, token renewal is disabled: %s", err)
@@ -149,7 +149,7 @@ func (c *vaultClient) keepTokenAlive() {
 		return
 	default:
 		ttl := time.Until(data.ExpireTime)
-		ttl = ttl / time.Second * time.Second // truncate to seconds
+		ttl = ttl.Round(time.Second)
 		log.Printf("[WARN] vault: Token is not renewable and will expire %s from now at %s",
 			ttl, data.ExpireTime.Format(time.RFC3339))
 		return
@@ -184,7 +184,8 @@ func getVaultToken(c string) string {
 		log.Printf("[WARN] vault: vaultfetchtoken not properly set")
 		return token
 	}
-	if cArray[0] == "file" {
+	switch cArray[0] {
+	case "file":
 		b, err := os.ReadFile(cArray[1]) // just pass the file name
 		if err != nil {
 			log.Printf("[WARN] vault: Failed to fetch token from  %s", c)
@@ -193,7 +194,7 @@ func getVaultToken(c string) string {
 			log.Printf("[DEBUG] vault: Successfully fetched token from %s", c)
 			return token
 		}
-	} else if cArray[0] == "env" {
+	case "env":
 		token = os.Getenv(cArray[1])
 		if len(token) == 0 {
 			log.Printf("[WARN] vault: Failed to fetch token from  %s", c)
@@ -201,7 +202,7 @@ func getVaultToken(c string) string {
 			log.Printf("[DEBUG] vault: Successfully fetched token from %s", c)
 			return token
 		}
-	} else {
+	default:
 		log.Printf("[WARN] vault: vaultfetchtoken not properly set")
 	}
 	return token

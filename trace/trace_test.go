@@ -123,7 +123,7 @@ func TestInjectHeadersWithParentSpan(t *testing.T) {
 		t.Error("Inject did not set the correct Parentspanid in the request.")
 		t.Fail()
 	}
-	if req.Header.Get("x-B3-Traceid") != "00000000000004d200000000000010e1" {
+	if req.Header.Get("X-B3-Traceid") != "00000000000004d200000000000010e1" {
 		t.Error("Inject did not reuse the Traceid from the parent span")
 		t.Fail()
 	}

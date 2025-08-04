@@ -14,12 +14,12 @@ import (
 
 // Server provides the HTTP server for the admin UI and API.
 type Server struct {
+	Cfg      *config.Config
 	Access   string
 	Color    string
 	Title    string
 	Version  string
 	Commands string
-	Cfg      *config.Config
 }
 
 // ListenAndServe starts the admin server.

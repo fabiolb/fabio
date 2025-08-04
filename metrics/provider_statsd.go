@@ -71,8 +71,8 @@ func (p *StatsdProvider) NewHistogram(name string, labels ...string) gkm.Histogr
 
 type statsdCounter struct {
 	gkm.Counter
-	name        string
 	p           *StatsdProvider
+	name        string
 	routeMetric bool
 }
 
@@ -98,8 +98,8 @@ func (c *statsdCounter) With(labelValues ...string) gkm.Counter {
 
 type statsdGauge struct {
 	gkm.Gauge
-	name        string
 	p           *StatsdProvider
+	name        string
 	routeMetric bool
 }
 
@@ -125,8 +125,8 @@ func (g *statsdGauge) With(labelValues ...string) gkm.Gauge {
 
 type statsdHistogram struct {
 	gkm.Histogram
-	name        string
 	p           *StatsdProvider
+	name        string
 	routeMetric bool
 }
 

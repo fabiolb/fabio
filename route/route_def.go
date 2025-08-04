@@ -9,11 +9,11 @@ const (
 )
 
 type RouteDef struct {
+	Opts    map[string]string `json:"opts,omitempty"`
 	Cmd     Cmd               `json:"cmd"`
 	Service string            `json:"service"`
 	Src     string            `json:"src"`
 	Dst     string            `json:"dst"`
-	Weight  float64           `json:"weight"`
 	Tags    []string          `json:"tags,omitempty"`
-	Opts    map[string]string `json:"opts,omitempty"`
+	Weight  float64           `json:"weight"`
 }

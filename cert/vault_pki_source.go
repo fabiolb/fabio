@@ -19,7 +19,11 @@ import (
 //
 // The TLS certificates are re-issued automatically before they expire.
 type VaultPKISource struct {
-	Client       *vaultClient
+	Client *vaultClient
+
+	certsCh chan []tls.Certificate
+
+	certs        map[string]tls.Certificate // issued certs
 	CertPath     string
 	ClientCAPath string
 	CAUpgradeCN  string
@@ -28,10 +32,7 @@ type VaultPKISource struct {
 	// one hour.
 	Refresh time.Duration
 
-	certsCh chan []tls.Certificate
-
-	mu    sync.Mutex
-	certs map[string]tls.Certificate // issued certs
+	mu sync.Mutex
 }
 
 func NewVaultPKISource() *VaultPKISource {

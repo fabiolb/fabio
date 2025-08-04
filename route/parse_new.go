@@ -73,7 +73,7 @@ func Parse(in *bytes.Buffer) (defs []*RouteDef, err error) {
 	var i int
 	scanner := bufio.NewScanner(in)
 	for scanner.Scan() {
-		def, err = nil, nil
+		var err error
 		result := strings.TrimSpace(scanner.Text())
 		i++
 		switch {
@@ -102,7 +102,7 @@ func ParseAliases(in string) (names []string, err error) {
 	var defs []*RouteDef
 	var def *RouteDef
 	for i, s := range strings.Split(in, "\n") {
-		def, err = nil, nil
+		var err error
 		s = strings.TrimSpace(s)
 		switch {
 		case reComment.MatchString(s) || reBlankLine.MatchString(s):
@@ -210,7 +210,7 @@ func parseRouteWeight(s string) (*RouteDef, error) {
 }
 
 func mustCompileWithFlexibleSpace(re string) *regexp.Regexp {
-	return regexp.MustCompile(strings.Replace(re, " ", "\\s+", -1))
+	return regexp.MustCompile(strings.ReplaceAll(re, " ", "\\s+"))
 }
 
 func parseWeight(s string) (float64, error) {

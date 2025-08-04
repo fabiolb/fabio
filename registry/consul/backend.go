@@ -13,9 +13,9 @@ import (
 // be is an implementation of a registry backend for consul.
 type be struct {
 	c     *api.Client
-	dc    string
 	cfg   *config.Consul
 	dereg map[string](chan bool)
+	dc    string
 }
 
 func NewBackend(cfg *config.Consul) (registry.Backend, error) {

@@ -21,9 +21,59 @@ run:
   allow-parallel-runners: true
   allow-serial-runners: true
 linters:
-  default: none
-  enable:
-    - asciicheck
+  default: all
+  disable:
+    - bodyclose
+    - containedctx
+    - copyloopvar
+    - cyclop
+    - depguard
+    - dupl
+    - dupword
+    - err113
+    - errcheck
+    - errchkjson
+    - errorlint
+    - exhaustive
+    - exhaustruct
+    - forbidigo
+    - forcetypeassert
+    - funcorder
+    - funlen
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - godox
+    - gosec
+    - govet
+    - ireturn
+    - lll
+    - maintidx
+    - mnd
+    - nakedret
+    - nestif
+    - nilnil
+    - nlreturn
+    - noctx
+    - nonamedreturns
+    - paralleltest
+    - perfsprint
+    - prealloc
+    - protogetter
+    - revive
+    - tagliatelle
+    - testpackage
+    - thelper
+    - usestdlibvars
+    - usetesting
+    - varnamelen
+    - whitespace
+    - wrapcheck
+    - wsl
   exclusions:
     generated: lax
     presets:
@@ -32,13 +82,7 @@ linters:
       - legacy
       - std-error-handling
     paths:
-      - third_party$
-      - builtin$
-      - examples$
+      - demo/*
 formatters:
   exclusions:
     generated: lax
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
