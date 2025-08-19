@@ -40,10 +40,9 @@ func (c *flatCounter) Add(v float64) {
 }
 
 type flatGauge struct {
+	Name string
 	// Stolen from prometheus client gauge
 	valBits uint64
-
-	Name string
 }
 
 func (g *flatGauge) Set(n float64) {

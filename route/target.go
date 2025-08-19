@@ -8,14 +8,31 @@ import (
 )
 
 type Target struct {
-	// Service is the name of the service the targetURL points to
-	Service string
 
-	// Tags are the list of tags for this target
-	Tags []string
+	// Histogram measures throughput and latency of this target
+	Timer gkm.Histogram
+
+	// Counters for rx and tx
+	RxCounter gkm.Counter
+	TxCounter gkm.Counter
 
 	// Opts is the raw options for the target.
 	Opts map[string]string
+
+	// URL is the endpoint the service instance listens on
+	URL *url.URL
+
+	// RedirectURL is the redirect target based on the request.
+	// This is cached here to prevent multiple generations per request.
+	RedirectURL *url.URL
+
+	// accessRules is map of access information for the target.
+	accessRules map[string][]interface{}
+
+	// Transport allows for different types of transports
+	Transport *http.Transport
+	// Service is the name of the service the targetURL points to
+	Service string
 
 	// StripPath will be removed from the front of the outgoing
 	// request path
@@ -25,26 +42,21 @@ type Target struct {
 	// request path (after StripPath has been removed)
 	PrependPath string
 
-	// TLSSkipVerify disables certificate validation for upstream
-	// TLS connections.
-	TLSSkipVerify bool
-
 	// Host signifies what the proxy will set the Host header to.
 	// The proxy does not modify the Host header by default.
 	// When Host is set to 'dst' the proxy will use the host name
 	// of the target host for the outgoing request.
 	Host string
 
-	// URL is the endpoint the service instance listens on
-	URL *url.URL
+	// name of the auth handler for this target
+	AuthScheme string
+
+	// Tags are the list of tags for this target
+	Tags []string
 
 	// RedirectCode is the HTTP status code used for redirects.
 	// When set to a value > 0 the client is redirected to the target url.
 	RedirectCode int
-
-	// RedirectURL is the redirect target based on the request.
-	// This is cached here to prevent multiple generations per request.
-	RedirectURL *url.URL
 
 	// FixedWeight is the weight assigned to this target.
 	// If the value is 0 the targets weight is dynamic.
@@ -53,24 +65,12 @@ type Target struct {
 	// Weight is the actual weight for this service in percent.
 	Weight float64
 
-	// Histogram measures throughput and latency of this target
-	Timer gkm.Histogram
-
-	// Counters for rx and tx
-	RxCounter gkm.Counter
-	TxCounter gkm.Counter
-
-	// accessRules is map of access information for the target.
-	accessRules map[string][]interface{}
-
-	// name of the auth handler for this target
-	AuthScheme string
+	// TLSSkipVerify disables certificate validation for upstream
+	// TLS connections.
+	TLSSkipVerify bool
 
 	// ProxyProto enables PROXY Protocol on upstream connection
 	ProxyProto bool
-
-	// Transport allows for different types of transports
-	Transport *http.Transport
 }
 
 func (t *Target) BuildRedirectURL(requestURL *url.URL) {

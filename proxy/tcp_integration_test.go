@@ -116,16 +116,16 @@ func TestTCPProxyWithTLS(t *testing.T) {
 
 	// start tcp proxy
 	proxyAddr := "127.0.0.1:57779"
+	cs := config.CertSource{Name: "cs", Type: "path", CertPath: dir}
+	src, err := cert.NewSource(cs)
+	if err != nil {
+		t.Fatal("cert.NewSource: ", err)
+	}
+	tlscfg, err := cert.TLSConfig(src, false, 0, 0, nil)
+	if err != nil {
+		t.Fatal("cert.TLSConfig: ", err)
+	}
 	go func() {
-		cs := config.CertSource{Name: "cs", Type: "path", CertPath: dir}
-		src, err := cert.NewSource(cs)
-		if err != nil {
-			t.Fatal("cert.NewSource: ", err)
-		}
-		cfg, err := cert.TLSConfig(src, false, 0, 0, nil)
-		if err != nil {
-			t.Fatal("cert.TLSConfig: ", err)
-		}
 
 		h := &tcp.Proxy{
 			Lookup: func(string) *route.Target {
@@ -134,7 +134,7 @@ func TestTCPProxyWithTLS(t *testing.T) {
 		}
 
 		l := config.Listen{Addr: proxyAddr}
-		if err := ListenAndServeTCP(l, h, cfg); err != nil {
+		if err := ListenAndServeTCP(l, h, tlscfg); err != nil {
 			// closing the listener returns this error from the accept loop
 			// which we can ignore.
 			if err.Error() != "accept tcp 127.0.0.1:57779: use of closed network connection" {
@@ -296,16 +296,16 @@ func TestTCPProxyWithTLSWithProxyProto(t *testing.T) {
 
 	// start tcp proxy
 	proxyAddr := "127.0.0.1:57779"
+	cs := config.CertSource{Name: "cs", Type: "path", CertPath: dir}
+	src, err := cert.NewSource(cs)
+	if err != nil {
+		t.Fatal("cert.NewSource: ", err)
+	}
+	tlscfg, err := cert.TLSConfig(src, false, 0, 0, nil)
+	if err != nil {
+		t.Fatal("cert.TLSConfig: ", err)
+	}
 	go func() {
-		cs := config.CertSource{Name: "cs", Type: "path", CertPath: dir}
-		src, err := cert.NewSource(cs)
-		if err != nil {
-			t.Fatal("cert.NewSource: ", err)
-		}
-		cfg, err := cert.TLSConfig(src, false, 0, 0, nil)
-		if err != nil {
-			t.Fatal("cert.TLSConfig: ", err)
-		}
 
 		h := &tcp.Proxy{
 			Lookup: func(string) *route.Target {
@@ -314,7 +314,7 @@ func TestTCPProxyWithTLSWithProxyProto(t *testing.T) {
 		}
 
 		l := config.Listen{Addr: proxyAddr, ProxyProto: true}
-		if err := ListenAndServeTCP(l, h, cfg); err != nil {
+		if err := ListenAndServeTCP(l, h, tlscfg); err != nil {
 			// closing the listener returns this error from the accept loop
 			// which we can ignore.
 			if err.Error() != "accept tcp 127.0.0.1:57779: use of closed network connection" {

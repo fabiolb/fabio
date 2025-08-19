@@ -24,14 +24,14 @@ func (f HandlerFunc) ServeTCP(in net.Conn) error {
 
 // Server implements a generic TCP server.
 type Server struct {
-	Addr         string
 	Handler      Handler
+	conns        map[net.Conn]bool
+	Addr         string
+	listeners    []net.Listener
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
 
-	mu        sync.Mutex
-	listeners []net.Listener
-	conns     map[net.Conn]bool
+	mu sync.Mutex
 }
 
 func (s *Server) ListenAndServe() error {
@@ -94,14 +94,13 @@ func (s *Server) Serve(l net.Listener) error {
 	}
 }
 
-func (s *Server) closeListeners() error {
+func (s *Server) closeListeners() {
 	s.mu.Lock()
 	for _, l := range s.listeners {
 		l.Close()
 	}
 	s.listeners = nil
 	s.mu.Unlock()
-	return nil
 }
 
 func (s *Server) closeConns() error {

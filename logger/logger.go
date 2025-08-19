@@ -74,6 +74,10 @@ type Event struct {
 	// It should only be set for HTTP log events.
 	RequestURL *url.URL
 
+	// UpstreamURL is the URL which was sent to the upstream server.
+	// It should only be set for HTTP log events.
+	UpstreamURL *url.URL
+
 	// UpstreamAddr is the TCP address in the form of "host:port" of the
 	// upstream server which handled the proxied request.
 	UpstreamAddr string
@@ -81,15 +85,11 @@ type Event struct {
 	// UpstreamService is the name of the upstream service as
 	// defined in the route.
 	UpstreamService string
-
-	// UpstreamURL is the URL which was sent to the upstream server.
-	// It should only be set for HTTP log events.
-	UpstreamURL *url.URL
 }
 
 // Logger logs an event.
 type Logger interface {
-	Log(*Event)
+	Log(event *Event)
 }
 
 // New creates a new logger that writes log events in the given format to the
@@ -114,10 +114,10 @@ type noopLogger struct{}
 func (l *noopLogger) Log(*Event) {}
 
 type logger struct {
+	w io.Writer
 	p pattern
 
 	mu sync.Mutex
-	w  io.Writer
 }
 
 // bufSize defines the default size of the log buffers.

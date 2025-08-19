@@ -122,7 +122,7 @@ func (f *FlagSet) ParseFlags(args, environ, prefixes []string, p *properties.Pro
 
 		// check environment variables
 		for _, pfx := range prefixes {
-			name := strings.ToUpper(pfx + strings.Replace(fl.Name, ".", "_", -1))
+			name := strings.ToUpper(pfx + strings.ReplaceAll(fl.Name, ".", "_"))
 			if val, ok := env[name]; ok {
 				f.set[fl.Name] = true
 				f.Set(fl.Name, val)

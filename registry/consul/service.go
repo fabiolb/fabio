@@ -96,7 +96,7 @@ func (w *ServiceMonitor) makeConfig(checks []*api.HealthCheck) string {
 	}
 
 	var config []string
-	for i := 0; i < len(m); i++ {
+	for range m {
 		cfg := <-cfgs
 		config = append(config, cfg...)
 	}

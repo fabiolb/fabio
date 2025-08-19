@@ -53,10 +53,10 @@ func (c *labelCounter) Add(delta float64) {
 }
 
 type labelGauge struct {
-	valBits uint64
 	Name    string
 	Labels  []string
 	Values  []string
+	valBits uint64
 }
 
 func (g *labelGauge) With(labelValues ...string) gkm.Gauge {
