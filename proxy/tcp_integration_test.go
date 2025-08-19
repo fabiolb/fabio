@@ -121,7 +121,7 @@ func TestTCPProxyWithTLS(t *testing.T) {
 	if err != nil {
 		t.Fatal("cert.NewSource: ", err)
 	}
-	cfg, err := cert.TLSConfig(src, false, 0, 0, nil)
+	tlscfg, err := cert.TLSConfig(src, false, 0, 0, nil)
 	if err != nil {
 		t.Fatal("cert.TLSConfig: ", err)
 	}
@@ -134,7 +134,7 @@ func TestTCPProxyWithTLS(t *testing.T) {
 		}
 
 		l := config.Listen{Addr: proxyAddr}
-		if err := ListenAndServeTCP(l, h, cfg); err != nil {
+		if err := ListenAndServeTCP(l, h, tlscfg); err != nil {
 			// closing the listener returns this error from the accept loop
 			// which we can ignore.
 			if err.Error() != "accept tcp 127.0.0.1:57779: use of closed network connection" {
@@ -151,7 +151,7 @@ func TestTCPProxyWithTLS(t *testing.T) {
 	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
 		t.Fatal("could not parse cert")
 	}
-	cfg = &tls.Config{
+	cfg := &tls.Config{
 		RootCAs:    rootCAs,
 		ServerName: "example.com",
 	}
@@ -301,7 +301,7 @@ func TestTCPProxyWithTLSWithProxyProto(t *testing.T) {
 	if err != nil {
 		t.Fatal("cert.NewSource: ", err)
 	}
-	cfg, err := cert.TLSConfig(src, false, 0, 0, nil)
+	tlscfg, err := cert.TLSConfig(src, false, 0, 0, nil)
 	if err != nil {
 		t.Fatal("cert.TLSConfig: ", err)
 	}
@@ -314,7 +314,7 @@ func TestTCPProxyWithTLSWithProxyProto(t *testing.T) {
 		}
 
 		l := config.Listen{Addr: proxyAddr, ProxyProto: true}
-		if err := ListenAndServeTCP(l, h, cfg); err != nil {
+		if err := ListenAndServeTCP(l, h, tlscfg); err != nil {
 			// closing the listener returns this error from the accept loop
 			// which we can ignore.
 			if err.Error() != "accept tcp 127.0.0.1:57779: use of closed network connection" {
@@ -331,7 +331,7 @@ func TestTCPProxyWithTLSWithProxyProto(t *testing.T) {
 	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
 		t.Fatal("could not parse cert")
 	}
-	cfg = &tls.Config{
+	cfg := &tls.Config{
 		RootCAs:    rootCAs,
 		ServerName: "example.com",
 	}
