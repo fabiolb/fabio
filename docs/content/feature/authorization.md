@@ -52,5 +52,5 @@ Supported htpasswd formats are detailed [here](https://github.com/tg123/go-htpas
     name=mybasicauth;type=basic;file=p/creds.htpasswd;refresh=30s
 
     # basic auth with multiple schemes
-    proxy.auth = name=mybasicauth;type=basic;file=p/creds.htpasswd;refresh=30s
+    proxy.auth = name=mybasicauth;type=basic;file=p/creds.htpasswd;refresh=30s,
                  name=myotherauth;type=basic;file=p/other-creds.htpasswd;realm=myrealm
