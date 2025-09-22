@@ -30,6 +30,7 @@ linters:
     - depguard
     - dupl
     - dupword
+    - embeddedstructfieldcheck
     - err113
     - errcheck
     - errchkjson
@@ -46,6 +47,7 @@ linters:
     - goconst
     - gocritic
     - gocyclo
+    - godoclint
     - godot
     - godox
     - gosec
@@ -59,6 +61,7 @@ linters:
     - nilnil
     - nlreturn
     - noctx
+    - noinlineerr
     - nonamedreturns
     - paralleltest
     - perfsprint
@@ -74,6 +77,7 @@ linters:
     - whitespace
     - wrapcheck
     - wsl
+    - wsl_v5
   exclusions:
     generated: lax
     presets:
