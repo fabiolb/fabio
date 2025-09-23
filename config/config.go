@@ -10,7 +10,6 @@ type Config struct {
 	Log                  Log
 	ProfileMode          string
 	ProfilePath          string
-	Tracing              Tracing
 	Listen               []Listen
 	Metrics              Metrics
 	BGP                  BGP
@@ -200,17 +199,6 @@ type Custom struct {
 	CheckTLSSkipVerify bool
 }
 
-type Tracing struct {
-	CollectorType  string
-	ConnectString  string
-	ServiceName    string
-	Topic          string
-	SpanHost       string
-	SpanName       string
-	SamplerRate    float64
-	TracingEnabled bool
-	TraceID128Bit  bool
-}
 
 type AuthScheme struct {
 	Name  string
