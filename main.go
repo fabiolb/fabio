@@ -53,7 +53,7 @@ import (
 // It is also set by the linker when fabio
 // is built via the Makefile or the build/docker.sh
 // script to ensure the correct version number
-var version = "1.6.7"
+var version = "1.6.8"
 
 var shuttingDown int32
 

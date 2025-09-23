@@ -1,5 +1,16 @@
 # Changelog
 
+## [v1.6.8](https://github.com/fabiolb/fabio/tree/v1.6.8) (2025-09-23)
+
+[Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.7...v1.6.8)
+
+**Closed issues:**
+
+- Health check on port 9999 [\#995](https://github.com/fabiolb/fabio/issues/995)
+- Multiple entries in proxy.auth do not work as specified in documentation [\#929](https://github.com/fabiolb/fabio/issues/929)
+- Correct Consul ACL Policy for Fabio [\#831](https://github.com/fabiolb/fabio/issues/831)
+- Translating `upstream-host/path` to `path.example.com` [\#801](https://github.com/fabiolb/fabio/issues/801)
+
 ## [v1.6.7](https://github.com/fabiolb/fabio/tree/v1.6.7) (2025-05-30)
 
 [Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.6...v1.6.7)
