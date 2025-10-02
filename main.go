@@ -37,7 +37,6 @@ import (
 	"github.com/fabiolb/fabio/registry/file"
 	"github.com/fabiolb/fabio/registry/static"
 	"github.com/fabiolb/fabio/route"
-	"github.com/fabiolb/fabio/trace"
 
 	grpc_proxy "github.com/mwitkow/grpc-proxy/proxy"
 	"github.com/pkg/profile"
@@ -140,8 +139,6 @@ func main() {
 	initRuntime(cfg)
 	initBackend(cfg)
 
-	// init OpenTracing, if enabled
-	trace.InitializeTracer(&cfg.Tracing)
 
 	startAdmin(cfg)
 
@@ -239,7 +236,6 @@ func newHTTPProxy(cfg *config.Config, statsHandler *proxy.HttpStatsHandler) *pro
 			return t
 		},
 		Logger:      l,
-		TracerCfg:   cfg.Tracing,
 		AuthSchemes: authSchemes,
 		Stats:       *statsHandler,
 	}
