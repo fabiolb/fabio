@@ -69,12 +69,30 @@ dockers:
       - "--label=org.opencontainers.image.version={{.Version}}"
     extra_files:
       - fabio.properties
+  - dockerfile: Dockerfile-goreleaser
+    use: buildx
+    goos: linux
+    goarch: arm
+    goarm: 7
+    image_templates:
+      - 'fabiolb/fabio:latest-armv7'
+      - 'fabiolb/fabio:{{ .Version }}-armv7'
+    build_flag_templates:
+      - "--platform=linux/arm/v7"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - fabio.properties
 docker_manifests:
   - name_template: 'fabiolb/fabio:latest'
     image_templates:
       - 'fabiolb/fabio:latest-amd64'
       - 'fabiolb/fabio:latest-arm64v8'
+      - 'fabiolb/fabio:latest-armv7'
   - name_template: 'fabiolb/fabio:{{ .Version }}'
     image_templates:
       - 'fabiolb/fabio:{{ .Version }}-amd64'
       - 'fabiolb/fabio:{{ .Version }}-arm64v8'
+      - 'fabiolb/fabio:{{ .Version }}-armv7'
