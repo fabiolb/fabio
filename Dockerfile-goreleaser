@@ -1,5 +1,5 @@
-FROM alpine AS build
-RUN apk update && apk add --no-cache git ca-certificates libcap
+FROM debian:stable-slim AS build
+RUN apt-get update && apt-get install -y git ca-certificates libcap2-bin
 ADD fabio /usr/bin/
 RUN setcap CAP_NET_BIND_SERVICE=+eip /usr/bin/fabio
 RUN echo "nobody:x:65534:65534:nobody:/:/sbin/nologin" > /passwd

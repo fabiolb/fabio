@@ -1,4 +1,4 @@
-FROM golang:alpine AS build
+FROM golang AS build
 
 ARG TARGETARCH
 ARG consul_version=1.21.5
@@ -9,12 +9,11 @@ ARG vault_version=1.20.4
 ADD https://releases.hashicorp.com/vault/${vault_version}/vault_${vault_version}_linux_${TARGETARCH}.zip /usr/local/bin
 RUN cd /usr/local/bin && unzip vault_${vault_version}_linux_${TARGETARCH}.zip vault
 
-RUN apk update && apk add --no-cache git ca-certificates libcap
+RUN apt-get update && apt-get install -y git ca-certificates libcap2-bin
 WORKDIR /src
 COPY . .
 RUN go mod tidy
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go test -trimpath -ldflags "-s -w" ./...
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -trimpath -ldflags "-s -w"
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -trimpath -ldflags "-s -w" -o /src/fabio
 RUN setcap cap_net_bind_service=+ep /src/fabio
 RUN echo "nobody:x:65534:65534:nobody:/:/sbin/nologin" > /passwd
 RUN echo "nogroup:x:65533:" > /group
