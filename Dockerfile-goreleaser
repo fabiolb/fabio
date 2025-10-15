@@ -1,7 +1,17 @@
-FROM alpine
-RUN apk update && apk add --no-cache ca-certificates
-COPY fabio /usr/bin
-ADD fabio.properties /etc/fabio/fabio.properties
+FROM debian:stable-slim AS build
+RUN apt-get update && apt-get install -y git ca-certificates libcap2-bin
+ADD fabio /usr/bin/
+RUN setcap CAP_NET_BIND_SERVICE=+eip /usr/bin/fabio
+RUN echo "nobody:x:65534:65534:nobody:/:/sbin/nologin" > /passwd
+RUN echo "nogroup:x:65533:" > /group
+
+FROM scratch
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=build /usr/bin/fabio /usr/bin/
+COPY --from=build /passwd /etc/
+COPY --from=build /group /etc/
+ADD --chown=nobody:nogroup fabio.properties /etc/fabio/fabio.properties
+USER nobody:nogroup
 EXPOSE 9998 9999
 ENTRYPOINT ["/usr/bin/fabio"]
 CMD ["-cfg", "/etc/fabio/fabio.properties"]
