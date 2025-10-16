@@ -11,6 +11,17 @@
 - Correct Consul ACL Policy for Fabio [\#831](https://github.com/fabiolb/fabio/issues/831)
 - Translating `upstream-host/path` to `path.example.com` [\#801](https://github.com/fabiolb/fabio/issues/801)
 
+**Merged pull requests:**
+
+- Package dependencies updated. [\#1004](https://github.com/fabiolb/fabio/pull/1004) ([tristanmorgan](https://github.com/tristanmorgan))
+- docs: Fixes bad example for creating multiple basic authorization schemes [\#1003](https://github.com/fabiolb/fabio/pull/1003) ([steffkelsey](https://github.com/steffkelsey))
+- Enabling many more linters in the pipeline. [\#999](https://github.com/fabiolb/fabio/pull/999) ([tristanmorgan](https://github.com/tristanmorgan))
+- Fix missing brand logo in routes page [\#998](https://github.com/fabiolb/fabio/pull/998) ([tristanmorgan](https://github.com/tristanmorgan))
+- Fixing up some web links [\#997](https://github.com/fabiolb/fabio/pull/997) ([tristanmorgan](https://github.com/tristanmorgan))
+- Fix the ui.routingtable.source.newtab doc. [\#996](https://github.com/fabiolb/fabio/pull/996) ([tristanmorgan](https://github.com/tristanmorgan))
+- extract only binary from zipfile [\#994](https://github.com/fabiolb/fabio/pull/994) ([shantanugadgil](https://github.com/shantanugadgil))
+- add option to constrain fabio instance to specific consul namespace [\#812](https://github.com/fabiolb/fabio/pull/812) ([baabgai](https://github.com/baabgai))
+
 ## [v1.6.7](https://github.com/fabiolb/fabio/tree/v1.6.7) (2025-05-30)
 
 [Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.6...v1.6.7)
