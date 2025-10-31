@@ -122,7 +122,7 @@ func serviceRegistration(cfg *config.Consul, serviceName string) (*api.AgentServ
 	serviceID := fmt.Sprintf("%s-%s-%d", serviceName, hostname, port)
 
 	checkURL := fmt.Sprintf("%s://%s:%d/health", cfg.CheckScheme, ip, port)
-	if ip.To16() != nil {
+	if ip.To4() == nil {
 		checkURL = fmt.Sprintf("%s://[%s]:%d/health", cfg.CheckScheme, ip, port)
 	}
 

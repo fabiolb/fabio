@@ -1,11 +1,11 @@
 FROM golang AS build
 
 ARG TARGETARCH
-ARG consul_version=1.21.5
+ARG consul_version=1.22.0
 ADD https://releases.hashicorp.com/consul/${consul_version}/consul_${consul_version}_linux_${TARGETARCH}.zip /usr/local/bin
 RUN cd /usr/local/bin && unzip consul_${consul_version}_linux_${TARGETARCH}.zip consul
 
-ARG vault_version=1.20.4
+ARG vault_version=1.21.0
 ADD https://releases.hashicorp.com/vault/${vault_version}/vault_${vault_version}_linux_${TARGETARCH}.zip /usr/local/bin
 RUN cd /usr/local/bin && unzip vault_${vault_version}_linux_${TARGETARCH}.zip vault
 
