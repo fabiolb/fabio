@@ -1,5 +1,26 @@
 # Changelog
 
+## [v1.6.10](https://github.com/fabiolb/fabio/tree/v1.6.10) (2025-11-24)
+
+[Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.9...v1.6.10)
+
+**Implemented enhancements:**
+
+- Support for authentication middleware \(eg: oauth2-proxy\) ? [\#1006](https://github.com/fabiolb/fabio/issues/1006)
+
+**Closed issues:**
+
+- Call the fatal function within the goroutine of the main test function [\#1009](https://github.com/fabiolb/fabio/issues/1009)
+
+## [v1.6.9](https://github.com/fabiolb/fabio/tree/v1.6.9) (2025-10-16)
+
+[Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.8...v1.6.9)
+
+**Merged pull requests:**
+
+- FROM scratch build and update deps. [\#1008](https://github.com/fabiolb/fabio/pull/1008) ([tristanmorgan](https://github.com/tristanmorgan))
+- feat: add armv7 support for docker images [\#1007](https://github.com/fabiolb/fabio/pull/1007) ([amd989](https://github.com/amd989))
+
 ## [v1.6.8](https://github.com/fabiolb/fabio/tree/v1.6.8) (2025-09-23)
 
 [Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.7...v1.6.8)
