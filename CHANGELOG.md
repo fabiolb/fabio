@@ -4,13 +4,15 @@
 
 [Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.9...v1.6.10)
 
-**Implemented enhancements:**
-
-- Support for authentication middleware \(eg: oauth2-proxy\) ? [\#1006](https://github.com/fabiolb/fabio/issues/1006)
-
 **Closed issues:**
 
 - Call the fatal function within the goroutine of the main test function [\#1009](https://github.com/fabiolb/fabio/issues/1009)
+- Support for authentication middleware \(eg: oauth2-proxy\) ? [\#1006](https://github.com/fabiolb/fabio/issues/1006)
+
+**Merged pull requests:**
+
+- Update deps for upstream fixes. [\#1011](https://github.com/fabiolb/fabio/pull/1011) ([tristanmorgan](https://github.com/tristanmorgan))
+- Reverse IPv4/IPv6 check. [\#1010](https://github.com/fabiolb/fabio/pull/1010) ([tristanmorgan](https://github.com/tristanmorgan))
 
 ## [v1.6.9](https://github.com/fabiolb/fabio/tree/v1.6.9) (2025-10-16)
 
