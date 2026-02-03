@@ -77,14 +77,19 @@ func cleanupStaleMetrics(oldTable, newTable Table) {
 	oldKeys := collectTableMetricKeys(oldTable)
 	newKeys := collectTableMetricKeys(newTable)
 
+	log.Printf("[INFO] cleanupStaleMetrics: oldKeys=%d newKeys=%d", len(oldKeys), len(newKeys))
+
 	// Find and delete stale labels (in old but not in new)
 	for key := range oldKeys {
 		if _, exists := newKeys[key]; !exists {
 			service, host, path, target := parseMetricKey(key)
-			log.Printf("[DEBUG] Cleaning up stale metrics for service=%s host=%s path=%s target=%s", service, host, path, target)
+			log.Printf("[INFO] Cleaning up stale metrics for service=%s host=%s path=%s target=%s", service, host, path, target)
 			// Delete from each metric type if they support deletion
 			if dh, ok := counters.histogram.(metrics.DeletableHistogram); ok {
-				dh.DeleteLabelValues(service, host, path, target)
+				deleted := dh.DeleteLabelValues(service, host, path, target)
+				log.Printf("[INFO] Histogram delete returned: %v", deleted)
+			} else {
+				log.Printf("[WARN] Histogram does not implement DeletableHistogram, type=%T", counters.histogram)
 			}
 			if dc, ok := counters.rxCounter.(metrics.DeletableCounter); ok {
 				dc.DeleteLabelValues(service, host, path, target)
@@ -120,11 +125,12 @@ func SetTable(t Table) {
 	}
 	// Get the old table to compare against
 	oldTable := GetTable()
-	// Clean up metrics for removed targets before storing the new table
+	// Store the new table FIRST, then cleanup stale metrics.
+	// This order is important to avoid a race condition where traffic
+	// could recreate the metrics between delete and table swap.
+	table.Store(t)
+	// Clean up metrics for removed targets after storing the new table
 	cleanupStaleMetrics(oldTable, t)
-	table.Store(t)
-}
-	table.Store(t)
 }
 
 // Table contains a set of routes grouped by host.
