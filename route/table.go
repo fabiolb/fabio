@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	gkm "github.com/go-kit/kit/metrics"
 	"log"
 	"net"
 	"net/http"
@@ -13,6 +12,8 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+
+	gkm "github.com/go-kit/kit/metrics"
 
 	"github.com/gobwas/glob"
 

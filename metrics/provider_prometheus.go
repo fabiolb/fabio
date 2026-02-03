@@ -54,23 +54,44 @@ func (p *PromProvider) NewHistogram(name string, labels ...string) gkm.Histogram
 	return &promHistogram{hv: hv}
 }
 
+// makeLabels converts a slice of alternating key-value pairs into prometheus.Labels.
+// e.g., ["service", "foo", "host", "bar"] -> {"service": "foo", "host": "bar"}
+func makeLabels(lvs []string) promclient.Labels {
+	labels := promclient.Labels{}
+	for i := 0; i < len(lvs); i += 2 {
+		labels[lvs[i]] = lvs[i+1]
+	}
+	return labels
+}
+
+// extractLabelValues extracts only the values from alternating key-value pairs.
+// e.g., ["service", "foo", "host", "bar"] -> ["foo", "bar"]
+func extractLabelValues(lvs []string) []string {
+	values := make([]string, 0, len(lvs)/2)
+	for i := 1; i < len(lvs); i += 2 {
+		values = append(values, lvs[i])
+	}
+	return values
+}
+
 // promCounter wraps a Prometheus CounterVec and supports deletion of label values.
 type promCounter struct {
 	cv  *promclient.CounterVec
-	lvs []string
+	lvs []string // alternating key-value pairs
 }
 
 func (c *promCounter) Add(delta float64) {
-	c.cv.WithLabelValues(c.lvs...).Add(delta)
+	c.cv.With(makeLabels(c.lvs)).Add(delta)
 }
 
 func (c *promCounter) With(labelValues ...string) gkm.Counter {
 	return &promCounter{
 		cv:  c.cv,
-		lvs: append(c.lvs, labelValues...),
+		lvs: append(append([]string{}, c.lvs...), labelValues...),
 	}
 }
 
+// DeleteLabelValues removes the metric with the given label values (values only, not key-value pairs).
 func (c *promCounter) DeleteLabelValues(labelValues ...string) bool {
 	return c.cv.DeleteLabelValues(labelValues...)
 }
@@ -78,24 +99,25 @@ func (c *promCounter) DeleteLabelValues(labelValues ...string) bool {
 // promGauge wraps a Prometheus GaugeVec and supports deletion of label values.
 type promGauge struct {
 	gv  *promclient.GaugeVec
-	lvs []string
+	lvs []string // alternating key-value pairs
 }
 
 func (g *promGauge) Set(value float64) {
-	g.gv.WithLabelValues(g.lvs...).Set(value)
+	g.gv.With(makeLabels(g.lvs)).Set(value)
 }
 
 func (g *promGauge) Add(delta float64) {
-	g.gv.WithLabelValues(g.lvs...).Add(delta)
+	g.gv.With(makeLabels(g.lvs)).Add(delta)
 }
 
 func (g *promGauge) With(labelValues ...string) gkm.Gauge {
 	return &promGauge{
 		gv:  g.gv,
-		lvs: append(g.lvs, labelValues...),
+		lvs: append(append([]string{}, g.lvs...), labelValues...),
 	}
 }
 
+// DeleteLabelValues removes the metric with the given label values (values only, not key-value pairs).
 func (g *promGauge) DeleteLabelValues(labelValues ...string) bool {
 	return g.gv.DeleteLabelValues(labelValues...)
 }
@@ -103,20 +125,21 @@ func (g *promGauge) DeleteLabelValues(labelValues ...string) bool {
 // promHistogram wraps a Prometheus HistogramVec and supports deletion of label values.
 type promHistogram struct {
 	hv  *promclient.HistogramVec
-	lvs []string
+	lvs []string // alternating key-value pairs
 }
 
 func (h *promHistogram) Observe(value float64) {
-	h.hv.WithLabelValues(h.lvs...).Observe(value)
+	h.hv.With(makeLabels(h.lvs)).Observe(value)
 }
 
 func (h *promHistogram) With(labelValues ...string) gkm.Histogram {
 	return &promHistogram{
 		hv:  h.hv,
-		lvs: append(h.lvs, labelValues...),
+		lvs: append(append([]string{}, h.lvs...), labelValues...),
 	}
 }
 
+// DeleteLabelValues removes the metric with the given label values (values only, not key-value pairs).
 func (h *promHistogram) DeleteLabelValues(labelValues ...string) bool {
 	return h.hv.DeleteLabelValues(labelValues...)
 }
