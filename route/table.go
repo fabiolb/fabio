@@ -10,7 +10,6 @@ import (
 	"net/url"
 	"sort"
 	"strings"
-	"sync"
 	"sync/atomic"
 
 	gkm "github.com/go-kit/kit/metrics"
@@ -44,13 +43,6 @@ type metrix struct {
 
 var counters metrix
 
-// activeTargetMetrics tracks the label value combinations for active targets.
-// This is used to clean up stale metrics when routes are removed.
-var activeTargetMetrics = struct {
-	sync.Mutex
-	labels map[string]struct{} // key is "service\x00host\x00path\x00target"
-}{labels: make(map[string]struct{})}
-
 // makeMetricKey creates a unique key for a target's metric labels.
 func makeMetricKey(service, host, path, target string) string {
 	return service + "\x00" + host + "\x00" + path + "\x00" + target
@@ -65,27 +57,31 @@ func parseMetricKey(key string) (service, host, path, target string) {
 	return "", "", "", ""
 }
 
-// cleanupStaleMetrics removes metric label combinations that are no longer active.
-// It compares the currently active labels against the new table's labels.
-func cleanupStaleMetrics(newTable Table) {
-	// Collect all labels from the new table
-	newLabels := make(map[string]struct{})
-	for _, routes := range newTable {
+// collectTableMetricKeys extracts all metric label keys from a routing table.
+func collectTableMetricKeys(t Table) map[string]struct{} {
+	keys := make(map[string]struct{})
+	for _, routes := range t {
 		for _, r := range routes {
-			for _, t := range r.Targets {
-				key := makeMetricKey(t.Service, r.Host, r.Path, t.URL.String())
-				newLabels[key] = struct{}{}
+			for _, target := range r.Targets {
+				key := makeMetricKey(target.Service, r.Host, r.Path, target.URL.String())
+				keys[key] = struct{}{}
 			}
 		}
 	}
+	return keys
+}
 
-	activeTargetMetrics.Lock()
-	defer activeTargetMetrics.Unlock()
+// cleanupStaleMetrics removes metric label combinations that are no longer active.
+// It compares the old table against the new table to find removed targets.
+func cleanupStaleMetrics(oldTable, newTable Table) {
+	oldKeys := collectTableMetricKeys(oldTable)
+	newKeys := collectTableMetricKeys(newTable)
 
-	// Find and delete stale labels
-	for key := range activeTargetMetrics.labels {
-		if _, exists := newLabels[key]; !exists {
+	// Find and delete stale labels (in old but not in new)
+	for key := range oldKeys {
+		if _, exists := newKeys[key]; !exists {
 			service, host, path, target := parseMetricKey(key)
+			log.Printf("[DEBUG] Cleaning up stale metrics for service=%s host=%s path=%s target=%s", service, host, path, target)
 			// Delete from each metric type if they support deletion
 			if dh, ok := counters.histogram.(metrics.DeletableHistogram); ok {
 				dh.DeleteLabelValues(service, host, path, target)
@@ -96,12 +92,8 @@ func cleanupStaleMetrics(newTable Table) {
 			if dc, ok := counters.txCounter.(metrics.DeletableCounter); ok {
 				dc.DeleteLabelValues(service, host, path, target)
 			}
-			delete(activeTargetMetrics.labels, key)
 		}
 	}
-
-	// Update active labels to match the new table
-	activeTargetMetrics.labels = newLabels
 }
 
 func SetMetricsProvider(p metrics.Provider) {
@@ -126,8 +118,12 @@ func SetTable(t Table) {
 		log.Print("[WARN] Ignoring nil routing table")
 		return
 	}
+	// Get the old table to compare against
+	oldTable := GetTable()
 	// Clean up metrics for removed targets before storing the new table
-	cleanupStaleMetrics(t)
+	cleanupStaleMetrics(oldTable, t)
+	table.Store(t)
+}
 	table.Store(t)
 }
 
