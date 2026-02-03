@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"sort"
 	"strings"
+	"sync"
 	"sync/atomic"
 
 	"github.com/gobwas/glob"
@@ -42,6 +43,66 @@ type metrix struct {
 
 var counters metrix
 
+// activeTargetMetrics tracks the label value combinations for active targets.
+// This is used to clean up stale metrics when routes are removed.
+var activeTargetMetrics = struct {
+	sync.Mutex
+	labels map[string]struct{} // key is "service\x00host\x00path\x00target"
+}{labels: make(map[string]struct{})}
+
+// makeMetricKey creates a unique key for a target's metric labels.
+func makeMetricKey(service, host, path, target string) string {
+	return service + "\x00" + host + "\x00" + path + "\x00" + target
+}
+
+// parseMetricKey extracts label values from a metric key.
+func parseMetricKey(key string) (service, host, path, target string) {
+	parts := strings.Split(key, "\x00")
+	if len(parts) == 4 {
+		return parts[0], parts[1], parts[2], parts[3]
+	}
+	return "", "", "", ""
+}
+
+// cleanupStaleMetrics removes metric label combinations that are no longer active.
+// It compares the currently active labels against the new table's labels.
+func cleanupStaleMetrics(newTable Table) {
+	// Collect all labels from the new table
+	newLabels := make(map[string]struct{})
+	for _, routes := range newTable {
+		for _, r := range routes {
+			for _, t := range r.Targets {
+				key := makeMetricKey(t.Service, r.Host, r.Path, t.URL.String())
+				newLabels[key] = struct{}{}
+			}
+		}
+	}
+
+	activeTargetMetrics.Lock()
+	defer activeTargetMetrics.Unlock()
+
+	// Find and delete stale labels
+	for key := range activeTargetMetrics.labels {
+		if _, exists := newLabels[key]; !exists {
+			service, host, path, target := parseMetricKey(key)
+			// Delete from each metric type if they support deletion
+			if dh, ok := counters.histogram.(metrics.DeletableHistogram); ok {
+				dh.DeleteLabelValues(service, host, path, target)
+			}
+			if dc, ok := counters.rxCounter.(metrics.DeletableCounter); ok {
+				dc.DeleteLabelValues(service, host, path, target)
+			}
+			if dc, ok := counters.txCounter.(metrics.DeletableCounter); ok {
+				dc.DeleteLabelValues(service, host, path, target)
+			}
+			delete(activeTargetMetrics.labels, key)
+		}
+	}
+
+	// Update active labels to match the new table
+	activeTargetMetrics.labels = newLabels
+}
+
 func SetMetricsProvider(p metrics.Provider) {
 	counters.histogram = p.NewHistogram("route", "service", "host", "path", "target")
 	counters.rxCounter = p.NewCounter("route.rx", "service", "host", "path", "target")
@@ -58,11 +119,14 @@ func GetTable() Table {
 // SetTable sets the active routing table. A nil value
 // logs a warning and is ignored. The function is safe
 // to be called from multiple goroutines.
+// It also cleans up stale Prometheus metrics for targets that are no longer active.
 func SetTable(t Table) {
 	if t == nil {
 		log.Print("[WARN] Ignoring nil routing table")
 		return
 	}
+	// Clean up metrics for removed targets before storing the new table
+	cleanupStaleMetrics(t)
 	table.Store(t)
 }
 
