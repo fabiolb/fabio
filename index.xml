@@ -869,13 +869,6 @@
       <description>&lt;p&gt;&lt;code&gt;registry.timeout&lt;/code&gt; configures how long fabio tries to connect to the registry&#xA;backend during startup.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;registry.timeout = 10s&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
     <item>
-      <title>Request Tracing</title>
-      <link>https://fabiolb.net/faq/request-tracing/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://fabiolb.net/faq/request-tracing/</guid>
-      <description>&lt;h4 id=&#34;how-do-i-see-which-routes-fabio-is-matching-for-a-request&#34;&gt;How do I see which routes fabio is matching for a request?&lt;/h4&gt;&#xA;&lt;p&gt;To trace how a request is routed you can add a &lt;code&gt;Trace&lt;/code&gt; header with an non-&#xA;empty value which is truncated at 16 characters to keep the log output short.&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ curl -v -H &amp;#39;Trace: abc&amp;#39; -H &amp;#39;Host: foo.com&amp;#39; &amp;#39;http://localhost:9999/bar/baz&amp;#39;&#xA;&#xA;2015/09/28 21:56:26 [TRACE] abc Tracing foo.com/bar/baz&#xA;2015/09/28 21:56:26 [TRACE] abc No match foo.com/bang&#xA;2015/09/28 21:56:26 [TRACE] abc Match foo.com/&#xA;2015/09/28 22:01:34 [TRACE] abc Routing to http://1.2.3.4:8080/&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
-    </item>
-    <item>
       <title>runtime.gogc</title>
       <link>https://fabiolb.net/ref/runtime.gogc/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

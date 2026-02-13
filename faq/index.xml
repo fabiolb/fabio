@@ -22,13 +22,6 @@
       <description>&lt;p&gt;It is quite possible for a single fabio instance to serve multiple protocols&#xA;via distinct listeners.&lt;/p&gt;&#xA;&lt;p&gt;In this example:&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;proxy.addr = 172.16.20.11:80;proto=http;rt=60s;wt=30s,\&#xA;             172.16.20.11:443;proto=https;rt=60s;wt=30s;cs=all;tlsmin=10, \&#xA;             172.16.20.11:8443;proto=tcp+sni&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We are telling fabio to bind to &lt;code&gt;172.16.20.11&lt;/code&gt; on three different ports&#xA;(&lt;code&gt;80&lt;/code&gt;, &lt;code&gt;443&lt;/code&gt;, and &lt;code&gt;8443&lt;/code&gt;) using three distinct protocols&#xA;(&lt;code&gt;HTTP&lt;/code&gt;, &lt;code&gt;HTTPS&lt;/code&gt;, &lt;code&gt;TCP+SNI&lt;/code&gt;).  You are free to bind to as many address,&#xA;port, and protocol combinations as needed within a single instance.&lt;/p&gt;&#xA;&lt;p&gt;See &lt;a href=&#34;https://github.com/fabiolb/fabio/issues/490&#34;&gt;#490&lt;/a&gt; for context.&lt;/p&gt;</description>
     </item>
     <item>
-      <title>Request Tracing</title>
-      <link>https://fabiolb.net/faq/request-tracing/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://fabiolb.net/faq/request-tracing/</guid>
-      <description>&lt;h4 id=&#34;how-do-i-see-which-routes-fabio-is-matching-for-a-request&#34;&gt;How do I see which routes fabio is matching for a request?&lt;/h4&gt;&#xA;&lt;p&gt;To trace how a request is routed you can add a &lt;code&gt;Trace&lt;/code&gt; header with an non-&#xA;empty value which is truncated at 16 characters to keep the log output short.&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ curl -v -H &amp;#39;Trace: abc&amp;#39; -H &amp;#39;Host: foo.com&amp;#39; &amp;#39;http://localhost:9999/bar/baz&amp;#39;&#xA;&#xA;2015/09/28 21:56:26 [TRACE] abc Tracing foo.com/bar/baz&#xA;2015/09/28 21:56:26 [TRACE] abc No match foo.com/bang&#xA;2015/09/28 21:56:26 [TRACE] abc Match foo.com/&#xA;2015/09/28 22:01:34 [TRACE] abc Routing to http://1.2.3.4:8080/&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
-    </item>
-    <item>
       <title>Test fabio with curl</title>
       <link>https://fabiolb.net/faq/request-debugging/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
