@@ -6,9 +6,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/fabiolb/fabio/bgp"
-	"github.com/fabiolb/fabio/transport"
-	gkm "github.com/go-kit/kit/metrics"
 	"io"
 	"log"
 	"net"
@@ -20,6 +17,10 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/fabiolb/fabio/bgp"
+	"github.com/fabiolb/fabio/transport"
+	gkm "github.com/go-kit/kit/metrics"
 
 	"github.com/fabiolb/fabio/admin"
 	"github.com/fabiolb/fabio/auth"
@@ -227,7 +228,7 @@ func newHTTPProxy(cfg *config.Config, statsHandler *proxy.HttpStatsHandler) *pro
 		Transport:         transport.NewTransport(nil),
 		InsecureTransport: transport.NewTransport(&tls.Config{InsecureSkipVerify: true}),
 		Lookup: func(r *http.Request) *route.Target {
-			t := route.GetTable().Lookup(r, pick, match, globCache, cfg.GlobMatchingDisabled)
+			t := route.GetTable().Lookup(r, "", pick, match, globCache, cfg.GlobMatchingDisabled)
 			if t == nil {
 				statsHandler.Noroute.Add(1)
 				log.Print("[WARN] No route for ", r.Host, r.URL)

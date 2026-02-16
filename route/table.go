@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	gkm "github.com/go-kit/kit/metrics"
 	"log"
 	"net"
 	"net/http"
@@ -12,6 +11,8 @@ import (
 	"sort"
 	"strings"
 	"sync/atomic"
+
+	gkm "github.com/go-kit/kit/metrics"
 
 	"github.com/gobwas/glob"
 
@@ -42,6 +43,64 @@ type metrix struct {
 
 var counters metrix
 
+// makeMetricKey creates a unique key for a target's metric labels.
+func makeMetricKey(service, host, path, target string) string {
+	return service + "\x00" + host + "\x00" + path + "\x00" + target
+}
+
+// parseMetricKey extracts label values from a metric key.
+func parseMetricKey(key string) (service, host, path, target string) {
+	parts := strings.Split(key, "\x00")
+	if len(parts) == 4 {
+		return parts[0], parts[1], parts[2], parts[3]
+	}
+	return "", "", "", ""
+}
+
+// collectTableMetricKeys extracts all metric label keys from a routing table.
+func collectTableMetricKeys(t Table) map[string]struct{} {
+	keys := make(map[string]struct{})
+	for _, routes := range t {
+		for _, r := range routes {
+			for _, target := range r.Targets {
+				key := makeMetricKey(target.Service, r.Host, r.Path, target.URL.String())
+				keys[key] = struct{}{}
+			}
+		}
+	}
+	return keys
+}
+
+// cleanupStaleMetrics removes metric label combinations that are no longer active.
+// It compares the old table against the new table to find removed targets.
+func cleanupStaleMetrics(oldTable, newTable Table) {
+	oldKeys := collectTableMetricKeys(oldTable)
+	newKeys := collectTableMetricKeys(newTable)
+
+	log.Printf("[INFO] cleanupStaleMetrics: oldKeys=%d newKeys=%d", len(oldKeys), len(newKeys))
+
+	// Find and delete stale labels (in old but not in new)
+	for key := range oldKeys {
+		if _, exists := newKeys[key]; !exists {
+			service, host, path, target := parseMetricKey(key)
+			log.Printf("[INFO] Cleaning up stale metrics for service=%s host=%s path=%s target=%s", service, host, path, target)
+			// Delete from each metric type if they support deletion
+			if dh, ok := counters.histogram.(metrics.DeletableHistogram); ok {
+				deleted := dh.DeleteLabelValues(service, host, path, target)
+				log.Printf("[INFO] Histogram delete returned: %v", deleted)
+			} else {
+				log.Printf("[WARN] Histogram does not implement DeletableHistogram, type=%T", counters.histogram)
+			}
+			if dc, ok := counters.rxCounter.(metrics.DeletableCounter); ok {
+				dc.DeleteLabelValues(service, host, path, target)
+			}
+			if dc, ok := counters.txCounter.(metrics.DeletableCounter); ok {
+				dc.DeleteLabelValues(service, host, path, target)
+			}
+		}
+	}
+}
+
 func SetMetricsProvider(p metrics.Provider) {
 	counters.histogram = p.NewHistogram("route", "service", "host", "path", "target")
 	counters.rxCounter = p.NewCounter("route.rx", "service", "host", "path", "target")
@@ -58,12 +117,20 @@ func GetTable() Table {
 // SetTable sets the active routing table. A nil value
 // logs a warning and is ignored. The function is safe
 // to be called from multiple goroutines.
+// It also cleans up stale Prometheus metrics for targets that are no longer active.
 func SetTable(t Table) {
 	if t == nil {
 		log.Print("[WARN] Ignoring nil routing table")
 		return
 	}
+	// Get the old table to compare against
+	oldTable := GetTable()
+	// Store the new table FIRST, then cleanup stale metrics.
+	// This order is important to avoid a race condition where traffic
+	// could recreate the metrics between delete and table swap.
 	table.Store(t)
+	// Clean up metrics for removed targets after storing the new table
+	cleanupStaleMetrics(oldTable, t)
 }
 
 // Table contains a set of routes grouped by host.
@@ -395,9 +462,15 @@ func ReverseHostPort(s string) string {
 // or nil if there is none. It first checks the routes for the host
 // and if none matches then it falls back to generic routes without
 // a host. This is useful for a catch-all '/' rule.
-func (t Table) Lookup(req *http.Request, pick picker, match matcher, globCache *GlobCache, globDisabled bool) (target *Target) {
+func (t Table) Lookup(req *http.Request, trace string, pick picker, match matcher, globCache *GlobCache, globDisabled bool) (target *Target) {
 
 	var hosts []string
+	if trace != "" {
+		if len(trace) > 16 {
+			trace = trace[:15]
+		}
+		log.Printf("[TRACE] %s Tracing %s%s", trace, req.Host, req.URL.Path)
+	}
 
 	// find matching hosts for the request
 	// and add "no host" as the fallback option
@@ -409,9 +482,12 @@ func (t Table) Lookup(req *http.Request, pick picker, match matcher, globCache *
 		hosts = t.matchingHosts(req, globCache)
 	}
 
+	if trace != "" {
+		log.Printf("[TRACE] %s Matching hosts: %v", trace, hosts)
+	}
 	hosts = append(hosts, "")
 	for _, h := range hosts {
-		if target = t.lookup(h, req.URL.Path, pick, match); target != nil {
+		if target = t.lookup(h, req.URL.Path, trace, pick, match); target != nil {
 			if target.RedirectCode != 0 {
 				req.URL.Host = req.Host
 				target.BuildRedirectURL(req.URL) // build redirect url and cache in target
@@ -426,14 +502,18 @@ func (t Table) Lookup(req *http.Request, pick picker, match matcher, globCache *
 		}
 	}
 
+	if target != nil && trace != "" {
+		log.Printf("[TRACE] %s Routing to service %s on %s", trace, target.Service, target.URL)
+	}
+
 	return target
 }
 
 func (t Table) LookupHost(host string, pick picker) *Target {
-	return t.lookup(host, "/", pick, prefixMatcher)
+	return t.lookup(host, "/", "", pick, prefixMatcher)
 }
 
-func (t Table) lookup(host, path string, pick picker, match matcher) *Target {
+func (t Table) lookup(host, path, trace string, pick picker, match matcher) *Target {
 	host = strings.ToLower(host) // routes are always added lowercase
 	for _, r := range t[host] {
 		if match(path, r) {
@@ -448,7 +528,13 @@ func (t Table) lookup(host, path string, pick picker, match matcher) *Target {
 			} else {
 				target = pick(r)
 			}
+			if trace != "" {
+				log.Printf("[TRACE] %s Match %s%s", trace, r.Host, r.Path)
+			}
 			return target
+		}
+		if trace != "" {
+			log.Printf("[TRACE] %s No match %s%s", trace, r.Host, r.Path)
 		}
 	}
 	return nil

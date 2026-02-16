@@ -58,6 +58,19 @@ func (mc *MultiCounter) With(labels ...string) gkm.Counter {
 	return &MultiCounter{c: cc}
 }
 
+// DeleteLabelValues deletes the metric with the given label values from all underlying counters.
+func (mc *MultiCounter) DeleteLabelValues(labelValues ...string) bool {
+	deleted := false
+	for _, c := range mc.c {
+		if dc, ok := c.(DeletableCounter); ok {
+			if dc.DeleteLabelValues(labelValues...) {
+				deleted = true
+			}
+		}
+	}
+	return deleted
+}
+
 // MultiGauge wraps zero or more gauges.
 type MultiGauge struct {
 	v []gkm.Gauge
@@ -83,6 +96,19 @@ func (m *MultiGauge) Add(val float64) {
 	}
 }
 
+// DeleteLabelValues deletes the metric with the given label values from all underlying gauges.
+func (m *MultiGauge) DeleteLabelValues(labelValues ...string) bool {
+	deleted := false
+	for _, g := range m.v {
+		if dg, ok := g.(DeletableGauge); ok {
+			if dg.DeleteLabelValues(labelValues...) {
+				deleted = true
+			}
+		}
+	}
+	return deleted
+}
+
 type MultiHistogram struct {
 	h []gkm.Histogram
 }
@@ -99,4 +125,17 @@ func (m *MultiHistogram) Observe(value float64) {
 	for _, v := range m.h {
 		v.Observe(value)
 	}
+}
+
+// DeleteLabelValues deletes the metric with the given label values from all underlying histograms.
+func (m *MultiHistogram) DeleteLabelValues(labelValues ...string) bool {
+	deleted := false
+	for _, h := range m.h {
+		if dh, ok := h.(DeletableHistogram); ok {
+			if dh.DeleteLabelValues(labelValues...) {
+				deleted = true
+			}
+		}
+	}
+	return deleted
 }
