@@ -6,9 +6,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/fabiolb/fabio/bgp"
-	"github.com/fabiolb/fabio/transport"
-	gkm "github.com/go-kit/kit/metrics"
 	"io"
 	"log"
 	"net"
@@ -20,6 +17,10 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/fabiolb/fabio/bgp"
+	"github.com/fabiolb/fabio/transport"
+	gkm "github.com/go-kit/kit/metrics"
 
 	"github.com/fabiolb/fabio/admin"
 	"github.com/fabiolb/fabio/auth"

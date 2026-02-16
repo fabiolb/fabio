@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	gkm "github.com/go-kit/kit/metrics"
 	"log"
 	"net"
 	"net/http"
@@ -12,6 +11,8 @@ import (
 	"sort"
 	"strings"
 	"sync/atomic"
+
+	gkm "github.com/go-kit/kit/metrics"
 
 	"github.com/gobwas/glob"
 
@@ -42,6 +43,64 @@ type metrix struct {
 
 var counters metrix
 
+// makeMetricKey creates a unique key for a target's metric labels.
+func makeMetricKey(service, host, path, target string) string {
+	return service + "\x00" + host + "\x00" + path + "\x00" + target
+}
+
+// parseMetricKey extracts label values from a metric key.
+func parseMetricKey(key string) (service, host, path, target string) {
+	parts := strings.Split(key, "\x00")
+	if len(parts) == 4 {
+		return parts[0], parts[1], parts[2], parts[3]
+	}
+	return "", "", "", ""
+}
+
+// collectTableMetricKeys extracts all metric label keys from a routing table.
+func collectTableMetricKeys(t Table) map[string]struct{} {
+	keys := make(map[string]struct{})
+	for _, routes := range t {
+		for _, r := range routes {
+			for _, target := range r.Targets {
+				key := makeMetricKey(target.Service, r.Host, r.Path, target.URL.String())
+				keys[key] = struct{}{}
+			}
+		}
+	}
+	return keys
+}
+
+// cleanupStaleMetrics removes metric label combinations that are no longer active.
+// It compares the old table against the new table to find removed targets.
+func cleanupStaleMetrics(oldTable, newTable Table) {
+	oldKeys := collectTableMetricKeys(oldTable)
+	newKeys := collectTableMetricKeys(newTable)
+
+	log.Printf("[INFO] cleanupStaleMetrics: oldKeys=%d newKeys=%d", len(oldKeys), len(newKeys))
+
+	// Find and delete stale labels (in old but not in new)
+	for key := range oldKeys {
+		if _, exists := newKeys[key]; !exists {
+			service, host, path, target := parseMetricKey(key)
+			log.Printf("[INFO] Cleaning up stale metrics for service=%s host=%s path=%s target=%s", service, host, path, target)
+			// Delete from each metric type if they support deletion
+			if dh, ok := counters.histogram.(metrics.DeletableHistogram); ok {
+				deleted := dh.DeleteLabelValues(service, host, path, target)
+				log.Printf("[INFO] Histogram delete returned: %v", deleted)
+			} else {
+				log.Printf("[WARN] Histogram does not implement DeletableHistogram, type=%T", counters.histogram)
+			}
+			if dc, ok := counters.rxCounter.(metrics.DeletableCounter); ok {
+				dc.DeleteLabelValues(service, host, path, target)
+			}
+			if dc, ok := counters.txCounter.(metrics.DeletableCounter); ok {
+				dc.DeleteLabelValues(service, host, path, target)
+			}
+		}
+	}
+}
+
 func SetMetricsProvider(p metrics.Provider) {
 	counters.histogram = p.NewHistogram("route", "service", "host", "path", "target")
 	counters.rxCounter = p.NewCounter("route.rx", "service", "host", "path", "target")
@@ -58,12 +117,20 @@ func GetTable() Table {
 // SetTable sets the active routing table. A nil value
 // logs a warning and is ignored. The function is safe
 // to be called from multiple goroutines.
+// It also cleans up stale Prometheus metrics for targets that are no longer active.
 func SetTable(t Table) {
 	if t == nil {
 		log.Print("[WARN] Ignoring nil routing table")
 		return
 	}
+	// Get the old table to compare against
+	oldTable := GetTable()
+	// Store the new table FIRST, then cleanup stale metrics.
+	// This order is important to avoid a race condition where traffic
+	// could recreate the metrics between delete and table swap.
 	table.Store(t)
+	// Clean up metrics for removed targets after storing the new table
+	cleanupStaleMetrics(oldTable, t)
 }
 
 // Table contains a set of routes grouped by host.
