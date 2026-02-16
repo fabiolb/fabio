@@ -26,14 +26,14 @@ func TestMetricsCleanup(t *testing.T) {
 
 	rxCv := prometheus.NewCounterVec(prometheus.CounterOpts{
 		Namespace: "fabio",
-		Name:      "route_rx",
+		Name:      "route_rx_total",
 		Help:      "test",
 	}, []string{"service", "host", "path", "target"})
 	reg.MustRegister(rxCv)
 
 	txCv := prometheus.NewCounterVec(prometheus.CounterOpts{
 		Namespace: "fabio",
-		Name:      "route_tx",
+		Name:      "route_tx_total",
 		Help:      "test",
 	}, []string{"service", "host", "path", "target"})
 	reg.MustRegister(txCv)

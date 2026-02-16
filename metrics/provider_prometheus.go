@@ -64,16 +64,6 @@ func makeLabels(lvs []string) promclient.Labels {
 	return labels
 }
 
-// extractLabelValues extracts only the values from alternating key-value pairs.
-// e.g., ["service", "foo", "host", "bar"] -> ["foo", "bar"]
-func extractLabelValues(lvs []string) []string {
-	values := make([]string, 0, len(lvs)/2)
-	for i := 1; i < len(lvs); i += 2 {
-		values = append(values, lvs[i])
-	}
-	return values
-}
-
 // promCounter wraps a Prometheus CounterVec and supports deletion of label values.
 type promCounter struct {
 	cv  *promclient.CounterVec
