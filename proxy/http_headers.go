@@ -51,7 +51,7 @@ func addHeaders(r *http.Request, cfg config.Proxy, stripPath string) error {
 	// exclude headers from Connection rules.
 	var conHeaders []string
 	for _, s := range r.Header.Values("Connection") {
-		for _, p := range strings.Split(s, ",") {
+		for p := range strings.SplitSeq(s, ",") {
 			p = strings.TrimSpace(p)
 			if !protectHeaders[textproto.CanonicalMIMEHeaderKey(p)] {
 				conHeaders = append(conHeaders, p)

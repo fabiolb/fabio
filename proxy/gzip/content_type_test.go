@@ -25,7 +25,6 @@ func TestContentTypes(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt // capture loop var
 		t.Run(tt, func(t *testing.T) {
 			if !contentTypes.MatchString(tt) {
 				t.Fatalf("%q does not match content types regexp", tt)

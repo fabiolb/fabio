@@ -240,7 +240,7 @@ func parseOpts(s string) map[string]string {
 		return nil
 	}
 	m := make(map[string]string)
-	for _, f := range strings.Fields(s) {
+	for f := range strings.FieldsSeq(s) {
 		p := strings.SplitN(f, "=", 2)
 		if len(p) == 1 {
 			m[f] = ""

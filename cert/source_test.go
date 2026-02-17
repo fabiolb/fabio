@@ -150,7 +150,6 @@ func TestNewSource(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		tt := tt // capture loop var
 		t.Run(tt.desc, func(t *testing.T) {
 			var errmsg string
 			src, err := NewSource(tt.cfg)
@@ -443,7 +442,7 @@ func TestVaultSource(t *testing.T) {
 
 	// create a cert and store it in vault
 	certPEM, keyPEM := makePEM("localhost", time.Minute)
-	data := map[string]interface{}{"cert": string(certPEM), "key": string(keyPEM)}
+	data := map[string]any{"cert": string(certPEM), "key": string(keyPEM)}
 
 	var nilSource *VaultSource // for calling helper methods
 
@@ -455,9 +454,9 @@ func TestVaultSource(t *testing.T) {
 	p := certPath + "/localhost"
 	if v2 {
 		t.Log("Vault: KV backend: V2")
-		data = map[string]interface{}{
+		data = map[string]any{
 			"data":    data,
-			"options": map[string]interface{}{},
+			"options": map[string]any{},
 		}
 		p = nilSource.addPrefixToVKVPath(p, mountPath, "data")
 	} else {
@@ -470,7 +469,6 @@ func TestVaultSource(t *testing.T) {
 	pool := makeCertPool(certPEM)
 	timeout := 500 * time.Millisecond
 	for _, tt := range vaultTestCases {
-		tt := tt // capture loop var
 		t.Run(tt.desc, func(t *testing.T) {
 			src := &VaultSource{
 				Client: &vaultClient{
@@ -513,7 +511,7 @@ func TestVaultPKISource(t *testing.T) {
 	}
 
 	// generate root CA cert
-	resp, err := client.Logical().Write("test-pki/root/generate/internal", map[string]interface{}{
+	resp, err := client.Logical().Write("test-pki/root/generate/internal", map[string]any{
 		"common_name": "fabio-ca.com",
 		"ttl":         "2h",
 	})
@@ -524,7 +522,7 @@ func TestVaultPKISource(t *testing.T) {
 
 	// create role
 	role := filepath.Base(certPath)
-	_, err = client.Logical().Write("test-pki/roles/"+role, map[string]interface{}{
+	_, err = client.Logical().Write("test-pki/roles/"+role, map[string]any{
 		"allowed_domains": "",
 		"allow_localhost": true,
 		"allow_ip_sans":   true,
@@ -535,7 +533,6 @@ func TestVaultPKISource(t *testing.T) {
 	}
 
 	for _, tt := range vaultTestCases {
-		tt := tt // capture loop var
 		t.Run(tt.desc, func(t *testing.T) {
 			src := NewVaultPKISource()
 			src.Client = &vaultClient{

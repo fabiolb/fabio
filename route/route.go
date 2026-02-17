@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/url"
 	"reflect"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -148,13 +149,7 @@ func (r *Route) setWeight(service string, weight float64, tags []string) int {
 
 func contains(src, dst []string) bool {
 	for _, d := range dst {
-		found := false
-		for _, s := range src {
-			if s == d {
-				found = true
-				break
-			}
-		}
+		found := slices.Contains(src, d)
 		if !found {
 			return false
 		}

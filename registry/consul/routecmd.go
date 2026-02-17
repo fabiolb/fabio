@@ -58,7 +58,7 @@ func (r routecmd) build() []string {
 
 			var weight string
 			var ropts []string
-			for _, o := range strings.Fields(opts) {
+			for o := range strings.FieldsSeq(opts) {
 				switch {
 				case o == "proto=tcp":
 					dst = "tcp://" + addr

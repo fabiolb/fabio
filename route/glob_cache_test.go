@@ -11,7 +11,7 @@ func TestGlobCache(t *testing.T) {
 
 	keys := func() []string {
 		var kk []string
-		c.m.Range(func(k, v interface{}) bool {
+		c.m.Range(func(k, v any) bool {
 			kk = append(kk, k.(string))
 			return true
 		})

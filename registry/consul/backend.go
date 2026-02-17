@@ -3,6 +3,7 @@ package consul
 import (
 	"errors"
 	"log"
+	"slices"
 
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/registry"
@@ -180,10 +181,5 @@ func datacenter(c *api.Client) (string, error) {
 }
 
 func stringInSlice(str string, strSlice []string) bool {
-	for _, s := range strSlice {
-		if s == str {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(strSlice, str)
 }

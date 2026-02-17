@@ -235,11 +235,11 @@ func BenchmarkLog(b *testing.B) {
 		// simulate the text template approach by using
 		// the same number of fields as for the other parser
 		// but using the same value.
-		tmpl := ""
+		var tmpl strings.Builder
 		for range fields {
-			tmpl += "{{.Req.RemoteAddr}}"
+			tmpl.WriteString("{{.Req.RemoteAddr}}")
 		}
-		t := template.Must(template.New("log").Parse(tmpl))
+		t := template.Must(template.New("log").Parse(tmpl.String()))
 
 		b.ResetTimer()
 		for range b.N {

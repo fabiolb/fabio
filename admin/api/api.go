@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func writeJSON(w http.ResponseWriter, r *http.Request, v interface{}) {
+func writeJSON(w http.ResponseWriter, r *http.Request, v any) {
 	_, pretty := r.URL.Query()["pretty"]
 
 	var buf []byte

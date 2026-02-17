@@ -545,7 +545,7 @@ func parseTLSVersion(s string) (uint16, error) {
 
 func parseTLSCiphers(s string) ([]uint16, error) {
 	var c []uint16
-	for _, v := range strings.Split(s, ",") {
+	for v := range strings.SplitSeq(s, ",") {
 		v = strings.ToUpper(strings.TrimSpace(v))
 		if n, ok := tlsciphers[v]; ok {
 			c = append(c, n)

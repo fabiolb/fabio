@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 	"testing"
 )
@@ -86,20 +87,19 @@ func BenchmarkPrefixMatcherRRPicker500Routes(b *testing.B) {
 // same target URLs. The number of generated routes is
 // domains * paths * depth.
 func makeRoutes(domains, paths, depth, urls int) Table {
-	s := ""
+	var s strings.Builder
 	for i := range domains {
-		prefix := fmt.Sprintf("www.host-%d.com/", i)
 		for range paths {
 			for k := range depth {
-				prefix += fmt.Sprintf("path-%d/", k)
+				prefix := fmt.Sprintf("www.host-%d.com/path-%d/", i, k)
 				for range urls {
-					s += fmt.Sprintf("route add svc %s http://host:12345/\n", prefix)
+					s.WriteString(fmt.Sprintf("route add svc %s http://host:12345/\n", prefix))
 				}
 			}
 		}
 	}
 
-	t, err := NewTable(bytes.NewBufferString(s))
+	t, err := NewTable(bytes.NewBufferString(s.String()))
 	if err != nil {
 		panic(err)
 	}

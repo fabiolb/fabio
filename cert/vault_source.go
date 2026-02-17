@@ -56,7 +56,7 @@ func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error)
 			if !ok {
 				return
 			}
-			data, ok = x.(map[string]interface{})
+			data, ok = x.(map[string]any)
 			if !ok {
 				return
 			}
@@ -106,7 +106,7 @@ func (s *VaultSource) load(path string) (pemBlocks map[string][]byte, err error)
 		return nil, nil
 	}
 
-	for _, x := range certs.Data["keys"].([]interface{}) {
+	for _, x := range certs.Data["keys"].([]any) {
 		name := x.(string)
 		p := path + "/" + name
 		if v2 {
@@ -169,7 +169,7 @@ func (s *VaultSource) kvPreflightVersionRequest(client *api.Client, path string)
 	if options == nil {
 		return mountPath, 1, nil
 	}
-	versionRaw := options.(map[string]interface{})["version"]
+	versionRaw := options.(map[string]any)["version"]
 	if versionRaw == nil {
 		return mountPath, 1, nil
 	}

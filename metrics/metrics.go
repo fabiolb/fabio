@@ -51,7 +51,7 @@ func Initialize(cfg *config.Metrics) (Provider, error) {
 	if prefix, err = parsePrefix(cfg.Prefix); err != nil {
 		return nil, fmt.Errorf("metrics: invalid Prefix template: %w", err)
 	}
-	for _, x := range strings.Split(cfg.Target, ",") {
+	for x := range strings.SplitSeq(cfg.Target, ",") {
 		x = strings.TrimSpace(x)
 		switch x {
 		case "flat", "stdout":

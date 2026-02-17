@@ -27,7 +27,7 @@ type Target struct {
 	RedirectURL *url.URL
 
 	// accessRules is map of access information for the target.
-	accessRules map[string][]interface{}
+	accessRules map[string][]any
 
 	// Transport allows for different types of transports
 	Transport *http.Transport
