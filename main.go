@@ -366,7 +366,6 @@ func startServers(cfg *config.Config, stats metrics.Provider) {
 	var tcpSniOnce sync.Once
 
 	for _, l := range cfg.Listen {
-		l := l // capture loop var for go routines below
 		tlscfg, err := makeTLSConfig(l)
 		if err != nil {
 			exit.Fatal("[FATAL] ", err)
@@ -682,7 +681,7 @@ func logRoutes(t route.Table, last, next, format string) {
 	}
 }
 
-func toJSON(v interface{}) string {
+func toJSON(v any) string {
 	data, err := json.MarshalIndent(v, "", "    ")
 	if err != nil {
 		panic("json: " + err.Error())

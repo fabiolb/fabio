@@ -137,8 +137,8 @@ func parseStatsdMetrics(data io.Reader, prefix string) map[string]statsdEntry {
 		}
 		var tags []string
 		if len(matches[5]) > 0 {
-			kvs := strings.Split(matches[5], ",")
-			for _, kv := range kvs {
+			kvs := strings.SplitSeq(matches[5], ",")
+			for kv := range kvs {
 				tags = append(tags, strings.SplitN(kv, ":", 2)...)
 			}
 		}

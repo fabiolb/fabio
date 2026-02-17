@@ -60,7 +60,7 @@ func (s *VaultPKISource) Issue(commonName string) (*tls.Certificate, error) {
 		return nil, fmt.Errorf("vault: client: %s", err)
 	}
 
-	resp, err := c.Logical().Write(s.CertPath, map[string]interface{}{
+	resp, err := c.Logical().Write(s.CertPath, map[string]any{
 		"common_name": commonName,
 	})
 	if err != nil {
@@ -104,10 +104,7 @@ func (s *VaultPKISource) Issue(commonName string) (*tls.Certificate, error) {
 		return nil, fmt.Errorf("vault: issue: %s", err)
 	}
 
-	refresh := s.Refresh
-	if refresh < time.Hour {
-		refresh = time.Hour
-	}
+	refresh := max(s.Refresh, time.Hour)
 
 	expires := x509Cert.NotAfter
 	certTTL := time.Until(expires) - refresh

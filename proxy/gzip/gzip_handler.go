@@ -32,7 +32,7 @@ const (
 var blacklistedAcceptContentTypes = []string{"text/event-stream"}
 
 var gzipWriterPool = sync.Pool{
-	New: func() interface{} { return gzip.NewWriter(nil) },
+	New: func() any { return gzip.NewWriter(nil) },
 }
 
 // NewGzipHandler wraps an existing handler to transparently gzip the response

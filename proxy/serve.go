@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"log"
+	"maps"
 	"net"
 	"net/http"
 	"sync"
@@ -59,9 +60,7 @@ func Close() {
 func Shutdown(timeout time.Duration) {
 	mu.Lock()
 	srvs := make(map[string]Server, len(servers))
-	for k, v := range servers {
-		srvs[k] = v
-	}
+	maps.Copy(srvs, servers)
 	servers = make(map[string]Server)
 	mu.Unlock()
 

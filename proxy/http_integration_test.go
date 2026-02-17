@@ -667,7 +667,6 @@ func TestProxyGzipHandler(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt // capture loop var
 		t.Run(tt.desc, func(t *testing.T) {
 			server := httptest.NewServer(tt.content)
 			defer server.Close()
@@ -826,7 +825,7 @@ func BenchmarkProxyLogger(b *testing.B) {
 		Proto:      "HTTP/1.1",
 	}
 
-	for range b.N {
+	for b.Loop() {
 		proxy.ServeHTTP(httptest.NewRecorder(), req)
 	}
 }
