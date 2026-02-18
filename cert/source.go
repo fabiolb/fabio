@@ -125,7 +125,7 @@ func TLSConfig(src Source, strictMatch bool, minVersion, maxVersion uint16, ciph
 			}
 
 			serverName := clientHello.ServerName
-			x, err, _ := sf.Do(serverName, func() (interface{}, error) {
+			x, err, _ := sf.Do(serverName, func() (any, error) {
 				return ca.Issue(serverName)
 			})
 			if err != nil {

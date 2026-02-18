@@ -125,7 +125,7 @@ const bufSize = 1024
 
 // pool provides a reusable set of log buffers.
 var pool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return bytes.NewBuffer(make([]byte, 0, bufSize))
 	},
 }

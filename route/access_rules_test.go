@@ -49,7 +49,6 @@ func TestAccessRules_parseAccessRule(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		tt := tt // capture loop var
 
 		t.Run(tt.desc, func(t *testing.T) {
 			for _, ad := range []string{"allow", "deny"} {
@@ -138,7 +137,6 @@ func TestAccessRules_denyByIP(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		tt := tt // capture loop var
 
 		t.Run(tt.desc, func(t *testing.T) {
 			if err := tt.target.ProcessAccessRules(); err != nil {
@@ -212,7 +210,6 @@ func TestAccessRules_AccessDeniedHTTP(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		tt := tt // capture loop var
 
 		req.Header = http.Header{"X-Forwarded-For": []string{tt.xff}}
 		req.RemoteAddr = tt.remote

@@ -2,6 +2,7 @@ package consul
 
 import (
 	"log"
+	"slices"
 	"strings"
 
 	"github.com/hashicorp/consul/api"
@@ -66,10 +67,5 @@ func isServiceCheck(c *api.HealthCheck) bool {
 // hasStatus returns true if the health check status is one of the given
 // values.
 func hasStatus(c *api.HealthCheck, status []string) bool {
-	for _, s := range status {
-		if c.Status == s {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(status, c.Status)
 }

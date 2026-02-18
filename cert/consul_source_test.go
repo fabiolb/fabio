@@ -50,7 +50,6 @@ func TestParseConsulURL(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt // capture loop var
 		t.Run(tt.name, func(t *testing.T) {
 			config, key, err := parseConsulURL(tt.in)
 			var errstr string

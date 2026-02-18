@@ -375,7 +375,6 @@ func TestAddHeaders(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		tt := tt // capture loop var
 
 		t.Run(tt.desc, func(t *testing.T) {
 			if tt.r.Header == nil {
@@ -436,7 +435,6 @@ func TestAddResponseHeaders(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		tt := tt // capture loop var
 
 		t.Run(tt.desc, func(t *testing.T) {
 			if tt.r.Header == nil {
