@@ -17,7 +17,7 @@ The following list provides a list of features supported by fabio.
  * [Metrics Support](/feature/metrics/) - support for Graphite, StatsD/DataDog and Circonus
  * [PROXY Protocol Support](/feature/proxy-protocol/) - support for HA Proxy PROXY protocol for inbound requests (use for Amazon ELB)
  * [Path Stripping](/feature/http-path-stripping/) - strip prefix paths from incoming requests
- * [Path Prepending](/feature/path-prepending/) - prepend a prefix path on to incoming requests
+ * [Path Prepending](/feature/http-path-prepending/) - prepend a prefix path on to incoming requests
  * [Server-Sent Events/SSE](/feature/sse/) - support for Server-Sent Events/SSE
  * [TCP Proxy Support](/feature/tcp-proxy/) - raw TCP proxy support
  * [TCP-SNI Proxy Support](/feature/tcp-sni-proxy/) - forward TLS connections based on hostname without re-encryption

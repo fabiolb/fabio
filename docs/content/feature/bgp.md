@@ -23,7 +23,7 @@ Further, the gobgp [command line client](https://github.com/osrg/gobgp/blob/mast
 is fully supported by enabling 
 the [bgp.enablegrpc](/ref/bgp.enablegrpc/) option.
 
-[Multihop](/ref/bgp.multihop/) is supported, where fabio may not be
+[Multihop](/ref/bgp.peers/) is supported, where fabio may not be
 on the same subnet as neighbor.
 
 To enable BGP, you must at a minimum:
