@@ -6,7 +6,7 @@ since: "1.0"
 fabio allows to control the amount of traffic a set of service instances will
 receive. You can use this feature to direct a fixed percentage of traffic to a
 newer version of an existing service for testing ("Canary testing"). See
-[Manual Overrides](./Routing#manual-overrides) for a complete description of the `route
+[Config Language](../../cfg) for a complete description of the `route
 weight` command.
 
 The following command will allocate 5% of traffic to `www.kjca.dev/auth/` to
