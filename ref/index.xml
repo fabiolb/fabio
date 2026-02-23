@@ -418,7 +418,7 @@
       <link>https://fabiolb.net/ref/proxy.localip/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://fabiolb.net/ref/proxy.localip/</guid>
-      <description>&lt;p&gt;&lt;code&gt;proxy.localip&lt;/code&gt; configures the ip address of the proxy which is added&#xA;to the Header configured by &lt;a href=&#34;https://fabiolb.net/ref/header.clientip/&#34;&gt;&lt;code&gt;header.clientip&lt;/code&gt;&lt;/a&gt; and to the &lt;code&gt;Forwarded: by=&lt;/code&gt; attribute.&lt;/p&gt;&#xA;&lt;p&gt;The local non-loopback address is detected during startup&#xA;but can be overwritten with this property.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.localip =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.localip&lt;/code&gt; configures the ip address of the proxy which is added&#xA;to the Header configured by &lt;a href=&#34;https://fabiolb.net/ref/proxy.header.clientip/&#34;&gt;&lt;code&gt;proxy.header.clientip&lt;/code&gt;&lt;/a&gt; and to the &lt;code&gt;Forwarded: by=&lt;/code&gt; attribute.&lt;/p&gt;&#xA;&lt;p&gt;The local non-loopback address is detected during startup&#xA;but can be overwritten with this property.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.localip =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
     <item>
       <title>proxy.matcher</title>

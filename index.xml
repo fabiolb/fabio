@@ -600,7 +600,7 @@
       <link>https://fabiolb.net/ref/proxy.localip/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://fabiolb.net/ref/proxy.localip/</guid>
-      <description>&lt;p&gt;&lt;code&gt;proxy.localip&lt;/code&gt; configures the ip address of the proxy which is added&#xA;to the Header configured by &lt;a href=&#34;https://fabiolb.net/ref/header.clientip/&#34;&gt;&lt;code&gt;header.clientip&lt;/code&gt;&lt;/a&gt; and to the &lt;code&gt;Forwarded: by=&lt;/code&gt; attribute.&lt;/p&gt;&#xA;&lt;p&gt;The local non-loopback address is detected during startup&#xA;but can be overwritten with this property.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.localip =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
+      <description>&lt;p&gt;&lt;code&gt;proxy.localip&lt;/code&gt; configures the ip address of the proxy which is added&#xA;to the Header configured by &lt;a href=&#34;https://fabiolb.net/ref/proxy.header.clientip/&#34;&gt;&lt;code&gt;proxy.header.clientip&lt;/code&gt;&lt;/a&gt; and to the &lt;code&gt;Forwarded: by=&lt;/code&gt; attribute.&lt;/p&gt;&#xA;&lt;p&gt;The local non-loopback address is detected during startup&#xA;but can be overwritten with this property.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.localip =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
     <item>
       <title>proxy.matcher</title>
@@ -922,7 +922,7 @@
       <link>https://fabiolb.net/feature/traffic-shaping/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://fabiolb.net/feature/traffic-shaping/</guid>
-      <description>&lt;p&gt;fabio allows to control the amount of traffic a set of service instances will&#xA;receive. You can use this feature to direct a fixed percentage of traffic to a&#xA;newer version of an existing service for testing (&amp;ldquo;Canary testing&amp;rdquo;). See&#xA;&lt;a href=&#34;./Routing#manual-overrides&#34;&gt;Manual Overrides&lt;/a&gt; for a complete description of the &lt;code&gt;route weight&lt;/code&gt; command.&lt;/p&gt;&#xA;&lt;p&gt;The following command will allocate 5% of traffic to &lt;code&gt;www.kjca.dev/auth/&lt;/code&gt; to&#xA;all instances of &lt;code&gt;service-b&lt;/code&gt; which match tags &lt;code&gt;version-15&lt;/code&gt; and &lt;code&gt;dc-fra&lt;/code&gt;. This&#xA;is independent of the number of actual instances running. The remaining 95%&#xA;of the traffic will be distributed evenly across the remaining instances&#xA;publishing the same prefix.&lt;/p&gt;</description>
+      <description>&lt;p&gt;fabio allows to control the amount of traffic a set of service instances will&#xA;receive. You can use this feature to direct a fixed percentage of traffic to a&#xA;newer version of an existing service for testing (&amp;ldquo;Canary testing&amp;rdquo;). See&#xA;&lt;a href=&#34;../../cfg&#34;&gt;Config Language&lt;/a&gt; for a complete description of the &lt;code&gt;route weight&lt;/code&gt; command.&lt;/p&gt;&#xA;&lt;p&gt;The following command will allocate 5% of traffic to &lt;code&gt;www.kjca.dev/auth/&lt;/code&gt; to&#xA;all instances of &lt;code&gt;service-b&lt;/code&gt; which match tags &lt;code&gt;version-15&lt;/code&gt; and &lt;code&gt;dc-fra&lt;/code&gt;. This&#xA;is independent of the number of actual instances running. The remaining 95%&#xA;of the traffic will be distributed evenly across the remaining instances&#xA;publishing the same prefix.&lt;/p&gt;</description>
     </item>
     <item>
       <title>ui.access</title>
