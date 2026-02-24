@@ -1168,7 +1168,6 @@ func TestLoad(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt // capture loop var
 
 		if tt.desc == "" {
 			tt.desc = strings.Join(tt.args, " ")

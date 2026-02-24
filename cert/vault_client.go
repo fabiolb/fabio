@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -91,12 +92,7 @@ func (c *vaultClient) Get() (*api.Client, error) {
 	resp, err := client.Logical().Unwrap(token)
 	var respErr *api.ResponseError
 	contains := func(haystack []string, needle string) bool {
-		for _, h := range haystack {
-			if h == needle {
-				return true
-			}
-		}
-		return false
+		return slices.Contains(haystack, needle)
 	}
 	switch {
 	case err == nil:

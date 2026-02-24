@@ -47,7 +47,7 @@ func loadURL(listURL string) (pemBlocks map[string][]byte, err error) {
 
 	// fetch the individual files
 	pemBlocks = map[string][]byte{}
-	for _, p := range strings.Split(string(list), "\n") {
+	for p := range strings.SplitSeq(string(list), "\n") {
 		if p == "" {
 			continue
 		}

@@ -47,7 +47,7 @@ func (t *Target) AccessDeniedHTTP(r *http.Request) bool {
 		// Specifically AWS does not strip XFF from anonymous internet sources:
 		// https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/x-forwarded-headers.html#x-forwarded-for
 		// See lengthy github discussion for more background: https://github.com/fabiolb/fabio/pull/449
-		for _, xip := range strings.Split(xff, ",") {
+		for xip := range strings.SplitSeq(xff, ",") {
 			xip = strings.TrimSpace(xip)
 			if xip == host {
 				continue
@@ -168,11 +168,11 @@ func (t *Target) parseAccessRule(allowDeny string) error {
 
 	// init rules if needed
 	if t.accessRules == nil {
-		t.accessRules = make(map[string][]interface{})
+		t.accessRules = make(map[string][]any)
 	}
 
 	// loop over rule elements
-	for _, c := range strings.Split(t.Opts[allowDeny], ",") {
+	for c := range strings.SplitSeq(t.Opts[allowDeny], ",") {
 		if temps = strings.SplitN(c, ":", 2); len(temps) != 2 {
 			return fmt.Errorf("invalid access item, expected <type>:<data>, got %s", temps)
 		}

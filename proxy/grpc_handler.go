@@ -92,7 +92,7 @@ func makeGRPCTargetKey(t *route.Target) string {
 	return t.URL.String()
 }
 
-func (g GrpcProxyInterceptor) Stream(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+func (g GrpcProxyInterceptor) Stream(srv any, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	ctx := stream.Context()
 
 	target, err := g.lookup(ctx, info.FullMethod)

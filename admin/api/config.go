@@ -3,7 +3,7 @@ package api
 import "net/http"
 
 type ConfigHandler struct {
-	Config interface{}
+	Config any
 }
 
 func (h *ConfigHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
