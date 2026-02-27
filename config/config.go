@@ -200,9 +200,10 @@ type Custom struct {
 }
 
 type AuthScheme struct {
-	Name  string
-	Type  string
-	Basic BasicAuth
+	Name     string
+	Type     string
+	Basic    BasicAuth
+	External ExternalAuth
 }
 
 type BasicAuth struct {
@@ -210,6 +211,12 @@ type BasicAuth struct {
 	Realm   string
 	File    string
 	Refresh time.Duration
+}
+
+type ExternalAuth struct {
+	Endpoint          string
+	AppendAuthHeaders []string
+	SetAuthHeaders    []string
 }
 
 type ConsulTlS struct {
