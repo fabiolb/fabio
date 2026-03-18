@@ -90,6 +90,11 @@ to the destination without decrypting the traffic.
     # Multiple listeners
     proxy.addr = 1.2.3.4:9999;rt=3s,[2001:DB8::A/32]:9999;wt=5s
 
+    # Multiple listeners with different protocols and options
+    proxy.addr = 172.16.20.11:80;proto=http;rt=60s;wt=30s, \
+                 172.16.20.11:443;proto=https;rt=60s;wt=30s;cs=all;tlsmin=10, \
+                 172.16.20.11:8443;proto=tcp+sni
+
     # HTTPS listener on port 443 with certificate source
     proxy.addr = :443;cs=some-name
 
