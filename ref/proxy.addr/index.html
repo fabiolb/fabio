@@ -458,6 +458,11 @@ proxy.addr = [2001:DB8::A/32]:9999;wt=5s
 # Multiple listeners
 proxy.addr = 1.2.3.4:9999;rt=3s,[2001:DB8::A/32]:9999;wt=5s
 
+# Multiple listeners with different protocols and options
+proxy.addr = 172.16.20.11:80;proto=http;rt=60s;wt=30s, \
+             172.16.20.11:443;proto=https;rt=60s;wt=30s;cs=all;tlsmin=10, \
+             172.16.20.11:8443;proto=tcp+sni
+
 # HTTPS listener on port 443 with certificate source
 proxy.addr = :443;cs=some-name
 
@@ -506,7 +511,7 @@ proxy.addr = 0.0.0.0:0;proto=tcp-dynamic;refresh=5s
                 Copyright &copy; 2020-2026 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 23 Feb 2026 02:48
+                Last updated on 19 Mar 2026 00:31
             </p>
           </div>
           <div class="col-md-6 col-sm-6">
