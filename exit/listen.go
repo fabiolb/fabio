@@ -20,9 +20,7 @@ var quit = make(chan bool)
 // triggering a reload of configuration which isn't
 // supported but shouldn't kill the process either.
 func Listen(fn func(os.Signal)) {
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		for {
 			sigchan := make(chan os.Signal, 1)
 			signal.Notify(sigchan, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
@@ -49,7 +47,7 @@ func Listen(fn func(os.Signal)) {
 			}
 			return
 		}
-	}()
+	})
 }
 
 // stubbed out for testing
@@ -68,13 +66,13 @@ func Exit(code int) {
 // Fatal is a replacement for log.Fatal which will trigger
 // the closure of all registered exit handlers and waits
 // for their completion and then call os.Exit(1).
-func Fatal(v ...interface{}) {
+func Fatal(v ...any) {
 	log.Print(v...)
 	Exit(1)
 }
 
 // Fatalf is a replacement for log.Fatalf and behaves like Fatal.
-func Fatalf(format string, v ...interface{}) {
+func Fatalf(format string, v ...any) {
 	log.Printf(format, v...)
 	Exit(1)
 }

@@ -10,12 +10,12 @@ import (
 )
 
 // Equal provides an assertEqual function
-func Equal(t *testing.T) func(got, want interface{}) {
+func Equal(t *testing.T) func(got, want any) {
 	return EqualDepth(t, 1, "")
 }
 
-func EqualDepth(t *testing.T, calldepth int, desc string) func(got, want interface{}) {
-	return func(got, want interface{}) {
+func EqualDepth(t *testing.T, calldepth int, desc string) func(got, want any) {
+	return func(got, want any) {
 		_, file, line, _ := runtime.Caller(calldepth)
 		if !reflect.DeepEqual(got, want) {
 			fmt.Printf("\t%s:%d: %s: got %v want %v\n", filepath.Base(file), line, desc, got, want)
