@@ -24,7 +24,7 @@ require (
 	github.com/tg123/go-htpasswd v1.2.4
 	golang.org/x/net v0.48.0
 	golang.org/x/sync v0.19.0
-	google.golang.org/grpc v1.77.0
+	google.golang.org/grpc v1.79.3
 	google.golang.org/protobuf v1.36.10
 )
 
