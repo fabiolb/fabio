@@ -3,7 +3,7 @@ module github.com/fabiolb/fabio
 go 1.26.1
 
 require (
-	github.com/armon/go-proxyproto v0.0.0-20180202201750-5b7edb60ff5f
+	github.com/armon/go-proxyproto v0.1.0
 	github.com/circonus-labs/circonus-gometrics/v3 v3.4.7
 	github.com/go-kit/kit v0.13.0
 	github.com/go-kit/log v0.2.1
