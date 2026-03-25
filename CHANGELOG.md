@@ -1,5 +1,37 @@
 # Changelog
 
+## [v1.7.0](https://github.com/fabiolb/fabio/tree/v1.7.0) (2026-03-25)
+
+[Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.11...v1.7.0)
+
+**Implemented enhancements:**
+
+- Remove outdated tracing functions? [\#970](https://github.com/fabiolb/fabio/issues/970)
+
+**Fixed bugs:**
+
+- fix leak for prometheus metrics cleanup [\#1015](https://github.com/fabiolb/fabio/pull/1015) ([evkuzin](https://github.com/evkuzin))
+
+**Closed issues:**
+
+- Metrics are leaking in prometheus [\#979](https://github.com/fabiolb/fabio/issues/979)
+- Enhance Fabio to support profiling Tracing  [\#623](https://github.com/fabiolb/fabio/issues/623)
+
+**Merged pull requests:**
+
+- fix: improve proxy addr documentation for multiple protocols use case [\#1018](https://github.com/fabiolb/fabio/pull/1018) ([RodrigoPerestrelo](https://github.com/RodrigoPerestrelo))
+- Fix broken links in documentation [\#1017](https://github.com/fabiolb/fabio/pull/1017) ([froque](https://github.com/froque))
+- Update GH-Actions and Go version. [\#1016](https://github.com/fabiolb/fabio/pull/1016) ([tristanmorgan](https://github.com/tristanmorgan))
+- Remove Tracing and update packages even more. \(\#970\) [\#976](https://github.com/fabiolb/fabio/pull/976) ([tristanmorgan](https://github.com/tristanmorgan))
+
+## [v1.6.11](https://github.com/fabiolb/fabio/tree/v1.6.11) (2025-12-09)
+
+[Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.10...v1.6.11)
+
+**Merged pull requests:**
+
+- Update dependancies for latest CVEs. [\#1012](https://github.com/fabiolb/fabio/pull/1012) ([tristanmorgan](https://github.com/tristanmorgan))
+
 ## [v1.6.10](https://github.com/fabiolb/fabio/tree/v1.6.10) (2025-11-24)
 
 [Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.9...v1.6.10)
