@@ -17,6 +17,10 @@ builds:
       - arm64
     goarm:
       - 7
+    ignore:
+      - goos: windows
+        goarch: arm
+        goarm: 7
 archives:
   - id: bin
     name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Os }}_{{ .Arch }}'
