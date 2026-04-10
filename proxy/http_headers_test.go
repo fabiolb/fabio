@@ -152,6 +152,19 @@ func TestAddHeaders(t *testing.T) {
 			"",
 		},
 
+		{"set httpproto, tlsver and tlscipher on Forwarded for https and tls1.3",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Proto: "HTTP/2.0", TLS: &tls.ConnectionState{Version: tls.VersionTLS13, CipherSuite: tls.TLS_CHACHA20_POLY1305_SHA256}},
+			config.Proxy{},
+			"",
+			http.Header{
+				"Forwarded":         []string{"for=1.2.3.4; proto=https; httpproto=http/2.0; tlsver=tls13; tlscipher=0x1303"},
+				"X-Forwarded-Proto": []string{"https"},
+				"X-Forwarded-Port":  []string{"443"},
+				"X-Real-Ip":         []string{"1.2.3.4"},
+			},
+			"",
+		},
+
 		{"set httpproto on Forwarded",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", Proto: "HTTP/1.1"},
 			config.Proxy{},
