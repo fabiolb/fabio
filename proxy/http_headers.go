@@ -163,11 +163,12 @@ var tlsver = map[uint16]string{
 	tls.VersionTLS10: "tls10",
 	tls.VersionTLS11: "tls11",
 	tls.VersionTLS12: "tls12",
+	tls.VersionTLS13: "tls13",
 }
 
 var digit16 = []byte("0123456789abcdef")
 
-// uint16base64 is a faster version of fmt.Sprintf("0x%04x", n)
+// uint16base16 is a faster version of fmt.Sprintf("0x%04x", n)
 //
 // BenchmarkUint16Base16/fmt.Sprintf-8         	10000000	       154 ns/op	       8 B/op	       2 allocs/op
 // BenchmarkUint16Base16/uint16base16-8        	50000000	        35.0 ns/op	       8 B/op	       1 allocs/op
