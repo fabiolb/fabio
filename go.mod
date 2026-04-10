@@ -8,7 +8,7 @@ require (
 	github.com/go-kit/kit v0.13.0
 	github.com/go-kit/log v0.2.1
 	github.com/gobwas/glob v0.2.3
-	github.com/hashicorp/consul/api v1.33.7
+	github.com/hashicorp/consul/api v1.34.0
 	github.com/hashicorp/go-sockaddr v1.0.7
 	github.com/hashicorp/vault/api v1.23.0
 	github.com/hashicorp/vault/sdk v0.25.0
