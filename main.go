@@ -303,6 +303,7 @@ func startAdmin(cfg *config.Config) {
 			Access:   cfg.UI.Access,
 			Color:    cfg.UI.Color,
 			Title:    cfg.UI.Title,
+			Path:     cfg.UI.Path,
 			Version:  version,
 			Commands: route.Commands,
 			Cfg:      cfg,

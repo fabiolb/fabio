@@ -14,9 +14,10 @@ func TestAdminServerAccess(t *testing.T) {
 		code int
 	}
 
-	testAccess := func(access string, tests []test) {
+	testAccess := func(access, basePath string, tests []test) {
 		srv := &Server{
 			Access: access,
+			Path:   basePath,
 			Cfg: &config.Config{
 				Registry: config.Registry{
 					Consul: config.Consul{
@@ -74,6 +75,37 @@ func TestAdminServerAccess(t *testing.T) {
 		{"/", 303},
 	}
 
-	testAccess("ro", roTests)
-	testAccess("rw", rwTests)
+	testAccess("ro", "", roTests)
+	testAccess("rw", "", rwTests)
+
+	roTestsWithPath := []test{
+		{"/fabio/api/manual", 403},
+		{"/fabio/api/paths", 403},
+		{"/fabio/api/config", 200},
+		{"/fabio/api/routes", 200},
+		{"/fabio/api/version", 200},
+		{"/fabio/manual", 403},
+		{"/fabio/routes", 200},
+		{"/fabio/health", 200},
+		{"/fabio/assets/logo.svg", 200},
+		{"/fabio/assets/logo.bw.svg", 200},
+		{"/fabio/", 303},
+	}
+
+	rwTestsWithPath := []test{
+		{"/fabio/api/manual", 200},
+		{"/fabio/api/paths", 200},
+		{"/fabio/api/config", 200},
+		{"/fabio/api/routes", 200},
+		{"/fabio/api/version", 200},
+		{"/fabio/manual", 200},
+		{"/fabio/routes", 200},
+		{"/fabio/health", 200},
+		{"/fabio/assets/logo.svg", 200},
+		{"/fabio/assets/logo.bw.svg", 200},
+		{"/fabio/", 303},
+	}
+
+	testAccess("ro", "/fabio", roTestsWithPath)
+	testAccess("rw", "/fabio", rwTestsWithPath)
 }

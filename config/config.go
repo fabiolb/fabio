@@ -67,6 +67,7 @@ type UI struct {
 	Color        string
 	Title        string
 	Access       string
+	Path         string
 	Listen       Listen
 }
 
