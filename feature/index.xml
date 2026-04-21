@@ -180,7 +180,7 @@
       <link>https://fabiolb.net/feature/web-ui/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://fabiolb.net/feature/web-ui/</guid>
-      <description>&lt;p&gt;fabio supports a Web UI to examine the current routing table and manage the&#xA;manual overrides. By default it listens on &lt;code&gt;http://0.0.0.0:9998/&lt;/code&gt; which can be&#xA;changed with the &lt;code&gt;ui.addr&lt;/code&gt; option. The &lt;code&gt;ui.title&lt;/code&gt; and &lt;code&gt;ui.color&lt;/code&gt; options allow&#xA;customization of the title and the color of the header bar.&lt;/p&gt;</description>
+      <description>&lt;p&gt;fabio supports a Web UI to examine the current routing table and manage the&#xA;manual overrides. By default it listens on &lt;code&gt;http://0.0.0.0:9998/&lt;/code&gt; which can be&#xA;changed with the &lt;code&gt;ui.addr&lt;/code&gt; option. The &lt;code&gt;ui.title&lt;/code&gt; and &lt;code&gt;ui.color&lt;/code&gt; options allow&#xA;customization of the title and the color of the header bar.&lt;/p&gt;&#xA;&lt;p&gt;The &lt;code&gt;ui.path&lt;/code&gt; option configures a base path for the UI and API, allowing fabio&#xA;to be served behind a reverse proxy at a sub-path (e.g. &lt;code&gt;ui.path = /fabio&lt;/code&gt;).&lt;/p&gt;</description>
     </item>
     <item>
       <title>Websockets</title>

@@ -722,6 +722,13 @@
       <description>&lt;p&gt;&lt;code&gt;ui.color&lt;/code&gt; configures the background color of the UI.&#xA;Color names are from &lt;a href=&#34;http://materializecss.com/color.html&#34;&gt;http://materializecss.com/color.html&lt;/a&gt;&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;ui.color = light-green&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
     <item>
+      <title>ui.path</title>
+      <link>https://fabiolb.net/ref/ui.path/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://fabiolb.net/ref/ui.path/</guid>
+      <description>&lt;p&gt;&lt;code&gt;ui.path&lt;/code&gt; configures the base path for the UI/API. This allows serving&#xA;the admin UI behind a reverse proxy at a sub-path, e.g. &lt;code&gt;/fabio&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;ui.path =&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
+    <item>
       <title>ui.routingtable.source.host</title>
       <link>https://fabiolb.net/ref/ui.routingtable.source.host/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

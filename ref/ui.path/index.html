@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
 
-    <title>metrics.circonus.apikey</title>
+    <title>ui.path</title>
 
     
     <link href="/css/theDocs.all.min.css" rel="stylesheet">
@@ -154,7 +154,7 @@
       
         <li><a href="https://fabiolb.net/ref/metrics.circonus.apiapp/">metrics.circonus.apiapp</a></li>
       
-        <li><a class="active" href="https://fabiolb.net/ref/metrics.circonus.apikey/">metrics.circonus.apikey</a></li>
+        <li><a href="https://fabiolb.net/ref/metrics.circonus.apikey/">metrics.circonus.apikey</a></li>
       
         <li><a href="https://fabiolb.net/ref/metrics.circonus.apiurl/">metrics.circonus.apiurl</a></li>
       
@@ -312,7 +312,7 @@
       
         <li><a href="https://fabiolb.net/ref/ui.color/">ui.color</a></li>
       
-        <li><a href="https://fabiolb.net/ref/ui.path/">ui.path</a></li>
+        <li><a class="active" href="https://fabiolb.net/ref/ui.path/">ui.path</a></li>
       
         <li><a href="https://fabiolb.net/ref/ui.routingtable.source.host/">ui.routingtable.source.host</a></li>
       
@@ -364,13 +364,11 @@
 
       
       <section>
-        <h2>metrics.circonus.apikey</h2>
-        <p><code>metrics.circonus.apikey</code> configures the API token key to use when
-submitting metrics to Circonus. See: <a href="https://login.circonus.com/user/tokens">https://login.circonus.com/user/tokens</a>
-This is optional when <a href="/ref/metrics.target/">metrics.target</a> is set to <code>circonus</code>
-but <a href="/ref/metrics.circonus.submissionurl/">metrics.circonus.submissionurl</a> is specified}</p>
+        <h2>ui.path</h2>
+        <p><code>ui.path</code> configures the base path for the UI/API. This allows serving
+the admin UI behind a reverse proxy at a sub-path, e.g. <code>/fabio</code>.</p>
 <p>The default is</p>
-<pre><code>metrics.circonus.apikey =
+<pre><code>ui.path =
 </code></pre>
 
         
