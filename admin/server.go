@@ -68,7 +68,8 @@ func (s *Server) handler() http.Handler {
 	mux.Handle(p+"/api/routes", &api.RoutesHandler{})
 	mux.Handle(p+"/api/version", &api.VersionHandler{Version: s.Version})
 	mux.Handle(p+"/routes", &ui.RoutesHandler{Color: s.Color, Title: s.Title, Version: s.Version, Path: p, RoutingTable: s.Cfg.UI.RoutingTable})
-	mux.HandleFunc(p+"/health", handleHealth)
+	// Due to how Fabio registers its own health-check with Consul, the base path is not prepended here
+	mux.HandleFunc("/health", handleHealth)
 
 	mux.Handle(p+"/assets/", http.StripPrefix(p, http.FileServer(http.FS(ui.Static))))
 	mux.HandleFunc(p+"/favicon.ico", http.NotFound)
