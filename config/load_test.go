@@ -951,6 +951,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-ui.path", "/fabio"},
+			cfg: func(cfg *Config) *Config {
+				cfg.UI.Path = "/fabio"
+				return cfg
+			},
+		},
+		{
 			desc: "ignore aws.apigw.cert.cn",
 			args: []string{"-aws.apigw.cert.cn", "value"},
 			cfg:  func(cfg *Config) *Config { return cfg },

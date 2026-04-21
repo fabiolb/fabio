@@ -224,6 +224,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.StringVar(&uiListenerValue, "ui.addr", defaultValues.UIListenerValue, "Address the UI/API is listening on")
 	f.StringVar(&cfg.UI.Color, "ui.color", defaultConfig.UI.Color, "background color of the UI")
 	f.StringVar(&cfg.UI.Title, "ui.title", defaultConfig.UI.Title, "optional title for the UI")
+	f.StringVar(&cfg.UI.Path, "ui.path", defaultConfig.UI.Path, "base path for the UI/API")
 
 	f.BoolVar(&cfg.UI.RoutingTable.Source.LinkEnabled, "ui.routingtable.source.linkenabled", defaultConfig.UI.RoutingTable.Source.LinkEnabled, "optional true/false flag if the source in the routing table of the admin UI should have a link")
 	f.BoolVar(&cfg.UI.RoutingTable.Source.NewTab, "ui.routingtable.source.newtab", defaultConfig.UI.RoutingTable.Source.NewTab, "optional true/false flag if the source link should be opened in a new tab, not affected if linkenabled is false")

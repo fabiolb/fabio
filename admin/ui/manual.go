@@ -11,18 +11,19 @@ type ManualHandler struct {
 	Title    string
 	Version  string
 	Commands string
+	Path     string
 }
 
 func (h *ManualHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	path := r.RequestURI[len(h.BasePath):]
+	manualPath := r.RequestURI[len(h.BasePath):]
 	data := struct {
 		*ManualHandler
-		Path    string
-		APIPath string
+		ManualPath string
+		APIPath    string
 	}{
 		ManualHandler: h,
-		Path:          path,
-		APIPath:       "/api/manual" + path,
+		ManualPath:    manualPath,
+		APIPath:       h.Path + "/api/manual" + manualPath,
 	}
 	tmplManual.ExecuteTemplate(w, "manual", data)
 }
@@ -39,10 +40,10 @@ var tmplManual = template.Must(template.New("manual").Funcs(funcs).Parse( // lan
 <head>
 	<meta charset="utf-8">
 	<title>fabio{{if .Title}} - {{.Title}}{{end}}</title>
-	<script type="text/javascript" src="/assets/code.jquery.com/jquery-3.6.0.min.js"></script>
-	<link href="/assets/fonts/material-icons.css" rel="stylesheet">
-	<link rel="stylesheet" href="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-	<script src="/assets/cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+	<script type="text/javascript" src="{{.Path}}/assets/code.jquery.com/jquery-3.6.0.min.js"></script>
+	<link href="{{.Path}}/assets/fonts/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="{{.Path}}/assets/cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+	<script src="{{.Path}}/assets/cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 	<style type="text/css">
@@ -58,9 +59,9 @@ var tmplManual = template.Must(template.New("manual").Funcs(funcs).Parse( // lan
 
 	<div class="container">
 		<div class="nav-wrapper">
-			<a href="/" class="brand-logo"><img alt="Fabio Logo" style="margin: 15px 0" class="logo" src="/assets/logo.bw.svg"> {{if .Title}} - {{.Title}}{{end}}</a>
+			<a href="{{.Path}}/" class="brand-logo"><img alt="Fabio Logo" style="margin: 15px 0" class="logo" src="{{.Path}}/assets/logo.bw.svg"> {{if .Title}} - {{.Title}}{{end}}</a>
 			<ul id="nav-mobile" class="right hide-on-med-and-down">
-				<li><a href="/routes">Routes</a></li>
+				<li><a href="{{.Path}}/routes">Routes</a></li>
 				<li><a class="dropdown-trigger dropdown-button" href="#" data-target="overrides">Overrides<i class="material-icons right">arrow_drop_down</i></a></li>
 				<li><a href="https://github.com/fabiolb/fabio/blob/master/CHANGELOG.md">{{.Version}}</a></li>
 				<li><a href="https://github.com/fabiolb/fabio">Github</a></li>
@@ -74,7 +75,7 @@ var tmplManual = template.Must(template.New("manual").Funcs(funcs).Parse( // lan
 <div class="container">
 
 	<div class="section">
-		<h5>Manual Routes{{if .Path}} for "{{.Path}}"{{end}}</h5>
+		<h5>Manual Routes{{if .ManualPath}} for "{{.ManualPath}}"{{end}}</h5>
 
 		<div class="row">
 			<form class="col s12">
@@ -110,7 +111,7 @@ $(function(){
 		M.textareaAutoResize($('#textarea1'));
 	});
 
-	$.get('/api/paths', function(data) {
+	$.get('{{.Path}}/api/paths', function(data) {
 		const d = $("#overrides");
 		$.each(data, function(idx, val) {
 			let path = val;
@@ -119,7 +120,7 @@ $(function(){
 			}
 			d.append(
 				$('<li />').append(
-					$('<a />').attr('href', '/manual'+path).text(val)
+					$('<a />').attr('href', '{{.Path}}/manual'+path).text(val)
 				)
 			);
 		});
