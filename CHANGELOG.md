@@ -1,5 +1,37 @@
 # Changelog
 
+## [v1.7.1](https://github.com/fabiolb/fabio/tree/v1.7.1) (2026-04-27)
+
+[Full Changelog](https://github.com/fabiolb/fabio/compare/v1.7.0...v1.7.1)
+
+**Implemented enhancements:**
+
+- Compatibility with acme-vault [\#900](https://github.com/fabiolb/fabio/issues/900)
+- feat: add ui.path config option for serving UI/API behind a proxy [\#1034](https://github.com/fabiolb/fabio/pull/1034) ([maciej-lech](https://github.com/maciej-lech))
+
+**Fixed bugs:**
+
+- bug: tlsver map missing TLS 1.3 entry causes incorrect Forwarded header for TLS 1.3 connections [\#1029](https://github.com/fabiolb/fabio/issues/1029)
+
+**Closed issues:**
+
+- Missing dependency [\#473](https://github.com/fabiolb/fabio/issues/473)
+- Support different base path for UI/API [\#323](https://github.com/fabiolb/fabio/issues/323)
+
+**Merged pull requests:**
+
+- Bump github.com/hashicorp/vault/sdk from 0.25.0 to 0.25.1 [\#1033](https://github.com/fabiolb/fabio/pull/1033) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump golang.org/x/net from 0.52.0 to 0.53.0 [\#1032](https://github.com/fabiolb/fabio/pull/1032) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump github.com/hashicorp/consul/api from 1.34.0 to 1.34.2 [\#1031](https://github.com/fabiolb/fabio/pull/1031) ([dependabot[bot]](https://github.com/apps/dependabot))
+- fix: add TLS 1.3 to tlsver map and fix comment typo [\#1030](https://github.com/fabiolb/fabio/pull/1030) ([kuishou68](https://github.com/kuishou68))
+- Bump github.com/hashicorp/consul/api from 1.33.7 to 1.34.0 [\#1028](https://github.com/fabiolb/fabio/pull/1028) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump google.golang.org/grpc from 1.79.3 to 1.80.0 [\#1027](https://github.com/fabiolb/fabio/pull/1027) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump github.com/go-jose/go-jose/v4 from 4.1.3 to 4.1.4 [\#1026](https://github.com/fabiolb/fabio/pull/1026) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump github.com/hashicorp/vault/api from 1.22.0 to 1.23.0 [\#1024](https://github.com/fabiolb/fabio/pull/1024) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump github.com/hashicorp/vault/sdk from 0.23.0 to 0.25.0 [\#1022](https://github.com/fabiolb/fabio/pull/1022) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump github.com/hashicorp/consul/api from 1.33.4 to 1.33.7 [\#1021](https://github.com/fabiolb/fabio/pull/1021) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Update Actions and ignore broken win-arm-7 build. [\#1020](https://github.com/fabiolb/fabio/pull/1020) ([tristanmorgan](https://github.com/tristanmorgan))
+
 ## [v1.7.0](https://github.com/fabiolb/fabio/tree/v1.7.0) (2026-03-25)
 
 [Full Changelog](https://github.com/fabiolb/fabio/compare/v1.6.11...v1.7.0)
