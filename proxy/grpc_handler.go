@@ -44,11 +44,11 @@ func (s *gRPCServer) Serve(lis net.Listener) error {
 	return s.server.Serve(lis)
 }
 
-func GetGRPCDirector(tlscfg *tls.Config, cfg *config.Config) func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
+func GetGRPCDirector(tlscfg *tls.Config, cfg *config.Config) func(ctx context.Context, fullMethodName string) (context.Context, grpc.ClientConnInterface, error) {
 
 	connectionPool := newGrpcConnectionPool(tlscfg, cfg)
 
-	return func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
+	return func(ctx context.Context, fullMethodName string) (context.Context, grpc.ClientConnInterface, error) {
 		md, ok := metadata.FromIncomingContext(ctx)
 
 		if !ok {
@@ -247,7 +247,7 @@ func newGrpcConnectionPool(tlscfg *tls.Config, cfg *config.Config) *grpcConnecti
 	return cp
 }
 
-func (p *grpcConnectionPool) Get(ctx context.Context, target *route.Target) (*grpc.ClientConn, error) {
+func (p *grpcConnectionPool) Get(ctx context.Context, target *route.Target) (grpc.ClientConnInterface, error) {
 	p.lock.RLock()
 	conn := p.connections[makeGRPCTargetKey(target)]
 	p.lock.RUnlock()
