@@ -24,12 +24,11 @@ require (
 	github.com/tg123/go-htpasswd v1.2.4
 	golang.org/x/net v0.53.0
 	golang.org/x/sync v0.20.0
-	google.golang.org/grpc v1.80.0
+	google.golang.org/grpc v1.81.1
 	google.golang.org/protobuf v1.36.11
 )
 
 require (
-	github.com/BurntSushi/toml v1.3.2 // indirect
 	github.com/GehirnInc/crypt v0.0.0-20230320061759-8cc1b52080c5 // indirect
 	github.com/VividCortex/gohistogram v1.0.0 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
@@ -89,11 +88,8 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.50.0 // indirect
 	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90 // indirect
-	golang.org/x/mod v0.34.0 // indirect
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/text v0.36.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
-	golang.org/x/tools v0.43.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260330182312-d5a96adf58d8 // indirect
-	honnef.co/go/tools v0.1.3 // indirect
 )
