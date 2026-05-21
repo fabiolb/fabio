@@ -1,75 +1,102 @@
 package bgp
 
 import (
-	"fmt"
+	"context"
 	"log"
-	"strings"
+	"log/slog"
 
-	"github.com/fabiolb/fabio/exit"
 	"github.com/fabiolb/fabio/logger"
-
-	bgplog "github.com/osrg/gobgp/v3/pkg/log"
 )
 
-type bgpLogger struct{}
-
-func (l bgpLogger) Panic(msg string, fields bgplog.Fields) {
-	exit.Fatal(convertMsgFields("FATAL", msg, fields))
+// bgpLogHandler wraps fabio's logger to work with slog
+type bgpLogHandler struct {
+	attrs  []slog.Attr
+	groups []string
 }
 
-func (l bgpLogger) Fatal(msg string, fields bgplog.Fields) {
-	exit.Fatal(convertMsgFields("FATAL", msg, fields))
+func newBGPLogHandler() *bgpLogHandler {
+	return &bgpLogHandler{
+		attrs:  make([]slog.Attr, 0),
+		groups: make([]string, 0),
+	}
 }
 
-func (l bgpLogger) Error(msg string, fields bgplog.Fields) {
-	log.Printf("%s", convertMsgFields("ERROR", msg, fields))
-}
-
-func (l bgpLogger) Warn(msg string, fields bgplog.Fields) {
-	log.Printf("%s", convertMsgFields("WARN", msg, fields))
-}
-
-func (l bgpLogger) Info(msg string, fields bgplog.Fields) {
-	log.Printf("%s", convertMsgFields("INFO", msg, fields))
-}
-
-func (l bgpLogger) Debug(msg string, fields bgplog.Fields) {
-	log.Printf("%s", convertMsgFields("DEBUG", msg, fields))
-}
-
-func (l bgpLogger) SetLevel(level bgplog.LogLevel) {
-	// noop
-}
-
-func (l bgpLogger) GetLevel() bgplog.LogLevel {
+func (h *bgpLogHandler) Enabled(_ context.Context, level slog.Level) bool {
 	lw, ok := log.Writer().(*logger.LevelWriter)
 	if !ok {
-		return bgplog.InfoLevel
+		return level >= slog.LevelInfo
 	}
 
 	switch lw.Level() {
-	case "TRACE":
-		return bgplog.TraceLevel
-	case "DEBUG":
-		return bgplog.DebugLevel
+	case "TRACE", "DEBUG":
+		return level >= slog.LevelDebug
 	case "INFO":
-		return bgplog.InfoLevel
+		return level >= slog.LevelInfo
 	case "WARN":
-		return bgplog.WarnLevel
+		return level >= slog.LevelWarn
 	case "ERROR":
-		return bgplog.ErrorLevel
+		return level >= slog.LevelError
 	case "FATAL":
-		return bgplog.FatalLevel
+		return level >= slog.LevelError
 	default:
-		return bgplog.InfoLevel
+		return level >= slog.LevelInfo
 	}
 }
 
-func convertMsgFields(level, msg string, fields bgplog.Fields) string {
-	var b strings.Builder
-	fmt.Fprintf(&b, "[%s] gobgpd %s", level, msg)
-	for k, v := range fields {
-		fmt.Fprintf(&b, " %s=>%v", k, v)
+func (h *bgpLogHandler) Handle(_ context.Context, r slog.Record) error {
+	level := r.Level.String()
+	msg := r.Message
+
+	// Build the log message with attributes
+	var attrs string
+	r.Attrs(func(a slog.Attr) bool {
+		if attrs != "" {
+			attrs += " "
+		}
+		attrs += a.Key + "=>" + a.Value.String()
+		return true
+	})
+
+	// Add handler's stored attributes
+	for _, a := range h.attrs {
+		if attrs != "" {
+			attrs += " "
+		}
+		attrs += a.Key + "=>" + a.Value.String()
 	}
-	return b.String()
+
+	if attrs != "" {
+		log.Printf("[%s] gobgpd %s %s", level, msg, attrs)
+	} else {
+		log.Printf("[%s] gobgpd %s", level, msg)
+	}
+
+	return nil
+}
+
+func (h *bgpLogHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	newHandler := &bgpLogHandler{
+		attrs:  make([]slog.Attr, len(h.attrs)+len(attrs)),
+		groups: make([]string, len(h.groups)),
+	}
+	copy(newHandler.attrs, h.attrs)
+	copy(newHandler.attrs[len(h.attrs):], attrs)
+	copy(newHandler.groups, h.groups)
+	return newHandler
+}
+
+func (h *bgpLogHandler) WithGroup(name string) slog.Handler {
+	newHandler := &bgpLogHandler{
+		attrs:  make([]slog.Attr, len(h.attrs)),
+		groups: make([]string, len(h.groups)+1),
+	}
+	copy(newHandler.attrs, h.attrs)
+	copy(newHandler.groups, h.groups)
+	newHandler.groups[len(h.groups)] = name
+	return newHandler
+}
+
+// newBGPLogger creates a slog.Logger that integrates with fabio's logging system
+func newBGPLogger() *slog.Logger {
+	return slog.New(newBGPLogHandler())
 }
