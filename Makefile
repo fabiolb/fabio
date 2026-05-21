@@ -24,7 +24,7 @@ GORELEASER ?= $(shell which goreleaser)
 CI_CONSUL_VERSION ?= 1.22.0
 CI_VAULT_VERSION ?= 1.21.0
 CI_HUGO_VERSION ?= 0.142.0
-CI_GOBGP_VERSION ?= 3.37.0
+CI_GOBGP_VERSION ?= 4.6.0
 
 BETA_OSES = linux darwin
 
