@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"testing"
@@ -29,18 +30,27 @@ func initRoutes() {
 
 func BenchmarkPrefixMatcherRndPicker5Routes(b *testing.B) {
 	once.Do(initRoutes)
+	if globCache == nil {
+		globCache = NewGlobCache(1000)
+	}
 	b.ResetTimer()
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b5Routes, prefixMatcher, rndPicker, b) })
 }
 
 func BenchmarkPrefixMatcherRRPicker5Routes(b *testing.B) {
 	once.Do(initRoutes)
+	if globCache == nil {
+		globCache = NewGlobCache(1000)
+	}
 	b.ResetTimer()
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b5Routes, prefixMatcher, rrPicker, b) })
 }
 
 func BenchmarkPrefixMatcherRndPicker10Routes(b *testing.B) {
 	once.Do(initRoutes)
+	if globCache == nil {
+		globCache = NewGlobCache(1000)
+	}
 	b.ResetTimer()
 	b.SetParallelism(3)
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b10Routes, prefixMatcher, rndPicker, b) })
@@ -48,6 +58,9 @@ func BenchmarkPrefixMatcherRndPicker10Routes(b *testing.B) {
 
 func BenchmarkPrefixMatcherRRPicker10Routes(b *testing.B) {
 	once.Do(initRoutes)
+	if globCache == nil {
+		globCache = NewGlobCache(1000)
+	}
 	b.ResetTimer()
 	b.SetParallelism(3)
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b10Routes, prefixMatcher, rrPicker, b) })
@@ -55,6 +68,9 @@ func BenchmarkPrefixMatcherRRPicker10Routes(b *testing.B) {
 
 func BenchmarkPrefixMatcherRndPicker100Routes(b *testing.B) {
 	once.Do(initRoutes)
+	if globCache == nil {
+		globCache = NewGlobCache(1000)
+	}
 	b.ResetTimer()
 	b.SetParallelism(3)
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b100Routes, prefixMatcher, rndPicker, b) })
@@ -62,6 +78,9 @@ func BenchmarkPrefixMatcherRndPicker100Routes(b *testing.B) {
 
 func BenchmarkPrefixMatcherRRPicker100Routes(b *testing.B) {
 	once.Do(initRoutes)
+	if globCache == nil {
+		globCache = NewGlobCache(1000)
+	}
 	b.ResetTimer()
 	b.SetParallelism(3)
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b100Routes, prefixMatcher, rrPicker, b) })
@@ -69,6 +88,9 @@ func BenchmarkPrefixMatcherRRPicker100Routes(b *testing.B) {
 
 func BenchmarkPrefixMatcherRndPicker500Routes(b *testing.B) {
 	once.Do(initRoutes)
+	if globCache == nil {
+		globCache = NewGlobCache(1000)
+	}
 	b.ResetTimer()
 	b.SetParallelism(3)
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b500Routes, prefixMatcher, rndPicker, b) })
@@ -76,6 +98,9 @@ func BenchmarkPrefixMatcherRndPicker500Routes(b *testing.B) {
 
 func BenchmarkPrefixMatcherRRPicker500Routes(b *testing.B) {
 	once.Do(initRoutes)
+	if globCache == nil {
+		globCache = NewGlobCache(1000)
+	}
 	b.ResetTimer()
 	b.SetParallelism(3)
 	b.RunParallel(func(b *testing.PB) { benchmarkGet(b500Routes, prefixMatcher, rrPicker, b) })
@@ -112,7 +137,12 @@ func makeRequests(t Table) []*http.Request {
 	reqs := []*http.Request{}
 	for host, hr := range t {
 		for _, r := range hr {
-			req := &http.Request{Host: host, RequestURI: r.Path + "/some/additional/path"}
+			path := r.Path + "/some/additional/path"
+			req := &http.Request{
+				Host:       host,
+				RequestURI: path,
+				URL:        &url.URL{Path: path},
+			}
 			reqs = append(reqs, req)
 		}
 	}
