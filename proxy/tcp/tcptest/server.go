@@ -6,9 +6,9 @@ import (
 	"net"
 	"time"
 
-	proxyproto "github.com/armon/go-proxyproto"
 	"github.com/fabiolb/fabio/proxy/internal"
 	"github.com/fabiolb/fabio/proxy/tcp"
+	proxyproto "github.com/pires/go-proxyproto"
 )
 
 // Server is a TCP test server that binds to a random port.
@@ -126,8 +126,8 @@ func NewTLSServerWithProxyProto(h tcp.Handler) *Server {
 func NewUnstartedServerWithProxyProto(h tcp.Handler) *Server {
 	return &Server{
 		Listener: &proxyproto.Listener{
-			Listener:           newLocalListener(),
-			ProxyHeaderTimeout: 100 * time.Millisecond,
+			Listener:          newLocalListener(),
+			ReadHeaderTimeout: 100 * time.Millisecond,
 		},
 		Config: &tcp.Server{Handler: h},
 	}

@@ -26,6 +26,12 @@ type Proxy struct {
 	// The proxy will panic if this value is nil.
 	Lookup func(host string) *route.Target
 
+	// ListenAddr is the actual address the proxy is listening on.
+	// When PROXY protocol is enabled, this is used for route lookup
+	// instead of in.LocalAddr() which returns the destination from
+	// the PROXY header.
+	ListenAddr string
+
 	// DialTimeout sets the timeout for establishing the outbound
 	// connection.
 	DialTimeout time.Duration
@@ -38,7 +44,16 @@ func (p *Proxy) ServeTCP(in net.Conn) error {
 		p.Conn.Add(1)
 	}
 
-	_, port, _ := net.SplitHostPort(in.LocalAddr().String())
+	// When PROXY protocol is used, in.LocalAddr() returns the destination
+	// address from the PROXY header, not the actual listening address.
+	// Use ListenAddr if available (set when PROXY protocol is enabled),
+	// otherwise fall back to in.LocalAddr().
+	var port string
+	if p.ListenAddr != "" {
+		_, port, _ = net.SplitHostPort(p.ListenAddr)
+	} else {
+		_, port, _ = net.SplitHostPort(in.LocalAddr().String())
+	}
 	port = ":" + port
 	t := p.Lookup(port)
 	if t == nil {

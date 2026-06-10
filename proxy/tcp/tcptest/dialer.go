@@ -32,7 +32,7 @@ func (d *RetryDialer) Dial(network, addr string) (c net.Conn, err error) {
 		}
 		if d.ProxyProto {
 			pxy := "PROXY TCP4 1.2.3.4 5.6.7.8 12345 54321\r\n"
-			conn.Write([]byte(pxy))
+			_, err = conn.Write([]byte(pxy))
 		}
 		return conn, err
 	}
@@ -53,15 +53,15 @@ type TLSRetryDialer struct {
 
 func (d *TLSRetryDialer) Dial(network, addr string) (c net.Conn, err error) {
 	dial := func() (net.Conn, error) {
-		conn, err := net.Dial(network, addr)
+		conn, err := d.Dialer.Dial(network, addr)
 		if err != nil {
 			return nil, err
 		}
 		if d.ProxyProto {
 			pxy := "PROXY TCP4 1.2.3.4 5.6.7.8 12345 54321\r\n"
-			conn.Write([]byte(pxy))
+			_, err = conn.Write([]byte(pxy))
 		}
-		return tls.Client(conn, d.TLS), nil
+		return tls.Client(conn, d.TLS), err
 	}
 	return retry(dial, d.Timeout, d.Sleep)
 }
