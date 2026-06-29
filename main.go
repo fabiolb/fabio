@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/textproto"
 	"os"
 	"runtime"
 	"runtime/debug"
@@ -189,6 +190,12 @@ func newHTTPProxy(cfg *config.Config, statsHandler *proxy.HttpStatsHandler) *pro
 	//Init Glob Cache
 	globCache := route.NewGlobCache(cfg.GlobCacheSize)
 
+	//Init ProtectHeaders
+	protectHeaders := proxy.DefaultProtectHeaders
+	protectHeaders[textproto.CanonicalMIMEHeaderKey(cfg.Proxy.RequestID)] = true
+	protectHeaders[textproto.CanonicalMIMEHeaderKey(cfg.Proxy.ClientIPHeader)] = true
+	protectHeaders[textproto.CanonicalMIMEHeaderKey(cfg.Proxy.TLSHeader)] = true
+
 	switch cfg.Log.AccessTarget {
 	case "":
 		log.Printf("[INFO] Access logging disabled")
@@ -227,6 +234,7 @@ func newHTTPProxy(cfg *config.Config, statsHandler *proxy.HttpStatsHandler) *pro
 		Config:            cfg.Proxy,
 		Transport:         transport.NewTransport(nil),
 		InsecureTransport: transport.NewTransport(&tls.Config{InsecureSkipVerify: true}),
+		ProtectHeaders:    protectHeaders,
 		Lookup: func(r *http.Request) *route.Target {
 			t := route.GetTable().Lookup(r, pick, match, globCache, cfg.GlobMatchingDisabled)
 			if t == nil {

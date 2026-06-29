@@ -394,7 +394,7 @@ func TestAddHeaders(t *testing.T) {
 				tt.r.Header = http.Header{}
 			}
 
-			err := addHeaders(tt.r, tt.cfg, tt.strip)
+			err := addHeaders(tt.r, DefaultProtectHeaders, tt.cfg, tt.strip)
 			if err != nil {
 				if got, want := err.Error(), tt.err; got != want {
 					t.Fatalf("%d: %s\ngot  %q\nwant %q", i, tt.desc, got, want)

@@ -25,7 +25,8 @@ func addResponseHeaders(w http.ResponseWriter, r *http.Request, cfg config.Proxy
 	}
 }
 
-var protectHeaders = map[string]bool{
+// DefaultProtectHeaders is a map of headers that are protected from Client manipulation.
+var DefaultProtectHeaders = map[string]bool{
 	"Forwarded":          true,
 	"X-Forwarded-For":    true,
 	"X-Forwarded-Host":   true,
@@ -40,9 +41,10 @@ var protectHeaders = map[string]bool{
 // * add/update `Forwarded` header
 // * add X-Forwarded-Proto header, if not present
 // * add X-Real-Ip, if not present
+// * remove Connection headers if they clash with internal ones.
 // * ClientIPHeader != "": Set header with that name to <remote ip>
 // * TLS connection: Set header with name from `cfg.TLSHeader` to `cfg.TLSHeaderValue`
-func addHeaders(r *http.Request, cfg config.Proxy, stripPath string) error {
+func addHeaders(r *http.Request, hdrs map[string]bool, cfg config.Proxy, stripPath string) error {
 	remoteIP, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return errors.New("cannot parse " + r.RemoteAddr)
@@ -53,7 +55,7 @@ func addHeaders(r *http.Request, cfg config.Proxy, stripPath string) error {
 	for _, s := range r.Header.Values("Connection") {
 		for p := range strings.SplitSeq(s, ",") {
 			p = strings.TrimSpace(p)
-			if !protectHeaders[textproto.CanonicalMIMEHeaderKey(p)] {
+			if !hdrs[textproto.CanonicalMIMEHeaderKey(p)] {
 				conHeaders = append(conHeaders, p)
 			}
 		}
