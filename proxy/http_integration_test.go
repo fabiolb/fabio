@@ -36,6 +36,19 @@ const (
 // Global GlobCache for Testing
 var globCache = route.NewGlobCache(1000)
 
+// Default ProtectHeaders for Testing
+var testProtectHeaders = map[string]bool{
+	"Forwarded":          true,
+	"X-Forwarded-For":    true,
+	"X-Forwarded-Host":   true,
+	"X-Forwarded-Port":   true,
+	"X-Forwarded-Proto":  true,
+	"X-Forwarded-Prefix": true,
+	"X-Real-Ip":          true,
+	"X-Request-Id":       true,
+	"X-Client-Ip":        true,
+}
+
 const (
 	legitHeader1 = "Legit-Header1"
 	legitHeader2 = "Legit-Header2"
@@ -49,8 +62,9 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 	defer server.Close()
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Forwarded-For"},
-		Transport: http.DefaultTransport,
+		ProtectHeaders: testProtectHeaders,
+		Config:         config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Client-Ip", RequestID: "X-Request-ID"},
+		Transport:      http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			return &route.Target{URL: mustParse(server.URL)}
 		},
@@ -63,7 +77,7 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 	req.Header.Set(legitHeader1, "asdf")
 	req.Header.Set(legitHeader2, "qwerty")
 	req.Header.Set("Connection",
-		fmt.Sprintf("keep-alive, x-forwarded-for, x-forwarded-host, %s, %s",
+		fmt.Sprintf("keep-alive, x-forwarded-for, x-forwarded-host, %s, %s, x-request-id, x-client-ip",
 			strings.ToLower(legitHeader1), strings.ToLower(legitHeader2)))
 	mustDo(req)
 
@@ -71,6 +85,12 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 		t.Errorf("got %v want %v", got, want)
 	}
 	if got, want := hdr.Get("X-Forwarded-Host"), "foo.com"; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+	if got, want := hdr.Get("X-Client-Ip"), "127.0.0.1"; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+	if got, want := len(hdr.Get("X-Request-Id")), 36; got != want {
 		t.Errorf("got %v want %v", got, want)
 	}
 	if got, want := hdr.Get(legitHeader1), ""; got != want {
@@ -89,9 +109,10 @@ func TestProxyRequestIDHeader(t *testing.T) {
 	defer server.Close()
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    config.Proxy{RequestID: "X-Request-Id"},
-		Transport: http.DefaultTransport,
-		UUID:      func() string { return "f47ac10b-58cc-0372-8567-0e02b2c3d479" },
+		ProtectHeaders: testProtectHeaders,
+		Config:         config.Proxy{RequestID: "X-Request-Id"},
+		Transport:      http.DefaultTransport,
+		UUID:           func() string { return "f47ac10b-58cc-0372-8567-0e02b2c3d479" },
 		Lookup: func(r *http.Request) *route.Target {
 			return &route.Target{URL: mustParse(server.URL)}
 		},
@@ -148,8 +169,9 @@ func TestProxyChecksHeaderForAccessRules(t *testing.T) {
 	defer server.Close()
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    config.Proxy{},
-		Transport: http.DefaultTransport,
+		ProtectHeaders: testProtectHeaders,
+		Config:         config.Proxy{},
+		Transport:      http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			tgt := &route.Target{
 				URL:  mustParse(server.URL),
@@ -174,8 +196,9 @@ func TestProxyNoRouteHTML(t *testing.T) {
 	want := "<html>503</html>"
 	noroute.SetHTML(want)
 	proxy := httptest.NewServer(&HTTPProxy{
-		Transport: http.DefaultTransport,
-		Lookup:    func(*http.Request) *route.Target { return nil },
+		ProtectHeaders: testProtectHeaders,
+		Transport:      http.DefaultTransport,
+		Lookup:         func(*http.Request) *route.Target { return nil },
 	})
 	defer proxy.Close()
 
@@ -187,9 +210,10 @@ func TestProxyNoRouteHTML(t *testing.T) {
 
 func TestProxyNoRouteStatus(t *testing.T) {
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    config.Proxy{NoRouteStatus: 999},
-		Transport: http.DefaultTransport,
-		Lookup:    func(*http.Request) *route.Target { return nil },
+		ProtectHeaders: testProtectHeaders,
+		Config:         config.Proxy{NoRouteStatus: 999},
+		Transport:      http.DefaultTransport,
+		Lookup:         func(*http.Request) *route.Target { return nil },
 	})
 	defer proxy.Close()
 
@@ -210,7 +234,8 @@ func TestProxyStripsPath(t *testing.T) {
 	}))
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Transport: http.DefaultTransport,
+		ProtectHeaders: testProtectHeaders,
+		Transport:      http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable(bytes.NewBufferString("route add mock /foo/bar " + server.URL + ` opts "strip=/foo"`))
 			return tbl.Lookup(r, route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
@@ -238,7 +263,8 @@ func TestProxyPrependsPath(t *testing.T) {
 	}))
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Transport: http.DefaultTransport,
+		ProtectHeaders: testProtectHeaders,
+		Transport:      http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable(bytes.NewBufferString("route add mock /bar " + server.URL + ` opts "prepend=/foo"`))
 			return tbl.Lookup(r, route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
@@ -270,6 +296,7 @@ func TestProxyHost(t *testing.T) {
 	tbl, _ := route.NewTable(bytes.NewBufferString(routes))
 
 	proxy := httptest.NewServer(&HTTPProxy{
+		ProtectHeaders: testProtectHeaders,
 		Transport: &http.Transport{
 			Dial: func(network, _ string) (net.Conn, error) {
 				addr := server.URL[len("http://"):]
@@ -321,7 +348,8 @@ func TestHostRedirect(t *testing.T) {
 	tbl, _ := route.NewTable(bytes.NewBufferString(routes))
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Transport: http.DefaultTransport,
+		ProtectHeaders: testProtectHeaders,
+		Transport:      http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			r.Host = "c.com"
 			return tbl.Lookup(r, route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
@@ -361,7 +389,8 @@ func TestPathRedirect(t *testing.T) {
 	tbl, _ := route.NewTable(bytes.NewBufferString(routes))
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Transport: http.DefaultTransport,
+		ProtectHeaders: testProtectHeaders,
+		Transport:      http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			return tbl.Lookup(r, route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
 		},
@@ -527,8 +556,9 @@ func TestProxyHTTPSUpstream(t *testing.T) {
 	defer server.Close()
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    config.Proxy{},
-		Transport: &http.Transport{TLSClientConfig: tlsClientConfig()},
+		ProtectHeaders: testProtectHeaders,
+		Config:         config.Proxy{},
+		Transport:      &http.Transport{TLSClientConfig: tlsClientConfig()},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable(bytes.NewBufferString("route add srv / " + server.URL + ` opts "proto=https"`))
 			return tbl.Lookup(r, route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
@@ -565,8 +595,9 @@ func TestProxyHTTPSTransport(t *testing.T) {
 	defer server.Close()
 
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    config.Proxy{},
-		Transport: &http.Transport{TLSClientConfig: tlsClientConfig()},
+		ProtectHeaders: testProtectHeaders,
+		Config:         config.Proxy{},
+		Transport:      &http.Transport{TLSClientConfig: tlsClientConfig()},
 		Lookup: func(r *http.Request) *route.Target {
 			tbl, _ := route.NewTable(bytes.NewBufferString("route add srv / " + server.URL + ` opts "proto=https host=foo.com tlsskipverify=true"`))
 			return tbl.Lookup(r, route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
@@ -593,8 +624,9 @@ func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
 	server.StartTLS()
 	defer server.Close()
 	proxy := httptest.NewServer(&HTTPProxy{
-		Config:    config.Proxy{},
-		Transport: http.DefaultTransport,
+		ProtectHeaders: testProtectHeaders,
+		Config:         config.Proxy{},
+		Transport:      http.DefaultTransport,
 		InsecureTransport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
@@ -672,6 +704,7 @@ func TestProxyGzipHandler(t *testing.T) {
 			defer server.Close()
 
 			proxy := httptest.NewServer(&HTTPProxy{
+				ProtectHeaders: testProtectHeaders,
 				Config: config.Proxy{
 					GZIPContentTypes: regexp.MustCompile("^text/plain(;.*)?$"),
 				},

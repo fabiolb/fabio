@@ -75,6 +75,9 @@ type HTTPProxy struct {
 
 	// Config is the proxy configuration as provided during startup.
 	Config config.Proxy
+
+	// ProtectHeaders is a map of headers to protect against client side manipulation
+	ProtectHeaders map[string]bool
 }
 
 func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -172,7 +175,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err := addHeaders(r, p.Config, t.StripPath); err != nil {
+	if err := addHeaders(r, p.ProtectHeaders, p.Config, t.StripPath); err != nil {
 		http.Error(w, "cannot parse "+r.RemoteAddr, http.StatusInternalServerError)
 		return
 	}
