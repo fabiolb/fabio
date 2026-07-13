@@ -59,7 +59,10 @@ var tmplManual = template.Must(template.New("manual").Funcs(funcs).Parse( // lan
 
 	<div class="container">
 		<div class="nav-wrapper">
-			<a href="{{.Path}}/" class="brand-logo"><img alt="Fabio Logo" style="margin: 15px 0" class="logo" src="{{.Path}}/assets/logo.bw.svg"> {{if .Title}} - {{.Title}}{{end}}</a>
+			<a href="{{.Path}}/" class="brand-logo" style="display:flex; align-items:center;">
+				<img alt="Fabio Logo" style="margin: 15px 15px" class="logo" src="{{.Path}}/assets/logo.bw.svg">
+				{{if .Title}}<span>{{.Title}}</span>{{end}}
+			</a>
 			<ul id="nav-mobile" class="right hide-on-med-and-down">
 				<li><a href="{{.Path}}/routes">Routes</a></li>
 				<li><a class="dropdown-trigger dropdown-button" href="#" data-target="overrides">Overrides<i class="material-icons right">arrow_drop_down</i></a></li>
