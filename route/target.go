@@ -1,10 +1,11 @@
 package route
 
 import (
-	gkm "github.com/go-kit/kit/metrics"
 	"net/http"
 	"net/url"
 	"strings"
+
+	gkm "github.com/go-kit/kit/metrics"
 )
 
 type Target struct {
@@ -59,7 +60,7 @@ type Target struct {
 	RedirectCode int
 
 	// FixedWeight is the weight assigned to this target.
-	// If the value is 0 the targets weight is dynamic.
+	// If the value is -1 the targets weight is dynamic.
 	FixedWeight float64
 
 	// Weight is the actual weight for this service in percent.

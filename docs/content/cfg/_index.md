@@ -81,8 +81,8 @@ Directs a certain amount of traffic to instances matching certain criteria.
 
 The weight `w` is expressed as follows:
 
- * `w` is a float > 0 describing a percentage, e.g. 0.5 == 50%
- * `w <= 0`: means no fixed weighting. Traffic is evenly distributed
+ * `w` is a float >= 0 describing a percentage, e.g. 0.5 == 50%
+ * `w < 0`: means no fixed weighting. Traffic is evenly distributed
  * `w > 0`: route will receive n% of traffic. If sum(w) > 1 then w is normalized.
  * `sum(w) >= 1`: only matching services will receive traffic
 
