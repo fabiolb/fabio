@@ -167,7 +167,10 @@ func NewTable(b *bytes.Buffer) (t Table, err error) {
 		case RouteDelCmd:
 			err = t.delRoute(d)
 		case RouteWeightCmd:
-			err = t.weighRoute(d)
+			if err = t.weighRoute(d); err != nil {
+				log.Printf("[ERROR] weight command for service %s not valid - %s", d.Service, err)
+				err = nil
+			}
 		default:
 			err = fmt.Errorf("route: invalid command: %s", d.Cmd)
 		}
@@ -194,7 +197,10 @@ func NewTableCustom(defs *[]RouteDef) (t Table, err error) {
 		case RouteDelCmd:
 			err = t.delRoute(&d)
 		case RouteWeightCmd:
-			err = t.weighRoute(&d)
+			if err = t.weighRoute(&d); err != nil {
+				log.Printf("[ERROR] weight command for service %s not valid - %s", d.Service, err)
+				err = nil
+			}
 		default:
 			err = fmt.Errorf("route: invalid command: %s", d.Cmd)
 		}
