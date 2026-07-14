@@ -677,7 +677,11 @@ func logRoutes(t route.Table, last, next, format string) {
 		log.Printf("[INFO] Updated config to\n%s", t.Dump())
 
 	case "delta":
-		if delta := fmtDiff(dmp.New().DiffMain(last, next, true)); delta != "" {
+		dmp := dmp.New()
+		chars1, chars2, lineArray := dmp.DiffLinesToChars(last, next)
+		diffs := dmp.DiffMain(chars1, chars2, false)
+		diffs = dmp.DiffCharsToLines(diffs, lineArray)
+		if delta := fmtDiff(diffs); delta != "" {
 			log.Printf("[INFO] Config updates\n%s", delta)
 		}
 
