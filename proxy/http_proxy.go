@@ -228,7 +228,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	dur := end.Sub(start)
 
 	if p.Stats.Requests != nil {
-		p.Stats.Requests.Observe(dur.Seconds())
+		p.Stats.Requests.With("service", t.Service).Observe(dur.Seconds())
 	}
 	if t.Timer != nil {
 		t.Timer.Observe(dur.Seconds())
@@ -238,7 +238,7 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if p.Stats.StatusTimer != nil {
-		p.Stats.StatusTimer.With("code", strconv.Itoa(rw.code)).Observe(dur.Seconds())
+		p.Stats.StatusTimer.With("code", strconv.Itoa(rw.code), "service", t.Service).Observe(dur.Seconds())
 	}
 
 	// write access log

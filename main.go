@@ -349,10 +349,10 @@ func startServers(cfg *config.Config, stats metrics.Provider) {
 
 	httpCounters := func() {
 		httpStatsHandler = &proxy.HttpStatsHandler{
-			Requests:        stats.NewHistogram("requests"),
+			Requests:        stats.NewHistogram("requests", "service"),
 			Noroute:         notFound,
 			WSConn:          stats.NewGauge("ws.conn"),
-			StatusTimer:     stats.NewHistogram("http.status", "code"),
+			StatusTimer:     stats.NewHistogram("http.status", "code", "service"),
 			RedirectCounter: stats.NewCounter("http.redirect.count", "code"),
 		}
 	}
