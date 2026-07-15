@@ -366,6 +366,15 @@ func TestTableParse(t *testing.T) {
 				return a
 			}(),
 		},
+
+		{"weigh route: no target match",
+			[]string{
+				`route weight svcb / weight 0.1`,
+				`route weight svc / weight 0.1 tags "b"`,
+				`route weight / weight 0.1 tags "b"`,
+			},
+			[]string(nil),
+		},
 	}
 
 	atof := func(s string) float64 {
@@ -706,10 +715,27 @@ func TestNewTableCustom(t *testing.T) {
 		Tags:    tags,
 		Opts:    opts,
 	}
+	var route4 = RouteDef{
+		Cmd:     "route weight",
+		Service: "service1",
+		Src:     "app.com",
+		Weight:  0.10,
+		Tags:    tags,
+		Opts:    opts,
+	}
+
+	var route5 = RouteDef{
+		Cmd:     "route weight",
+		Service: "service3",
+		Src:     "example.com",
+		Weight:  1,
+	}
 
 	routes = append(routes, route1)
 	routes = append(routes, route2)
 	routes = append(routes, route3)
+	routes = append(routes, route4)
+	routes = append(routes, route5)
 
 	table, err := NewTableCustom(&routes)
 
@@ -725,13 +751,22 @@ func TestNewTableCustom(t *testing.T) {
 	}
 
 	if !strings.Contains(tableString, route2.Dst) {
-		fmt.Printf("Table Missing Destination %s -- Table -- %s", route1.Dst, tableString)
+		fmt.Printf("Table Missing Destination %s -- Table -- %s", route2.Dst, tableString)
 		t.FailNow()
 	}
 
 	if !strings.Contains(tableString, route3.Dst) {
-		fmt.Printf("Table Missing Destination %s -- Table -- %s", route1.Dst, tableString)
+		fmt.Printf("Table Missing Destination %s -- Table -- %s", route3.Dst, tableString)
 		t.FailNow()
+	}
+
+	want := `route add service1 app.com/ http://10.1.1.1:8080 weight 0.0500 tags "tag1,tag2" opts "proto=http tlsskipverify=true"
+route add service1 app.com/ http://10.1.1.2:8080 weight 0.0500 tags "tag1,tag2" opts "proto=http tlsskipverify=true"
+route add service2 app.com/ http://10.1.1.3:8080 weight 0.2500 tags "tag1,tag2" opts "proto=http tlsskipverify=true"
+`
+
+	if strings.TrimSpace(tableString) != strings.TrimSpace(want) {
+		t.Fatalf("mismatch\nwant:\n%s\ngot:\n%s", want, tableString)
 	}
 }
 
