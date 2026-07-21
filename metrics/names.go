@@ -62,8 +62,8 @@ func Labels(labels, values []string, stringsprefix, fieldsep, recsep string) str
 		}
 		_, _ = b.WriteString(labels[i])
 		_, _ = b.WriteString(fieldsep)
-		if i < len(values) {
-			_, _ = b.WriteString(values[i])
+		if (i*2)+1 < len(values) {
+			_, _ = b.WriteString(values[(i*2)+1])
 		}
 	}
 	return b.String()
