@@ -249,6 +249,21 @@ func newHTTPProxy(cfg *config.Config, statsHandler *proxy.HttpStatsHandler) *pro
 	}
 }
 
+func lookupDynamicTcpHostFn(cfg *config.Config, notFound gkm.Counter) func([]string) *route.Target {
+	pick := route.Picker[cfg.Proxy.Strategy]
+	return func(hosts []string) *route.Target {
+		for _, host := range hosts {
+			t := route.GetTable().LookupHost(host, pick)
+			if t != nil {
+				return t
+			}
+		}
+		notFound.Add(1)
+		log.Print("[WARN] No route for any hosts: ", hosts)
+		return nil
+	}
+}
+
 func lookupHostFn(cfg *config.Config, notFound gkm.Counter) func(string) *route.Target {
 	pick := route.Picker[cfg.Proxy.Strategy]
 	return func(host string) *route.Target {
@@ -470,7 +485,7 @@ func startServers(cfg *config.Config, stats metrics.Provider) {
 						go func() {
 							h := &tcp.DynamicProxy{
 								DialTimeout: cfg.Proxy.DialTimeout,
-								Lookup:      lookupHostFn(cfg, notFound),
+								Lookup:      lookupDynamicTcpHostFn(cfg, notFound),
 								Conn:        tcpConn,
 								ConnFail:    tcpConnFail,
 								Noroute:     tcpNoRoute,

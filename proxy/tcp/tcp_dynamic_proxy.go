@@ -24,7 +24,7 @@ type DynamicProxy struct {
 
 	// Lookup returns a target host for the given request.
 	// The proxy will panic if this value is nil.
-	Lookup func(host string) *route.Target
+	Lookup func(hosts []string) *route.Target
 
 	// DialTimeout sets the timeout for establishing the outbound
 	// connection.
@@ -39,11 +39,8 @@ func (p *DynamicProxy) ServeTCP(in net.Conn) error {
 	}
 
 	target := in.LocalAddr().String()
-	t := p.Lookup(target)
-	if t == nil {
-		_, port, _ := net.SplitHostPort(target)
-		t = p.Lookup(":" + port)
-	}
+	_, port, _ := net.SplitHostPort(target)
+	t := p.Lookup([]string{target, ":" + port})
 	if t == nil {
 		if p.Noroute != nil {
 			p.Noroute.Add(1)
