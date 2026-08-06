@@ -862,3 +862,70 @@ func BenchmarkProxyLogger(b *testing.B) {
 		proxy.ServeHTTP(httptest.NewRecorder(), req)
 	}
 }
+
+func TestProxyPathNormalization(t *testing.T) {
+	// Track which paths the backend receives
+	var receivedPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedPath = r.URL.Path
+		w.Write([]byte("OK"))
+	}))
+	defer server.Close()
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		ProtectHeaders: testProtectHeaders,
+		Transport:      http.DefaultTransport,
+		Lookup: func(r *http.Request) *route.Target {
+			return &route.Target{URL: mustParse(server.URL)}
+		},
+	})
+	defer proxy.Close()
+
+	tests := []struct {
+		name         string
+		requestPath  string
+		expectedPath string
+	}{
+		{
+			name:         "percent-encoded path",
+			requestPath:  "/foo%2Fbar",
+			expectedPath: "/foo/bar",
+		},
+		{
+			name:         "path with traversal",
+			requestPath:  "/foo/../bar",
+			expectedPath: "/bar",
+		},
+		{
+			name:         "path with double slashes",
+			requestPath:  "/foo//bar",
+			expectedPath: "/foo/bar",
+		},
+		{
+			name:         "complex path",
+			requestPath:  "/api%2F..%2Fv2//users/",
+			expectedPath: "/v2/users/",
+		},
+		{
+			name:         "trailing slash preserved",
+			requestPath:  "/api/users/",
+			expectedPath: "/api/users/",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			receivedPath = "" // Reset
+			resp, body := mustGet(proxy.URL + tt.requestPath)
+			if got, want := resp.StatusCode, http.StatusOK; got != want {
+				t.Fatalf("got status %d want %d", got, want)
+			}
+			if got, want := string(body), "OK"; got != want {
+				t.Fatalf("got body %q want %q", got, want)
+			}
+			if receivedPath != tt.expectedPath {
+				t.Errorf("backend received path %q, want %q", receivedPath, tt.expectedPath)
+			}
+		})
+	}
+}

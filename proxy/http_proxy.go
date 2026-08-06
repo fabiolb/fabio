@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -92,6 +93,9 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		r.Header.Set(p.Config.RequestID, id())
 	}
+
+	// Normalize Paths before routing.
+	r.URL.Path = normalizePath(r.URL.Path)
 
 	t := p.Lookup(r)
 
@@ -257,6 +261,27 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			UpstreamURL:     targetURL,
 		})
 	}
+}
+
+// normalizePath ,normalizes a URL path by handling percent-encoding and path traversal.
+func normalizePath(urlPath string) string {
+	normalizedPath := urlPath
+	hasTrailingSlash := len(normalizedPath) > 1 && normalizedPath[len(normalizedPath)-1] == '/'
+
+	// Parse to handle percent-encoding
+	if u, err := url.Parse(urlPath); err == nil {
+		normalizedPath = u.Path
+	}
+
+	// Clean the path to resolve . and .. segments
+	normalizedPath = path.Clean(normalizedPath)
+
+	// Restore trailing slash if it was present (path.Clean removes it)
+	if hasTrailingSlash && normalizedPath != "/" {
+		normalizedPath += "/"
+	}
+
+	return normalizedPath
 }
 
 // responseWriter wraps an http.ResponseWriter to capture the status code and
