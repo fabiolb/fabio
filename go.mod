@@ -1,6 +1,6 @@
 module github.com/fabiolb/fabio
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/circonus-labs/circonus-gometrics/v3 v3.4.7
