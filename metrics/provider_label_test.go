@@ -76,7 +76,7 @@ func TestLabelProvider(t *testing.T) {
 			// Test Counter
 			t.Run("counter", func(t *testing.T) {
 				counter := provider.NewCounter(tt.metricName, tt.labels...)
-				
+
 				if len(tt.labelValues) > 0 {
 					counter = counter.With(tt.labelValues...)
 				}
