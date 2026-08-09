@@ -8,7 +8,7 @@ to avoid computing large amounts of metrics. The metrics can be sent to
 [Circonus](http://www.circonus.com), [Graphite](https://graphiteapp.org),
 [StatsD](https://github.com/etsy/statsd), [DataDog](https://www.datadoghq.com)
 (via statsd - or since v1.6.0 to native protocol with tag support) or stdout. See the `metrics.*`
-options in the [fabio.properties](https://github.com/eBay/fabio/blob/master/fabio.properties)
+options in the [fabio.properties](https://github.com/fabiolb/fabio/blob/master/fabio.properties)
 file.  Prometheus is also possible, but it works the reverse of the other metrics platforms. 
 Instead of pushing data to a metrics server, prometheus expects to poll an endpoint for changes.
 
@@ -73,5 +73,3 @@ A gauge provides a current value.
 `{route}` is a shorthand for the metrics name generated for a route
 with the `metrics.names` template defined in
 [fabio.properties](https://github.com/fabiolb/fabio/blob/master/fabio.properties)
-
-
