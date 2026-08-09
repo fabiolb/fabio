@@ -61,7 +61,7 @@
       <link>https://fabiolb.net/feature/graceful-shutdown/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://fabiolb.net/feature/graceful-shutdown/</guid>
-      <description>&lt;p&gt;fabio supports a graceful shutdown timeout during which new requests will&#xA;receive a &lt;code&gt;503 Service Unavailable&lt;/code&gt; response while the active requests can&#xA;complete. See the &lt;code&gt;proxy.shutdownwait&lt;/code&gt; option in the&#xA;&lt;a href=&#34;https://github.com/eBay/fabio/blob/master/fabio.properties&#34;&gt;fabio.properties&lt;/a&gt;&#xA;file.&lt;/p&gt;</description>
+      <description>&lt;p&gt;fabio supports a graceful shutdown timeout during which new requests will&#xA;receive a &lt;code&gt;503 Service Unavailable&lt;/code&gt; response while the active requests can&#xA;complete. See the &lt;code&gt;proxy.shutdownwait&lt;/code&gt; option in the&#xA;&lt;a href=&#34;https://github.com/fabiolb/fabio/blob/master/fabio.properties&#34;&gt;fabio.properties&lt;/a&gt;&#xA;file.&lt;/p&gt;</description>
     </item>
     <item>
       <title>GRPC Proxy</title>
@@ -124,7 +124,7 @@
       <link>https://fabiolb.net/feature/metrics/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://fabiolb.net/feature/metrics/</guid>
-      <description>&lt;p&gt;Fabio collects metrics per route and service instance as well as running totals&#xA;to avoid computing large amounts of metrics. The metrics can be sent to&#xA;&lt;a href=&#34;http://www.circonus.com&#34;&gt;Circonus&lt;/a&gt;, &lt;a href=&#34;https://graphiteapp.org&#34;&gt;Graphite&lt;/a&gt;,&#xA;&lt;a href=&#34;https://github.com/etsy/statsd&#34;&gt;StatsD&lt;/a&gt;, &lt;a href=&#34;https://www.datadoghq.com&#34;&gt;DataDog&lt;/a&gt;&#xA;(via statsd - or since v1.6.0 to native protocol with tag support) or stdout. See the &lt;code&gt;metrics.*&lt;/code&gt;&#xA;options in the &lt;a href=&#34;https://github.com/eBay/fabio/blob/master/fabio.properties&#34;&gt;fabio.properties&lt;/a&gt;&#xA;file.  Prometheus is also possible, but it works the reverse of the other metrics platforms.&#xA;Instead of pushing data to a metrics server, prometheus expects to poll an endpoint for changes.&lt;/p&gt;</description>
+      <description>&lt;p&gt;Fabio collects metrics per route and service instance as well as running totals&#xA;to avoid computing large amounts of metrics. The metrics can be sent to&#xA;&lt;a href=&#34;http://www.circonus.com&#34;&gt;Circonus&lt;/a&gt;, &lt;a href=&#34;https://graphiteapp.org&#34;&gt;Graphite&lt;/a&gt;,&#xA;&lt;a href=&#34;https://github.com/etsy/statsd&#34;&gt;StatsD&lt;/a&gt;, &lt;a href=&#34;https://www.datadoghq.com&#34;&gt;DataDog&lt;/a&gt;&#xA;(via statsd - or since v1.6.0 to native protocol with tag support) or stdout. See the &lt;code&gt;metrics.*&lt;/code&gt;&#xA;options in the &lt;a href=&#34;https://github.com/fabiolb/fabio/blob/master/fabio.properties&#34;&gt;fabio.properties&lt;/a&gt;&#xA;file.  Prometheus is also possible, but it works the reverse of the other metrics platforms.&#xA;Instead of pushing data to a metrics server, prometheus expects to poll an endpoint for changes.&lt;/p&gt;</description>
     </item>
     <item>
       <title>PROXY Protocol Support</title>
