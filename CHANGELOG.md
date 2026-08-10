@@ -1,5 +1,34 @@
 # Changelog
 
+## [v1.7.3](https://github.com/fabiolb/fabio/tree/v1.7.3) (2026-08-06)
+
+[Full Changelog](https://github.com/fabiolb/fabio/compare/v1.7.2...v1.7.3)
+
+**Implemented enhancements:**
+
+- entering a bad route breaks route updates [\#282](https://github.com/fabiolb/fabio/issues/282)
+- Fix delta log route format to be line aware [\#1061](https://github.com/fabiolb/fabio/pull/1061) ([froque](https://github.com/froque))
+- Adds service tag to requests and http.status metrics [\#1059](https://github.com/fabiolb/fabio/pull/1059) ([froque](https://github.com/froque))
+
+**Fixed bugs:**
+
+- tcp-dynamic reports "\[WARN\] No route for" and increases metric notfound for valid connections [\#1060](https://github.com/fabiolb/fabio/issues/1060)
+- Routing table not updated when rule references non-existent service [\#224](https://github.com/fabiolb/fabio/issues/224)
+- Fixes values in label target for metrics [\#1054](https://github.com/fabiolb/fabio/pull/1054) ([froque](https://github.com/froque))
+- Ignore invalid route weight commands [\#1053](https://github.com/fabiolb/fabio/pull/1053) ([froque](https://github.com/froque))
+- Fixes title in navbar not showing [\#1051](https://github.com/fabiolb/fabio/pull/1051) ([froque](https://github.com/froque))
+
+**Closed issues:**
+
+- Fabio Manual Overrides Issue [\#522](https://github.com/fabiolb/fabio/issues/522)
+
+**Merged pull requests:**
+
+- Fix excessive "\[WARN\] No route for" logs for tcp-dynamic [\#1062](https://github.com/fabiolb/fabio/pull/1062) ([froque](https://github.com/froque))
+- Fix default duration interval for custom backend [\#1052](https://github.com/fabiolb/fabio/pull/1052) ([froque](https://github.com/froque))
+- Bump google.golang.org/grpc from 1.81.1 to 1.82.1 [\#1050](https://github.com/fabiolb/fabio/pull/1050) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump github.com/pires/go-proxyproto from 0.12.0 to 0.14.0 [\#1049](https://github.com/fabiolb/fabio/pull/1049) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [v1.7.2](https://github.com/fabiolb/fabio/tree/v1.7.2) (2026-07-03)
 
 [Full Changelog](https://github.com/fabiolb/fabio/compare/v1.7.1...v1.7.2)
@@ -93,7 +122,6 @@
 **Closed issues:**
 
 - Call the fatal function within the goroutine of the main test function [\#1009](https://github.com/fabiolb/fabio/issues/1009)
-- Support for authentication middleware \(eg: oauth2-proxy\) ? [\#1006](https://github.com/fabiolb/fabio/issues/1006)
 
 **Merged pull requests:**
 
