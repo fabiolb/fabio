@@ -3,6 +3,7 @@ package proxy
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -298,9 +299,9 @@ func TestProxyHost(t *testing.T) {
 	proxy := httptest.NewServer(&HTTPProxy{
 		ProtectHeaders: testProtectHeaders,
 		Transport: &http.Transport{
-			Dial: func(network, _ string) (net.Conn, error) {
+			DialContext: func(ctx context.Context, network, _ string) (net.Conn, error) {
 				addr := server.URL[len("http://"):]
-				return net.Dial(network, addr)
+				return (&net.Dialer{}).DialContext(ctx, network, addr)
 			},
 		},
 		Lookup: func(r *http.Request) *route.Target {
