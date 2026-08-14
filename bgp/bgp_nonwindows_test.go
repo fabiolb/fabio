@@ -6,7 +6,9 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/fabiolb/fabio/config"
-	api "github.com/osrg/gobgp/v3/api"
+	"github.com/osrg/gobgp/v4/pkg/apiutil"
+	"github.com/osrg/gobgp/v4/pkg/packet/bgp"
+	"github.com/osrg/gobgp/v4/pkg/server"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -60,14 +62,17 @@ func TestBGPHandler(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
 	defer cancel()
-	if err := bh.server.WatchEvent(context.Background(), &api.WatchEventRequest{Peer: &api.WatchEventRequest_Peer{}}, func(r *api.WatchEventResponse) {
-		if p := r.GetPeer(); p != nil && p.Type == api.WatchEventResponse_PeerEvent_STATE {
+
+	callbacks := server.WatchEventMessageCallbacks{
+		OnPeerUpdate: func(p *apiutil.WatchEventMessage_PeerEvent, ts time.Time) {
 			t.Logf("EVENT RECEIVED %#v", p.Peer)
-			if p.Peer.State.SessionState == api.PeerState_ESTABLISHED {
+			if p.Peer.State.SessionState == bgp.BGP_FSM_ESTABLISHED {
 				cancel()
 			}
-		}
-	}); err != nil {
+		},
+	}
+
+	if err := bh.server.WatchEvent(ctx, callbacks, server.WatchPeer()); err != nil {
 		t.Fatal(err)
 	}
 
