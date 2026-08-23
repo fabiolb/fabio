@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -161,7 +160,7 @@ func TestBasic_Authorised(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, want := basicAuth.Authorized(tt.req, tt.res), tt.out; !reflect.DeepEqual(got, want) {
+			if got, want := basicAuth.Authorized(tt.req, tt.res), tt.out; got != want {
 				t.Errorf("got %v want %v", got, want)
 			}
 		})
@@ -192,7 +191,7 @@ func TestBasic_Authorised_should_fail_without_htpasswd_file(t *testing.T) {
 	w := &responseWriter{}
 
 	t.Run("should authorize against supplied htpasswd file", func(t *testing.T) {
-		if got, want := a.Authorized(r, w), true; !reflect.DeepEqual(got, want) {
+		if got, want := a.Authorized(r, w), true; got != want {
 			t.Errorf("got %v want %v", got, want)
 		}
 	})
@@ -204,7 +203,7 @@ func TestBasic_Authorised_should_fail_without_htpasswd_file(t *testing.T) {
 	time.Sleep(2 * time.Second) // ensure htpasswd file refresh happened
 
 	t.Run("should not authorize after removing htpasswd file", func(t *testing.T) {
-		if got, want := a.Authorized(r, w), false; !reflect.DeepEqual(got, want) {
+		if got, want := a.Authorized(r, w), false; got != want {
 			t.Errorf("got %v want %v", got, want)
 		}
 	})
