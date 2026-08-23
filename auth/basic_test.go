@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 	"testing"
 	"time"
 
@@ -223,7 +222,7 @@ func TestBasic_Authorized_should_set_www_realm_header(t *testing.T) {
 	got := rw.Header().Get("WWW-Authenticate")
 	want := `Basic realm="testrealm"`
 
-	if strings.Compare(got, want) != 0 {
+	if got != want {
 		t.Errorf("got '%s', want '%s'", got, want)
 	}
 }
