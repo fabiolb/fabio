@@ -42,15 +42,8 @@ func TestLoadAuthSchemes(t *testing.T) {
 	})
 
 	t.Run("should load multiple auth schemes", func(t *testing.T) {
-		myauth, err := createBasicAuthFile("foo:bar", t)
-		if err != nil {
-			t.Fatalf("could not create file on disk %s", err)
-		}
-
-		myotherauth, err := createBasicAuthFile("bar:foo", t)
-		if err != nil {
-			t.Fatalf("could not create file on disk %s", err)
-		}
+		myauth := createBasicAuthFile(t, "foo:bar")
+		myotherauth := createBasicAuthFile(t, "bar:foo")
 
 		result, _ := LoadAuthSchemes(map[string]config.AuthScheme{
 			"myauth": {

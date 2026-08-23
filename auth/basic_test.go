@@ -34,69 +34,56 @@ func (rw *responseWriter) WriteHeader(statusCode int) {
 	rw.code = statusCode
 }
 
-func createBasicAuthFile(contents string, t *testing.T) (string, error) {
+func createBasicAuthFile(t *testing.T, contents string) string {
+	t.Helper()
 	dir := t.TempDir()
 
 	filename := fmt.Sprintf("%s/%s", dir, uuid.NewUUID())
 
 	err := os.WriteFile(filename, []byte(contents), 0666)
-
 	if err != nil {
-		return "", fmt.Errorf("could not write password file: %s", err)
+		t.Fatalf("could not write basic auth password file: %s", err)
 	}
 
-	return filename, nil
+	return filename
 }
 
-func createBasicAuth(user string, password string, t *testing.T) (AuthScheme, error) {
+func createBasicAuth(t *testing.T, user string, password string) AuthScheme {
+	t.Helper()
 	contents := fmt.Sprintf("%s:%s", user, password)
 
-	filename, err := createBasicAuthFile(contents, t)
-	if err != nil {
-		return nil, fmt.Errorf("could not create basic auth: %s", err)
-	}
+	filename := createBasicAuthFile(t, contents)
 
-	a, err := newBasicAuth(config.BasicAuth{
+	basicAuth, err := newBasicAuth(config.BasicAuth{
 		File:  filename,
 		Realm: "testrealm",
 	})
-
 	if err != nil {
-		return nil, fmt.Errorf("could not create basic auth: %s", err)
+		t.Fatalf("could not create basic auth: %s", err)
 	}
 
-	return a, nil
+	return basicAuth
 }
 
 func TestNewBasicAuth(t *testing.T) {
 
 	t.Run("should create a basic auth scheme from the supplied config", func(t *testing.T) {
-		filename, err := createBasicAuthFile("foo:bar", t)
+		filename := createBasicAuthFile(t, "foo:bar")
 
-		if err != nil {
-			t.Error(err)
-		}
-
-		_, err = newBasicAuth(config.BasicAuth{
+		_, err := newBasicAuth(config.BasicAuth{
 			File: filename,
 		})
-
 		if err != nil {
 			t.Error(err)
 		}
 	})
 
 	t.Run("should log a warning when credentials are malformed", func(t *testing.T) {
-		filename, err := createBasicAuthFile("foosdlijdgohdgdbar", t)
+		filename := createBasicAuthFile(t, "foosdlijdgohdgdbar")
 
-		if err != nil {
-			t.Error(err)
-		}
-
-		_, err = newBasicAuth(config.BasicAuth{
+		_, err := newBasicAuth(config.BasicAuth{
 			File: filename,
 		})
-
 		if err != nil {
 			t.Error(err)
 		}
@@ -104,12 +91,8 @@ func TestNewBasicAuth(t *testing.T) {
 }
 
 func TestBasic_Authorised(t *testing.T) {
-	basicAuth, err := createBasicAuth("foo", "bar", t)
+	basicAuth := createBasicAuth(t, "foo", "bar")
 	creds := []byte("foo:bar")
-
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	tests := []struct {
 		name string
@@ -167,12 +150,9 @@ func TestBasic_Authorised(t *testing.T) {
 }
 
 func TestBasic_Authorised_should_fail_without_htpasswd_file(t *testing.T) {
-	filename, err := createBasicAuthFile("foo:bar", t)
-	if err != nil {
-		t.Error(err)
-	}
+	filename := createBasicAuthFile(t, "foo:bar")
 
-	a, err := newBasicAuth(config.BasicAuth{
+	basicAuth, err := newBasicAuth(config.BasicAuth{
 		File:    filename,
 		Refresh: time.Second,
 	})
@@ -190,7 +170,7 @@ func TestBasic_Authorised_should_fail_without_htpasswd_file(t *testing.T) {
 	w := &responseWriter{}
 
 	t.Run("should authorize against supplied htpasswd file", func(t *testing.T) {
-		if got, want := a.Authorized(r, w), true; got != want {
+		if got, want := basicAuth.Authorized(r, w), true; got != want {
 			t.Errorf("got %v want %v", got, want)
 		}
 	})
@@ -202,18 +182,14 @@ func TestBasic_Authorised_should_fail_without_htpasswd_file(t *testing.T) {
 	time.Sleep(2 * time.Second) // ensure htpasswd file refresh happened
 
 	t.Run("should not authorize after removing htpasswd file", func(t *testing.T) {
-		if got, want := a.Authorized(r, w), false; got != want {
+		if got, want := basicAuth.Authorized(r, w), false; got != want {
 			t.Errorf("got %v want %v", got, want)
 		}
 	})
 }
 
 func TestBasic_Authorized_should_set_www_realm_header(t *testing.T) {
-	basicAuth, err := createBasicAuth("foo", "bar", t)
-
-	if err != nil {
-		t.Fatal(err)
-	}
+	basicAuth := createBasicAuth(t, "foo", "bar")
 
 	rw := &responseWriter{}
 
