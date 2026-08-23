@@ -115,7 +115,7 @@ func TestBasic_Authorised(t *testing.T) {
 		name string
 		req  *http.Request
 		res  http.ResponseWriter
-		out  bool
+		want bool
 	}{
 		{
 			"correct credentials should be authorized",
@@ -159,8 +159,8 @@ func TestBasic_Authorised(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, want := basicAuth.Authorized(tt.req, tt.res), tt.out; got != want {
-				t.Errorf("got %v want %v", got, want)
+			if got := basicAuth.Authorized(tt.req, tt.res); got != tt.want {
+				t.Errorf("got %v want %v", got, tt.want)
 			}
 		})
 	}
