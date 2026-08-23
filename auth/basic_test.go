@@ -65,6 +65,11 @@ func createBasicAuth(t *testing.T, user string, password string) AuthScheme {
 	return basicAuth
 }
 
+func basicAuthHeader(username, password string) []string {
+	auth := []byte(username + ":" + password)
+	return []string{"Basic " + base64.StdEncoding.EncodeToString(auth)}
+}
+
 func TestNewBasicAuth(t *testing.T) {
 
 	t.Run("should create a basic auth scheme from the supplied config", func(t *testing.T) {
@@ -92,7 +97,6 @@ func TestNewBasicAuth(t *testing.T) {
 
 func TestBasic_Authorised(t *testing.T) {
 	basicAuth := createBasicAuth(t, "foo", "bar")
-	creds := []byte("foo:bar")
 
 	tests := []struct {
 		name string
@@ -104,7 +108,7 @@ func TestBasic_Authorised(t *testing.T) {
 			"correct credentials should be authorized",
 			&http.Request{
 				Header: http.Header{
-					"Authorization": []string{fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString(creds))},
+					"Authorization": basicAuthHeader("foo", "bar"),
 				},
 			},
 			&responseWriter{},
@@ -114,7 +118,7 @@ func TestBasic_Authorised(t *testing.T) {
 			"incorrect credentials should not be authorized",
 			&http.Request{
 				Header: http.Header{
-					"Authorization": []string{fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte("baz:blarg")))},
+					"Authorization": basicAuthHeader("baz", "blarg"),
 				},
 			},
 			&responseWriter{},
@@ -160,10 +164,9 @@ func TestBasic_Authorised_should_fail_without_htpasswd_file(t *testing.T) {
 		t.Error(err)
 	}
 
-	creds := []byte("foo:bar")
 	r := &http.Request{
 		Header: http.Header{
-			"Authorization": []string{fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString(creds))},
+			"Authorization": basicAuthHeader("foo", "bar"),
 		},
 	}
 
