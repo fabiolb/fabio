@@ -1,10 +1,13 @@
 package auth
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -84,13 +87,22 @@ func TestNewBasicAuth(t *testing.T) {
 	})
 
 	t.Run("should log a warning when credentials are malformed", func(t *testing.T) {
+		old := log.Writer()
+		defer log.SetOutput(old)
+		var buf bytes.Buffer
+		log.SetOutput(&buf)
+
 		filename := createBasicAuthFile(t, "foosdlijdgohdgdbar")
 
 		_, err := newBasicAuth(config.BasicAuth{
 			File: filename,
 		})
 		if err != nil {
-			t.Error(err)
+			t.Fatal(err)
+		}
+		want := "[WARN] Error processing htpasswd file: malformed line, no colon: foosdlijdgohdgdbar"
+		if got := buf.String(); !strings.Contains(got, want) {
+			t.Fatalf("log does not contain expected:\nlog: %q\nexpected: %q", got, want)
 		}
 	})
 }

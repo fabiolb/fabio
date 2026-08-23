@@ -19,7 +19,7 @@ type basic struct {
 
 func newBasicAuth(cfg config.BasicAuth) (AuthScheme, error) {
 	bad := func(err error) {
-		log.Println("[WARN] Error processing a line in an htpasswd file:", err)
+		log.Println("[WARN] Error processing htpasswd file:", err)
 	}
 
 	secrets, err := htpasswd.New(cfg.File, htpasswd.DefaultSystems, bad)
