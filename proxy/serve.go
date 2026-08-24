@@ -217,10 +217,9 @@ func serve(ln net.Listener, srv Server) error {
 	mu.Unlock()
 	err := srv.Serve(ln)
 	if err != nil {
-		var opErr *net.OpError
 		if errors.Is(err, http.ErrServerClosed) {
 			err = nil
-		} else if errors.As(err, &opErr) {
+		} else if opErr, ok := errors.AsType[*net.OpError](err); ok {
 			if opErr.Err != nil && opErr.Err.Error() == "use of closed network connection" {
 				err = nil
 			}
