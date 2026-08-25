@@ -20,7 +20,7 @@ type basic struct {
 
 // newBasicAuth creates a [basic] authentication from cfg.
 // It might spawn a forever-running goroutine to periodically refresh the htpassd file.
-func newBasicAuth(cfg config.BasicAuth) (AuthScheme, error) {
+func newBasicAuth(cfg config.BasicAuth) (*basic, error) {
 	bad := func(err error) {
 		log.Println("[WARN] Error processing htpasswd file:", err)
 	}
