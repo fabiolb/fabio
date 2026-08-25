@@ -24,57 +24,61 @@ func newBasicAuth(cfg config.BasicAuth) (*basic, error) {
 	bad := func(err error) {
 		log.Println("[WARN] Error processing htpasswd file:", err)
 	}
-
 	secrets, err := htpasswd.New(cfg.File, htpasswd.DefaultSystems, bad)
 	if err != nil {
 		return nil, err
 	}
-
-	if cfg.Refresh > 0 {
-		stat, err := os.Stat(cfg.File)
-		if err != nil {
-			return nil, err
-		}
-		cfg.ModTime = stat.ModTime()
-
-		go func() {
-			cleared := false
-			ticker := time.NewTicker(cfg.Refresh).C
-			for range ticker {
-				stat, err := os.Stat(cfg.File)
-				if err != nil {
-					log.Println("[WARN] Error accessing htpasswd file:", err)
-					if !cleared {
-						err = secrets.ReloadFromReader(&bytes.Buffer{}, bad)
-						if err != nil {
-							log.Println("[WARN] Error clearing the htpasswd credentials:", err)
-						} else {
-							log.Println("[INFO] The htpasswd credentials have been cleared")
-							cleared = true
-						}
-					}
-					continue
-				}
-
-				// refresh the htpasswd file only if its modification time has changed
-				// even if the new htpasswd file is older than previously loaded
-				if cfg.ModTime != stat.ModTime() {
-					if err := secrets.Reload(bad); err == nil {
-						log.Println("[INFO] The htpasswd file has been successfully reloaded")
-						cfg.ModTime = stat.ModTime()
-						cleared = false
-					} else {
-						log.Println("[WARN] Error reloading htpasswd file:", err)
-					}
-				}
-			}
-		}()
-	}
-
-	return &basic{
+	basicAuth := &basic{
 		secrets: secrets,
 		realm:   cfg.Realm,
-	}, nil
+	}
+	if cfg.Refresh == 0 {
+		// In this case the htpassd file will not be reloaded, we are done.
+		return basicAuth, nil
+	}
+
+	// Prepare to reload the contents of the htpassd file each cfg.Refresh seconds.
+
+	stat, err := os.Stat(cfg.File)
+	if err != nil {
+		return nil, err
+	}
+	cfg.ModTime = stat.ModTime()
+
+	go func() {
+		cleared := false
+		ticker := time.NewTicker(cfg.Refresh).C
+		for range ticker {
+			stat, err := os.Stat(cfg.File)
+			if err != nil {
+				log.Println("[WARN] Error accessing htpasswd file:", err)
+				if !cleared {
+					err = secrets.ReloadFromReader(&bytes.Buffer{}, bad)
+					if err != nil {
+						log.Println("[WARN] Error clearing the htpasswd credentials:", err)
+					} else {
+						log.Println("[INFO] The htpasswd credentials have been cleared")
+						cleared = true
+					}
+				}
+				continue
+			}
+
+			// refresh the htpasswd file only if its modification time has changed
+			// even if the new htpasswd file is older than previously loaded
+			if cfg.ModTime != stat.ModTime() {
+				if err := secrets.Reload(bad); err == nil {
+					log.Println("[INFO] The htpasswd file has been successfully reloaded")
+					cfg.ModTime = stat.ModTime()
+					cleared = false
+				} else {
+					log.Println("[WARN] Error reloading htpasswd file:", err)
+				}
+			}
+		}
+	}()
+
+	return basicAuth, nil
 }
 
 // Authorized returns whether request satisfies the authorization scheme.
