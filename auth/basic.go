@@ -11,12 +11,15 @@ import (
 	"github.com/tg123/go-htpasswd"
 )
 
-// basic is an implementation of AuthScheme
+// basic implements Basic HTTP Authentication.
+// It satisfies interface [AuthScheme].
 type basic struct {
 	secrets *htpasswd.File
 	realm   string
 }
 
+// newBasicAuth creates a [basic] authentication from cfg.
+// It might spawn a forever-running goroutine to periodically refresh the htpassd file.
 func newBasicAuth(cfg config.BasicAuth) (AuthScheme, error) {
 	bad := func(err error) {
 		log.Println("[WARN] Error processing htpasswd file:", err)
@@ -74,6 +77,7 @@ func newBasicAuth(cfg config.BasicAuth) (AuthScheme, error) {
 	}, nil
 }
 
+// Authorized returns whether request satisfies the authorization scheme.
 func (b *basic) Authorized(request *http.Request, response http.ResponseWriter) bool {
 	user, password, ok := request.BasicAuth()
 
