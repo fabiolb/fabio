@@ -1,21 +1,22 @@
-//go:build !windows
+//go:build linux
 
 package bgp
 
 import (
 	"context"
 	"encoding/json"
-	"github.com/fabiolb/fabio/config"
-	api "github.com/osrg/gobgp/v4/api"
-	"github.com/osrg/gobgp/v4/pkg/apiutil"
-	"github.com/osrg/gobgp/v4/pkg/packet/bgp"
-	"github.com/osrg/gobgp/v4/pkg/server"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"slices"
 	"testing"
 	"time"
+
+	"github.com/fabiolb/fabio/config"
+	api "github.com/osrg/gobgp/v4/api"
+	"github.com/osrg/gobgp/v4/pkg/apiutil"
+	"github.com/osrg/gobgp/v4/pkg/packet/bgp"
+	"github.com/osrg/gobgp/v4/pkg/server"
 )
 
 // bgpTestParams describes one peering scenario.  The gobgpd side is

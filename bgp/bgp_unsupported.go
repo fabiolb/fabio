@@ -1,7 +1,10 @@
+//go:build !linux
+
 package bgp
 
 import (
 	"errors"
+
 	"github.com/fabiolb/fabio/config"
 )
 
