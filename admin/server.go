@@ -39,6 +39,12 @@ func (s *Server) handler() http.Handler {
 		mux.HandleFunc(p+"/api/manual/", forbidden)
 		mux.HandleFunc(p+"/manual", forbidden)
 		mux.HandleFunc(p+"/manual/", forbidden)
+		mux.Handle(p+"/api/config", &api.ConfigHandler{Config: s.Cfg})
+		mux.Handle(p+"/api/routes", &api.RoutesHandler{})
+		mux.Handle(p+"/api/version", &api.VersionHandler{Version: s.Version})
+		mux.Handle(p+"/routes", &ui.RoutesHandler{Color: s.Color, Title: s.Title, Version: s.Version, Path: p, RoutingTable: s.Cfg.UI.RoutingTable})
+		mux.Handle(p+"/assets/", http.StripPrefix(p, http.FileServer(http.FS(ui.Static))))
+		mux.Handle(p+"/", http.RedirectHandler(p+"/routes", http.StatusSeeOther))
 	case "rw":
 		// for historical reasons the configured config path starts with a '/'
 		// but Consul treats all KV paths without a leading slash.
@@ -62,19 +68,21 @@ func (s *Server) handler() http.Handler {
 			Commands: s.Commands,
 			Path:     p,
 		})
+		mux.Handle(p+"/api/config", &api.ConfigHandler{Config: s.Cfg})
+		mux.Handle(p+"/api/routes", &api.RoutesHandler{})
+		mux.Handle(p+"/api/version", &api.VersionHandler{Version: s.Version})
+		mux.Handle(p+"/routes", &ui.RoutesHandler{Color: s.Color, Title: s.Title, Version: s.Version, Path: p, RoutingTable: s.Cfg.UI.RoutingTable})
+		mux.Handle(p+"/assets/", http.StripPrefix(p, http.FileServer(http.FS(ui.Static))))
+		mux.Handle(p+"/", http.RedirectHandler(p+"/routes", http.StatusSeeOther))
+	default:
+		mux.HandleFunc("/", http.NotFound)
 	}
 
-	mux.Handle(p+"/api/config", &api.ConfigHandler{Config: s.Cfg})
-	mux.Handle(p+"/api/routes", &api.RoutesHandler{})
-	mux.Handle(p+"/api/version", &api.VersionHandler{Version: s.Version})
-	mux.Handle(p+"/routes", &ui.RoutesHandler{Color: s.Color, Title: s.Title, Version: s.Version, Path: p, RoutingTable: s.Cfg.UI.RoutingTable})
 	// Due to how Fabio registers its own health-check with Consul, the base path is not prepended here
 	mux.HandleFunc("/health", handleHealth)
 
-	mux.Handle(p+"/assets/", http.StripPrefix(p, http.FileServer(http.FS(ui.Static))))
 	mux.HandleFunc(p+"/favicon.ico", http.NotFound)
 
-	mux.Handle(p+"/", http.RedirectHandler(p+"/routes", http.StatusSeeOther))
 	return mux
 }
 

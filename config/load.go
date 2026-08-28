@@ -220,7 +220,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	f.BoolVar(&cfg.Registry.Consul.AllowStale, "registry.consul.allowStale", defaultConfig.Registry.Consul.AllowStale, "is stale read mode on consul queries allowed")
 	f.IntVar(&cfg.Runtime.GOGC, "runtime.gogc", defaultConfig.Runtime.GOGC, "sets runtime.GOGC")
 	f.IntVar(&cfg.Runtime.GOMAXPROCS, "runtime.gomaxprocs", defaultConfig.Runtime.GOMAXPROCS, "sets runtime.GOMAXPROCS")
-	f.StringVar(&cfg.UI.Access, "ui.access", defaultConfig.UI.Access, "access mode, one of [ro, rw]")
+	f.StringVar(&cfg.UI.Access, "ui.access", defaultConfig.UI.Access, "access mode, one of [no, ro, rw]")
 	f.StringVar(&uiListenerValue, "ui.addr", defaultValues.UIListenerValue, "Address the UI/API is listening on")
 	f.StringVar(&cfg.UI.Color, "ui.color", defaultConfig.UI.Color, "background color of the UI")
 	f.StringVar(&cfg.UI.Title, "ui.title", defaultConfig.UI.Title, "optional title for the UI")
@@ -349,7 +349,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 		return nil, fmt.Errorf("invalid proxy.matcher: %s", cfg.Proxy.Matcher)
 	}
 
-	if cfg.UI.Access != "ro" && cfg.UI.Access != "rw" {
+	if cfg.UI.Access != "ro" && cfg.UI.Access != "rw" && cfg.UI.Access != "no" {
 		return nil, fmt.Errorf("invalid ui.access: %s", cfg.UI.Access)
 	}
 
