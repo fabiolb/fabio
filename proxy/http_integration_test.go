@@ -3,6 +3,7 @@ package proxy
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -298,9 +299,9 @@ func TestProxyHost(t *testing.T) {
 	proxy := httptest.NewServer(&HTTPProxy{
 		ProtectHeaders: testProtectHeaders,
 		Transport: &http.Transport{
-			Dial: func(network, _ string) (net.Conn, error) {
+			DialContext: func(ctx context.Context, network, _ string) (net.Conn, error) {
 				addr := server.URL[len("http://"):]
-				return net.Dial(network, addr)
+				return (&net.Dialer{}).DialContext(ctx, network, addr)
 			},
 		},
 		Lookup: func(r *http.Request) *route.Target {
@@ -427,22 +428,25 @@ func TestPathRedirect(t *testing.T) {
 }
 
 func TestProxyLogOutput(t *testing.T) {
+	const responseBody = "foooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
+	compressedSize := len(compress([]byte(responseBody)))
+
 	t.Run("uncompressed response", func(t *testing.T) {
-		testProxyLogOutput(t, 73, config.Proxy{})
+		testProxyLogOutput(t, responseBody, len(responseBody), config.Proxy{})
 	})
 	t.Run("compression enabled but no match", func(t *testing.T) {
-		testProxyLogOutput(t, 73, config.Proxy{
+		testProxyLogOutput(t, responseBody, len(responseBody), config.Proxy{
 			GZIPContentTypes: regexp.MustCompile(`^$`),
 		})
 	})
 	t.Run("compression enabled and active", func(t *testing.T) {
-		testProxyLogOutput(t, 28, config.Proxy{
+		testProxyLogOutput(t, responseBody, compressedSize, config.Proxy{
 			GZIPContentTypes: regexp.MustCompile(`.*`),
 		})
 	})
 }
 
-func testProxyLogOutput(t *testing.T, bodySize int, cfg config.Proxy) {
+func testProxyLogOutput(t *testing.T, responseBody string, bodySize int, cfg config.Proxy) {
 	t.Helper()
 
 	// build a format string from all log fields and one header field
@@ -461,7 +465,7 @@ func testProxyLogOutput(t *testing.T, bodySize int, cfg config.Proxy) {
 
 	// create an upstream server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "foooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo")
+		fmt.Fprint(w, responseBody)
 	}))
 	defer server.Close()
 

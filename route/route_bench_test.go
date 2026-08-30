@@ -118,7 +118,7 @@ func makeRoutes(domains, paths, depth, urls int) Table {
 			for k := range depth {
 				prefix := fmt.Sprintf("www.host-%d.com/path-%d/", i, k)
 				for range urls {
-					s.WriteString(fmt.Sprintf("route add svc %s http://host:12345/\n", prefix))
+					fmt.Fprintf(&s, "route add svc %s http://host:12345/\n", prefix)
 				}
 			}
 		}
