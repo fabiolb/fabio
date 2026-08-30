@@ -705,7 +705,7 @@
       <link>https://fabiolb.net/ref/ui.access/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://fabiolb.net/ref/ui.access/</guid>
-      <description>&lt;p&gt;&lt;code&gt;ui.access&lt;/code&gt; configures the access mode for the UI.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;ro&lt;/code&gt;:  read-only access&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;rw&lt;/code&gt;:  read-write access&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;ui.access = rw&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
+      <description>&lt;p&gt;&lt;code&gt;ui.access&lt;/code&gt; configures the access mode for the UI.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;no&lt;/code&gt;:  no access&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;ro&lt;/code&gt;:  read-only access&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;rw&lt;/code&gt;:  read-write access&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;ui.access = no&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
     <item>
       <title>ui.addr</title>
