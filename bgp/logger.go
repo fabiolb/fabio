@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"log/slog"
+	"strings"
 
 	"github.com/fabiolb/fabio/logger"
 )
@@ -34,9 +35,7 @@ func (h *bgpLogHandler) Enabled(_ context.Context, level slog.Level) bool {
 		return level >= slog.LevelInfo
 	case "WARN":
 		return level >= slog.LevelWarn
-	case "ERROR":
-		return level >= slog.LevelError
-	case "FATAL":
+	case "ERROR", "FATAL":
 		return level >= slog.LevelError
 	default:
 		return level >= slog.LevelInfo
@@ -48,25 +47,26 @@ func (h *bgpLogHandler) Handle(_ context.Context, r slog.Record) error {
 	msg := r.Message
 
 	// Build the log message with attributes
-	var attrs string
-	r.Attrs(func(a slog.Attr) bool {
-		if attrs != "" {
-			attrs += " "
+	var b strings.Builder
+	appendAttr := func(a slog.Attr) {
+		if b.Len() > 0 {
+			b.WriteByte(' ')
 		}
-		attrs += a.Key + "=>" + a.Value.String()
-		return true
-	})
-
-	// Add handler's stored attributes
-	for _, a := range h.attrs {
-		if attrs != "" {
-			attrs += " "
-		}
-		attrs += a.Key + "=>" + a.Value.String()
+		b.WriteString(a.Key)
+		b.WriteString("=>")
+		b.WriteString(a.Value.String())
 	}
 
-	if attrs != "" {
-		log.Printf("[%s] gobgpd %s %s", level, msg, attrs)
+	r.Attrs(func(a slog.Attr) bool {
+		appendAttr(a)
+		return true
+	})
+	for _, a := range h.attrs {
+		appendAttr(a)
+	}
+
+	if b.Len() > 0 {
+		log.Printf("[%s] gobgpd %s %s", level, msg, b.String())
 	} else {
 		log.Printf("[%s] gobgpd %s", level, msg)
 	}
