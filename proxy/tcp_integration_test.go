@@ -240,154 +240,179 @@ var proxyHandler tcp.HandlerFunc = func(c net.Conn) error {
 	return err
 }
 
-// TestTCPProxyWithProxyProtoEnables tests proxying an unencrypted TCP connection
-// to a TCP upstream server with proxy protocol enabed on upstream connection
+var proxyProtoVersions = []struct {
+	name    string
+	version tcptest.ProxyProtoVersion
+}{
+	{name: "v1", version: tcptest.ProxyProtoVersion1},
+	{name: "v2", version: tcptest.ProxyProtoVersion2},
+}
+
+// TestTCPProxyWithProxyProto tests proxying an unencrypted TCP connection
+// to a TCP upstream server with proxy protocol enabled on the upstream connection.
 func TestTCPProxyWithProxyProto(t *testing.T) {
-	srv := tcptest.NewServerWithProxyProto(proxyHandler)
-	defer srv.Close()
+	for _, version := range proxyProtoVersions {
+		version := version
+		t.Run(version.name, func(t *testing.T) {
+			srv := tcptest.NewServerWithProxyProto(proxyHandler)
+			defer srv.Close()
 
-	// start proxy
-	proxyAddr := "127.0.0.1:57778"
-	go func() {
-		h := &tcp.Proxy{
-			Lookup: func(h string) *route.Target {
-				tbl, _ := route.NewTable(bytes.NewBufferString("route add srv :57778 tcp://" + srv.Addr + " opts \"pxyproto=true\""))
-				return tbl.LookupHost(h, route.Picker["rr"])
-			},
-		}
-		l := config.Listen{Addr: proxyAddr, ProxyProto: true}
-		if err := ListenAndServeTCP(l, h, nil); err != nil {
-			t.Log("ListenAndServeTCP: ", err)
-		}
-	}()
-	defer Close()
+			// start proxy
+			proxyAddr := "127.0.0.1:57778"
+			go func() {
+				h := &tcp.Proxy{
+					Lookup: func(h string) *route.Target {
+						tbl, _ := route.NewTable(bytes.NewBufferString("route add srv :57778 tcp://" + srv.Addr + " opts \"pxyproto=true\""))
+						return tbl.LookupHost(h, route.Picker["rr"])
+					},
+				}
+				l := config.Listen{Addr: proxyAddr, ProxyProto: true}
+				if err := ListenAndServeTCP(l, h, nil); err != nil {
+					t.Log("ListenAndServeTCP: ", err)
+				}
+			}()
+			defer Close()
 
-	// connect to proxy
-	dialer := tcptest.NewRetryDialer()
-	dialer.ProxyProto = true
-	out, err := dialer.Dial("tcp", proxyAddr)
-	if err != nil {
-		t.Fatalf("net.Dial: %#v", err)
+			// connect to proxy
+			dialer := tcptest.NewRetryDialer()
+			dialer.ProxyProto = true
+			dialer.ProxyProtoVersion = version.version
+			out, err := dialer.Dial("tcp", proxyAddr)
+			if err != nil {
+				t.Fatalf("net.Dial: %#v", err)
+			}
+			defer out.Close()
+
+			testProxyProto(t, out)
+		})
 	}
-	defer out.Close()
-
-	testProxyProto(t, out)
 }
 
 // TestTCPProxyWithTLSWithProxyProto tests proxying an encrypted TCP connection
 // to an unencrypted upstream TCP server with proxy protocol enabled.
 // The proxy extract the proxy protocol header and terminates the TLS connection.
 func TestTCPProxyWithTLSWithProxyProto(t *testing.T) {
-	srv := tcptest.NewServerWithProxyProto(proxyHandler)
-	defer srv.Close()
+	for _, version := range proxyProtoVersions {
+		version := version
+		t.Run(version.name, func(t *testing.T) {
+			srv := tcptest.NewServerWithProxyProto(proxyHandler)
+			defer srv.Close()
 
-	// setup cert source
-	dir := t.TempDir()
+			// setup cert source
+			dir := t.TempDir()
 
-	mustWrite := func(name string, data []byte) {
-		path := filepath.Join(dir, name)
-		if err := os.WriteFile(path, data, 0644); err != nil {
-			t.Fatalf("os.WriteFile: %s", err)
-		}
-	}
-	mustWrite("example.com-key.pem", internal.LocalhostKey)
-	mustWrite("example.com-cert.pem", internal.LocalhostCert)
-
-	// start tcp proxy
-	proxyAddr := "127.0.0.1:57779"
-	cs := config.CertSource{Name: "cs", Type: "path", CertPath: dir}
-	src, err := cert.NewSource(cs)
-	if err != nil {
-		t.Fatal("cert.NewSource: ", err)
-	}
-	tlscfg, err := cert.TLSConfig(src, false, 0, 0, nil)
-	if err != nil {
-		t.Fatal("cert.TLSConfig: ", err)
-	}
-	go func() {
-
-		h := &tcp.Proxy{
-			Lookup: func(string) *route.Target {
-				return &route.Target{URL: &url.URL{Host: srv.Addr}, ProxyProto: true}
-			},
-		}
-
-		l := config.Listen{Addr: proxyAddr, ProxyProto: true}
-		if err := ListenAndServeTCP(l, h, tlscfg); err != nil {
-			// closing the listener returns this error from the accept loop
-			// which we can ignore.
-			if err.Error() != "accept tcp 127.0.0.1:57779: use of closed network connection" {
-				t.Log("ListenAndServeTCP: ", err)
+			mustWrite := func(name string, data []byte) {
+				path := filepath.Join(dir, name)
+				if err := os.WriteFile(path, data, 0644); err != nil {
+					t.Fatalf("os.WriteFile: %s", err)
+				}
 			}
-		}
-	}()
-	defer Close()
+			mustWrite("example.com-key.pem", internal.LocalhostKey)
+			mustWrite("example.com-cert.pem", internal.LocalhostCert)
 
-	// give cert store some time to pick up certs
-	time.Sleep(250 * time.Millisecond)
+			// start tcp proxy
+			proxyAddr := "127.0.0.1:57779"
+			cs := config.CertSource{Name: "cs", Type: "path", CertPath: dir}
+			src, err := cert.NewSource(cs)
+			if err != nil {
+				t.Fatal("cert.NewSource: ", err)
+			}
+			tlscfg, err := cert.TLSConfig(src, false, 0, 0, nil)
+			if err != nil {
+				t.Fatal("cert.TLSConfig: ", err)
+			}
+			go func() {
+				h := &tcp.Proxy{
+					Lookup: func(string) *route.Target {
+						return &route.Target{URL: &url.URL{Host: srv.Addr}, ProxyProto: true}
+					},
+				}
 
-	rootCAs := x509.NewCertPool()
-	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
-		t.Fatal("could not parse cert")
+				l := config.Listen{Addr: proxyAddr, ProxyProto: true}
+				if err := ListenAndServeTCP(l, h, tlscfg); err != nil {
+					// closing the listener returns this error from the accept loop
+					// which we can ignore.
+					if err.Error() != "accept tcp 127.0.0.1:57779: use of closed network connection" {
+						t.Log("ListenAndServeTCP: ", err)
+					}
+				}
+			}()
+			defer Close()
+
+			// give cert store some time to pick up certs
+			time.Sleep(250 * time.Millisecond)
+
+			rootCAs := x509.NewCertPool()
+			if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
+				t.Fatal("could not parse cert")
+			}
+			cfg := &tls.Config{
+				RootCAs:    rootCAs,
+				ServerName: "example.com",
+			}
+
+			// connect to proxy
+			dialer := tcptest.NewTLSRetryDialer(cfg)
+			dialer.ProxyProto = true
+			dialer.ProxyProtoVersion = version.version
+			out, err := dialer.Dial("tcp", proxyAddr)
+			if err != nil {
+				t.Fatalf("tls.Dial: %#v", err)
+			}
+			defer out.Close()
+
+			testProxyProto(t, out)
+		})
 	}
-	cfg := &tls.Config{
-		RootCAs:    rootCAs,
-		ServerName: "example.com",
-	}
-
-	// connect to proxy
-	dialer := tcptest.NewTLSRetryDialer(cfg)
-	dialer.ProxyProto = true
-	out, err := dialer.Dial("tcp", proxyAddr)
-	if err != nil {
-		t.Fatalf("tls.Dial: %#v", err)
-	}
-	defer out.Close()
-
-	testProxyProto(t, out)
 }
 
 // TestTCPSNIProxyWithProxyProto tests proxying an encrypted TCP connection adding
 // proxy protocol header to an upstream TCP service without decrypting the traffic.
 // The upstream server extracts the proxy protocol and terminates the TLS connection.
 func TestTCPSNIProxyWithProxyProto(t *testing.T) {
-	srv := tcptest.NewTLSServerWithProxyProto(proxyHandler)
-	defer srv.Close()
+	for _, version := range proxyProtoVersions {
+		version := version
+		t.Run(version.name, func(t *testing.T) {
+			srv := tcptest.NewTLSServerWithProxyProto(proxyHandler)
+			defer srv.Close()
 
-	// start tcp proxy
-	proxyAddr := "127.0.0.1:57778"
-	go func() {
-		h := &tcp.SNIProxy{
-			Lookup: func(string) *route.Target {
-				return &route.Target{URL: &url.URL{Host: srv.Addr}, ProxyProto: true}
-			},
-		}
-		l := config.Listen{Addr: proxyAddr, ProxyProto: true}
-		if err := ListenAndServeTCP(l, h, nil); err != nil {
-			t.Log("ListenAndServeTCP: ", err)
-		}
-	}()
-	defer Close()
+			// start tcp proxy
+			proxyAddr := "127.0.0.1:57778"
+			go func() {
+				h := &tcp.SNIProxy{
+					Lookup: func(string) *route.Target {
+						return &route.Target{URL: &url.URL{Host: srv.Addr}, ProxyProto: true}
+					},
+				}
+				l := config.Listen{Addr: proxyAddr, ProxyProto: true}
+				if err := ListenAndServeTCP(l, h, nil); err != nil {
+					t.Log("ListenAndServeTCP: ", err)
+				}
+			}()
+			defer Close()
 
-	rootCAs := x509.NewCertPool()
-	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
-		t.Fatal("could not parse cert")
+			rootCAs := x509.NewCertPool()
+			if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
+				t.Fatal("could not parse cert")
+			}
+			cfg := &tls.Config{
+				RootCAs:    rootCAs,
+				ServerName: "example.com",
+			}
+
+			// connect to proxy
+			dialer := tcptest.NewTLSRetryDialer(cfg)
+			dialer.ProxyProto = true
+			dialer.ProxyProtoVersion = version.version
+			out, err := dialer.Dial("tcp", proxyAddr)
+			if err != nil {
+				t.Fatalf("tls.Dial: %#v", err)
+			}
+			defer out.Close()
+
+			testProxyProto(t, out)
+		})
 	}
-	cfg := &tls.Config{
-		RootCAs:    rootCAs,
-		ServerName: "example.com",
-	}
-
-	// connect to proxy
-	dialer := tcptest.NewTLSRetryDialer(cfg)
-	dialer.ProxyProto = true
-	out, err := dialer.Dial("tcp", proxyAddr)
-	if err != nil {
-		t.Fatalf("tls.Dial: %#v", err)
-	}
-	defer out.Close()
-
-	testProxyProto(t, out)
 }
 
 func testProxyProto(t *testing.T, c net.Conn) {
