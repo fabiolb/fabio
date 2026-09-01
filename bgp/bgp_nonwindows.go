@@ -7,7 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"log/slog"
 	"net"
+	"net/netip"
 	"os"
 
 	"github.com/fabiolb/fabio/config"
@@ -15,12 +17,13 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/protobuf/proto"
-	apb "google.golang.org/protobuf/types/known/anypb"
 
-	api "github.com/osrg/gobgp/v3/api"
-	bgpconfig "github.com/osrg/gobgp/v3/pkg/config"
-	"github.com/osrg/gobgp/v3/pkg/server"
+	api "github.com/osrg/gobgp/v4/api"
+	"github.com/osrg/gobgp/v4/pkg/apiutil"
+	bgpconfig "github.com/osrg/gobgp/v4/pkg/config"
+	bgpoc "github.com/osrg/gobgp/v4/pkg/config/oc"
+	"github.com/osrg/gobgp/v4/pkg/packet/bgp"
+	"github.com/osrg/gobgp/v4/pkg/server"
 )
 
 var (
@@ -42,43 +45,50 @@ const (
 type BGPHandler struct {
 	server     *server.BgpServer
 	config     *config.BGP
-	routeAttrs []*apb.Any
+	routeAttrs []bgp.PathAttributeInterface
 }
 
 func NewBGPHandler(config *config.BGP) (*BGPHandler, error) {
-	// pre-chew some protobuf messages that are part of
+	// pre-chew path attributes that are part of
 	// every anycast route we'll be adding.
 	nextHop := config.RouterID
 	if len(config.NextHop) > 0 {
 		nextHop = config.NextHop
 	}
-	var messages = []proto.Message{
-		&api.OriginAttribute{
-			Origin: 0,
-		},
-		&api.NextHopAttribute{
-			NextHop: nextHop,
-		},
-		&api.AsPathAttribute{
-			Segments: []*api.AsSegment{
-				{
-					Type:    api.AsSegment_AS_SEQUENCE,
-					Numbers: []uint32{uint32(config.Asn)},
-				},
-			},
-		},
-	}
-	attributes := make([]*apb.Any, 0, len(messages))
-	for _, p := range messages {
-		attr, err := apb.New(p)
-		if err != nil {
-			// should never happen
-			panic(err)
-		}
-		attributes = append(attributes, attr)
+
+	// Deliberately no AS_PATH attribute here.  gobgp fills it in per session
+	// when the path is exported: our ASN is prepended for eBGP peers and an
+	// empty AS_PATH is attached for iBGP ones.  Setting it ourselves would
+	// duplicate our ASN towards eBGP peers, and towards an iBGP peer it would
+	// look like an AS loop - the peer's ASN is our own - so gobgp would drop
+	// the path instead of advertising it.
+	attributes := []bgp.PathAttributeInterface{
+		bgp.NewPathAttributeOrigin(0), // IGP
 	}
 
-	var opts = []server.ServerOption{server.LoggerOption(bgpLogger{})}
+	// ValidateConfig only insists on a routerID when we are not handed a
+	// gobgpd config file, so nextHop is legitimately empty for an operator who
+	// configures everything in that file and advertises nothing themselves.
+	// Only refuse an unparseable one, and only once we know we need it.
+	if nextHop != "" {
+		nextHopAddr, err := netip.ParseAddr(nextHop)
+		if err != nil {
+			return nil, fmt.Errorf("invalid next hop address %s: %w", nextHop, err)
+		}
+
+		nextHopAttr, err := bgp.NewPathAttributeNextHop(nextHopAddr)
+		if err != nil {
+			return nil, fmt.Errorf("error creating next hop attribute: %w", err)
+		}
+		attributes = append(attributes, nextHopAttr)
+	} else if len(config.AnycastAddresses) > 0 {
+		return nil, ErrMissingRouterID
+	}
+
+	logger := newBGPLogger()
+	levelVar := &slog.LevelVar{}
+	levelVar.Set(slog.LevelInfo)
+	var opts = []server.ServerOption{server.LoggerOption(logger, levelVar)}
 	if config.EnableGRPC {
 		maxSize := 256 << 20
 		grpcOpts := []grpc.ServerOption{grpc.MaxRecvMsgSize(maxSize), grpc.MaxSendMsgSize(maxSize)}
@@ -107,14 +117,9 @@ func (bgph *BGPHandler) Start() error {
 	go s.Serve()
 
 	if len(bgph.config.GOBGPDCfgFile) > 0 {
-		initialCfg, err := bgpconfig.ReadConfigFile(bgph.config.GOBGPDCfgFile, "toml")
+		err := bgph.applyGOBGPDConfig(context.Background())
 		if err != nil {
-			// shouldn't happen if we called validate first.
 			return err
-		}
-		_, err = bgpconfig.InitialConfig(context.Background(), s, initialCfg, false)
-		if err != nil {
-			return fmt.Errorf("bgp: error initializing from gobgp config: %w", err)
 		}
 	} else {
 		// If we weren't passed a gobgp config file, configure using the values passed from the fabio
@@ -139,14 +144,6 @@ func (bgph *BGPHandler) Start() error {
 		errCh <- err
 	})
 
-	// monitor the change of the peer state
-	if err := s.WatchEvent(context.Background(), &api.WatchEventRequest{Peer: &api.WatchEventRequest_Peer{}}, func(r *api.WatchEventResponse) {
-		if p := r.GetPeer(); p != nil && p.Type == api.WatchEventResponse_PeerEvent_STATE {
-			log.Printf("[DEBUG] bgp event: %#v", p)
-		}
-	}); err != nil {
-		log.Printf("[ERROR] bgp watcher failed: %s", err)
-	}
 	if len(bgph.config.GOBGPDCfgFile) == 0 || len(bgph.config.Peers) > 0 {
 		// add peers
 		err := bgph.addNeighbors(context.Background(), bgph.config.Peers)
@@ -162,6 +159,26 @@ func (bgph *BGPHandler) Start() error {
 	}
 	// hang until exit handler completes above.
 	return <-errCh
+}
+
+// applyGOBGPDConfig starts BGP from an operator supplied gobgpd config file.
+// InitialConfig applies the global section, the neighbours and the policies
+// from that file.  ReadConfigfile moved to pkg/config/oc in gobgp v4 while
+// InitialConfig stayed in pkg/config, hence the two imports - applying only
+// the global section would silently discard the peers and import policies the
+// operator configured, leaving fabio peered with nobody, or peered with no
+// policy at all.
+func (bgph *BGPHandler) applyGOBGPDConfig(ctx context.Context) error {
+	initialCfg, err := bgpoc.ReadConfigfile(bgph.config.GOBGPDCfgFile, "toml")
+	if err != nil {
+		// shouldn't happen if we called validate first.
+		return err
+	}
+	_, err = bgpconfig.InitialConfig(ctx, bgph.server, initialCfg, false)
+	if err != nil {
+		return fmt.Errorf("bgp: error initializing from gobgp config: %w", err)
+	}
+	return nil
 }
 
 func (bgph *BGPHandler) startBGP(ctx context.Context) error {
@@ -180,7 +197,7 @@ func (bgph *BGPHandler) setPolicies() error {
 	err := bgph.server.SetPolicies(context.Background(), &api.SetPoliciesRequest{
 		DefinedSets: []*api.DefinedSet{
 			{
-				DefinedType: api.DefinedType_NEIGHBOR,
+				DefinedType: api.DefinedType_DEFINED_TYPE_NEIGHBOR,
 				Name:        matchAnyPeer,
 				List:        []string{"0.0.0.0/0", "::/0"},
 			},
@@ -193,11 +210,16 @@ func (bgph *BGPHandler) setPolicies() error {
 						Name: rejectAll,
 						Conditions: &api.Conditions{
 							NeighborSet: &api.MatchSet{
+								// v4 renumbered this enum and inserted
+								// TYPE_UNSPECIFIED at 0, which it rejects.  The
+								// zero value used to mean ANY, so it has to be
+								// set explicitly now.
+								Type: api.MatchSet_TYPE_ANY,
 								Name: matchAnyPeer,
 							},
 						},
 						Actions: &api.Actions{
-							RouteAction: api.RouteAction_REJECT,
+							RouteAction: api.RouteAction_ROUTE_ACTION_REJECT,
 						},
 					},
 				},
@@ -212,7 +234,7 @@ func (bgph *BGPHandler) setPolicies() error {
 	return bgph.server.SetPolicyAssignment(context.Background(), &api.SetPolicyAssignmentRequest{
 		Assignment: &api.PolicyAssignment{
 			Name:      globalTable, // this is the global rib
-			Direction: api.PolicyDirection_IMPORT,
+			Direction: api.PolicyDirection_POLICY_DIRECTION_IMPORT,
 			Policies: []*api.Policy{
 				{
 					Name: denyAllNeighbors,
@@ -220,7 +242,7 @@ func (bgph *BGPHandler) setPolicies() error {
 			},
 			// Need to set default action to accept here because otherwise
 			// even routes added via API calls get rejected.
-			DefaultAction: api.RouteAction_ACCEPT,
+			DefaultAction: api.RouteAction_ROUTE_ACTION_ACCEPT,
 		},
 	})
 }
@@ -276,40 +298,60 @@ func (bgph *BGPHandler) AddRoutes(ctx context.Context, routes []string) error {
 	// Add our Anycast routes
 
 	routesAdded := 0
+	var paths []*apiutil.Path
 
 	for _, addr := range routes {
-		_, ipnet, err := net.ParseCIDR(addr)
+		prefix, err := netip.ParsePrefix(addr)
 		if err != nil {
 			errs = append(errs, err)
 			continue
 		}
-		prefixLen, _ := ipnet.Mask.Size()
-		af := api.Family_AFI_IP
-		if ipnet.IP.To4() == nil {
-			af = api.Family_AFI_IP6
-		}
-		nlri, _ := apb.New(&api.IPAddressPrefix{
-			PrefixLen: uint32(prefixLen),
-			Prefix:    ipnet.IP.String(),
-		})
-		_, err = bgph.server.AddPath(ctx, &api.AddPathRequest{
-			Path: &api.Path{
-				Nlri:   nlri,
-				Pattrs: bgph.routeAttrs,
-				Family: &api.Family{
-					Afi:  af,
-					Safi: api.Family_SAFI_UNICAST,
-				},
-			},
-		})
-		if err != nil {
-			log.Printf("[ERROR] bgp error adding path for %s: %s", addr, err)
-			errs = append(errs, fmt.Errorf("error adding %s: %w", addr, err))
+
+		var nlri bgp.NLRI
+		var family bgp.Family
+		if prefix.Addr().Is6() {
+			family = bgp.RF_IPv6_UC
 		} else {
-			log.Printf("[INFO] bgp successfully added path for %s", addr)
+			family = bgp.RF_IPv4_UC
+		}
+		nlri, err = bgp.NewIPAddrPrefix(prefix)
+		if err != nil {
+			errs = append(errs, fmt.Errorf("error creating NLRI for %s: %w", addr, err))
+			continue
+		}
+
+		path := &apiutil.Path{
+			Family: family,
+			Nlri:   nlri,
+			Attrs:  bgph.routeAttrs,
+		}
+		paths = append(paths, path)
+	}
+
+	if len(paths) == 0 {
+		return errors.Join(append(errs, ErrNoRoutesAdded)...)
+	}
+
+	// Add all paths at once
+	responses, err := bgph.server.AddPath(apiutil.AddPathRequest{
+		VRFID: "",
+		Paths: paths,
+	})
+	if err != nil {
+		return fmt.Errorf("bgp error adding paths: %w", err)
+	}
+
+	// Check individual path results
+	for i, resp := range responses {
+		if resp.Error != nil {
+			log.Printf("[ERROR] bgp error adding path for %s: %s", routes[i], resp.Error)
+			errs = append(errs, fmt.Errorf("error adding %s: %w", routes[i], resp.Error))
+		} else {
+			log.Printf("[INFO] bgp successfully added path for %s", routes[i])
 			routesAdded++
 		}
 	}
+
 	if routesAdded == 0 {
 		errs = append(errs, ErrNoRoutesAdded)
 	}
@@ -319,41 +361,51 @@ func (bgph *BGPHandler) AddRoutes(ctx context.Context, routes []string) error {
 func (bgph *BGPHandler) DeleteRoutes(ctx context.Context, routes []string) error {
 	var errs []error
 	delCount := 0
+	var paths []*apiutil.Path
+
 	for _, addr := range routes {
-		_, ipnet, err := net.ParseCIDR(addr)
+		prefix, err := netip.ParsePrefix(addr)
 		if err != nil {
 			errs = append(errs, err)
 			continue
 		}
-		prefixLen, _ := ipnet.Mask.Size()
-		af := api.Family_AFI_IP
-		if ipnet.IP.To4() == nil {
-			af = api.Family_AFI_IP6
+
+		var nlri bgp.NLRI
+		var family bgp.Family
+		if prefix.Addr().Is6() {
+			family = bgp.RF_IPv6_UC
+		} else {
+			family = bgp.RF_IPv4_UC
 		}
-		nlri, _ := apb.New(&api.IPAddressPrefix{
-			PrefixLen: uint32(prefixLen),
-			Prefix:    ipnet.IP.String(),
-		})
-		err = bgph.server.DeletePath(ctx, &api.DeletePathRequest{
-			TableType: api.TableType_GLOBAL,
-			Path: &api.Path{
-				Nlri: nlri,
-				Family: &api.Family{
-					Afi:  af,
-					Safi: api.Family_SAFI_UNICAST,
-				},
-				Pattrs: bgph.routeAttrs,
-			},
-		})
+		nlri, err = bgp.NewIPAddrPrefix(prefix)
 		if err != nil {
-			errs = append(errs, err)
+			errs = append(errs, fmt.Errorf("error creating NLRI for %s: %w", addr, err))
 			continue
 		}
+
+		path := &apiutil.Path{
+			Family: family,
+			Nlri:   nlri,
+			Attrs:  bgph.routeAttrs,
+		}
+		paths = append(paths, path)
 		delCount++
 	}
+
 	if delCount == 0 {
-		errs = append(errs, ErrNoRoutesDeleted)
+		return errors.Join(append(errs, ErrNoRoutesDeleted)...)
 	}
+
+	// Delete all paths at once
+	err := bgph.server.DeletePath(apiutil.DeletePathRequest{
+		VRFID: "",
+		Paths: paths,
+	})
+	if err != nil {
+		return fmt.Errorf("bgp error deleting paths: %w", err)
+	}
+
+	log.Printf("[INFO] bgp successfully deleted %d paths", len(paths))
 	return errors.Join(errs...)
 }
 
@@ -377,13 +429,13 @@ func ValidateConfig(config *config.BGP) error {
 	}
 
 	for _, peer := range config.Peers {
-		if net.ParseIP(peer.NeighborAddress) == nil {
-			return fmt.Errorf("peer address %s is not a valid IP", peer.NeighborAddress)
+		if _, err := netip.ParseAddr(peer.NeighborAddress); err != nil {
+			return fmt.Errorf("peer address %s is not a valid IP: %w", peer.NeighborAddress, err)
 		}
 	}
 
 	if len(config.GOBGPDCfgFile) > 0 {
-		_, err := bgpconfig.ReadConfigFile(config.GOBGPDCfgFile, "toml")
+		_, err := bgpoc.ReadConfigfile(config.GOBGPDCfgFile, "toml")
 		if err != nil {
 			return fmt.Errorf("could not open %s: %w", config.GOBGPDCfgFile, err)
 		}
@@ -401,12 +453,12 @@ func ValidateConfig(config *config.BGP) error {
 	if len(config.RouterID) == 0 {
 		return ErrMissingRouterID
 	}
-	if net.ParseIP(config.RouterID) == nil {
-		return fmt.Errorf("router ID %s is not a valid ID", config.RouterID)
+	if _, err := netip.ParseAddr(config.RouterID); err != nil {
+		return fmt.Errorf("router ID %s is not a valid IP: %w", config.RouterID, err)
 	}
 	if len(config.NextHop) > 0 {
-		if ip := net.ParseIP(config.NextHop); ip == nil {
-			return fmt.Errorf("invalid NextHop: %s", config.NextHop)
+		if _, err := netip.ParseAddr(config.NextHop); err != nil {
+			return fmt.Errorf("invalid NextHop: %s: %w", config.NextHop, err)
 		}
 	}
 	return nil
