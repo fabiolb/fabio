@@ -1,0 +1,27 @@
+# Exercises bgp.gobgpdcfgfile: the global section, a neighbour and a policy
+# must all be applied, not just the global section.
+
+[global.config]
+  as = 65000
+  router-id = "127.0.0.6"
+  port = 1793
+  local-address-list = [ "127.0.0.6" ]
+
+[[neighbors]]
+  [neighbors.config]
+    neighbor-address = "127.0.0.7"
+    peer-as = 65001
+
+[[defined-sets.neighbor-sets]]
+  neighbor-set-name = "cfgfile-peers"
+  neighbor-info-list = [ "127.0.0.7" ]
+
+[[policy-definitions]]
+  name = "cfgfile-reject"
+  [[policy-definitions.statements]]
+    name = "cfgfile-reject-all"
+    [policy-definitions.statements.conditions.match-neighbor-set]
+      neighbor-set = "cfgfile-peers"
+      match-set-options = "any"
+    [policy-definitions.statements.actions]
+      route-disposition = "reject-route"

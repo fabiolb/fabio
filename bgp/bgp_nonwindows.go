@@ -20,7 +20,8 @@ import (
 
 	api "github.com/osrg/gobgp/v4/api"
 	"github.com/osrg/gobgp/v4/pkg/apiutil"
-	bgpconfig "github.com/osrg/gobgp/v4/pkg/config/oc"
+	bgpconfig "github.com/osrg/gobgp/v4/pkg/config"
+	bgpoc "github.com/osrg/gobgp/v4/pkg/config/oc"
 	"github.com/osrg/gobgp/v4/pkg/packet/bgp"
 	"github.com/osrg/gobgp/v4/pkg/server"
 )
@@ -55,22 +56,33 @@ func NewBGPHandler(config *config.BGP) (*BGPHandler, error) {
 		nextHop = config.NextHop
 	}
 
-	nextHopAddr, err := netip.ParseAddr(nextHop)
-	if err != nil {
-		return nil, fmt.Errorf("invalid next hop address %s: %w", nextHop, err)
-	}
-
-	nextHopAttr, err := bgp.NewPathAttributeNextHop(nextHopAddr)
-	if err != nil {
-		return nil, fmt.Errorf("error creating next hop attribute: %w", err)
-	}
-
+	// Deliberately no AS_PATH attribute here.  gobgp fills it in per session
+	// when the path is exported: our ASN is prepended for eBGP peers and an
+	// empty AS_PATH is attached for iBGP ones.  Setting it ourselves would
+	// duplicate our ASN towards eBGP peers, and towards an iBGP peer it would
+	// look like an AS loop - the peer's ASN is our own - so gobgp would drop
+	// the path instead of advertising it.
 	attributes := []bgp.PathAttributeInterface{
 		bgp.NewPathAttributeOrigin(0), // IGP
-		nextHopAttr,
-		bgp.NewPathAttributeAsPath([]bgp.AsPathParamInterface{
-			bgp.NewAs4PathParam(bgp.BGP_ASPATH_ATTR_TYPE_SEQ, []uint32{uint32(config.Asn)}),
-		}),
+	}
+
+	// ValidateConfig only insists on a routerID when we are not handed a
+	// gobgpd config file, so nextHop is legitimately empty for an operator who
+	// configures everything in that file and advertises nothing themselves.
+	// Only refuse an unparseable one, and only once we know we need it.
+	if nextHop != "" {
+		nextHopAddr, err := netip.ParseAddr(nextHop)
+		if err != nil {
+			return nil, fmt.Errorf("invalid next hop address %s: %w", nextHop, err)
+		}
+
+		nextHopAttr, err := bgp.NewPathAttributeNextHop(nextHopAddr)
+		if err != nil {
+			return nil, fmt.Errorf("error creating next hop attribute: %w", err)
+		}
+		attributes = append(attributes, nextHopAttr)
+	} else if len(config.AnycastAddresses) > 0 {
+		return nil, ErrMissingRouterID
 	}
 
 	logger := newBGPLogger()
@@ -105,19 +117,10 @@ func (bgph *BGPHandler) Start() error {
 	go s.Serve()
 
 	if len(bgph.config.GOBGPDCfgFile) > 0 {
-		initialCfg, err := bgpconfig.ReadConfigfile(bgph.config.GOBGPDCfgFile, "toml")
+		err := bgph.applyGOBGPDConfig(context.Background())
 		if err != nil {
-			// shouldn't happen if we called validate first.
 			return err
 		}
-		// Apply global config
-		if err := s.StartBgp(context.Background(), &api.StartBgpRequest{
-			Global: bgpconfig.NewGlobalFromConfigStruct(&initialCfg.Global),
-		}); err != nil {
-			return fmt.Errorf("bgp: error starting from gobgp config: %w", err)
-		}
-		// Note: Additional config like peers, policies would need to be applied separately
-		log.Printf("[WARN] bgp: config file support is limited, only global config applied")
 	} else {
 		// If we weren't passed a gobgp config file, configure using the values passed from the fabio
 		// config, and make sure we have a sane policy where we export our routes to peers but don't
@@ -158,6 +161,26 @@ func (bgph *BGPHandler) Start() error {
 	return <-errCh
 }
 
+// applyGOBGPDConfig starts BGP from an operator supplied gobgpd config file.
+// InitialConfig applies the global section, the neighbours and the policies
+// from that file.  ReadConfigfile moved to pkg/config/oc in gobgp v4 while
+// InitialConfig stayed in pkg/config, hence the two imports - applying only
+// the global section would silently discard the peers and import policies the
+// operator configured, leaving fabio peered with nobody, or peered with no
+// policy at all.
+func (bgph *BGPHandler) applyGOBGPDConfig(ctx context.Context) error {
+	initialCfg, err := bgpoc.ReadConfigfile(bgph.config.GOBGPDCfgFile, "toml")
+	if err != nil {
+		// shouldn't happen if we called validate first.
+		return err
+	}
+	_, err = bgpconfig.InitialConfig(ctx, bgph.server, initialCfg, false)
+	if err != nil {
+		return fmt.Errorf("bgp: error initializing from gobgp config: %w", err)
+	}
+	return nil
+}
+
 func (bgph *BGPHandler) startBGP(ctx context.Context) error {
 	return bgph.server.StartBgp(ctx, &api.StartBgpRequest{
 		Global: &api.Global{
@@ -187,6 +210,11 @@ func (bgph *BGPHandler) setPolicies() error {
 						Name: rejectAll,
 						Conditions: &api.Conditions{
 							NeighborSet: &api.MatchSet{
+								// v4 renumbered this enum and inserted
+								// TYPE_UNSPECIFIED at 0, which it rejects.  The
+								// zero value used to mean ANY, so it has to be
+								// set explicitly now.
+								Type: api.MatchSet_TYPE_ANY,
 								Name: matchAnyPeer,
 							},
 						},
@@ -407,7 +435,7 @@ func ValidateConfig(config *config.BGP) error {
 	}
 
 	if len(config.GOBGPDCfgFile) > 0 {
-		_, err := bgpconfig.ReadConfigfile(config.GOBGPDCfgFile, "toml")
+		_, err := bgpoc.ReadConfigfile(config.GOBGPDCfgFile, "toml")
 		if err != nil {
 			return fmt.Errorf("could not open %s: %w", config.GOBGPDCfgFile, err)
 		}
