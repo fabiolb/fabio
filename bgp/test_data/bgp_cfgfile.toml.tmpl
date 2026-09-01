@@ -1,20 +1,22 @@
 # Exercises bgp.gobgpdcfgfile: the global section, a neighbour and a policy
-# must all be applied, not just the global section.
+# must all be applied, not just the global section.  Nothing ever answers on
+# the neighbour address - the test only asserts that the peer and the policy
+# made it into the running config.
 
 [global.config]
-  as = 65000
-  router-id = "127.0.0.6"
-  port = 1793
-  local-address-list = [ "127.0.0.6" ]
+  as = {{.ASN}}
+  router-id = "{{.RouterID}}"
+  port = {{.ListenPort}}
+  local-address-list = [ "{{.Addr}}" ]
 
 [[neighbors]]
   [neighbors.config]
-    neighbor-address = "127.0.0.7"
-    peer-as = 65001
+    neighbor-address = "{{.PeerAddr}}"
+    peer-as = {{.PeerASN}}
 
 [[defined-sets.neighbor-sets]]
   neighbor-set-name = "cfgfile-peers"
-  neighbor-info-list = [ "127.0.0.7" ]
+  neighbor-info-list = [ "{{.PeerAddr}}" ]
 
 [[policy-definitions]]
   name = "cfgfile-reject"
