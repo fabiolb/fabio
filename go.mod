@@ -6,7 +6,7 @@ require (
 	github.com/circonus-labs/circonus-gometrics/v3 v3.4.7
 	github.com/go-kit/kit v0.13.0
 	github.com/go-kit/log v0.2.1
-	github.com/gobwas/glob v0.2.3
+	github.com/gobwas/glob v1.0.0
 	github.com/hashicorp/consul/api v1.34.3
 	github.com/hashicorp/go-sockaddr v1.0.7
 	github.com/hashicorp/vault/api v1.23.0
