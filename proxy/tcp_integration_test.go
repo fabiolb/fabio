@@ -252,7 +252,6 @@ var proxyProtoVersions = []struct {
 // to a TCP upstream server with proxy protocol enabled on the upstream connection.
 func TestTCPProxyWithProxyProto(t *testing.T) {
 	for _, version := range proxyProtoVersions {
-		version := version
 		t.Run(version.name, func(t *testing.T) {
 			srv := tcptest.NewServerWithProxyProto(proxyHandler)
 			defer srv.Close()
@@ -293,7 +292,6 @@ func TestTCPProxyWithProxyProto(t *testing.T) {
 // The proxy extract the proxy protocol header and terminates the TLS connection.
 func TestTCPProxyWithTLSWithProxyProto(t *testing.T) {
 	for _, version := range proxyProtoVersions {
-		version := version
 		t.Run(version.name, func(t *testing.T) {
 			srv := tcptest.NewServerWithProxyProto(proxyHandler)
 			defer srv.Close()
@@ -371,7 +369,6 @@ func TestTCPProxyWithTLSWithProxyProto(t *testing.T) {
 // The upstream server extracts the proxy protocol and terminates the TLS connection.
 func TestTCPSNIProxyWithProxyProto(t *testing.T) {
 	for _, version := range proxyProtoVersions {
-		version := version
 		t.Run(version.name, func(t *testing.T) {
 			srv := tcptest.NewTLSServerWithProxyProto(proxyHandler)
 			defer srv.Close()

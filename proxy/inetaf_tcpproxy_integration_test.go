@@ -173,7 +173,6 @@ route add tcproute example2.com/ tcp://%s opts "proto=tcp"`
 // consumes the PROXY header before tcpproxy inspects the TLS ClientHello.
 func TestProxyHTTPSTCPSNIWithProxyProto(t *testing.T) {
 	for _, version := range proxyProtoVersions {
-		version := version
 		t.Run(version.name, func(t *testing.T) {
 			srv := tcptest.NewTLSServerWithProxyProto(proxyHandler)
 			defer srv.Close()
