@@ -12,7 +12,7 @@ require (
 	github.com/hashicorp/vault/api v1.23.0
 	github.com/hashicorp/vault/sdk v0.25.1
 	github.com/inetaf/tcpproxy v0.0.0-20200125044825-b6bb9b5b8252
-	github.com/magiconair/properties v1.8.10
+	github.com/magiconair/properties v1.18.11
 	github.com/mwitkow/grpc-proxy v0.0.0-20250813121105-2866842de9a5
 	github.com/osrg/gobgp/v4 v4.8.0
 	github.com/pascaldekloe/goe v0.1.1
