@@ -5,48 +5,63 @@ package bgp
 import (
 	"context"
 	"encoding/json"
+	"net"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"slices"
+	"strconv"
+	"strings"
+	"testing"
+	"text/template"
+	"time"
+
 	"github.com/fabiolb/fabio/config"
 	api "github.com/osrg/gobgp/v4/api"
 	"github.com/osrg/gobgp/v4/pkg/apiutil"
 	"github.com/osrg/gobgp/v4/pkg/packet/bgp"
 	"github.com/osrg/gobgp/v4/pkg/server"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"slices"
-	"testing"
-	"time"
 )
 
-// bgpTestParams describes one peering scenario.  The gobgpd side is
-// configured by cfgFile, the fabio side by the remaining fields, and the
-// two must agree on addresses, ports and ASNs.
-type bgpTestParams struct {
-	cfgFile     string
-	localAddr   string
-	peerAddr    string
-	nextHop     string
-	grpcAddr    string
-	peerAPIAddr string
-	listenPort  int
-	peerASN     uint
-}
+// loopback is the only address every platform actually assigns to the loopback
+// interface.  Linux treats the whole of 127.0.0.0/8 as local, so a test can
+// hand each speaker its own 127.0.0.x; macOS assigns 127.0.0.1 alone and
+// binding anything else fails with EADDRNOTAVAIL.  Everything here therefore
+// shares this one address and is kept apart by port instead.
+const loopback = "127.0.0.1"
 
 const localASN = 65000
+
+// bgpTestParams describes one peering scenario.  Addresses and ports are not
+// part of it: both ends sit on loopback and take freshly reserved ports, so
+// all that varies between scenarios is who the peer claims to be.
+type bgpTestParams struct {
+	peerASN      uint
+	peerRouterID string
+	nextHop      string
+}
+
+// gobgpdCfg is the data behind the templates in test_data.  Rendering the
+// gobgpd config from the same values the fabio side is built from is what
+// keeps the two ends of a peering in agreement.
+type gobgpdCfg struct {
+	Addr       string // address gobgpd binds, and the peer's view of us
+	ASN        uint
+	RouterID   string
+	ListenPort int
+	PeerAddr   string
+	PeerASN    uint
+	PeerPort   int
+}
 
 func TestBGPHandler(t *testing.T) {
 	// An eBGP peer.  gobgp prepends our ASN on export, so the peer must see
 	// an AS_PATH of exactly [65000] - not [65000 65000].
 	t.Run("ebgp", func(t *testing.T) {
 		testBGPHandler(t, bgpTestParams{
-			cfgFile:     "bgp.toml",
-			localAddr:   "127.0.0.2",
-			peerAddr:    "127.0.0.3",
-			nextHop:     "1.2.3.4",
-			grpcAddr:    "127.0.0.2:50051",
-			peerAPIAddr: "127.0.0.3:50051",
-			listenPort:  1790,
-			peerASN:     65001,
+			peerASN:      65001,
+			peerRouterID: "192.0.2.3",
+			nextHop:      "1.2.3.4",
 		}, []int{localASN})
 	})
 
@@ -55,13 +70,8 @@ func TestBGPHandler(t *testing.T) {
 	// if we leave AS_PATH alone and let gobgp attach an empty one.
 	t.Run("ibgp", func(t *testing.T) {
 		testBGPHandler(t, bgpTestParams{
-			cfgFile:     "bgp_ibgp.toml",
-			localAddr:   "127.0.0.4",
-			peerAddr:    "127.0.0.5",
-			grpcAddr:    "127.0.0.4:50051",
-			peerAPIAddr: "127.0.0.5:50051",
-			listenPort:  1791,
-			peerASN:     localASN,
+			peerASN:      localASN,
+			peerRouterID: "192.0.2.5",
 		}, nil)
 	})
 }
@@ -70,10 +80,23 @@ func TestBGPHandler(t *testing.T) {
 // that routes added through the BGPHandler show up in - and disappear from -
 // the peer's global RIB with the expected AS_PATH.
 func testBGPHandler(t *testing.T, p bgpTestParams, wantASPath []int) {
+	listenPort, peerPort := freePort(t), freePort(t)
+	grpcPort, peerAPIPort := freePort(t), freePort(t)
+
+	cfgFile := renderCfg(t, "gobgpd_peer.toml.tmpl", gobgpdCfg{
+		Addr:       loopback,
+		ASN:        p.peerASN,
+		RouterID:   p.peerRouterID,
+		ListenPort: peerPort,
+		PeerAddr:   loopback,
+		PeerASN:    localASN,
+		PeerPort:   listenPort,
+	})
+
 	serverCmd := &gobgpserver{
 		cmdPath: "gobgpd",
-		cfgFile: p.cfgFile,
-		apiHost: p.peerAPIAddr,
+		cfgFile: cfgFile,
+		apiHost: net.JoinHostPort(loopback, strconv.Itoa(peerAPIPort)),
 	}
 	err := serverCmd.start()
 	if err != nil {
@@ -85,19 +108,23 @@ func testBGPHandler(t *testing.T, p bgpTestParams, wantASPath []int) {
 		BGPEnabled:       true,
 		Asn:              localASN,
 		AnycastAddresses: []string{"1.2.3.4/32"},
-		RouterID:         p.localAddr,
-		ListenPort:       p.listenPort,
-		ListenAddresses:  []string{p.localAddr},
+		// addNeighbors reuses the routerID as the transport local address, so
+		// on this path it has to be an address we can actually bind.  That
+		// makes it the peer's router ID that has to be something else: the
+		// two identifiers still have to differ or the session collides.
+		RouterID:        loopback,
+		ListenPort:      listenPort,
+		ListenAddresses: []string{loopback},
 		Peers: []config.BGPPeer{
 			{
-				NeighborAddress: p.peerAddr,
-				NeighborPort:    uint(p.listenPort),
+				NeighborAddress: loopback,
+				NeighborPort:    uint(peerPort),
 				Asn:             p.peerASN,
 				MultiHop:        false,
 			},
 		},
 		EnableGRPC:        true,
-		GRPCListenAddress: p.grpcAddr,
+		GRPCListenAddress: net.JoinHostPort(loopback, strconv.Itoa(grpcPort)),
 		NextHop:           p.nextHop,
 	}
 	bh, err := NewBGPHandler(cfg)
@@ -148,7 +175,8 @@ func testBGPHandler(t *testing.T, p bgpTestParams, wantASPath []int) {
 
 	gc := gobpgclient{
 		cmdPath:  "gobgp",
-		hostAddr: p.peerAddr,
+		hostAddr: loopback,
+		port:     peerAPIPort,
 	}
 
 	// now start a test table
@@ -202,6 +230,40 @@ func testBGPHandler(t *testing.T, p bgpTestParams, wantASPath []int) {
 
 }
 
+// freePort reserves an unused TCP port on the loopback address.  The listener
+// is closed again before the port is handed back, so this trades a small race
+// against anything else grabbing ports at that instant for tests that do not
+// have to carve up a fixed range between themselves.
+func freePort(t *testing.T) int {
+	t.Helper()
+	l, err := net.Listen("tcp", net.JoinHostPort(loopback, "0"))
+	if err != nil {
+		t.Fatalf("error reserving a port: %s", err)
+	}
+	defer l.Close()
+	return l.Addr().(*net.TCPAddr).Port
+}
+
+// renderCfg renders one of the templates in test_data into the test's temp
+// directory and returns the path to the result.
+func renderCfg(t *testing.T, name string, data gobgpdCfg) string {
+	t.Helper()
+	tmpl, err := template.ParseFiles(filepath.Join("test_data", name))
+	if err != nil {
+		t.Fatalf("error parsing %s: %s", name, err)
+	}
+	path := filepath.Join(t.TempDir(), strings.TrimSuffix(name, ".tmpl"))
+	f, err := os.Create(path)
+	if err != nil {
+		t.Fatalf("error creating %s: %s", path, err)
+	}
+	defer f.Close()
+	if err := tmpl.Execute(f, data); err != nil {
+		t.Fatalf("error rendering %s: %s", name, err)
+	}
+	return path
+}
+
 type ribEntry struct {
 	Nlri struct {
 		Prefix string `json:"prefix"`
@@ -235,10 +297,14 @@ func (e ribEntry) asPath() []int {
 type gobpgclient struct {
 	cmdPath  string
 	hostAddr string
+	port     int
 }
 
 func (gc *gobpgclient) globalRib(t *testing.T) (map[string][]ribEntry, error) {
-	out, err := exec.Command(gc.cmdPath, "-u", gc.hostAddr, "-j", "global", "rib").Output()
+	out, err := exec.Command(gc.cmdPath,
+		"-u", gc.hostAddr,
+		"-p", strconv.Itoa(gc.port),
+		"-j", "global", "rib").Output()
 	if err != nil {
 		return nil, err
 	}
@@ -261,8 +327,9 @@ type gobgpserver struct {
 func (gs *gobgpserver) start() error {
 	gs.cmd = exec.Command(gs.cmdPath,
 		"-p",
-		"-f", filepath.Join("test_data", gs.cfgFile),
+		"-f", gs.cfgFile,
 		"--api-hosts", gs.apiHost,
+		"--pprof-disable",
 		"-l", "info")
 	gs.cmd.Stdout = os.Stdout
 	gs.cmd.Stderr = os.Stderr
@@ -281,10 +348,20 @@ func (gs *gobgpserver) stop() error {
 // its own deny-all import policy there - so applying just the global section
 // would leave fabio peered with nobody and filtering nothing.
 func TestGOBGPDConfigFile(t *testing.T) {
+	// Nothing ever answers on the neighbour address, so it only has to be
+	// something we can recognise again in the peer list.
+	cfgFile := renderCfg(t, "bgp_cfgfile.toml.tmpl", gobgpdCfg{
+		Addr:       loopback,
+		ASN:        localASN,
+		RouterID:   "192.0.2.6",
+		ListenPort: freePort(t),
+		PeerAddr:   "192.0.2.7",
+		PeerASN:    65001,
+	})
 	cfg := &config.BGP{
 		BGPEnabled:    true,
-		RouterID:      "127.0.0.6",
-		GOBGPDCfgFile: filepath.Join("test_data", "bgp_cfgfile.toml"),
+		RouterID:      loopback,
+		GOBGPDCfgFile: cfgFile,
 	}
 	// An operator who configures everything in the gobgpd file and advertises
 	// nothing themselves has no reason to set bgp.routerid, and ValidateConfig
@@ -314,7 +391,7 @@ func TestGOBGPDConfigFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error listing peers: %s", err)
 	}
-	if !slices.Contains(peers, "127.0.0.7") {
+	if !slices.Contains(peers, "192.0.2.7") {
 		t.Errorf("neighbour from config file not applied, peers = %v", peers)
 	}
 
@@ -336,9 +413,9 @@ func TestAddRoutesFamilies(t *testing.T) {
 	cfg := &config.BGP{
 		BGPEnabled:      true,
 		Asn:             localASN,
-		RouterID:        "127.0.0.8",
-		ListenPort:      1794,
-		ListenAddresses: []string{"127.0.0.8"},
+		RouterID:        loopback,
+		ListenPort:      freePort(t),
+		ListenAddresses: []string{loopback},
 	}
 	bh, err := NewBGPHandler(cfg)
 	if err != nil {

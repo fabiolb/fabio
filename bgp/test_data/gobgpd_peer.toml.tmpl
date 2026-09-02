@@ -1,0 +1,18 @@
+# The gobgpd side of TestBGPHandler.  Rendered per subtest so that the
+# addresses and ports here cannot drift from the ones handed to the fabio
+# side of the same peering.
+
+[[neighbors]]
+  [neighbors.config]
+    neighbor-address = "{{.PeerAddr}}"
+    peer-as = {{.PeerASN}}
+  [neighbors.transport.config]
+    remote-port = {{.PeerPort}}
+    passive-mode = false
+    local-address = "{{.Addr}}"
+
+[global.config]
+  as = {{.ASN}}
+  router-id = "{{.RouterID}}"
+  port = {{.ListenPort}}
+  local-address-list = [ "{{.Addr}}" ]
