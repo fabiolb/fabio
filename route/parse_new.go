@@ -215,11 +215,11 @@ func mustCompileWithFlexibleSpace(re string) *regexp.Regexp {
 
 func parseWeight(s string) (float64, error) {
 	if s == "" {
-		return 0, nil
+		return -1, nil
 	}
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
-		return 0.0, errors.New("syntax error: weight value invalid")
+		return -1, errors.New("syntax error: weight value invalid")
 	}
 	return f, nil
 }
