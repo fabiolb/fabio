@@ -22,11 +22,11 @@
       <description>&lt;p&gt;In the following setup fabio is configured receive all incoming traffic&#xA;from an existing gateway which also terminates SSL for one or more domains.&lt;/p&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;p&gt;Again, to scale fabio you can deploy it together with the frontend services&#xA;which provides high-availability and distributes the network bandwidth.&lt;/p&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;!-- raw HTML omitted --&gt;</description>
     </item>
     <item>
-      <title>Amazon ELB</title>
+      <title>Amazon ELB and NLB</title>
       <link>https://fabiolb.net/deploy/amazon-elb/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://fabiolb.net/deploy/amazon-elb/</guid>
-      <description>&lt;p&gt;You can deploy fabio behind an Amazon ELB and enable &lt;a href=&#34;http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/enable-proxy-protocol.html&#34;&gt;PROXY protocol support&lt;/a&gt; to get the remote address and port of the client.&lt;/p&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;!-- raw HTML omitted --&gt;</description>
+      <description>&lt;p&gt;You can deploy fabio behind an Amazon Classic Load Balancer and enable &lt;a href=&#34;http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/enable-proxy-protocol.html&#34;&gt;PROXY protocol support&lt;/a&gt; to pass the remote address and port of the client using version 1. For an Amazon Network Load Balancer (NLB), enable PROXY protocol v2 on the target group and set &lt;code&gt;pxyproto=true&lt;/code&gt; on the fabio listener.&lt;/p&gt;&#xA;&lt;p&gt;The listener accepts either PROXY protocol version, so the same fabio routing configuration can be used with both load balancers.&lt;/p&gt;&#xA;&lt;!-- raw HTML omitted --&gt;&#xA;&lt;!-- raw HTML omitted --&gt;</description>
     </item>
     <item>
       <title>Amazon API Gateway</title>

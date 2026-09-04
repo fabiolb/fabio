@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
 
-    <title>Amazon ELB</title>
+    <title>Amazon ELB and NLB</title>
 
     
     <link href="/css/theDocs.all.min.css" rel="stylesheet">
@@ -100,7 +100,7 @@
       
         <li><a href="https://fabiolb.net/deploy/existing-lb/">Behind existing Gateway</a></li>
       
-        <li><a class="active" href="https://fabiolb.net/deploy/amazon-elb/">Amazon ELB</a></li>
+        <li><a class="active" href="https://fabiolb.net/deploy/amazon-elb/">Amazon ELB and NLB</a></li>
       
         <li><a href="https://fabiolb.net/deploy/amazon-api-gw/">Amazon API Gateway</a></li>
       
@@ -154,8 +154,9 @@
 
       
       <section>
-        <h2>Amazon ELB</h2>
-        <p>You can deploy fabio behind an Amazon ELB and enable <a href="http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/enable-proxy-protocol.html">PROXY protocol support</a> to get the remote address and port of the client.</p>
+        <h2>Amazon ELB and NLB</h2>
+        <p>You can deploy fabio behind an Amazon Classic Load Balancer and enable <a href="http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/enable-proxy-protocol.html">PROXY protocol support</a> to pass the remote address and port of the client using version 1. For an Amazon Network Load Balancer (NLB), enable PROXY protocol v2 on the target group and set <code>pxyproto=true</code> on the fabio listener.</p>
+<p>The listener accepts either PROXY protocol version, so the same fabio routing configuration can be used with both load balancers.</p>
 <!-- raw HTML omitted -->
 <!-- raw HTML omitted -->
 
@@ -179,7 +180,7 @@
                 Copyright &copy; 2020-2026 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 4 Sep 2026 00:06
+                Last updated on 4 Sep 2026 04:57
             </p>
           </div>
           <div class="col-md-6 col-sm-6">

@@ -181,7 +181,7 @@ urlprefix-/foo/bar proto=https tlsskipverify=true  # HTTPS upstream and self-sig
 
 # TCP examples
 urlprefix-:3306 proto=tcp                          # route external port 3306
-urlprefix-:3306 proto=tcp pxyproto=true            # enables PROXY protocol on outbount TCP connection
+urlprefix-:3306 proto=tcp pxyproto=true            # enables outbound PROXY protocol v1 headers
 
 # GRPC/S examples
 urlprefix-/my.service/Method proto=grpc                      # method specific route
@@ -232,7 +232,7 @@ curl -i -H &#39;Host: mysite.com&#39; http://localhost:9999/foo
                 Copyright &copy; 2020-2026 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 4 Sep 2026 00:06
+                Last updated on 4 Sep 2026 04:57
             </p>
           </div>
           <div class="col-md-6 col-sm-6">
