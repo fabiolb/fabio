@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"testing/synctest"
 	"time"
 
 	"github.com/fabiolb/fabio/config"
@@ -166,37 +167,46 @@ func TestBasic_Authorised(t *testing.T) {
 }
 
 func TestBasic_Authorised_should_fail_without_htpasswd_file(t *testing.T) {
-	filename := createBasicAuthFile(t, "foo:bar")
+	synctest.Test(t, func(t *testing.T) {
+		filename := createBasicAuthFile(t, "foo:bar")
+		// We create a basic auth with periodic refresh.
+		basicAuth, err := newBasicAuth(config.BasicAuth{
+			File:    filename,
+			Refresh: time.Second,
+		})
+		if err != nil {
+			t.Error(err)
+		}
 
-	basicAuth, err := newBasicAuth(config.BasicAuth{
-		File:    filename,
-		Refresh: time.Second,
-	})
-	if err != nil {
-		t.Error(err)
-	}
+		r := &http.Request{
+			Header: http.Header{
+				"Authorization": basicAuthHeader("foo", "bar"),
+			},
+		}
+		w := &responseWriter{}
 
-	r := &http.Request{
-		Header: http.Header{
-			"Authorization": basicAuthHeader("foo", "bar"),
-		},
-	}
-
-	w := &responseWriter{}
-
-	t.Run("should authorize against supplied htpasswd file", func(t *testing.T) {
+		// We want the first call to Authorized() to succeed.
 		if got, want := basicAuth.Authorized(r, w), true; got != want {
 			t.Errorf("got %v want %v", got, want)
 		}
-	})
 
-	if err := os.Remove(filename); err != nil {
-		t.Fatalf("removing htpasswd file: %s", err)
-	}
+		// Since refresh is enabled, removing the htpasswd file will cause the next
+		// call to Authorized() to fail, as documented.
+		if err := os.Remove(filename); err != nil {
+			t.Fatalf("removing htpasswd file: %s", err)
+		}
 
-	time.Sleep(2 * time.Second) // ensure htpasswd file refresh happened
-
-	t.Run("should not authorize after removing htpasswd file", func(t *testing.T) {
+		// Wait to ensure that the htpasswd file refresh happened.
+		// This happens within a syntest.Test(), so it will take zero time.
+		time.Sleep(2 * time.Second)
+		// Before exiting from the synctest bubble, we must terminate the basicAuth
+		// goroutine.
+		// We don't close the channel because closing is async. The send instead, since
+		// the channel is unbuffered, ensures that the test waits for the goroutine
+		// to receive and terminate.
+		basicAuth.done <- struct{}{}
+		synctest.Wait()
+		// We want the second call to Authorized() to fail.
 		if got, want := basicAuth.Authorized(r, w), false; got != want {
 			t.Errorf("got %v want %v", got, want)
 		}
