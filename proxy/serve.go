@@ -17,7 +17,6 @@ import (
 	"github.com/fabiolb/fabio/proxy/tcp"
 
 	"github.com/inetaf/tcpproxy"
-	"github.com/pires/go-proxyproto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -120,9 +119,9 @@ func ListenAndServePrometheus(l config.Listen, pcfg config.Prometheus, cfg *tls.
 }
 
 func ListenAndServeHTTPSTCPSNI(l config.Listen, h http.Handler, p tcp.Handler, cfg *tls.Config, m tcpproxy.Matcher) error {
-	// we only want proxy proto enabled on tcp proxies
-	pxyProto := l.ProxyProto
-	l.ProxyProto = false
+	// PROXY protocol must be consumed before tcpproxy inspects the TLS
+	// ClientHello for SNI routing. ListenTCP applies the configured wrapper to
+	// the listener before tcpproxy sees any connections.
 	tp := &tcpproxy.Proxy{
 		ListenFunc: func(net, laddr string) (net.Listener, error) {
 			// cfg is nil here so it's not terminating TLS (yet)
@@ -145,15 +144,7 @@ func ListenAndServeHTTPSTCPSNI(l config.Listen, h http.Handler, p tcp.Handler, c
 	}
 
 	tps := &InetAfTCPProxyServer{Proxy: tp}
-	var tln net.Listener = tcpSNIListener
-	// enable proxy protocol on the tcp side if configured to do so
-	if pxyProto {
-		tln = &proxyproto.Listener{
-			Listener:          tln,
-			ReadHeaderTimeout: l.ProxyHeaderTimeout,
-		}
-	}
-	tps.ServeLater(tln, &tcp.Server{
+	tps.ServeLater(tcpSNIListener, &tcp.Server{
 		Addr:         l.Addr,
 		Handler:      p,
 		ReadTimeout:  l.ReadTimeout,

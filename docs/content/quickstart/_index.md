@@ -47,7 +47,7 @@ and you need to add a separate `urlprefix-` tag for every `host/path` prefix the
 
 	# TCP examples
 	urlprefix-:3306 proto=tcp                          # route external port 3306
-	urlprefix-:3306 proto=tcp pxyproto=true            # enables PROXY protocol on outbount TCP connection
+	urlprefix-:3306 proto=tcp pxyproto=true            # enables outbound PROXY protocol v1 headers
 	
 	# GRPC/S examples
 	urlprefix-/my.service/Method proto=grpc                      # method specific route

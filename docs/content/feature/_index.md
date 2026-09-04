@@ -22,7 +22,7 @@ Fabio supports the following:
  * [HTTPS TCP-SNI Proxy Support](/feature/https-tcp-sni-proxy/) - forward TLS connections based on hostname without re-encryption, or fallback to fabio terminating TLS and path routing as a fallback
  * [HTTPS Upstreams](/feature/https-upstream/) - forward requests to HTTPS upstream servers
  * [Metrics Support](/feature/metrics/) - support for Graphite, StatsD/DataDog and Circonus
- * [PROXY Protocol Support](/feature/proxy-protocol/) - support for HA Proxy PROXY protocol for inbound requests (use for Amazon ELB)
+ * [PROXY Protocol Support](/feature/proxy-protocol/) - support for HA Proxy PROXY protocol v1 and v2 for inbound requests (use with Amazon ELB or NLB)
  * [Server-Sent Events/SSE](/feature/sse/) - support for Server-Sent Events/SSE
  * [TCP dynamic proxy](/feature/tcp-dynamic-proxy/) - TCP proxy based on urlprefix tag
  * [TCP Proxy Support](/feature/tcp-proxy/) - raw TCP proxy support
