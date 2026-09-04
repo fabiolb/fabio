@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -707,11 +708,37 @@ func parseAuthScheme(cfg map[string]string) (a AuthScheme, err error) {
 			a.Basic.Refresh = d
 		}
 
+	case "external":
+		a.External = ExternalAuth{
+			Endpoint:          cfg["endpoint"],
+			SetAuthHeaders:    parseAuthHeaders(cfg["set-auth-headers"]),
+			AppendAuthHeaders: parseAuthHeaders(cfg["append-auth-headers"]),
+		}
+
+		if a.External.Endpoint == "" {
+			return AuthScheme{}, fmt.Errorf("missing 'endpoint' in auth '%s'", a.Name)
+		}
+
+		u, err := url.Parse(a.External.Endpoint)
+		if err != nil || u.Host == "" || (u.Scheme != "http" && u.Scheme != "https") {
+			return AuthScheme{}, fmt.Errorf("invalid 'endpoint' in auth '%s': must be an absolute http or https URL", a.Name)
+		}
+
 	default:
 		return AuthScheme{}, fmt.Errorf("unknown auth type '%s'", a.Type)
 	}
 
 	return
+}
+
+func parseAuthHeaders(s string) []string {
+	var headers []string
+	for h := range strings.SplitSeq(s, ",") {
+		if h = strings.TrimSpace(h); h != "" {
+			headers = append(headers, http.CanonicalHeaderKey(h))
+		}
+	}
+	return headers
 }
 
 func parseBGPPeers(cfgs string) ([]BGPPeer, error) {
