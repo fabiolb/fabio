@@ -284,6 +284,24 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			desc: "-proxy.auth with source external",
+			args: []string{"-proxy.auth", `name=oauth;type=external;endpoint=http://oauth2-proxy:4180/oauth2/auth;set-auth-headers="X-Auth-Request-User,X-Auth-Request-Email";append-auth-headers=X-Auth-Request-Groups`},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.AuthSchemes = map[string]AuthScheme{
+					"oauth": {
+						Name: "oauth",
+						Type: "external",
+						External: ExternalAuth{
+							Endpoint:          "http://oauth2-proxy:4180/oauth2/auth",
+							SetAuthHeaders:    []string{"X-Auth-Request-User", "X-Auth-Request-Email"},
+							AppendAuthHeaders: []string{"X-Auth-Request-Groups"},
+						},
+					},
+				}
+				return cfg
+			},
+		},
+		{
 			desc: "-proxy.addr with prometheus and https",
 			args: []string{"-proxy.addr", ":5555;cs=name;strictmatch=true;proto=prometheus", "-proxy.cs", "cs=name;type=path;cert=foo;clientca=bar;refresh=2s;hdr=a: b;caupgcn=furb"},
 			cfg: func(cfg *Config) *Config {
@@ -1131,6 +1149,24 @@ func TestLoad(t *testing.T) {
 			args: []string{"-proxy.auth", "name=foo;type=basic;realm=realm"},
 			cfg:  func(cfg *Config) *Config { return nil },
 			err:  errors.New("missing 'file' in auth 'foo'"),
+		},
+		{
+			desc: "-proxy.auth external with missing endpoint",
+			args: []string{"-proxy.auth", "name=oauth;type=external"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("missing 'endpoint' in auth 'oauth'"),
+		},
+		{
+			desc: "-proxy.auth external with relative endpoint",
+			args: []string{"-proxy.auth", "name=oauth;type=external;endpoint=/oauth2/auth"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("invalid 'endpoint' in auth 'oauth': must be an absolute http or https URL"),
+		},
+		{
+			desc: "-proxy.auth external with unsupported endpoint scheme",
+			args: []string{"-proxy.auth", "name=oauth;type=external;endpoint=ftp://auth.example/oauth2/auth"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("invalid 'endpoint' in auth 'oauth': must be an absolute http or https URL"),
 		},
 		{
 			args: []string{"-glob.cache.size", "1000"},
