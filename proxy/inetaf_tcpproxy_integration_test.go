@@ -3,6 +3,7 @@ package proxy
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"crypto/x509"
 	"fmt"
 	"io"
@@ -13,8 +14,10 @@ import (
 	"os"
 	"slices"
 	"testing"
+	"time"
 
 	"github.com/fabiolb/fabio/config"
+	"github.com/fabiolb/fabio/proxy/internal"
 	"github.com/fabiolb/fabio/proxy/tcp"
 	"github.com/fabiolb/fabio/proxy/tcp/tcptest"
 	"github.com/fabiolb/fabio/route"
@@ -213,6 +216,72 @@ func TestProxyHTTPSTCPSNIWithProxyProto(t *testing.T) {
 
 			testProxyProto(t, out)
 		})
+	}
+}
+
+// TestProxyHTTPSWithProxyProtoListenerNoHeader verifies that a plain HTTPS
+// connection succeeds when the listener has pxyproto enabled but the client
+// does not send a PROXY protocol header. go-proxyproto defaults to the USE
+// policy which falls through to normal connection handling when no header is
+// detected, so the request must complete successfully.
+func TestProxyHTTPSWithProxyProtoListenerNoHeader(t *testing.T) {
+	tmp, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("net.Listen: %v", err)
+	}
+	proxyAddr := tmp.Addr().String()
+	tmp.Close()
+
+	go func() {
+		l := config.Listen{
+			Addr:               proxyAddr,
+			ProxyProto:         true,
+			ProxyHeaderTimeout: 250 * time.Millisecond,
+		}
+		if err := ListenAndServeHTTPSTCPSNI(l, okHandler, &tcp.SNIProxy{
+			Lookup: func(string) *route.Target { return nil },
+		}, tlsServerConfig(), func(_ context.Context, _ string) bool { return false }); err != nil {
+			t.Logf("ListenAndServeHTTPSTCPSNI: %v", err)
+		}
+	}()
+	defer Close()
+
+	rootCAs := x509.NewCertPool()
+	if ok := rootCAs.AppendCertsFromPEM(internal.LocalhostCert); !ok {
+		t.Fatal("could not parse cert")
+	}
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{RootCAs: rootCAs},
+			DialContext:     (&net.Dialer{}).DialContext,
+		},
+	}
+
+	// Retry until the listener is up, then send a plain HTTPS request with no
+	// PROXY protocol header.
+	var resp *http.Response
+	deadline := time.Now().Add(2 * time.Second)
+	for {
+		resp, err = client.Get("https://" + proxyAddr)
+		if err == nil {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("https GET failed: %v", err)
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading body: %v", err)
+	}
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
+		t.Errorf("status: got %d want %d", got, want)
+	}
+	if got, want := body, []byte("OK"); !bytes.Equal(got, want) {
+		t.Errorf("body: got %q want %q", got, want)
 	}
 }
 
