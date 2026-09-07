@@ -25,17 +25,17 @@ func TestParse(t *testing.T) {
 		{
 			desc: "RouteAddService",
 			in:   `route add svc /prefix http://1.2.3.4/`,
-			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/"}},
+			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/", Weight: -1}},
 		},
 		{
 			desc: "RouteAddTCPService",
 			in:   `route add svc :1234 tcp://1.2.3.4:5678`,
-			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: ":1234", Dst: "tcp://1.2.3.4:5678"}},
+			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: ":1234", Dst: "tcp://1.2.3.4:5678", Weight: -1}},
 		},
 		{
 			desc: "RouteAddGRPCService",
 			in:   `route add svc :1234 grpc://1.2.3.4:5678`,
-			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: ":1234", Dst: "grpc://1.2.3.4:5678"}},
+			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: ":1234", Dst: "grpc://1.2.3.4:5678", Weight: -1}},
 		},
 		{
 			desc: "RouteAddServiceWeight",
@@ -65,17 +65,17 @@ func TestParse(t *testing.T) {
 		{
 			desc: "RouteAddTags",
 			in:   `route add svc /prefix http://1.2.3.4/ tags "a,b"`,
-			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/", Tags: []string{"a", "b"}}},
+			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/", Tags: []string{"a", "b"}, Weight: -1}},
 		},
 		{
 			desc: "RouteAddTagsOpts",
 			in:   `route add svc /prefix http://1.2.3.4/ tags "a,b" opts "foo=bar baz=bang blimp"`,
-			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/", Tags: []string{"a", "b"}, Opts: map[string]string{"foo": "bar", "baz": "bang", "blimp": ""}}},
+			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/", Tags: []string{"a", "b"}, Opts: map[string]string{"foo": "bar", "baz": "bang", "blimp": ""}, Weight: -1}},
 		},
 		{
 			desc: "RouteAddOpts",
 			in:   `route add svc /prefix http://1.2.3.4/ opts "foo=bar baz=bang blimp"`,
-			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/", Opts: map[string]string{"foo": "bar", "baz": "bang", "blimp": ""}}},
+			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/", Opts: map[string]string{"foo": "bar", "baz": "bang", "blimp": ""}, Weight: -1}},
 		},
 		{
 			desc: "RouteDelTags",
@@ -163,28 +163,28 @@ func TestParse(t *testing.T) {
 		return
 	}
 
-	run := func(in string, def []*RouteDef, fail bool, parseFn func(*bytes.Buffer) ([]*RouteDef, error)) {
+	run := func(desc, in string, def []*RouteDef, fail bool, parseFn func(*bytes.Buffer) ([]*RouteDef, error)) {
 		out, err := parseFn(bytes.NewBufferString(in))
 		switch {
 		case err == nil && fail:
-			t.Errorf("got error nil want fail")
+			t.Errorf("got error nil want fail: %s", desc)
 			return
 		case err != nil && !fail:
-			t.Errorf("got error %v want nil", err)
+			t.Errorf("got error %v want nil %s", err, desc)
 			return
 		case err != nil:
 			if !reSyntaxError.MatchString(err.Error()) {
-				t.Errorf("got error %q want 'syntax error.*'", err)
+				t.Errorf("got error %q want 'syntax error.*' %s", err, desc)
 			}
 			return
 		}
 		if got, want := out, def; !reflect.DeepEqual(got, want) {
-			t.Errorf("\ngot  %#v\nwant %#v", deref(got), deref(want))
+			t.Errorf("\ngot  %#v\nwant %#v %s", deref(got), deref(want), desc)
 		}
 	}
 
 	for _, tt := range tests {
-		t.Run("Parse-"+tt.desc, func(t *testing.T) { run(tt.in, tt.out, tt.fail, Parse) })
+		t.Run("Parse-"+tt.desc, func(t *testing.T) { run(tt.desc, tt.in, tt.out, tt.fail, Parse) })
 	}
 }
 
