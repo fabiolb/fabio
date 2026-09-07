@@ -239,8 +239,8 @@ route del tags &#34;yesterday&#34;
 <p>Directs a certain amount of traffic to instances matching certain criteria.</p>
 <p>The weight <code>w</code> is expressed as follows:</p>
 <ul>
-<li><code>w</code> is a float &gt; 0 describing a percentage, e.g. 0.5 == 50%</li>
-<li><code>w &lt;= 0</code>: means no fixed weighting. Traffic is evenly distributed</li>
+<li><code>w</code> is a float &gt;= 0 describing a percentage, e.g. 0.5 == 50%</li>
+<li><code>w &lt; 0</code>: means no fixed weighting. Traffic is evenly distributed</li>
 <li><code>w &gt; 0</code>: route will receive n% of traffic. If sum(w) &gt; 1 then w is normalized.</li>
 <li><code>sum(w) &gt;= 1</code>: only matching services will receive traffic</li>
 </ul>
@@ -308,7 +308,7 @@ route add service-c www.somedomain.com/ http://host-z:12345/
                 Copyright &copy; 2020-2026 Education Networks of America. All rights reserved.</br>
                 Copyright &copy; 2017-2020 Frank Schröder. All rights reserved.</br>
                 Copyright &copy; 2015-2017 eBay Software Foundation.  All rights reserved</br>
-                Last updated on 6 Sep 2026 23:53
+                Last updated on 7 Sep 2026 23:39
             </p>
           </div>
           <div class="col-md-6 col-sm-6">
