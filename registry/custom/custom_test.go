@@ -3,6 +3,8 @@ package custom
 import (
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -11,26 +13,21 @@ import (
 )
 
 func TestCustomRoutes(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/test", handleTest)
+	server := httptest.NewServer(mux)
+	defer server.Close()
+
+	host, _ := strings.CutPrefix(server.URL, "http://")
 	cfg := config.Custom{
-		Host:               "localhost:8080",
+		Host:               host,
 		Path:               "test",
 		Scheme:             "http",
 		CheckTLSSkipVerify: false,
 		PollInterval:       3 * time.Second,
 		Timeout:            3 * time.Second,
 	}
-
 	ch := make(chan string, 1)
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/test", handleTest)
-	server := &http.Server{
-		Addr:    "localhost:8080",
-		Handler: mux,
-	}
-	go server.ListenAndServe()
-	time.Sleep(3 * time.Second)
-	defer server.Close()
 
 	go customRoutes(&cfg, ch)
 
