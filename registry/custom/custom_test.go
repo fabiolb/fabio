@@ -2,7 +2,6 @@ package custom
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -38,8 +37,7 @@ func TestCustomRoutes(t *testing.T) {
 	resp := <-ch
 
 	if resp != "OK" {
-		fmt.Printf("Failed to get routes for custom backend - %s", resp)
-		t.FailNow()
+		t.Fatalf("Failed to get routes for custom backend - %s", resp)
 	}
 }
 
