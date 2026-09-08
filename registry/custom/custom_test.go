@@ -3,16 +3,15 @@ package custom
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fabiolb/fabio/config"
-	"github.com/fabiolb/fabio/route"
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/fabiolb/fabio/config"
+	"github.com/fabiolb/fabio/route"
 )
 
 func TestCustomRoutes(t *testing.T) {
-
-	var resp string
 	cfg := config.Custom{
 		Host:               "localhost:8080",
 		Path:               "test",
@@ -36,7 +35,7 @@ func TestCustomRoutes(t *testing.T) {
 
 	go customRoutes(&cfg, ch)
 
-	resp = <-ch
+	resp := <-ch
 
 	if resp != "OK" {
 		fmt.Printf("Failed to get routes for custom backend - %s", resp)
@@ -45,7 +44,6 @@ func TestCustomRoutes(t *testing.T) {
 }
 
 func handleTest(w http.ResponseWriter, r *http.Request) {
-
 	var routes []route.RouteDef
 	var tags = []string{"tag1", "tag2"}
 	var opts = make(map[string]string)
@@ -88,5 +86,4 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	rt, _ := json.Marshal(routes)
 
 	w.Write(rt)
-
 }
