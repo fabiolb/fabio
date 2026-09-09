@@ -1,5 +1,41 @@
 # Changelog
 
+## [v1.8.0](https://github.com/fabiolb/fabio/tree/v1.8.0) (2026-09-09)
+
+[Full Changelog](https://github.com/fabiolb/fabio/compare/v1.7.3...v1.8.0)
+
+**Implemented enhancements:**
+
+- Support Proxy Protocol v2 ? [\#1000](https://github.com/fabiolb/fabio/issues/1000)
+- Fix \#1000: Support Proxy Protocol v2 ? [\#1074](https://github.com/fabiolb/fabio/pull/1074) ([victorwon2001](https://github.com/victorwon2001))
+- Default the admin interface to "no" access. [\#1073](https://github.com/fabiolb/fabio/pull/1073) ([tristanmorgan](https://github.com/tristanmorgan))
+- auth: tests: reduce runtime from 2.3 sec to 0.3 sec thanks to syncttest [\#1072](https://github.com/fabiolb/fabio/pull/1072) ([marco-m](https://github.com/marco-m))
+- Allows to use route weight 0 to exclude some targets [\#1063](https://github.com/fabiolb/fabio/pull/1063) ([froque](https://github.com/froque))
+
+**Fixed bugs:**
+
+- Make the bgp tests runnable on macOS [\#1079](https://github.com/fabiolb/fabio/pull/1079) ([nathanejohnson](https://github.com/nathanejohnson))
+- docs/features: add missing "authorization" feature to the index [\#1068](https://github.com/fabiolb/fabio/pull/1068) ([marco-m](https://github.com/marco-m))
+
+**Closed issues:**
+
+- Request/ sec [\#800](https://github.com/fabiolb/fabio/issues/800)
+- Serving UI behind a reverse proxy with a URL prefix [\#461](https://github.com/fabiolb/fabio/issues/461)
+
+**Merged pull requests:**
+
+- registry/custom: tests: shave off 3 seconds [\#1085](https://github.com/fabiolb/fabio/pull/1085) ([marco-m](https://github.com/marco-m))
+- build\(deps\): bump google.golang.org/grpc from 1.82.1 to 1.83.2 [\#1076](https://github.com/fabiolb/fabio/pull/1076) ([dependabot[bot]](https://github.com/apps/dependabot))
+- build\(deps\): bump github.com/magiconair/properties from 1.8.10 to 1.18.11 [\#1075](https://github.com/fabiolb/fabio/pull/1075) ([dependabot[bot]](https://github.com/apps/dependabot))
+- tidy up and increase test coverage for basic auth [\#1071](https://github.com/fabiolb/fabio/pull/1071) ([marco-m](https://github.com/marco-m))
+- Adjust for Go 1.27 changes. [\#1070](https://github.com/fabiolb/fabio/pull/1070) ([tristanmorgan](https://github.com/tristanmorgan))
+- Add a SECURITY.md file. [\#1069](https://github.com/fabiolb/fabio/pull/1069) ([tristanmorgan](https://github.com/tristanmorgan))
+- docs: fix broken links \(github/ebay -\> github/fabiolb\) [\#1067](https://github.com/fabiolb/fabio/pull/1067) ([marco-m](https://github.com/marco-m))
+- fix: Infinite loop on invalid input in golang.org/x/text [\#1065](https://github.com/fabiolb/fabio/pull/1065) ([marco-m](https://github.com/marco-m))
+- Bump github.com/prometheus/client\_golang from 1.23.2 to 1.24.1 [\#1064](https://github.com/fabiolb/fabio/pull/1064) ([dependabot[bot]](https://github.com/apps/dependabot))
+- build\(deps\): bump golang.org/x/net from 0.57.0 to 0.58.0 [\#1056](https://github.com/fabiolb/fabio/pull/1056) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Update github.com/osrg/gobgp to use v4 package. [\#1042](https://github.com/fabiolb/fabio/pull/1042) ([tristanmorgan](https://github.com/tristanmorgan))
+
 ## [v1.7.3](https://github.com/fabiolb/fabio/tree/v1.7.3) (2026-08-06)
 
 [Full Changelog](https://github.com/fabiolb/fabio/compare/v1.7.2...v1.7.3)
