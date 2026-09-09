@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
 
-    <title>runtime.gogc</title>
+    <title>proxy.header.clearclient</title>
 
     
     <link href="/css/theDocs.all.min.css" rel="stylesheet">
@@ -210,7 +210,7 @@
       
         <li><a href="https://fabiolb.net/ref/proxy.gzip.contenttype/">proxy.gzip.contenttype</a></li>
       
-        <li><a href="https://fabiolb.net/ref/proxy.header.clearclient/">proxy.header.clearclient</a></li>
+        <li><a class="active" href="https://fabiolb.net/ref/proxy.header.clearclient/">proxy.header.clearclient</a></li>
       
         <li><a href="https://fabiolb.net/ref/proxy.header.clientip/">proxy.header.clientip</a></li>
       
@@ -304,7 +304,7 @@
       
         <li><a href="https://fabiolb.net/ref/registry.timeout/">registry.timeout</a></li>
       
-        <li><a class="active" href="https://fabiolb.net/ref/runtime.gogc/">runtime.gogc</a></li>
+        <li><a href="https://fabiolb.net/ref/runtime.gogc/">runtime.gogc</a></li>
       
         <li><a href="https://fabiolb.net/ref/runtime.gomaxprocs/">runtime.gomaxprocs</a></li>
       
@@ -366,17 +366,11 @@
 
       
       <section>
-        <h2>runtime.gogc</h2>
-        <p><code>runtime.gogc</code> configures GOGC (the GC target percentage).</p>
-<p>Setting <code>runtime.gogc</code> is equivalent to setting the <code>GOGC</code>
-environment variable which also takes precedence over
-the value from the config file.</p>
-<p>Increasing this value means fewer but longer GC cycles
-since there is more garbage to collect.</p>
-<p>NOTE - the default for fabio up to 1.5.14 was 800.  This changed
-to 100 in version 1.5.15</p>
+        <h2>proxy.header.clearclient</h2>
+        <p><code>proxy.header.clearclient</code> clear headers from client.</p>
+<p>Configure the proxy to clear source address headers supplied by the client. This will prevent clients from manipulating headers normally supplied by Fabio.</p>
 <p>The default is</p>
-<pre><code>runtime.gogc = 100
+<pre><code>proxy.header.clearclient = false
 </code></pre>
 
         

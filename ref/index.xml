@@ -365,6 +365,13 @@
       <description>&lt;p&gt;&lt;code&gt;proxy.gzip.contenttype&lt;/code&gt; configures which responses should be compressed.&lt;/p&gt;&#xA;&lt;p&gt;By default, responses sent to the client are not compressed even if the&#xA;client accepts compressed responses by setting the &amp;lsquo;Accept-Encoding: gzip&amp;rsquo;&#xA;header. By setting this value responses are compressed if the &lt;code&gt;Content-Type&lt;/code&gt;&#xA;header of the response matches and the response is not already compressed.&#xA;The list of compressable content types is defined as a regular expression.&#xA;The regular expression must follow the rules outlined in &lt;a href=&#34;https://golang.org/pkg/regexp&#34;&gt;https://golang.org/pkg/regexp&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
     <item>
+      <title>proxy.header.clearclient</title>
+      <link>https://fabiolb.net/ref/proxy.header.clearclient/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://fabiolb.net/ref/proxy.header.clearclient/</guid>
+      <description>&lt;p&gt;&lt;code&gt;proxy.header.clearclient&lt;/code&gt; clear headers from client.&lt;/p&gt;&#xA;&lt;p&gt;Configure the proxy to clear source address headers supplied by the client. This will prevent clients from manipulating headers normally supplied by Fabio.&lt;/p&gt;&#xA;&lt;p&gt;The default is&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;proxy.header.clearclient = false&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
+    <item>
       <title>proxy.header.clientip</title>
       <link>https://fabiolb.net/ref/proxy.header.clientip/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

@@ -176,6 +176,8 @@
   </url><url>
     <loc>https://fabiolb.net/ref/proxy.gzip.contenttype/</loc>
   </url><url>
+    <loc>https://fabiolb.net/ref/proxy.header.clearclient/</loc>
+  </url><url>
     <loc>https://fabiolb.net/ref/proxy.header.clientip/</loc>
   </url><url>
     <loc>https://fabiolb.net/ref/proxy.header.requestid/</loc>
