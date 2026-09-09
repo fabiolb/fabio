@@ -17,7 +17,7 @@ func TestLoadAuthSchemes(t *testing.T) {
 					File: "/some/non/existent/file",
 				},
 			},
-		})
+		}, nil)
 
 		const errorText = "open /some/non/existent/file: no such file or directory"
 
@@ -32,7 +32,7 @@ func TestLoadAuthSchemes(t *testing.T) {
 				Name: "myauth",
 				Type: "foo",
 			},
-		})
+		}, nil)
 
 		const errorText = "unknown auth type 'foo'"
 
@@ -60,7 +60,7 @@ func TestLoadAuthSchemes(t *testing.T) {
 					File: myotherauth,
 				},
 			},
-		})
+		}, nil)
 
 		if len(result) != 2 {
 			t.Fatalf("expected 2 auth schemes, got %d", len(result))
