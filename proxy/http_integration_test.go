@@ -102,6 +102,44 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 	}
 }
 
+func TestProxyPreservesXForwardedProto(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.WriteString(w, r.Header.Get("X-Forwarded-Proto"))
+	}))
+	defer server.Close()
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		Transport: http.DefaultTransport,
+		Lookup: func(r *http.Request) *route.Target {
+			return &route.Target{URL: mustParse(server.URL)}
+		},
+	})
+	defer proxy.Close()
+
+	tests := []struct {
+		name           string
+		forwardedProto string
+		want           string
+	}{
+		{name: "preserve forwarded https", forwardedProto: "https", want: "https"},
+		{name: "set direct http", want: "http"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req, _ := http.NewRequest("GET", proxy.URL, nil)
+			if tt.forwardedProto != "" {
+				req.Header.Set("X-Forwarded-Proto", tt.forwardedProto)
+			}
+
+			_, body := mustDo(req)
+			if got := string(body); got != tt.want {
+				t.Errorf("got %q want %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestProxyRequestIDHeader(t *testing.T) {
 	got := "not called"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
