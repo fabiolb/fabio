@@ -14,7 +14,7 @@ require (
 	github.com/inetaf/tcpproxy v0.0.0-20200125044825-b6bb9b5b8252
 	github.com/magiconair/properties v1.18.11
 	github.com/mwitkow/grpc-proxy v0.0.0-20250813121105-2866842de9a5
-	github.com/osrg/gobgp/v4 v4.8.0
+	github.com/osrg/gobgp/v4 v4.9.0
 	github.com/pascaldekloe/goe v0.1.1
 	github.com/pires/go-proxyproto v0.14.0
 	github.com/pkg/profile v1.7.0
