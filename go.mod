@@ -23,7 +23,7 @@ require (
 	github.com/sergi/go-diff v1.4.0
 	github.com/tg123/go-htpasswd v1.2.5
 	golang.org/x/net v0.58.0
-	golang.org/x/sync v0.22.0
+	golang.org/x/sync v0.23.0
 	google.golang.org/grpc v1.83.2
 )
 
