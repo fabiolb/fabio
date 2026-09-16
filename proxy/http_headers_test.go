@@ -71,6 +71,58 @@ func TestAddHeadersSuccess(t *testing.T) {
 		},
 
 		{
+			"trusted downstream: trust all security-sensitive headers set by client",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header: http.Header{
+					"Forwarded":          {"for=9.9.9.9; proto=https; by=8.8.8.8"},
+					"X-Forwarded-For":    {"9.9.9.9"},
+					"X-Forwarded-Proto":  {"https"},
+					"X-Forwarded-Port":   {"443"},
+					"X-Forwarded-Prefix": {"/banana"},
+					"X-Real-Ip":          {"3.3.3.3"},
+				},
+			},
+			config.Proxy{
+				ClearClientHeaders: false, // NOTE default is false, set here for visibility.
+			},
+			"",
+			http.Header{
+				"Forwarded":          {"for=9.9.9.9; proto=https; by=8.8.8.8"},
+				"X-Forwarded-For":    {"9.9.9.9"},
+				"X-Forwarded-Proto":  {"https"},
+				"X-Forwarded-Port":   {"443"},
+				"X-Forwarded-Prefix": {"/banana"},
+				"X-Real-Ip":          {"3.3.3.3"},
+			},
+		},
+
+		{
+			"untrusted downstream: delete all security-sensitive headers set by client",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header: http.Header{
+					"Forwarded":          {"for=9.9.9.9; proto=https; by=8.8.8.8"},
+					"X-Forwarded-For":    {"9.9.9.9"},
+					"X-Forwarded-Proto":  {"https"},
+					"X-Forwarded-Port":   {"443"},
+					"X-Forwarded-Prefix": {"/banana"},
+					"X-Real-Ip":          {"3.3.3.3"},
+				},
+			},
+			config.Proxy{
+				ClearClientHeaders: true, // NOTE default is false!
+			},
+			"",
+			http.Header{
+				"Forwarded":         {"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": {"http"},
+				"X-Forwarded-Port":  {"80"},
+				"X-Real-Ip":         {"1.2.3.4"},
+			},
+		},
+
+		{
 			"ws request",
 			&http.Request{
 				RemoteAddr: "1.2.3.4:5555",
