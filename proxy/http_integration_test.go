@@ -38,8 +38,11 @@ const (
 // Global GlobCache for Testing
 var globCache = route.NewGlobCache(1000)
 
-// Default ProtectHeaders for Testing
+// Default ProtectHeaders for Testing.
+// FIXME(marco-m): why are these duplicated instead of being cloned from
+// [DefaultProtectHeaders] ???
 var testProtectHeaders = map[string]bool{
+	// This section is the same as [DefaultProtectHeaders].
 	"Forwarded":          true,
 	"X-Forwarded-For":    true,
 	"X-Forwarded-Host":   true,
@@ -47,8 +50,11 @@ var testProtectHeaders = map[string]bool{
 	"X-Forwarded-Proto":  true,
 	"X-Forwarded-Prefix": true,
 	"X-Real-Ip":          true,
-	"X-Request-Id":       true,
-	"X-Client-Ip":        true,
+
+	// This section is an example of the values of the configuration-depended headers
+	// that are added at startup to [DefaultProtectHeaders].
+	"X-Request-Id": true,
+	"X-Client-Ip":  true,
 }
 
 const (
@@ -87,7 +93,7 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 		defer proxy.Close()
 
 		req, _ := http.NewRequest("GET", proxy.URL, nil)
-		req.Host = "foo.com"
+		req.Host = "foo.com" // Set the Host header (purely for test reasons).
 		req.Header = tc.clientHeader.Clone()
 		mustDo(req)
 
@@ -96,11 +102,14 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 		}
 	}
 
+	connectionHeader := strings.Join([]string{
+		"keep-alive", "x-forwarded-for", "x-forwarded-host", "x-request-id", "x-client-ip",
+		strings.ToLower(legitHeader1), strings.ToLower(legitHeader2),
+	}, ",")
 	clientHeader := http.Header{
-		legitHeader1: {"asdf"},
-		legitHeader2: {"qwerty"},
-		"Connection": {fmt.Sprintf("keep-alive, x-forwarded-for, x-forwarded-host, %s, %s, x-request-id, x-client-ip",
-			strings.ToLower(legitHeader1), strings.ToLower(legitHeader2))},
+		legitHeader1:      {"asdf"},
+		legitHeader2:      {"qwerty"},
+		"Connection":      {connectionHeader},
 		"X-Forwarded-For": {"3.3.3.3"},
 	}
 
@@ -118,9 +127,9 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 				"X-Forwarded-Proto": {"http"},
 				"X-Real-Ip":         {"127.0.0.1"},
 				"X-Request-Id":      {"proxy-test-uuid"},
-				// Connection is deleted because it is an hop-by-hop header.
-				// legitHeader1 is deleted because is listed in Connection.
-				// legitHeader2 is deleted because is listed in Connection.
+				// Connection is deleted by [httputil.ReverseProxy] because it is an hop-by-hop header.
+				// legitHeader1 is deleted by [httputil.ReverseProxy] because is listed in Connection.
+				// legitHeader2 is deleted by [httputil.ReverseProxy] because is listed in Connection.
 			},
 		})
 	})
