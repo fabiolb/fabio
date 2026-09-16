@@ -26,15 +26,25 @@ func newHTTPProxy(target *url.URL, tr http.RoundTripper, flush time.Duration) ht
 				req.Out.Header.Set("User-Agent", "")
 			}
 
-			// Preserve X-Forwarded-For from inbound request before calling SetXForwarded
+			// Preserve X-Forwarded-For from inbound request before calling SetXForwarded.
+			// This is secure only if deployed behind a trusted reverse proxy.
 			// SetXForwarded will append the client IP to it
 			if xff := req.In.Header.Get("X-Forwarded-For"); xff != "" {
 				req.Out.Header.Set("X-Forwarded-For", xff)
 			}
 
+			// Preserve X-Forwarded-Proto from inbound request.
+			// This is secure only if deployed behind a trusted reverse proxy.
+			xfp := req.In.Header.Get("X-Forwarded-Proto")
+
 			// SetXForwarded will handle X-Forwarded-For (append), X-Forwarded-Host, and X-Forwarded-Proto
 			// Other headers (X-Forwarded-Port, X-Forwarded-Prefix, Forwarded) are already set by addHeaders()
 			req.SetXForwarded()
+
+			// Restore X-Forwarded-Proto.
+			if xfp != "" {
+				req.Out.Header.Set("X-Forwarded-Proto", xfp)
+			}
 		},
 		FlushInterval: flush,
 		Transport:     tr,
