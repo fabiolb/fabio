@@ -173,7 +173,7 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 				"X-Forwarded-For":   {"3.3.3.3, 127.0.0.1"}, // trusted from req and appended
 				"X-Forwarded-Host":  {"foo.com"},            // ???
 				"X-Forwarded-Port":  {"443"},                // trusted from req
-				"X-Forwarded-Proto": {"http"},               // ??? This shows bug #1089
+				"X-Forwarded-Proto": {"https"},              // Repro for https://github.com/fabiolb/fabio/issues/1089
 				"X-Real-Ip":         {"3.3.3.3"},            // trusted from req
 				"X-Request-Id":      {"proxy-test-uuid"},    // ???
 			},
