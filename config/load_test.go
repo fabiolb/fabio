@@ -1065,7 +1065,10 @@ func TestLoad(t *testing.T) {
 			},
 		},
 
-		// errors
+		//
+		// Errors.
+		//
+
 		{
 			desc: "-proxy.addr with unknown cert source 'foo'",
 			args: []string{"-proxy.addr", ":5555;cs=foo"},
@@ -1214,7 +1217,7 @@ func TestLoad(t *testing.T) {
 			*clone = *defaultConfig
 			clone.Listen = []Listen{{Addr: ":9999", Proto: "http"}}
 			got, want := cfg, tt.cfg(clone)
-			verify.Values(t, "", got, want)
+			verify.Values(t, "config.Config", got, want)
 		})
 	}
 }
