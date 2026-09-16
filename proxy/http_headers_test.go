@@ -11,23 +11,14 @@ import (
 	"github.com/pascaldekloe/goe/verify"
 )
 
-func TestAddHeaders(t *testing.T) {
+func TestAddHeadersSuccess(t *testing.T) {
 	tests := []struct {
-		desc  string
-		r     *http.Request
-		cfg   config.Proxy
-		strip string
-		hdrs  http.Header
-		err   string
+		desc    string
+		r       *http.Request
+		cfg     config.Proxy
+		strip   string
+		wantHdr http.Header
 	}{
-		{"error",
-			&http.Request{RemoteAddr: "1.2.3.4"},
-			config.Proxy{},
-			"",
-			http.Header{},
-			"cannot parse 1.2.3.4",
-		},
-
 		{"http request",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{},
@@ -39,7 +30,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Prefix": []string{"/foo"},
 				"X-Real-Ip":          []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"https request",
@@ -52,7 +42,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"443"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"https request hack",
@@ -66,7 +55,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"ws request",
@@ -81,7 +69,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"wss request",
@@ -96,7 +83,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"443"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"set client ip header",
@@ -110,7 +96,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"set Forwarded with localIP",
@@ -123,7 +108,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"set Forwarded with localIP for https",
@@ -136,7 +120,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"443"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"set httpproto, tlsver and tlscipher on Forwarded for https",
@@ -149,7 +132,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"443"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"set httpproto, tlsver and tlscipher on Forwarded for https and tls1.3",
@@ -162,7 +144,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"443"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"set httpproto on Forwarded",
@@ -175,7 +156,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"extend Forwarded with localIP",
@@ -188,7 +168,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"set tls header",
@@ -202,7 +181,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"443"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"set tls header with value",
@@ -216,7 +194,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"443"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"overwrite tls header for https, when set",
@@ -230,7 +207,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"443"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"drop tls header for http, when set",
@@ -243,7 +219,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"do not overwrite X-Forwarded-Proto, if present",
@@ -256,7 +231,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"set scheme from X-Forwarded-Proto, if present and Forwarded is missing",
@@ -269,7 +243,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"set scheme from Forwarded, if present and X-Forwarded-Proto is missing",
@@ -282,7 +255,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"do not modify scheme when both Forwarded and X-Forwarded-Proto are present",
@@ -301,7 +273,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"set X-Forwarded-Port from Host",
@@ -315,7 +286,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"1234"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"set X-Forwarded-Port from Host for https",
@@ -329,7 +299,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"1234"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"do not overwrite X-Forwarded-Port header, if present",
@@ -342,7 +311,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"4444"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"set X-Forwarded-Host from Host",
@@ -356,7 +324,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"1234"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"do not overwrite X-Forwarded-Host, if present",
@@ -370,7 +337,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"1234"},
 				"X-Real-Ip":         []string{"1.2.3.4"},
 			},
-			"",
 		},
 
 		{"do not overwrite X-Real-Ip, if present",
@@ -383,7 +349,6 @@ func TestAddHeaders(t *testing.T) {
 				"X-Forwarded-Port":  []string{"80"},
 				"X-Real-Ip":         []string{"6.6.6.6"},
 			},
-			"",
 		},
 	}
 
@@ -396,19 +361,40 @@ func TestAddHeaders(t *testing.T) {
 
 			err := addHeaders(tt.r, DefaultProtectHeaders, tt.cfg, tt.strip)
 			if err != nil {
-				if got, want := err.Error(), tt.err; got != want {
-					t.Fatalf("%d: %s\ngot  %q\nwant %q", i, tt.desc, got, want)
-				}
-				return
+				t.Fatalf("%d: %s\ngot  %q\nwant <no error>", i, tt.desc, err)
 			}
+			got, want := tt.r.Header, tt.wantHdr
+			verify.Values(t, "headers", got, want)
+		})
+	}
+}
 
-			if tt.err != "" {
-				t.Fatalf("%d: got nil want %q", i, tt.err)
-				return
+func TestAddHeadersFailure(t *testing.T) {
+	tests := []struct {
+		desc    string
+		r       *http.Request
+		cfg     config.Proxy
+		strip   string
+		wantErr string
+	}{
+		{"error",
+			&http.Request{RemoteAddr: "1.2.3.4"},
+			config.Proxy{},
+			"",
+			"cannot parse 1.2.3.4",
+		},
+	}
+
+	for i, tt := range tests {
+
+		t.Run(tt.desc, func(t *testing.T) {
+			err := addHeaders(tt.r, DefaultProtectHeaders, tt.cfg, tt.strip)
+			if err == nil {
+				t.Fatalf("%d: %s\ngot  <no error>\nwant %q", i, tt.desc, err)
 			}
-
-			got, want := tt.r.Header, tt.hdrs
-			verify.Values(t, "", got, want)
+			if got, want := err.Error(), tt.wantErr; got != want {
+				t.Fatalf("%d: %s\ngot  %q\nwant %q", i, tt.desc, got, want)
+			}
 		})
 	}
 }
