@@ -32,9 +32,20 @@ func newHTTPProxy(target *url.URL, tr http.RoundTripper, flush time.Duration) ht
 				req.Out.Header.Set("X-Forwarded-For", xff)
 			}
 
+			// addHeaders() has already set X-Forwarded-Proto correctly: preserved from
+			// a trusted upstream (e.g. a TLS-terminating load balancer in front of Fabio)
+			// if present, or computed from Fabio's own connection otherwise. SetXForwarded
+			// below would unconditionally recompute it from Fabio's own connection instead,
+			// discarding that decision, so capture it here and restore it afterward.
+			xfp := req.In.Header.Get("X-Forwarded-Proto")
+
 			// SetXForwarded will handle X-Forwarded-For (append), X-Forwarded-Host, and X-Forwarded-Proto
 			// Other headers (X-Forwarded-Port, X-Forwarded-Prefix, Forwarded) are already set by addHeaders()
 			req.SetXForwarded()
+
+			if xfp != "" {
+				req.Out.Header.Set("X-Forwarded-Proto", xfp)
+			}
 		},
 		FlushInterval: flush,
 		Transport:     tr,

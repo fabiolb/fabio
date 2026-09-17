@@ -8,6 +8,35 @@ import (
 	"time"
 )
 
+// TestNewHTTPProxyPreservesXForwardedProto reproduces a TLS-offload topology
+// (e.g. an AWS ALB terminating TLS and forwarding plain HTTP to Fabio): the
+// inbound request to Fabio has no TLS but already carries a trusted
+// X-Forwarded-Proto: https set by the upstream load balancer. Fabio must not
+// overwrite that with "http" just because its own connection is plaintext.
+func TestNewHTTPProxyPreservesXForwardedProto(t *testing.T) {
+	var got string
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got = r.Header.Get("X-Forwarded-Proto")
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	backendURL, _ := url.Parse(backend.URL)
+	proxy := newHTTPProxy(backendURL, http.DefaultTransport, 0)
+
+	req := httptest.NewRequest("GET", "http://example.com/test", nil)
+	req.RemoteAddr = "127.0.0.1:12345"
+	req.Header.Set("X-Forwarded-Proto", "https")
+	// req.TLS is nil here, simulating the plaintext hop between a
+	// TLS-terminating load balancer and Fabio.
+
+	proxy.ServeHTTP(httptest.NewRecorder(), req)
+
+	if got != "https" {
+		t.Errorf("got X-Forwarded-Proto %q, want %q", got, "https")
+	}
+}
+
 // BenchmarkNewHTTPProxy benchmarks the httputil.ReverseProxy created by newHTTPProxy
 // with focus on the Rewrite function and header manipulation including SetXForwarded
 func BenchmarkNewHTTPProxy(b *testing.B) {
