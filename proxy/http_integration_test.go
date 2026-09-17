@@ -56,7 +56,7 @@ const (
 )
 
 func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
-	var hdr = make(http.Header)
+	var hdr http.Header
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		hdr = r.Header
 	}))
@@ -64,8 +64,12 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 
 	proxy := httptest.NewServer(&HTTPProxy{
 		ProtectHeaders: testProtectHeaders,
-		Config:         config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Client-Ip", RequestID: "X-Request-ID"},
-		Transport:      http.DefaultTransport,
+		Config: config.Proxy{
+			LocalIP:        "1.1.1.1",
+			ClientIPHeader: "X-Client-Ip",
+			RequestID:      "X-Request-ID",
+		},
+		Transport: http.DefaultTransport,
 		Lookup: func(r *http.Request) *route.Target {
 			return &route.Target{URL: mustParse(server.URL)}
 		},
@@ -619,7 +623,6 @@ func TestProxyHTTPSTransport(t *testing.T) {
 	if got, want := sni.sni, "foo.com"; got != want {
 		t.Fatalf("got sni %q want %q", got, want)
 	}
-
 }
 
 func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
@@ -735,8 +738,10 @@ func TestProxyGzipHandler(t *testing.T) {
 	}
 }
 
-var plainContent = []byte("Hello World")
-var gzipContent = compress(plainContent)
+var (
+	plainContent = []byte("Hello World")
+	gzipContent  = compress(plainContent)
+)
 
 func plainHandler(contentType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
