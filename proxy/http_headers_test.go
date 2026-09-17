@@ -52,7 +52,7 @@ func TestAddHeadersSuccess(t *testing.T) {
 		},
 
 		{
-			"https request hack",
+			"delete protected values (X-Real-Ip) from Connection header (spoofing attempt)",
 			&http.Request{
 				RemoteAddr: "1.2.3.4:5555",
 				Header: http.Header{
@@ -74,7 +74,9 @@ func TestAddHeadersSuccess(t *testing.T) {
 			"ws request",
 			&http.Request{
 				RemoteAddr: "1.2.3.4:5555",
-				Header:     http.Header{"Upgrade": {"websocket"}},
+				Header: http.Header{
+					"Upgrade": {"websocket"},
+				},
 			},
 			config.Proxy{},
 			"",
@@ -92,8 +94,10 @@ func TestAddHeadersSuccess(t *testing.T) {
 			"wss request",
 			&http.Request{
 				RemoteAddr: "1.2.3.4:5555",
-				Header:     http.Header{"Upgrade": {"websocket"}},
-				TLS:        &tls.ConnectionState{},
+				Header: http.Header{
+					"Upgrade": {"websocket"},
+				},
+				TLS: &tls.ConnectionState{},
 			},
 			config.Proxy{},
 			"",
@@ -161,7 +165,7 @@ func TestAddHeadersSuccess(t *testing.T) {
 		},
 
 		{
-			"set httpproto, tlsver and tlscipher on Forwarded for https",
+			"set httpproto, tlsver and tlscipher on Forwarded for https and tls1.0",
 			&http.Request{
 				RemoteAddr: "1.2.3.4:5555",
 				Proto:      "HTTP/1.1",
@@ -217,7 +221,7 @@ func TestAddHeadersSuccess(t *testing.T) {
 		},
 
 		{
-			"extend Forwarded with localIP",
+			"extend Forwarded with localIP, trusted downstream",
 			&http.Request{
 				RemoteAddr: "1.2.3.4:5555",
 				Header: http.Header{
