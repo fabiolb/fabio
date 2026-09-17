@@ -19,8 +19,11 @@ func TestAddHeadersSuccess(t *testing.T) {
 		strip   string
 		wantHdr http.Header
 	}{
-		{"http request",
-			&http.Request{RemoteAddr: "1.2.3.4:5555"},
+		{
+			"http request",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+			},
 			config.Proxy{},
 			"/foo",
 			http.Header{
@@ -32,8 +35,12 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"https request",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
+		{
+			"https request",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				TLS:        &tls.ConnectionState{},
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -44,8 +51,14 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"https request hack",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Connection": {"keep-alive", "X-Real-Ip"}}},
+		{
+			"https request hack",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header: http.Header{
+					"Connection": {"keep-alive", "X-Real-Ip"},
+				},
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -57,8 +70,12 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"ws request",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Upgrade": {"websocket"}}},
+		{
+			"ws request",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header:     http.Header{"Upgrade": {"websocket"}},
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -71,8 +88,13 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"wss request",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Upgrade": {"websocket"}}, TLS: &tls.ConnectionState{}},
+		{
+			"wss request",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header:     http.Header{"Upgrade": {"websocket"}},
+				TLS:        &tls.ConnectionState{},
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -85,9 +107,14 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"set client ip header",
-			&http.Request{RemoteAddr: "1.2.3.4:5555"},
-			config.Proxy{ClientIPHeader: "Client-IP"},
+		{
+			"set client ip header",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+			},
+			config.Proxy{
+				ClientIPHeader: "Client-IP",
+			},
 			"",
 			http.Header{
 				"Client-Ip":         []string{"1.2.3.4"},
@@ -98,9 +125,14 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"set Forwarded with localIP",
-			&http.Request{RemoteAddr: "1.2.3.4:5555"},
-			config.Proxy{LocalIP: "5.6.7.8"},
+		{
+			"set Forwarded with localIP",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+			},
+			config.Proxy{
+				LocalIP: "5.6.7.8",
+			},
 			"",
 			http.Header{
 				"Forwarded":         []string{"for=1.2.3.4; proto=http; by=5.6.7.8"},
@@ -110,9 +142,15 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"set Forwarded with localIP for https",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
-			config.Proxy{LocalIP: "5.6.7.8"},
+		{
+			"set Forwarded with localIP for https",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				TLS:        &tls.ConnectionState{},
+			},
+			config.Proxy{
+				LocalIP: "5.6.7.8",
+			},
 			"",
 			http.Header{
 				"Forwarded":         []string{"for=1.2.3.4; proto=https; by=5.6.7.8"},
@@ -122,8 +160,16 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"set httpproto, tlsver and tlscipher on Forwarded for https",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Proto: "HTTP/1.1", TLS: &tls.ConnectionState{Version: tls.VersionTLS10, CipherSuite: tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256}},
+		{
+			"set httpproto, tlsver and tlscipher on Forwarded for https",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Proto:      "HTTP/1.1",
+				TLS: &tls.ConnectionState{
+					Version:     tls.VersionTLS10,
+					CipherSuite: tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+				},
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -134,8 +180,16 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"set httpproto, tlsver and tlscipher on Forwarded for https and tls1.3",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Proto: "HTTP/2.0", TLS: &tls.ConnectionState{Version: tls.VersionTLS13, CipherSuite: tls.TLS_CHACHA20_POLY1305_SHA256}},
+		{
+			"set httpproto, tlsver and tlscipher on Forwarded for https and tls1.3",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Proto:      "HTTP/2.0",
+				TLS: &tls.ConnectionState{
+					Version:     tls.VersionTLS13,
+					CipherSuite: tls.TLS_CHACHA20_POLY1305_SHA256,
+				},
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -146,8 +200,12 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"set httpproto on Forwarded",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Proto: "HTTP/1.1"},
+		{
+			"set httpproto on Forwarded",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Proto:      "HTTP/1.1",
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -158,9 +216,17 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"extend Forwarded with localIP",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Forwarded": {"for=9.9.9.9; proto=http; by=8.8.8.8"}}},
-			config.Proxy{LocalIP: "5.6.7.8"},
+		{
+			"extend Forwarded with localIP",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header: http.Header{
+					"Forwarded": {"for=9.9.9.9; proto=http; by=8.8.8.8"},
+				},
+			},
+			config.Proxy{
+				LocalIP: "5.6.7.8",
+			},
 			"",
 			http.Header{
 				"Forwarded":         []string{"for=9.9.9.9; proto=http; by=8.8.8.8; by=5.6.7.8"},
@@ -170,9 +236,15 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"set tls header",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
-			config.Proxy{TLSHeader: "Secure"},
+		{
+			"set tls header",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				TLS:        &tls.ConnectionState{},
+			},
+			config.Proxy{
+				TLSHeader: "Secure",
+			},
 			"",
 			http.Header{
 				"Forwarded":         []string{"for=1.2.3.4; proto=https"},
@@ -183,9 +255,16 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"set tls header with value",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
-			config.Proxy{TLSHeader: "Secure", TLSHeaderValue: "true"},
+		{
+			"set tls header with value",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				TLS:        &tls.ConnectionState{},
+			},
+			config.Proxy{
+				TLSHeader:      "Secure",
+				TLSHeaderValue: "true",
+			},
 			"",
 			http.Header{
 				"Forwarded":         []string{"for=1.2.3.4; proto=https"},
@@ -196,9 +275,19 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"overwrite tls header for https, when set",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Secure": []string{"on"}}, TLS: &tls.ConnectionState{}},
-			config.Proxy{TLSHeader: "Secure", TLSHeaderValue: "true"},
+		{
+			"overwrite tls header for https, when set",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header: http.Header{
+					"Secure": []string{"on"},
+				},
+				TLS: &tls.ConnectionState{},
+			},
+			config.Proxy{
+				TLSHeader:      "Secure",
+				TLSHeaderValue: "true",
+			},
 			"",
 			http.Header{
 				"Forwarded":         []string{"for=1.2.3.4; proto=https"},
@@ -209,9 +298,18 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"drop tls header for http, when set",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Secure": []string{"on"}}},
-			config.Proxy{TLSHeader: "Secure", TLSHeaderValue: "true"},
+		{
+			"drop tls header for http, when set",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header: http.Header{
+					"Secure": []string{"on"},
+				},
+			},
+			config.Proxy{
+				TLSHeader:      "Secure",
+				TLSHeaderValue: "true",
+			},
 			"",
 			http.Header{
 				"Forwarded":         []string{"for=1.2.3.4; proto=http"},
@@ -221,8 +319,14 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"do not overwrite X-Forwarded-Proto, if present",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"X-Forwarded-Proto": {"some value"}}},
+		{
+			"do not overwrite X-Forwarded-Proto, if present",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header: http.Header{
+					"X-Forwarded-Proto": {"some value"},
+				},
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -233,8 +337,14 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"set scheme from X-Forwarded-Proto, if present and Forwarded is missing",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"X-Forwarded-Proto": {"some value"}}},
+		{
+			"set scheme from X-Forwarded-Proto, if present and Forwarded is missing",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header: http.Header{
+					"X-Forwarded-Proto": {"some value"},
+				},
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -245,8 +355,14 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"set scheme from Forwarded, if present and X-Forwarded-Proto is missing",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"Forwarded": {"for=1.2.3.4; proto=some value"}}},
+		{
+			"set scheme from Forwarded, if present and X-Forwarded-Proto is missing",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header: http.Header{
+					"Forwarded": {"for=1.2.3.4; proto=some value"},
+				},
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -257,7 +373,8 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"do not modify scheme when both Forwarded and X-Forwarded-Proto are present",
+		{
+			"do not modify scheme when both Forwarded and X-Forwarded-Proto are present",
 			&http.Request{
 				RemoteAddr: "1.2.3.4:5555",
 				Header: http.Header{
@@ -275,8 +392,12 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"set X-Forwarded-Port from Host",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Host: "5.6.7.8:1234"},
+		{
+			"set X-Forwarded-Port from Host",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Host:       "5.6.7.8:1234",
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -288,8 +409,13 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"set X-Forwarded-Port from Host for https",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Host: "5.6.7.8:1234", TLS: &tls.ConnectionState{}},
+		{
+			"set X-Forwarded-Port from Host for https",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Host:       "5.6.7.8:1234",
+				TLS:        &tls.ConnectionState{},
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -301,8 +427,14 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"do not overwrite X-Forwarded-Port header, if present",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"X-Forwarded-Port": {"4444"}}},
+		{
+			"do not overwrite X-Forwarded-Port header, if present",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header: http.Header{
+					"X-Forwarded-Port": {"4444"},
+				},
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -313,8 +445,12 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"set X-Forwarded-Host from Host",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Host: "5.6.7.8:1234"},
+		{
+			"set X-Forwarded-Host from Host",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Host:       "5.6.7.8:1234",
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -326,8 +462,15 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"do not overwrite X-Forwarded-Host, if present",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Host: "5.6.7.8:1234", Header: http.Header{"X-Forwarded-Host": {"9.10.11.12:1234"}}},
+		{
+			"do not overwrite X-Forwarded-Host, if present",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Host:       "5.6.7.8:1234",
+				Header: http.Header{
+					"X-Forwarded-Host": {"9.10.11.12:1234"},
+				},
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -339,8 +482,14 @@ func TestAddHeadersSuccess(t *testing.T) {
 			},
 		},
 
-		{"do not overwrite X-Real-Ip, if present",
-			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{"X-Real-Ip": {"6.6.6.6"}}},
+		{
+			"do not overwrite X-Real-Ip, if present",
+			&http.Request{
+				RemoteAddr: "1.2.3.4:5555",
+				Header: http.Header{
+					"X-Real-Ip": {"6.6.6.6"},
+				},
+			},
 			config.Proxy{},
 			"",
 			http.Header{
@@ -353,7 +502,6 @@ func TestAddHeadersSuccess(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-
 		t.Run(tt.desc, func(t *testing.T) {
 			if tt.r.Header == nil {
 				tt.r.Header = http.Header{}
@@ -377,8 +525,11 @@ func TestAddHeadersFailure(t *testing.T) {
 		strip   string
 		wantErr string
 	}{
-		{"error",
-			&http.Request{RemoteAddr: "1.2.3.4"},
+		{
+			"error",
+			&http.Request{
+				RemoteAddr: "1.2.3.4",
+			},
 			config.Proxy{},
 			"",
 			"cannot parse 1.2.3.4",
@@ -386,7 +537,6 @@ func TestAddHeadersFailure(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-
 		t.Run(tt.desc, func(t *testing.T) {
 			err := addHeaders(tt.r, DefaultProtectHeaders, tt.cfg, tt.strip)
 			if err == nil {
@@ -407,7 +557,8 @@ func TestAddResponseHeaders(t *testing.T) {
 		hdrs http.Header
 		err  string
 	}{
-		{"set Strict-Transport-Security for TLS, if MaxAge greater than 0",
+		{
+			"set Strict-Transport-Security for TLS, if MaxAge greater than 0",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
 			config.Proxy{STSHeader: config.STSHeader{MaxAge: 31536000}},
 			http.Header{
@@ -416,7 +567,8 @@ func TestAddResponseHeaders(t *testing.T) {
 			"",
 		},
 
-		{"set Strict-Transport-Security for TLS, if MaxAge greater than 0 with options",
+		{
+			"set Strict-Transport-Security for TLS, if MaxAge greater than 0 with options",
 			&http.Request{RemoteAddr: "1.2.3.4:5555", TLS: &tls.ConnectionState{}},
 			config.Proxy{STSHeader: config.STSHeader{MaxAge: 31536000, Preload: true, Subdomains: true}},
 			http.Header{
@@ -425,7 +577,8 @@ func TestAddResponseHeaders(t *testing.T) {
 			"",
 		},
 
-		{"skip Strict-Transport-Security for non-TLS, if MaxAge greater than 0",
+		{
+			"skip Strict-Transport-Security for non-TLS, if MaxAge greater than 0",
 			&http.Request{RemoteAddr: "1.2.3.4:5555"},
 			config.Proxy{STSHeader: config.STSHeader{MaxAge: 31536000}},
 			http.Header{},
@@ -434,7 +587,6 @@ func TestAddResponseHeaders(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-
 		t.Run(tt.desc, func(t *testing.T) {
 			if tt.r.Header == nil {
 				tt.r.Header = http.Header{}
