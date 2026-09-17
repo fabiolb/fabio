@@ -25,6 +25,7 @@ import (
 	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy/internal"
 	"github.com/fabiolb/fabio/route"
+	"github.com/google/go-cmp/cmp"
 	"github.com/pascaldekloe/goe/verify"
 )
 
@@ -70,6 +71,7 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 			RequestID:      "X-Request-ID",
 		},
 		Transport: http.DefaultTransport,
+		UUID:      func() string { return "proxy-test-uuid" },
 		Lookup: func(r *http.Request) *route.Target {
 			return &route.Target{URL: mustParse(server.URL)}
 		},
@@ -86,23 +88,22 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 			strings.ToLower(legitHeader1), strings.ToLower(legitHeader2)))
 	mustDo(req)
 
-	if got, want := hdr.Get("X-Forwarded-For"), "3.3.3.3, 127.0.0.1"; got != want {
-		t.Errorf("got %v want %v", got, want)
+	want := http.Header{
+		"Accept-Encoding":   {"gzip"},
+		"User-Agent":        {"Go-http-client/1.1"},
+		"X-Client-Ip":       {"127.0.0.1"},
+		"X-Forwarded-For":   {"3.3.3.3, 127.0.0.1"},
+		"X-Forwarded-Host":  {"foo.com"},
+		"X-Forwarded-Port":  {"80"},
+		"X-Forwarded-Proto": {"http"},
+		"X-Real-Ip":         {"127.0.0.1"},
+		"X-Request-Id":      {"proxy-test-uuid"},
+		// legitHeader1 is deleted by the proxy because it is in Connection.
+		// legitHeader2 is deleted by the proxy because it is in Connection.
 	}
-	if got, want := hdr.Get("X-Forwarded-Host"), "foo.com"; got != want {
-		t.Errorf("got %v want %v", got, want)
-	}
-	if got, want := hdr.Get("X-Client-Ip"), "127.0.0.1"; got != want {
-		t.Errorf("got %v want %v", got, want)
-	}
-	if got, want := len(hdr.Get("X-Request-Id")), 36; got != want {
-		t.Errorf("got %v want %v", got, want)
-	}
-	if got, want := hdr.Get(legitHeader1), ""; got != want {
-		t.Errorf("got %v want %v", got, want)
-	}
-	if got, want := hdr.Get(legitHeader2), ""; got != want {
-		t.Errorf("got %v want %v", got, want)
+
+	if diff := cmp.Diff(want, hdr); diff != "" {
+		t.Fatalf("%s\n--- want\n+++ have\n%s", "headers", diff)
 	}
 }
 
