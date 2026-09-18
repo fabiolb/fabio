@@ -57,54 +57,65 @@ const (
 )
 
 func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
-	var hdr http.Header
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		hdr = r.Header
-	}))
-	defer server.Close()
+	type testCase struct {
+		wantHeader http.Header
+	}
+	test := func(t *testing.T, tc testCase) {
+		t.Helper()
+		var hdr http.Header
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			hdr = r.Header
+		}))
+		defer server.Close()
 
-	proxy := httptest.NewServer(&HTTPProxy{
-		ProtectHeaders: testProtectHeaders,
-		Config: config.Proxy{
-			LocalIP:        "1.1.1.1",
-			ClientIPHeader: "X-Client-Ip",
-			RequestID:      "X-Request-ID",
-		},
-		Transport: http.DefaultTransport,
-		UUID:      func() string { return "proxy-test-uuid" },
-		Lookup: func(r *http.Request) *route.Target {
-			return &route.Target{URL: mustParse(server.URL)}
-		},
+		proxy := httptest.NewServer(&HTTPProxy{
+			ProtectHeaders: testProtectHeaders,
+			Config: config.Proxy{
+				LocalIP:        "1.1.1.1",
+				ClientIPHeader: "X-Client-Ip",
+				RequestID:      "X-Request-ID",
+			},
+			Transport: http.DefaultTransport,
+			UUID:      func() string { return "proxy-test-uuid" },
+			Lookup: func(r *http.Request) *route.Target {
+				return &route.Target{URL: mustParse(server.URL)}
+			},
+		})
+		defer proxy.Close()
+
+		req, _ := http.NewRequest("GET", proxy.URL, nil)
+		req.Host = "foo.com"
+		req.Header.Set("X-Forwarded-For", "3.3.3.3")
+		req.Header.Set(legitHeader1, "asdf")
+		req.Header.Set(legitHeader2, "qwerty")
+		req.Header.Set("Connection",
+			fmt.Sprintf("keep-alive, x-forwarded-for, x-forwarded-host, %s, %s, x-request-id, x-client-ip",
+				strings.ToLower(legitHeader1), strings.ToLower(legitHeader2)))
+		mustDo(req)
+
+		if diff := cmp.Diff(tc.wantHeader, hdr); diff != "" {
+			t.Fatalf("%s\n--- want\n+++ have\n%s", "headers", diff)
+		}
+	}
+
+	t.Run("TrustedDownstream", func(t *testing.T) {
+		test(t, testCase{
+			wantHeader: http.Header{
+				"Accept-Encoding":   {"gzip"},
+				"User-Agent":        {"Go-http-client/1.1"},
+				"X-Client-Ip":       {"127.0.0.1"},
+				"X-Forwarded-For":   {"3.3.3.3, 127.0.0.1"},
+				"X-Forwarded-Host":  {"foo.com"},
+				"X-Forwarded-Port":  {"80"},
+				"X-Forwarded-Proto": {"http"},
+				"X-Real-Ip":         {"127.0.0.1"},
+				"X-Request-Id":      {"proxy-test-uuid"},
+				// Connection is deleted because it is an hop-by-hop header.
+				// legitHeader1 is deleted because is listed in Connection.
+				// legitHeader2 is deleted because is listed in Connection.
+			},
+		})
 	})
-	defer proxy.Close()
-
-	req, _ := http.NewRequest("GET", proxy.URL, nil)
-	req.Host = "foo.com"
-	req.Header.Set("X-Forwarded-For", "3.3.3.3")
-	req.Header.Set(legitHeader1, "asdf")
-	req.Header.Set(legitHeader2, "qwerty")
-	req.Header.Set("Connection",
-		fmt.Sprintf("keep-alive, x-forwarded-for, x-forwarded-host, %s, %s, x-request-id, x-client-ip",
-			strings.ToLower(legitHeader1), strings.ToLower(legitHeader2)))
-	mustDo(req)
-
-	want := http.Header{
-		"Accept-Encoding":   {"gzip"},
-		"User-Agent":        {"Go-http-client/1.1"},
-		"X-Client-Ip":       {"127.0.0.1"},
-		"X-Forwarded-For":   {"3.3.3.3, 127.0.0.1"},
-		"X-Forwarded-Host":  {"foo.com"},
-		"X-Forwarded-Port":  {"80"},
-		"X-Forwarded-Proto": {"http"},
-		"X-Real-Ip":         {"127.0.0.1"},
-		"X-Request-Id":      {"proxy-test-uuid"},
-		// legitHeader1 is deleted by the proxy because it is in Connection.
-		// legitHeader2 is deleted by the proxy because it is in Connection.
-	}
-
-	if diff := cmp.Diff(want, hdr); diff != "" {
-		t.Fatalf("%s\n--- want\n+++ have\n%s", "headers", diff)
-	}
 }
 
 func TestProxyRequestIDHeader(t *testing.T) {
