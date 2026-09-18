@@ -58,7 +58,8 @@ const (
 
 func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 	type testCase struct {
-		wantHeader http.Header
+		clientHeader http.Header
+		wantHeader   http.Header
 	}
 	test := func(t *testing.T, tc testCase) {
 		t.Helper()
@@ -85,12 +86,7 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 
 		req, _ := http.NewRequest("GET", proxy.URL, nil)
 		req.Host = "foo.com"
-		req.Header.Set("X-Forwarded-For", "3.3.3.3")
-		req.Header.Set(legitHeader1, "asdf")
-		req.Header.Set(legitHeader2, "qwerty")
-		req.Header.Set("Connection",
-			fmt.Sprintf("keep-alive, x-forwarded-for, x-forwarded-host, %s, %s, x-request-id, x-client-ip",
-				strings.ToLower(legitHeader1), strings.ToLower(legitHeader2)))
+		req.Header = tc.clientHeader.Clone()
 		mustDo(req)
 
 		if diff := cmp.Diff(tc.wantHeader, hdr); diff != "" {
@@ -98,8 +94,17 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 		}
 	}
 
+	clientHeader := http.Header{
+		legitHeader1: {"asdf"},
+		legitHeader2: {"qwerty"},
+		"Connection": {fmt.Sprintf("keep-alive, x-forwarded-for, x-forwarded-host, %s, %s, x-request-id, x-client-ip",
+			strings.ToLower(legitHeader1), strings.ToLower(legitHeader2))},
+		"X-Forwarded-For": {"3.3.3.3"},
+	}
+
 	t.Run("TrustedDownstream", func(t *testing.T) {
 		test(t, testCase{
+			clientHeader: clientHeader,
 			wantHeader: http.Header{
 				"Accept-Encoding":   {"gzip"},
 				"User-Agent":        {"Go-http-client/1.1"},
