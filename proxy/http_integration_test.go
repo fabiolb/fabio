@@ -58,8 +58,9 @@ const (
 
 func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 	type testCase struct {
-		clientHeader http.Header
-		wantHeader   http.Header
+		clientHeader       http.Header
+		clearClientHeaders bool
+		wantHeader         http.Header
 	}
 	test := func(t *testing.T, tc testCase) {
 		t.Helper()
@@ -72,9 +73,10 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 		proxy := httptest.NewServer(&HTTPProxy{
 			ProtectHeaders: testProtectHeaders,
 			Config: config.Proxy{
-				LocalIP:        "1.1.1.1",
-				ClientIPHeader: "X-Client-Ip",
-				RequestID:      "X-Request-ID",
+				LocalIP:            "1.1.1.1",
+				ClientIPHeader:     "X-Client-Ip",
+				RequestID:          "X-Request-ID",
+				ClearClientHeaders: tc.clearClientHeaders,
 			},
 			Transport: http.DefaultTransport,
 			UUID:      func() string { return "proxy-test-uuid" },
@@ -104,7 +106,8 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 
 	t.Run("TrustedDownstream", func(t *testing.T) {
 		test(t, testCase{
-			clientHeader: clientHeader,
+			clientHeader:       clientHeader,
+			clearClientHeaders: false, // <== meaning: trusted downstream
 			wantHeader: http.Header{
 				"Accept-Encoding":   {"gzip"},
 				"User-Agent":        {"Go-http-client/1.1"},
