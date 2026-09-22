@@ -106,22 +106,41 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 		"keep-alive", "x-forwarded-for", "x-forwarded-host", "x-request-id", "x-client-ip",
 		strings.ToLower(legitHeader1), strings.ToLower(legitHeader2),
 	}, ",")
-	clientHeader := http.Header{
-		legitHeader1:      {"asdf"},
-		legitHeader2:      {"qwerty"},
-		"Connection":      {connectionHeader},
-		"X-Forwarded-For": {"3.3.3.3"},
-	}
 
-	t.Run("TrustedDownstream", func(t *testing.T) {
+	t.Run("TrustedDownstreamWithoutConnectionHeaderWithoutXFF", func(t *testing.T) {
 		test(t, testCase{
-			clientHeader:       clientHeader,
+			clientHeader:       http.Header{}, // empty
+			clearClientHeaders: false,         // <== meaning: trusted downstream
+			wantHeader: http.Header{
+				// These are set by the Go http client.
+				//
+				"Accept-Encoding": {"gzip"},
+				"User-Agent":      {"Go-http-client/1.1"},
+
+				// All these are set by Fabio.
+				//
+				"X-Client-Ip":       {"127.0.0.1"},
+				"X-Forwarded-For":   {"127.0.0.1"},
+				"X-Forwarded-Host":  {"foo.com"},
+				"X-Forwarded-Port":  {"80"},
+				"X-Forwarded-Proto": {"http"},
+				"X-Real-Ip":         {"127.0.0.1"},
+				"X-Request-Id":      {"proxy-test-uuid"},
+			},
+		})
+	})
+	t.Run("TrustedDownstreamWithConnectionHeaderWithoutXFF", func(t *testing.T) {
+		test(t, testCase{
+			clientHeader: http.Header{
+				legitHeader1: {"asdf"},
+				"Connection": {connectionHeader},
+			},
 			clearClientHeaders: false, // <== meaning: trusted downstream
 			wantHeader: http.Header{
 				"Accept-Encoding":   {"gzip"},
 				"User-Agent":        {"Go-http-client/1.1"},
 				"X-Client-Ip":       {"127.0.0.1"},
-				"X-Forwarded-For":   {"3.3.3.3, 127.0.0.1"},
+				"X-Forwarded-For":   {"127.0.0.1"},
 				"X-Forwarded-Host":  {"foo.com"},
 				"X-Forwarded-Port":  {"80"},
 				"X-Forwarded-Proto": {"http"},
@@ -129,7 +148,6 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 				"X-Request-Id":      {"proxy-test-uuid"},
 				// Connection is deleted by [httputil.ReverseProxy] because it is an hop-by-hop header.
 				// legitHeader1 is deleted by [httputil.ReverseProxy] because is listed in Connection.
-				// legitHeader2 is deleted by [httputil.ReverseProxy] because is listed in Connection.
 			},
 		})
 	})
