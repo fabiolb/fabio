@@ -151,6 +151,34 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 			},
 		})
 	})
+	t.Run("TrustedDownstreamWithXFFBroken", func(t *testing.T) {
+		test(t, testCase{
+			clientHeader: http.Header{
+				legitHeader1:        {"asdf"},
+				"X-Client-Ip":       {"3.3.3.3"},
+				"X-Forwarded-For":   {"3.3.3.3"},
+				"X-Forwarded-Host":  {"example.com"},
+				"X-Forwarded-Port":  {"443"},
+				"X-Forwarded-Proto": {"https"},
+				"X-Real-Ip":         {"3.3.3.3"},
+				"X-Request-Id":      {"client-faked-uuid"},
+			},
+			clearClientHeaders: false, // <== meaning: trusted downstream
+			wantHeader: http.Header{
+				"Accept-Encoding": {"gzip"},
+				"User-Agent":      {"Go-http-client/1.1"},
+
+				"Legit-Header1":     {"asdf"},
+				"X-Client-Ip":       {"127.0.0.1"},          // ???
+				"X-Forwarded-For":   {"3.3.3.3, 127.0.0.1"}, // trusted from req and appended
+				"X-Forwarded-Host":  {"foo.com"},            // ???
+				"X-Forwarded-Port":  {"443"},                // trusted from req
+				"X-Forwarded-Proto": {"http"},               // ??? This shows bug #1089
+				"X-Real-Ip":         {"3.3.3.3"},            // trusted from req
+				"X-Request-Id":      {"proxy-test-uuid"},    // ???
+			},
+		})
+	})
 }
 
 func TestProxyRequestIDHeader(t *testing.T) {
