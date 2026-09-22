@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -13,6 +14,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"reflect"
 	"regexp"
 	"sort"
 	"strconv"
@@ -20,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/fabiolb/fabio/auth"
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/logger"
 	"github.com/fabiolb/fabio/noroute"
@@ -190,6 +193,293 @@ func TestProxyChecksHeaderForAccessRules(t *testing.T) {
 
 	if got, want := resp.StatusCode, http.StatusForbidden; got != want {
 		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func TestProxyExternalAuth(t *testing.T) {
+	var backendCalls int
+	var backendBody string
+	var backendHeaders http.Header
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		backendCalls++
+		backendHeaders = r.Header.Clone()
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Errorf("read backend request body: %s", err)
+			return
+		}
+		backendBody = string(body)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	var authMethod, authURI, forwardedMethod, forwardedURI string
+	authServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authMethod = r.Method
+		authURI = r.URL.RequestURI()
+		forwardedMethod = r.Header.Get("X-Forwarded-Method")
+		forwardedURI = r.Header.Get("X-Forwarded-Uri")
+		w.Header().Set("X-Auth-Request-User", "alice")
+		w.Header().Add("X-Auth-Request-Groups", "staff")
+		w.Header().Set("X-Unconfigured", "auth-value")
+		w.WriteHeader(http.StatusAccepted)
+	}))
+	defer authServer.Close()
+
+	authClient := &http.Client{
+		CheckRedirect: func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+	authSchemes, err := auth.LoadAuthSchemes(map[string]config.AuthScheme{
+		"oauth": {
+			Name: "oauth",
+			Type: "external",
+			External: config.ExternalAuth{
+				Endpoint:          authServer.URL + "/oauth2/auth?fixed=1",
+				SetAuthHeaders:    []string{"X-Auth-Request-User"},
+				AppendAuthHeaders: []string{"X-Auth-Request-Groups"},
+			},
+		},
+	}, authClient)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		ProtectHeaders: testProtectHeaders,
+		Transport:      http.DefaultTransport,
+		AuthSchemes:    authSchemes,
+		Lookup: func(r *http.Request) *route.Target {
+			return &route.Target{URL: mustParse(backend.URL), AuthScheme: "oauth"}
+		},
+	})
+	defer proxy.Close()
+
+	req, err := http.NewRequest(http.MethodPost, proxy.URL+"/private//resource?x=1", strings.NewReader("payload"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("X-Auth-Request-User", "spoofed")
+	req.Header.Set("X-Auth-Request-Groups", "existing")
+	req.Header.Set("X-Unconfigured", "original")
+	resp, body := mustDo(req)
+
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
+		t.Fatalf("status = %d, want %d", got, want)
+	}
+	if len(body) != 0 {
+		t.Errorf("response body = %q, want empty", body)
+	}
+	if got, want := backendCalls, 1; got != want {
+		t.Fatalf("backend calls = %d, want %d", got, want)
+	}
+	if got, want := backendBody, "payload"; got != want {
+		t.Errorf("backend body = %q, want %q", got, want)
+	}
+	if got, want := backendHeaders.Get("X-Auth-Request-User"), "alice"; got != want {
+		t.Errorf("backend user header = %q, want %q", got, want)
+	}
+	if got, want := backendHeaders.Values("X-Auth-Request-Groups"), []string{"existing", "staff"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("backend groups header = %#v, want %#v", got, want)
+	}
+	if got, want := backendHeaders.Get("X-Unconfigured"), "original"; got != want {
+		t.Errorf("backend unconfigured header = %q, want %q", got, want)
+	}
+	if got, want := authMethod, http.MethodGet; got != want {
+		t.Errorf("auth method = %q, want %q", got, want)
+	}
+	if got, want := authURI, "/oauth2/auth?fixed=1"; got != want {
+		t.Errorf("auth URI = %q, want %q", got, want)
+	}
+	if got, want := forwardedMethod, http.MethodPost; got != want {
+		t.Errorf("X-Forwarded-Method = %q, want %q", got, want)
+	}
+	if got, want := forwardedURI, "/private//resource?x=1"; got != want {
+		t.Errorf("X-Forwarded-Uri = %q, want %q", got, want)
+	}
+}
+
+func TestProxyExternalAuthDenialStopsBackend(t *testing.T) {
+	for _, status := range []int{http.StatusUnauthorized, http.StatusForbidden, http.StatusFound} {
+		t.Run(strconv.Itoa(status), func(t *testing.T) {
+			backendCalls := 0
+			backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				backendCalls++
+				w.WriteHeader(http.StatusOK)
+			}))
+			defer backend.Close()
+
+			authCalls := 0
+			authServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				authCalls++
+				w.Header().Set("Location", "/oauth2/sign_in")
+				w.Header().Set("WWW-Authenticate", `Bearer realm="test"`)
+				w.Header().Add("Set-Cookie", "session=abc; Path=/")
+				w.WriteHeader(status)
+				_, _ = w.Write([]byte("denied"))
+			}))
+			defer authServer.Close()
+
+			authClient := &http.Client{
+				CheckRedirect: func(*http.Request, []*http.Request) error {
+					return http.ErrUseLastResponse
+				},
+			}
+			authSchemes, err := auth.LoadAuthSchemes(map[string]config.AuthScheme{
+				"oauth": {
+					Name:     "oauth",
+					Type:     "external",
+					External: config.ExternalAuth{Endpoint: authServer.URL + "/oauth2/auth"},
+				},
+			}, authClient)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			proxy := httptest.NewServer(&HTTPProxy{
+				ProtectHeaders: testProtectHeaders,
+				Transport:      http.DefaultTransport,
+				AuthSchemes:    authSchemes,
+				Lookup: func(r *http.Request) *route.Target {
+					return &route.Target{URL: mustParse(backend.URL), AuthScheme: "oauth"}
+				},
+			})
+			defer proxy.Close()
+
+			client := &http.Client{
+				CheckRedirect: func(*http.Request, []*http.Request) error {
+					return http.ErrUseLastResponse
+				},
+			}
+			resp, err := client.Get(proxy.URL + "/private")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer resp.Body.Close()
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if got, want := resp.StatusCode, status; got != want {
+				t.Errorf("status = %d, want %d", got, want)
+			}
+			if got, want := string(body), "denied"; got != want {
+				t.Errorf("body = %q, want %q", got, want)
+			}
+			if got, want := authCalls, 1; got != want {
+				t.Errorf("auth calls = %d, want %d", got, want)
+			}
+			if got := backendCalls; got != 0 {
+				t.Errorf("backend calls = %d, want 0", got)
+			}
+			if got, want := resp.Header.Get("Location"), "/oauth2/sign_in"; got != want {
+				t.Errorf("Location = %q, want %q", got, want)
+			}
+			if got, want := resp.Header.Get("WWW-Authenticate"), `Bearer realm="test"`; got != want {
+				t.Errorf("WWW-Authenticate = %q, want %q", got, want)
+			}
+			if got, want := resp.Header.Values("Set-Cookie"), []string{"session=abc; Path=/"}; !reflect.DeepEqual(got, want) {
+				t.Errorf("Set-Cookie = %#v, want %#v", got, want)
+			}
+		})
+	}
+}
+
+func TestProxyExternalAuthFailureStopsBackend(t *testing.T) {
+	backendCalls := 0
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		backendCalls++
+	}))
+	defer backend.Close()
+
+	authClient := &http.Client{Transport: proxyRoundTripFunc(func(*http.Request) (*http.Response, error) {
+		return nil, errors.New("auth unavailable")
+	})}
+	authSchemes, err := auth.LoadAuthSchemes(map[string]config.AuthScheme{
+		"oauth": {
+			Name:     "oauth",
+			Type:     "external",
+			External: config.ExternalAuth{Endpoint: "http://auth.example/oauth2/auth"},
+		},
+	}, authClient)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		ProtectHeaders: testProtectHeaders,
+		Transport:      http.DefaultTransport,
+		AuthSchemes:    authSchemes,
+		Lookup: func(r *http.Request) *route.Target {
+			return &route.Target{URL: mustParse(backend.URL), AuthScheme: "oauth"}
+		},
+	})
+	defer proxy.Close()
+
+	resp, body := mustGet(proxy.URL + "/private")
+	if got, want := resp.StatusCode, http.StatusBadGateway; got != want {
+		t.Errorf("status = %d, want %d", got, want)
+	}
+	if got := backendCalls; got != 0 {
+		t.Errorf("backend calls = %d, want 0", got)
+	}
+	if got, want := string(body), "external authorization failed\n"; got != want {
+		t.Errorf("body = %q, want %q", got, want)
+	}
+}
+
+type proxyRoundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f proxyRoundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) {
+	return f(r)
+}
+
+func TestProxyBasicAuthStillReturnsChallenge(t *testing.T) {
+	backendCalls := 0
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		backendCalls++
+	}))
+	defer backend.Close()
+
+	filename := t.TempDir() + "/htpasswd"
+	if err := os.WriteFile(filename, []byte("foo:bar"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	authSchemes, err := auth.LoadAuthSchemes(map[string]config.AuthScheme{
+		"basic": {
+			Name:  "basic",
+			Type:  "basic",
+			Basic: config.BasicAuth{File: filename, Realm: "test"},
+		},
+	}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		ProtectHeaders: testProtectHeaders,
+		Transport:      http.DefaultTransport,
+		AuthSchemes:    authSchemes,
+		Lookup: func(r *http.Request) *route.Target {
+			return &route.Target{URL: mustParse(backend.URL), AuthScheme: "basic"}
+		},
+	})
+	defer proxy.Close()
+
+	resp, body := mustGet(proxy.URL + "/private")
+	if got, want := resp.StatusCode, http.StatusUnauthorized; got != want {
+		t.Errorf("status = %d, want %d", got, want)
+	}
+	if got, want := resp.Header.Get("WWW-Authenticate"), `Basic realm="test"`; got != want {
+		t.Errorf("WWW-Authenticate = %q, want %q", got, want)
+	}
+	if got, want := string(body), "authorization failed\n"; got != want {
+		t.Errorf("body = %q, want %q", got, want)
+	}
+	if got := backendCalls; got != 0 {
+		t.Errorf("backend calls = %d, want 0", got)
 	}
 }
 
