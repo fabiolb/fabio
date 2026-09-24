@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -16,7 +15,7 @@ import (
 	"github.com/pascaldekloe/goe/verify"
 )
 
-func TestLoad(t *testing.T) {
+func TestLoadSuccess(t *testing.T) {
 	tests := []struct {
 		desc    string
 		args    []string
@@ -24,7 +23,6 @@ func TestLoad(t *testing.T) {
 		path    string
 		data    string
 		cfg     func(*Config) *Config
-		err     error
 	}{
 		{
 			args: []string{"-v"},
@@ -1064,98 +1062,12 @@ func TestLoad(t *testing.T) {
 				return cfg
 			},
 		},
-
-		//
-		// Errors.
-		//
-
-		{
-			desc: "-proxy.addr with unknown cert source 'foo'",
-			args: []string{"-proxy.addr", ":5555;cs=foo"},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("unknown certificate source \"foo\""),
-		},
-		{
-			desc: "-proxy.addr with unknown proto 'foo'",
-			args: []string{"-proxy.addr", ":5555;proto=foo"},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("unknown protocol \"foo\""),
-		},
-		{
-			desc: "-proxy.addr with proto 'https' requires cert source",
-			args: []string{"-proxy.addr", ":5555;proto=https"},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("proto 'https' requires cert source"),
-		},
-		{
-			desc: "-proxy.addr with proto 'grpcs' requires cert source",
-			args: []string{"-proxy.addr", ":5555;proto=grpcs"},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("proto 'grpcs' requires cert source"),
-		},
-		{
-			desc: "-proxy.addr with cert source and proto 'http' requires proto 'https', 'tcp', or 'grpcs'",
-			args: []string{"-proxy.addr", ":5555;cs=name;proto=http", "-proxy.cs", "cs=name;type=path;cert=value"},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', 'prometheus', or 'grpcs'"),
-		},
-		{
-			desc: "-proxy.addr with cert source and proto 'tcp+sni' requires proto 'https', 'tcp' or 'grpcs'",
-			args: []string{"-proxy.addr", ":5555;cs=name;proto=tcp+sni", "-proxy.cs", "cs=name;type=path;cert=value"},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', 'prometheus', or 'grpcs'"),
-		},
-		{
-			desc: "-proxy.noroutestatus too small",
-			args: []string{"-proxy.noroutestatus", "10"},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("proxy.noroutestatus must be between 100 and 999"),
-		},
-		{
-			desc: "-proxy.noroutestatus too big",
-			args: []string{"-proxy.noroutestatus", "1000"},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("proxy.noroutestatus must be between 100 and 999"),
-		},
-		{
-			desc: "-proxy.auth with unknown auth type 'foo'",
-			args: []string{"-proxy.auth", "name=myauth;type=foo"},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("unknown auth type 'foo'"),
-		},
-		{
-			desc: "-proxy.auth with missing name",
-			args: []string{"-proxy.auth", "type=basic;file=/some/file;realm=realm"},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("missing 'name' in auth"),
-		},
-		{
-			desc: "-proxy.auth basic with missing file",
-			args: []string{"-proxy.auth", "name=foo;type=basic;realm=realm"},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errors.New("missing 'file' in auth 'foo'"),
-		},
 		{
 			args: []string{"-glob.cache.size", "1000"},
 			cfg: func(cfg *Config) *Config {
 				cfg.GlobCacheSize = 1000
 				return cfg
 			},
-		},
-		{
-			args: []string{"-cfg"},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errInvalidConfig,
-		},
-		{
-			args: []string{"-cfg=''"},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errInvalidConfig,
-		},
-		{
-			args: []string{"-cfg=\"\""},
-			cfg:  func(cfg *Config) *Config { return nil },
-			err:  errInvalidConfig,
 		},
 		{
 			desc: "valid bgp peers",
@@ -1198,7 +1110,7 @@ func TestLoad(t *testing.T) {
 				}
 
 			case tt.path != "":
-				if err := os.WriteFile(tt.path, []byte(tt.data), 0600); err != nil {
+				if err := os.WriteFile(tt.path, []byte(tt.data), 0o600); err != nil {
 					t.Fatalf("error writing file: %s", err)
 				}
 				defer os.Remove(tt.path)
@@ -1206,8 +1118,8 @@ func TestLoad(t *testing.T) {
 
 			// config parser expects the exe name to be the first argument
 			cfg, err := Load(append([]string{"fabio"}, tt.args...), tt.environ)
-			if got, want := err, tt.err; !reflect.DeepEqual(got, want) {
-				t.Fatalf("got error %v want %v", got, want)
+			if err != nil {
+				t.Fatalf("got error %s; want <no error>", err)
 			}
 
 			// limit the amount of code we have to write per test:
@@ -1218,6 +1130,126 @@ func TestLoad(t *testing.T) {
 			clone.Listen = []Listen{{Addr: ":9999", Proto: "http"}}
 			got, want := cfg, tt.cfg(clone)
 			verify.Values(t, "config.Config", got, want)
+		})
+	}
+}
+
+func TestLoadFailure(t *testing.T) {
+	tests := []struct {
+		desc    string
+		args    []string
+		environ []string
+		path    string
+		data    string
+		wantErr error
+	}{
+		{
+			desc:    "-proxy.addr with unknown cert source 'foo'",
+			args:    []string{"-proxy.addr", ":5555;cs=foo"},
+			wantErr: errors.New("unknown certificate source \"foo\""),
+		},
+		{
+			desc:    "-proxy.addr with unknown proto 'foo'",
+			args:    []string{"-proxy.addr", ":5555;proto=foo"},
+			wantErr: errors.New("unknown protocol \"foo\""),
+		},
+		{
+			desc:    "-proxy.addr with proto 'https' requires cert source",
+			args:    []string{"-proxy.addr", ":5555;proto=https"},
+			wantErr: errors.New("proto 'https' requires cert source"),
+		},
+		{
+			desc:    "-proxy.addr with proto 'grpcs' requires cert source",
+			args:    []string{"-proxy.addr", ":5555;proto=grpcs"},
+			wantErr: errors.New("proto 'grpcs' requires cert source"),
+		},
+		{
+			desc:    "-proxy.addr with cert source and proto 'http' requires proto 'https', 'tcp', or 'grpcs'",
+			args:    []string{"-proxy.addr", ":5555;cs=name;proto=http", "-proxy.cs", "cs=name;type=path;cert=value"},
+			wantErr: errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', 'prometheus', or 'grpcs'"),
+		},
+		{
+			desc:    "-proxy.addr with cert source and proto 'tcp+sni' requires proto 'https', 'tcp' or 'grpcs'",
+			args:    []string{"-proxy.addr", ":5555;cs=name;proto=tcp+sni", "-proxy.cs", "cs=name;type=path;cert=value"},
+			wantErr: errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', 'prometheus', or 'grpcs'"),
+		},
+		{
+			desc:    "-proxy.noroutestatus too small",
+			args:    []string{"-proxy.noroutestatus", "10"},
+			wantErr: errors.New("proxy.noroutestatus must be between 100 and 999"),
+		},
+		{
+			desc:    "-proxy.noroutestatus too big",
+			args:    []string{"-proxy.noroutestatus", "1000"},
+			wantErr: errors.New("proxy.noroutestatus must be between 100 and 999"),
+		},
+		{
+			desc:    "-proxy.auth with unknown auth type 'foo'",
+			args:    []string{"-proxy.auth", "name=myauth;type=foo"},
+			wantErr: errors.New("unknown auth type 'foo'"),
+		},
+		{
+			desc:    "-proxy.auth with missing name",
+			args:    []string{"-proxy.auth", "type=basic;file=/some/file;realm=realm"},
+			wantErr: errors.New("missing 'name' in auth"),
+		},
+		{
+			desc:    "-proxy.auth basic with missing file",
+			args:    []string{"-proxy.auth", "name=foo;type=basic;realm=realm"},
+			wantErr: errors.New("missing 'file' in auth 'foo'"),
+		},
+		{
+			args:    []string{"-cfg"},
+			wantErr: errInvalidConfig,
+		},
+		{
+			args:    []string{"-cfg=''"},
+			wantErr: errInvalidConfig,
+		},
+		{
+			args:    []string{"-cfg=\"\""},
+			wantErr: errInvalidConfig,
+		},
+	}
+
+	for _, tt := range tests {
+
+		if tt.desc == "" {
+			tt.desc = strings.Join(tt.args, " ")
+		}
+
+		t.Run(tt.desc, func(t *testing.T) {
+			// start a web server or write data to a file if tt.path is set
+			switch {
+			case tt.path == "http":
+				srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					fmt.Fprint(w, tt.data)
+				}))
+				defer srv.Close()
+
+				// replace 'URL' with the actual server url in the command line args
+				for i := range tt.args {
+					tt.args[i] = strings.ReplaceAll(tt.args[i], "URL", srv.URL)
+				}
+
+			case tt.path != "":
+				if err := os.WriteFile(tt.path, []byte(tt.data), 0o600); err != nil {
+					t.Fatalf("error writing file: %s", err)
+				}
+				defer os.Remove(tt.path)
+			}
+
+			// config parser expects the exe name to be the first argument
+			_, err := Load(append([]string{"fabio"}, tt.args...), tt.environ)
+			if err == nil {
+				t.Fatalf("got: <no error>; want error: %s", err)
+			}
+			if tt.wantErr == nil {
+				t.Fatalf("broken test case: tt.wantErr is nil")
+			}
+			if got, want := err.Error(), tt.wantErr.Error(); got != want {
+				t.Fatalf("got error: %s; want error: %s", got, want)
+			}
 		})
 	}
 }
