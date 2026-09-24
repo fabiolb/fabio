@@ -233,8 +233,8 @@ github.com/openhistogram/circonusllhist v0.4.1/go.mod h1:PfeYJ/RW2+Jfv3wTz0upbY2
 github.com/orcaman/concurrent-map/v2 v2.0.1 h1:jOJ5Pg2w1oeB6PeDurIYf6k9PQ+aTITr/6lP/L/zp6c=
 github.com/orcaman/concurrent-map/v2 v2.0.1/go.mod h1:9Eq3TG2oBe5FirmYWQfYO5iH1q0Jv47PLaNK++uCdOM=
 github.com/orisano/pixelmatch v0.0.0-20220722002657-fb0b55479cde/go.mod h1:nZgzbfBr3hhjoZnS66nKrHmduYNpc34ny7RK4z5/HM0=
-github.com/osrg/gobgp/v4 v4.8.0 h1:CoprkOZ2nsH8aTHij6xWj18QOrsBwG9D00l1PGw7394=
-github.com/osrg/gobgp/v4 v4.8.0/go.mod h1:bJbFm7T2nRANggShfl3I9h0UpPCzu4uAY5J/6dTdRvs=
+github.com/osrg/gobgp/v4 v4.9.0 h1:pKOw914kwQ4I/lWNVTfEDosEN3FuqPGytMEInXxpTyQ=
+github.com/osrg/gobgp/v4 v4.9.0/go.mod h1:bJbFm7T2nRANggShfl3I9h0UpPCzu4uAY5J/6dTdRvs=
 github.com/pascaldekloe/goe v0.1.0/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pascaldekloe/goe v0.1.1 h1:Ah6WQ56rZONR3RW3qWa2NCZ6JAVvSpUcoLBaOmYFt9Q=
 github.com/pascaldekloe/goe v0.1.1/go.mod h1:KSyfaxQOh0HZPjDP1FL/kFtbqYqrALJTaMafFUIccqU=
