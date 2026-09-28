@@ -1,11 +1,15 @@
 package api
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/fabiolb/fabio/config"
+)
 
 type ConfigHandler struct {
-	Config any
+	Config *config.Config
 }
 
 func (h *ConfigHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, r, h.Config)
+	writeJSON(w, r, config.Sanitise(h.Config))
 }

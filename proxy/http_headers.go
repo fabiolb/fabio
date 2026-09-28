@@ -61,6 +61,12 @@ func addHeaders(r *http.Request, hdrs map[string]bool, cfg config.Proxy, stripPa
 		}
 	}
 
+	if cfg.ClearClientHeaders {
+		for k := range hdrs {
+			r.Header.Del(k)
+		}
+	}
+
 	r.Header.Del("Connection")
 	if len(conHeaders) > 0 {
 		r.Header.Set("Connection", strings.Join(conHeaders, ", "))

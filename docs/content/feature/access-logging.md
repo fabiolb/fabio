@@ -17,7 +17,7 @@ standard fabio logs are still written to stderr.
 The log format can be controlled with the `log.access.format` parameter which
 is either `common`, `combined` - which outputs the [Combined Log Format](https://httpd.apache.org/docs/2.4/logs.html#combined) - or a custom
 format string which is fully described in
-[fabio.properties](https://github.com/eBay/fabio/blob/master/fabio.properties#L374-L421).
+[fabio.properties](https://github.com/fabiolb/fabio/blob/master/fabio.properties#L571).
 
 ```
 # log.access.format configures the format of the access log.

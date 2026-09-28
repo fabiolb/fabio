@@ -10,44 +10,44 @@ import (
 
 func TestFlatProvider(t *testing.T) {
 	tests := []struct {
-		name           string
-		prefix         string
-		metricName     string
-		labels         []string
-		expectedName   string
-		counterValue   float64
-		gaugeValue     float64
-		histoValue     float64
+		name         string
+		prefix       string
+		metricName   string
+		labels       []string
+		expectedName string
+		counterValue float64
+		gaugeValue   float64
+		histoValue   float64
 	}{
 		{
-			name:           "simple_metrics_no_labels",
-			prefix:         "test",
-			metricName:     "requests",
-			labels:         []string{},
-			expectedName:   "test.requests",
-			counterValue:   5.0,
-			gaugeValue:     10.0,
-			histoValue:     0.123,
+			name:         "simple_metrics_no_labels",
+			prefix:       "test",
+			metricName:   "requests",
+			labels:       []string{},
+			expectedName: "test.requests",
+			counterValue: 5.0,
+			gaugeValue:   10.0,
+			histoValue:   0.123,
 		},
 		{
-			name:           "metrics_with_labels",
-			prefix:         "app",
-			metricName:     "http",
-			labels:         []string{"service", "host", "path"},
-			expectedName:   "app.http.service.host.path",
-			counterValue:   15.0,
-			gaugeValue:     25.0,
-			histoValue:     0.456,
+			name:         "metrics_with_labels",
+			prefix:       "app",
+			metricName:   "http",
+			labels:       []string{"service", "host", "path"},
+			expectedName: "app.http.service.host.path",
+			counterValue: 15.0,
+			gaugeValue:   25.0,
+			histoValue:   0.456,
 		},
 		{
-			name:           "empty_prefix",
-			prefix:         "",
-			metricName:     "metric",
-			labels:         []string{"label1"},
-			expectedName:   ".metric.label1",
-			counterValue:   1.0,
-			gaugeValue:     2.0,
-			histoValue:     0.001,
+			name:         "empty_prefix",
+			prefix:       "",
+			metricName:   "metric",
+			labels:       []string{"label1"},
+			expectedName: ".metric.label1",
+			counterValue: 1.0,
+			gaugeValue:   2.0,
+			histoValue:   0.001,
 		},
 	}
 
@@ -58,7 +58,7 @@ func TestFlatProvider(t *testing.T) {
 			// Test Counter
 			t.Run("counter", func(t *testing.T) {
 				counter := provider.NewCounter(tt.metricName, tt.labels...)
-				
+
 				// Capture stdout
 				output := captureStdout(func() {
 					counter.Add(tt.counterValue)

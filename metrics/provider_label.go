@@ -56,7 +56,7 @@ type labelGauge struct {
 	Name    string
 	Labels  []string
 	Values  []string
-	valBits uint64
+	valBits atomic.Uint64
 }
 
 func (g *labelGauge) With(labelValues ...string) gkm.Gauge {
@@ -70,7 +70,7 @@ func (g *labelGauge) With(labelValues ...string) gkm.Gauge {
 }
 
 func (g *labelGauge) Set(n float64) {
-	atomic.StoreUint64(&g.valBits, math.Float64bits(n))
+	g.valBits.Store(math.Float64bits(n))
 	fmt.Printf("%s:%d|g%s\n", g.Name, int(n), Labels(g.Labels, g.Values, "|#", ":", ","))
 }
 
@@ -78,9 +78,9 @@ func (g *labelGauge) Add(delta float64) {
 	var oldBits uint64
 	var newBits uint64
 	for {
-		oldBits = atomic.LoadUint64(&g.valBits)
+		oldBits = g.valBits.Load()
 		newBits = math.Float64bits(math.Float64frombits(oldBits) + delta)
-		if atomic.CompareAndSwapUint64(&g.valBits, oldBits, newBits) {
+		if g.valBits.CompareAndSwap(oldBits, newBits) {
 			break
 		}
 	}

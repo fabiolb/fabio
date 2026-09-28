@@ -13,7 +13,7 @@ import (
 )
 
 // conns keeps track of the number of open ws connections
-var conns int64
+var conns atomic.Int64
 
 type dialFunc func(network, address string) (net.Conn, error)
 
@@ -24,9 +24,9 @@ type dialFunc func(network, address string) (net.Conn, error)
 func newWSHandler(host string, dial dialFunc, conn gkm.Gauge) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if conn != nil {
-			conn.Set(float64(atomic.AddInt64(&conns, 1)))
+			conn.Set(float64(conns.Add(1)))
 			defer func() {
-				conn.Set(float64(atomic.AddInt64(&conns, -1)))
+				conn.Set(float64(conns.Add(-1)))
 			}()
 		}
 

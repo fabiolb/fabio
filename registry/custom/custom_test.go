@@ -2,50 +2,43 @@ package custom
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/fabiolb/fabio/config"
-	"github.com/fabiolb/fabio/route"
 	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
+
+	"github.com/fabiolb/fabio/config"
+	"github.com/fabiolb/fabio/route"
 )
 
 func TestCustomRoutes(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/test", handleTest)
+	server := httptest.NewServer(mux)
+	defer server.Close()
 
-	var resp string
+	host, _ := strings.CutPrefix(server.URL, "http://")
 	cfg := config.Custom{
-		Host:               "localhost:8080",
+		Host:               host,
 		Path:               "test",
 		Scheme:             "http",
 		CheckTLSSkipVerify: false,
 		PollInterval:       3 * time.Second,
 		Timeout:            3 * time.Second,
 	}
-
 	ch := make(chan string, 1)
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/test", handleTest)
-	server := &http.Server{
-		Addr:    "localhost:8080",
-		Handler: mux,
-	}
-	go server.ListenAndServe()
-	time.Sleep(3 * time.Second)
-	defer server.Close()
 
 	go customRoutes(&cfg, ch)
 
-	resp = <-ch
+	resp := <-ch
 
 	if resp != "OK" {
-		fmt.Printf("Failed to get routes for custom backend - %s", resp)
-		t.FailNow()
+		t.Fatalf("Failed to get routes for custom backend - %s", resp)
 	}
 }
 
 func handleTest(w http.ResponseWriter, r *http.Request) {
-
 	var routes []route.RouteDef
 	var tags = []string{"tag1", "tag2"}
 	var opts = make(map[string]string)
@@ -88,5 +81,4 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	rt, _ := json.Marshal(routes)
 
 	w.Write(rt)
-
 }

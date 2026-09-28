@@ -31,7 +31,7 @@ Option                                     | Description
 `strip=/path`                              | Forward `/path/to/file` as `/to/file`
 `prepend=/prefix`                          | Forward `/path/to/file` as `/prefix/path/to/file`
 `proto=tcp`                                | Upstream service is TCP, `dst` must be `:port`
-`pxyproto=true`                            | Enables PROXY protocol on outbount TCP connection
+`pxyproto=true`                            | Enables outbound PROXY protocol v1 headers on a TCP connection
 `proto=https`                              | Upstream service is HTTPS
 `tlsskipverify=true`                       | Disable TLS cert validation for HTTPS upstream
 `host=name`                                | Set the `Host` header to `name`. If `name == 'dst'` then the `Host` header will be set to the registered upstream host name
@@ -81,8 +81,8 @@ Directs a certain amount of traffic to instances matching certain criteria.
 
 The weight `w` is expressed as follows:
 
- * `w` is a float > 0 describing a percentage, e.g. 0.5 == 50%
- * `w <= 0`: means no fixed weighting. Traffic is evenly distributed
+ * `w` is a float >= 0 describing a percentage, e.g. 0.5 == 50%
+ * `w < 0`: means no fixed weighting. Traffic is evenly distributed
  * `w > 0`: route will receive n% of traffic. If sum(w) > 1 then w is normalized.
  * `sum(w) >= 1`: only matching services will receive traffic
 

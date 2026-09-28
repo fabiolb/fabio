@@ -16,19 +16,25 @@ const StatusClientClosedRequest = 499
 
 func newHTTPProxy(target *url.URL, tr http.RoundTripper, flush time.Duration) http.Handler {
 	return &httputil.ReverseProxy{
-		// this is a simplified director function based on the
-		// httputil.NewSingleHostReverseProxy() which does not
-		// mangle the request and target URL since the target
-		// URL is already in the correct format.
-		Director: func(req *http.Request) {
-			req.URL.Scheme = target.Scheme
-			req.URL.Host = target.Host
-			req.URL.Path = target.Path
-			req.URL.RawQuery = target.RawQuery
-			if _, ok := req.Header["User-Agent"]; !ok {
+		Rewrite: func(req *httputil.ProxyRequest) {
+			req.Out.URL.Scheme = target.Scheme
+			req.Out.URL.Host = target.Host
+			req.Out.URL.Path = target.Path
+			req.Out.URL.RawQuery = target.RawQuery
+			if _, ok := req.Out.Header["User-Agent"]; !ok {
 				// explicitly disable User-Agent so it's not set to default value
-				req.Header.Set("User-Agent", "")
+				req.Out.Header.Set("User-Agent", "")
 			}
+
+			// Preserve X-Forwarded-For from inbound request before calling SetXForwarded
+			// SetXForwarded will append the client IP to it
+			if xff := req.In.Header.Get("X-Forwarded-For"); xff != "" {
+				req.Out.Header.Set("X-Forwarded-For", xff)
+			}
+
+			// SetXForwarded will handle X-Forwarded-For (append), X-Forwarded-Host, and X-Forwarded-Proto
+			// Other headers (X-Forwarded-Port, X-Forwarded-Prefix, Forwarded) are already set by addHeaders()
+			req.SetXForwarded()
 		},
 		FlushInterval: flush,
 		Transport:     tr,

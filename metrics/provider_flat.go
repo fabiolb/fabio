@@ -27,7 +27,7 @@ func (p *flatProvider) NewHistogram(name string, labels ...string) gkm.Histogram
 
 type flatCounter struct {
 	Name string
-	v    uint64
+	v    atomic.Uint64
 }
 
 func (c *flatCounter) With(labelValues ...string) gkm.Counter {
@@ -35,18 +35,18 @@ func (c *flatCounter) With(labelValues ...string) gkm.Counter {
 }
 
 func (c *flatCounter) Add(v float64) {
-	uv := atomic.AddUint64(&c.v, uint64(v))
+	uv := c.v.Add(uint64(v))
 	fmt.Printf("%s:%d|c\n", c.Name, uv)
 }
 
 type flatGauge struct {
 	Name string
 	// Stolen from prometheus client gauge
-	valBits uint64
+	valBits atomic.Uint64
 }
 
 func (g *flatGauge) Set(n float64) {
-	atomic.StoreUint64(&g.valBits, math.Float64bits(n))
+	g.valBits.Store(math.Float64bits(n))
 	fmt.Printf("%s:%d|g\n", g.Name, int(n))
 }
 
@@ -54,9 +54,9 @@ func (g *flatGauge) Add(delta float64) {
 	var oldBits uint64
 	var newBits uint64
 	for {
-		oldBits = atomic.LoadUint64(&g.valBits)
+		oldBits = g.valBits.Load()
 		newBits = math.Float64bits(math.Float64frombits(oldBits) + delta)
-		if atomic.CompareAndSwapUint64(&g.valBits, oldBits, newBits) {
+		if g.valBits.CompareAndSwap(oldBits, newBits) {
 			break
 		}
 	}

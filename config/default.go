@@ -102,7 +102,7 @@ var defaultConfig = &Config{
 			Proto: "http",
 		},
 		Color:  "light-green",
-		Access: "rw",
+		Access: "no",
 		RoutingTable: RoutingTable{
 			Source: Source{
 				LinkEnabled: false,

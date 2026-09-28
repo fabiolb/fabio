@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"slices"
 	"testing"
@@ -166,6 +167,53 @@ route add tcproute example2.com/ tcp://%s opts "proto=tcp"`
 		})
 	}
 
+}
+
+// TestProxyHTTPSTCPSNIWithProxyProto verifies that the combined listener
+// consumes the PROXY header before tcpproxy inspects the TLS ClientHello.
+func TestProxyHTTPSTCPSNIWithProxyProto(t *testing.T) {
+	for _, version := range proxyProtoVersions {
+		t.Run(version.name, func(t *testing.T) {
+			srv := tcptest.NewTLSServerWithProxyProto(proxyHandler)
+			defer srv.Close()
+
+			tmp, err := net.Listen("tcp", "127.0.0.1:0")
+			if err != nil {
+				t.Fatalf("net.Listen: %v", err)
+			}
+			proxyAddr := tmp.Addr().String()
+			tmp.Close()
+
+			tp := &tcp.SNIProxy{
+				Lookup: func(string) *route.Target {
+					return &route.Target{URL: &url.URL{Host: srv.Addr}, ProxyProto: true}
+				},
+			}
+			matcher := func(_ context.Context, host string) bool {
+				return host == "example.com"
+			}
+			go func() {
+				l := config.Listen{Addr: proxyAddr, ProxyProto: true}
+				if err := ListenAndServeHTTPSTCPSNI(l, okHandler, tp, tlsServerConfig(), matcher); err != nil {
+					t.Logf("ListenAndServeHTTPSTCPSNI: %v", err)
+				}
+			}()
+			defer Close()
+
+			cfg := tlsClientConfig()
+			cfg.ServerName = "example.com"
+			dialer := tcptest.NewTLSRetryDialer(cfg)
+			dialer.ProxyProto = true
+			dialer.ProxyProtoVersion = version.version
+			out, err := dialer.Dial("tcp", proxyAddr)
+			if err != nil {
+				t.Fatalf("tls.Dial: %#v", err)
+			}
+			defer out.Close()
+
+			testProxyProto(t, out)
+		})
+	}
 }
 
 func foundDNSName(crt *x509.Certificate, dnsName string) bool {

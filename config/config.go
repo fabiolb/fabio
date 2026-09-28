@@ -78,6 +78,7 @@ type Proxy struct {
 	Matcher               string
 	LocalIP               string
 	ClientIPHeader        string
+	ClearClientHeaders    bool
 	TLSHeader             string
 	TLSHeaderValue        string
 	RequestID             string

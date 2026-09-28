@@ -54,7 +54,7 @@ import (
 // It is also set by the linker when fabio
 // is built via the Makefile or the build/docker.sh
 // script to ensure the correct version number
-var version = "1.7.2"
+var version = "1.8.0"
 
 var shuttingDown int32
 
@@ -78,7 +78,7 @@ func main() {
 		log.Printf("[INFO] Cannot set log level to %s", cfg.Log.Level)
 	}
 
-	log.Printf("%s", "[INFO] Runtime config\n"+toJSON(cfg))
+	log.Printf("%s", "[INFO] Runtime config\n"+toJSON(config.Sanitise(cfg)))
 	log.Printf("[INFO] Version %s starting", version)
 	log.Printf("[INFO] Go runtime is %s", runtime.Version())
 

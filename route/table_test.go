@@ -205,9 +205,9 @@ func TestTableParse(t *testing.T) {
 			},
 		},
 
-		{"weigh fixed weight 0 -> auto distribution",
+		{"weigh fixed weight -1 -> auto distribution",
 			[]string{
-				`route add svc / http://bar:111/ weight 0`,
+				`route add svc / http://bar:111/ weight -1`,
 			},
 			[]string{
 				`route add svc / http://bar:111/ weight 1.0000`,

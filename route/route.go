@@ -46,7 +46,7 @@ type Route struct {
 
 func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float64, tags []string, opts map[string]string) {
 	if fixedWeight < 0 {
-		fixedWeight = 0
+		fixedWeight = -1
 	}
 
 	// de-dup existing target
@@ -137,7 +137,7 @@ func (r *Route) setWeight(service string, weight float64, tags []string) int {
 	// weight across all of them since the rule
 	// states to assign only that percentage
 	// of traffic to all matching routes combined.
-	n := loop(0)
+	n := loop(-1)
 	w := weight / float64(n)
 	loop(w)
 
@@ -161,7 +161,7 @@ func (r *Route) TargetConfig(t *Target, addWeight bool) string {
 	s := fmt.Sprintf("route add %s %s %s", t.Service, r.Host+r.Path, t.URL)
 	if addWeight {
 		s += fmt.Sprintf(" weight %2.4f", t.Weight)
-	} else if t.FixedWeight > 0 {
+	} else if t.FixedWeight >= 0 {
 		s += fmt.Sprintf(" weight %.4f", t.FixedWeight)
 	}
 	if len(t.Tags) > 0 {
@@ -215,7 +215,7 @@ func (r *Route) weighTargets() {
 	var nFixed int
 	var sumFixed float64
 	for _, t := range r.Targets {
-		if t.FixedWeight > 0 {
+		if t.FixedWeight >= 0 {
 			nFixed++
 			sumFixed += t.FixedWeight
 		}
@@ -234,7 +234,7 @@ func (r *Route) weighTargets() {
 
 	// normalize fixed weights up (sumFixed < 1) or down (sumFixed > 1)
 	scale := 1.0
-	if sumFixed > 1 || (nFixed == len(r.Targets) && sumFixed < 1) {
+	if sumFixed > 0 && (sumFixed > 1 || (nFixed == len(r.Targets) && sumFixed < 1)) {
 		scale = 1 / sumFixed
 	}
 
@@ -246,7 +246,7 @@ func (r *Route) weighTargets() {
 
 	// assign the actual weight to each target
 	for _, t := range r.Targets {
-		if t.FixedWeight > 0 {
+		if t.FixedWeight >= 0 {
 			t.Weight = t.FixedWeight * scale
 		} else {
 			t.Weight = dynamic

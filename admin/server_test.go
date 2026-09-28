@@ -75,8 +75,23 @@ func TestAdminServerAccess(t *testing.T) {
 		{"/", 303},
 	}
 
+	noTests := []test{
+		{"/api/manual", 404},
+		{"/api/paths", 404},
+		{"/api/config", 404},
+		{"/api/routes", 404},
+		{"/api/version", 404},
+		{"/manual", 404},
+		{"/routes", 404},
+		{"/health", 200},
+		{"/assets/logo.svg", 404},
+		{"/assets/logo.bw.svg", 404},
+		{"/", 404},
+	}
+
 	testAccess("ro", "", roTests)
 	testAccess("rw", "", rwTests)
+	testAccess("no", "", noTests)
 
 	roTestsWithPath := []test{
 		{"/fabio/api/manual", 403},
@@ -106,6 +121,21 @@ func TestAdminServerAccess(t *testing.T) {
 		{"/fabio/", 303},
 	}
 
+	noTestsWithPath := []test{
+		{"/fabio/api/manual", 404},
+		{"/fabio/api/paths", 404},
+		{"/fabio/api/config", 404},
+		{"/fabio/api/routes", 404},
+		{"/fabio/api/version", 404},
+		{"/fabio/manual", 404},
+		{"/fabio/routes", 404},
+		{"/health", 200},
+		{"/fabio/assets/logo.svg", 404},
+		{"/fabio/assets/logo.bw.svg", 404},
+		{"/fabio/", 404},
+	}
+
 	testAccess("ro", "/fabio", roTestsWithPath)
 	testAccess("rw", "/fabio", rwTestsWithPath)
+	testAccess("no", "/fabio", noTestsWithPath)
 }

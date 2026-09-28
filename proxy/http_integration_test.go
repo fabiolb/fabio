@@ -3,6 +3,7 @@ package proxy
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -24,6 +25,7 @@ import (
 	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy/internal"
 	"github.com/fabiolb/fabio/route"
+	"github.com/google/go-cmp/cmp"
 	"github.com/pascaldekloe/goe/verify"
 )
 
@@ -55,50 +57,73 @@ const (
 )
 
 func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
-	var hdr = make(http.Header)
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		hdr = r.Header
-	}))
-	defer server.Close()
+	type testCase struct {
+		clientHeader       http.Header
+		clearClientHeaders bool
+		wantHeader         http.Header
+	}
+	test := func(t *testing.T, tc testCase) {
+		t.Helper()
+		var hdr http.Header
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			hdr = r.Header
+		}))
+		defer server.Close()
 
-	proxy := httptest.NewServer(&HTTPProxy{
-		ProtectHeaders: testProtectHeaders,
-		Config:         config.Proxy{LocalIP: "1.1.1.1", ClientIPHeader: "X-Client-Ip", RequestID: "X-Request-ID"},
-		Transport:      http.DefaultTransport,
-		Lookup: func(r *http.Request) *route.Target {
-			return &route.Target{URL: mustParse(server.URL)}
-		},
+		proxy := httptest.NewServer(&HTTPProxy{
+			ProtectHeaders: testProtectHeaders,
+			Config: config.Proxy{
+				LocalIP:            "1.1.1.1",
+				ClientIPHeader:     "X-Client-Ip",
+				RequestID:          "X-Request-ID",
+				ClearClientHeaders: tc.clearClientHeaders,
+			},
+			Transport: http.DefaultTransport,
+			UUID:      func() string { return "proxy-test-uuid" },
+			Lookup: func(r *http.Request) *route.Target {
+				return &route.Target{URL: mustParse(server.URL)}
+			},
+		})
+		defer proxy.Close()
+
+		req, _ := http.NewRequest("GET", proxy.URL, nil)
+		req.Host = "foo.com"
+		req.Header = tc.clientHeader.Clone()
+		mustDo(req)
+
+		if diff := cmp.Diff(tc.wantHeader, hdr); diff != "" {
+			t.Fatalf("%s\n--- want\n+++ have\n%s", "headers", diff)
+		}
+	}
+
+	clientHeader := http.Header{
+		legitHeader1: {"asdf"},
+		legitHeader2: {"qwerty"},
+		"Connection": {fmt.Sprintf("keep-alive, x-forwarded-for, x-forwarded-host, %s, %s, x-request-id, x-client-ip",
+			strings.ToLower(legitHeader1), strings.ToLower(legitHeader2))},
+		"X-Forwarded-For": {"3.3.3.3"},
+	}
+
+	t.Run("TrustedDownstream", func(t *testing.T) {
+		test(t, testCase{
+			clientHeader:       clientHeader,
+			clearClientHeaders: false, // <== meaning: trusted downstream
+			wantHeader: http.Header{
+				"Accept-Encoding":   {"gzip"},
+				"User-Agent":        {"Go-http-client/1.1"},
+				"X-Client-Ip":       {"127.0.0.1"},
+				"X-Forwarded-For":   {"3.3.3.3, 127.0.0.1"},
+				"X-Forwarded-Host":  {"foo.com"},
+				"X-Forwarded-Port":  {"80"},
+				"X-Forwarded-Proto": {"http"},
+				"X-Real-Ip":         {"127.0.0.1"},
+				"X-Request-Id":      {"proxy-test-uuid"},
+				// Connection is deleted because it is an hop-by-hop header.
+				// legitHeader1 is deleted because is listed in Connection.
+				// legitHeader2 is deleted because is listed in Connection.
+			},
+		})
 	})
-	defer proxy.Close()
-
-	req, _ := http.NewRequest("GET", proxy.URL, nil)
-	req.Host = "foo.com"
-	req.Header.Set("X-Forwarded-For", "3.3.3.3")
-	req.Header.Set(legitHeader1, "asdf")
-	req.Header.Set(legitHeader2, "qwerty")
-	req.Header.Set("Connection",
-		fmt.Sprintf("keep-alive, x-forwarded-for, x-forwarded-host, %s, %s, x-request-id, x-client-ip",
-			strings.ToLower(legitHeader1), strings.ToLower(legitHeader2)))
-	mustDo(req)
-
-	if got, want := hdr.Get("X-Forwarded-For"), "3.3.3.3, 127.0.0.1"; got != want {
-		t.Errorf("got %v want %v", got, want)
-	}
-	if got, want := hdr.Get("X-Forwarded-Host"), "foo.com"; got != want {
-		t.Errorf("got %v want %v", got, want)
-	}
-	if got, want := hdr.Get("X-Client-Ip"), "127.0.0.1"; got != want {
-		t.Errorf("got %v want %v", got, want)
-	}
-	if got, want := len(hdr.Get("X-Request-Id")), 36; got != want {
-		t.Errorf("got %v want %v", got, want)
-	}
-	if got, want := hdr.Get(legitHeader1), ""; got != want {
-		t.Errorf("got %v want %v", got, want)
-	}
-	if got, want := hdr.Get(legitHeader2), ""; got != want {
-		t.Errorf("got %v want %v", got, want)
-	}
 }
 
 func TestProxyRequestIDHeader(t *testing.T) {
@@ -298,9 +323,9 @@ func TestProxyHost(t *testing.T) {
 	proxy := httptest.NewServer(&HTTPProxy{
 		ProtectHeaders: testProtectHeaders,
 		Transport: &http.Transport{
-			Dial: func(network, _ string) (net.Conn, error) {
+			DialContext: func(ctx context.Context, network, _ string) (net.Conn, error) {
 				addr := server.URL[len("http://"):]
-				return net.Dial(network, addr)
+				return (&net.Dialer{}).DialContext(ctx, network, addr)
 			},
 		},
 		Lookup: func(r *http.Request) *route.Target {
@@ -427,22 +452,25 @@ func TestPathRedirect(t *testing.T) {
 }
 
 func TestProxyLogOutput(t *testing.T) {
+	const responseBody = "foooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
+	compressedSize := len(compress([]byte(responseBody)))
+
 	t.Run("uncompressed response", func(t *testing.T) {
-		testProxyLogOutput(t, 73, config.Proxy{})
+		testProxyLogOutput(t, responseBody, len(responseBody), config.Proxy{})
 	})
 	t.Run("compression enabled but no match", func(t *testing.T) {
-		testProxyLogOutput(t, 73, config.Proxy{
+		testProxyLogOutput(t, responseBody, len(responseBody), config.Proxy{
 			GZIPContentTypes: regexp.MustCompile(`^$`),
 		})
 	})
 	t.Run("compression enabled and active", func(t *testing.T) {
-		testProxyLogOutput(t, 28, config.Proxy{
+		testProxyLogOutput(t, responseBody, compressedSize, config.Proxy{
 			GZIPContentTypes: regexp.MustCompile(`.*`),
 		})
 	})
 }
 
-func testProxyLogOutput(t *testing.T, bodySize int, cfg config.Proxy) {
+func testProxyLogOutput(t *testing.T, responseBody string, bodySize int, cfg config.Proxy) {
 	t.Helper()
 
 	// build a format string from all log fields and one header field
@@ -461,7 +489,7 @@ func testProxyLogOutput(t *testing.T, bodySize int, cfg config.Proxy) {
 
 	// create an upstream server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "foooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo")
+		fmt.Fprint(w, responseBody)
 	}))
 	defer server.Close()
 
@@ -615,7 +643,6 @@ func TestProxyHTTPSTransport(t *testing.T) {
 	if got, want := sni.sni, "foo.com"; got != want {
 		t.Fatalf("got sni %q want %q", got, want)
 	}
-
 }
 
 func TestProxyHTTPSUpstreamSkipVerify(t *testing.T) {
@@ -731,8 +758,10 @@ func TestProxyGzipHandler(t *testing.T) {
 	}
 }
 
-var plainContent = []byte("Hello World")
-var gzipContent = compress(plainContent)
+var (
+	plainContent = []byte("Hello World")
+	gzipContent  = compress(plainContent)
+)
 
 func plainHandler(contentType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -860,5 +889,72 @@ func BenchmarkProxyLogger(b *testing.B) {
 
 	for b.Loop() {
 		proxy.ServeHTTP(httptest.NewRecorder(), req)
+	}
+}
+
+func TestProxyPathNormalization(t *testing.T) {
+	// Track which paths the backend receives
+	var receivedPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedPath = r.URL.Path
+		w.Write([]byte("OK"))
+	}))
+	defer server.Close()
+
+	proxy := httptest.NewServer(&HTTPProxy{
+		ProtectHeaders: testProtectHeaders,
+		Transport:      http.DefaultTransport,
+		Lookup: func(r *http.Request) *route.Target {
+			return &route.Target{URL: mustParse(server.URL)}
+		},
+	})
+	defer proxy.Close()
+
+	tests := []struct {
+		name         string
+		requestPath  string
+		expectedPath string
+	}{
+		{
+			name:         "percent-encoded path",
+			requestPath:  "/foo%2Fbar",
+			expectedPath: "/foo/bar",
+		},
+		{
+			name:         "path with traversal",
+			requestPath:  "/foo/../bar",
+			expectedPath: "/bar",
+		},
+		{
+			name:         "path with double slashes",
+			requestPath:  "/foo//bar",
+			expectedPath: "/foo/bar",
+		},
+		{
+			name:         "complex path",
+			requestPath:  "/api%2F..%2Fv2//users/",
+			expectedPath: "/v2/users/",
+		},
+		{
+			name:         "trailing slash preserved",
+			requestPath:  "/api/users/",
+			expectedPath: "/api/users/",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			receivedPath = "" // Reset
+			resp, body := mustGet(proxy.URL + tt.requestPath)
+			if got, want := resp.StatusCode, http.StatusOK; got != want {
+				t.Fatalf("got status %d want %d", got, want)
+			}
+			if got, want := string(body), "OK"; got != want {
+				t.Fatalf("got body %q want %q", got, want)
+			}
+			if receivedPath != tt.expectedPath {
+				t.Errorf("backend received path %q, want %q", receivedPath, tt.expectedPath)
+			}
+		})
 	}
 }
