@@ -22,8 +22,6 @@ import (
 	"testing"
 	"time"
 
-	"golang.org/x/net/http2"
-
 	"github.com/fabiolb/fabio/config"
 	consulapi "github.com/hashicorp/consul/api"
 	vaultapi "github.com/hashicorp/vault/api"
@@ -570,10 +568,7 @@ func testSource(t *testing.T, source Source, rootCAs *x509.CertPool, sleep time.
 	// otherwise the HTTPS client will not verify the
 	// certificate presented by the server.
 	http11 := http11Client(rootCAs)
-	http20, err := http20Client(rootCAs)
-	if err != nil {
-		t.Fatal("http20Client: ", err)
-	}
+	http20 := http20Client(rootCAs)
 
 	// disable log output for the next call to prevent
 	// confusing log messages since they are expected
@@ -659,16 +654,15 @@ func http11Client(rootCAs *x509.CertPool) *http.Client {
 // http20Client returns an HTTP client which can
 // execute HTTP/2.0 requests via TLS if the server
 // supports it.
-func http20Client(rootCAs *x509.CertPool) (*http.Client, error) {
+func http20Client(rootCAs *x509.CertPool) *http.Client {
 	t := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			RootCAs: rootCAs,
 		},
 	}
-	if err := http2.ConfigureTransport(t); err != nil {
-		return nil, err
-	}
-	return &http.Client{Transport: t}, nil
+	t.Protocols = new(http.Protocols)
+	t.Protocols.SetHTTP2(true)
+	return &http.Client{Transport: t}
 }
 
 func writeFile(filename string, data []byte) {
