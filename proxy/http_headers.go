@@ -25,7 +25,13 @@ func addResponseHeaders(w http.ResponseWriter, r *http.Request, cfg config.Proxy
 	}
 }
 
-// DefaultProtectHeaders is a map of headers that are protected from Client manipulation.
+// DefaultProtectHeaders is a map of headers that are protected from client manipulation.
+// At startup newHTTPProxy() will augment it with the following configuration-dependent
+// headers:
+//
+//   - [config.Proxy.RequestID] (example: X-Request-Id)
+//   - [config.Proxy.ClientIPHeader] (example: X-Client-Ip)
+//   - [config.Proxy.TLSHeader]
 var DefaultProtectHeaders = map[string]bool{
 	"Forwarded":          true,
 	"X-Forwarded-For":    true,
@@ -44,29 +50,46 @@ var DefaultProtectHeaders = map[string]bool{
 // * remove Connection headers if they clash with internal ones.
 // * ClientIPHeader != "": Set header with that name to <remote ip>
 // * TLS connection: Set header with name from `cfg.TLSHeader` to `cfg.TLSHeaderValue`
-func addHeaders(r *http.Request, hdrs map[string]bool, cfg config.Proxy, stripPath string) error {
+func addHeaders(r *http.Request, protectHdrs map[string]bool, cfg config.Proxy, stripPath string) error {
 	remoteIP, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return errors.New("cannot parse " + r.RemoteAddr)
 	}
 
-	// exclude headers from Connection rules.
+	// TODO(marco-m)
+	// I believe that the comment here describes correctly what the code does, but
+	// I am lost understanding why the code is doing this. I am not even sure that
+	// the code is doing what its intent was...
+	//
+	// The Connection header contains a list of hop-by-hop headers.
+	// The stdlib [httputil.ReverseProxy] follows RFC 7230, section 6.1: it will remove
+	// from the request:
+	// - The headers listed in the Connection header.
+	// - The Connection header itself.
+	//
+	// Before passing Connection to ReverseProxy, we remove from it all the headers
+	// that are also in protectHdrs. This means that ReverseProxy will not delete them,
+	// although it could (and will) modify some of them, such as the security sensitive
+	// XFF headers.
 	var conHeaders []string
 	for _, s := range r.Header.Values("Connection") {
 		for p := range strings.SplitSeq(s, ",") {
 			p = strings.TrimSpace(p)
-			if !hdrs[textproto.CanonicalMIMEHeaderKey(p)] {
+			if !protectHdrs[textproto.CanonicalMIMEHeaderKey(p)] {
 				conHeaders = append(conHeaders, p)
 			}
 		}
 	}
 
+	// Delete security-sensitive headers that we do not trust.
 	if cfg.ClearClientHeaders {
-		for k := range hdrs {
+		for k := range protectHdrs {
 			r.Header.Del(k)
 		}
 	}
 
+	// Set the Connection header to the list of headers that will be deleted by
+	// [ReverseProxy].
 	r.Header.Del("Connection")
 	if len(conHeaders) > 0 {
 		r.Header.Set("Connection", strings.Join(conHeaders, ", "))
@@ -134,6 +157,9 @@ func addHeaders(r *http.Request, hdrs map[string]bool, cfg config.Proxy, stripPa
 		r.Header.Set("X-Forwarded-Prefix", stripPath)
 	}
 
+	// Handle the Forwarded header.
+	// Syntax:
+	//   Forwarded: by=<identifier>;for=<identifier>;host=<host>;proto=<http|https>
 	fwd := r.Header.Get("Forwarded")
 	if fwd == "" {
 		fwd = "for=" + remoteIP + "; proto=" + proto
@@ -252,6 +278,7 @@ func scheme(r *http.Request) string {
 	}
 }
 
+// localPort returns the port in the Host header of the request.
 func localPort(r *http.Request) string {
 	if r == nil {
 		return ""
