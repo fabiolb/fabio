@@ -268,9 +268,9 @@ func normalizePath(urlPath string) string {
 	normalizedPath := urlPath
 	hasTrailingSlash := len(normalizedPath) > 1 && normalizedPath[len(normalizedPath)-1] == '/'
 
-	// Parse to handle percent-encoding
-	if u, err := url.Parse(urlPath); err == nil {
-		normalizedPath = u.Path
+	// Decode percent-encoding without interpreting '#' as a fragment delimiter.
+	if decodedPath, err := url.PathUnescape(urlPath); err == nil {
+		normalizedPath = decodedPath
 	}
 
 	// Clean the path to resolve . and .. segments
