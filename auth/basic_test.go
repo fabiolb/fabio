@@ -159,7 +159,7 @@ func TestBasic_Authorised(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := basicAuth.Authorized(tt.req, tt.res); got != tt.want {
+			if got := basicAuth.Authorized(tt.req, tt.res).Authorized; got != tt.want {
 				t.Errorf("got %v want %v", got, tt.want)
 			}
 		})
@@ -186,7 +186,7 @@ func TestBasic_Authorised_should_fail_without_htpasswd_file(t *testing.T) {
 		w := &responseWriter{}
 
 		// We want the first call to Authorized() to succeed.
-		if got, want := basicAuth.Authorized(r, w), true; got != want {
+		if got, want := basicAuth.Authorized(r, w).Authorized, true; got != want {
 			t.Errorf("got %v want %v", got, want)
 		}
 
@@ -207,7 +207,7 @@ func TestBasic_Authorised_should_fail_without_htpasswd_file(t *testing.T) {
 		basicAuth.done <- struct{}{}
 		synctest.Wait()
 		// We want the second call to Authorized() to fail.
-		if got, want := basicAuth.Authorized(r, w), false; got != want {
+		if got, want := basicAuth.Authorized(r, w).Authorized, false; got != want {
 			t.Errorf("got %v want %v", got, want)
 		}
 	})
