@@ -10,6 +10,12 @@ import (
 	proxyproto "github.com/pires/go-proxyproto"
 )
 
+func init() {
+	// go-proxyproto v0.15.0 DefaultPolicy changed to REQUIRE.
+	// retain old default to not break compatibility.
+	proxyproto.DefaultPolicy = proxyproto.USE
+}
+
 func ListenTCP(l config.Listen, cfg *tls.Config) (net.Listener, error) {
 	addr, err := net.ResolveTCPAddr("tcp", l.Addr)
 	if err != nil {
