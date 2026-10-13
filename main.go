@@ -194,6 +194,7 @@ func newHTTPProxy(cfg *config.Config, statsHandler *proxy.HttpStatsHandler) *pro
 	protectHeaders := proxy.DefaultProtectHeaders
 	protectHeaders[textproto.CanonicalMIMEHeaderKey(cfg.Proxy.RequestID)] = true
 	protectHeaders[textproto.CanonicalMIMEHeaderKey(cfg.Proxy.ClientIPHeader)] = true
+	protectHeaders[textproto.CanonicalMIMEHeaderKey(cfg.Proxy.RealIPHeader)] = true
 	protectHeaders[textproto.CanonicalMIMEHeaderKey(cfg.Proxy.TLSHeader)] = true
 
 	switch cfg.Log.AccessTarget {

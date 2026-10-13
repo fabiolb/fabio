@@ -463,6 +463,22 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			desc: "real IP header from command line",
+			args: []string{"-proxy.header.realip", "X-Mycdn-Ip"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.RealIPHeader = "X-Mycdn-Ip"
+				return cfg
+			},
+		},
+		{
+			desc:    "real IP header from environment",
+			environ: []string{"FABIO_proxy_header_realip=X-Mycdn-Ip"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.RealIPHeader = "X-Mycdn-Ip"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.header.tls", "value"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Proxy.TLSHeader = "value"
@@ -993,6 +1009,16 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			desc: "real IP header from config file",
+			args: []string{"-cfg", "/tmp/fabio-config-test"},
+			path: "/tmp/fabio-config-test",
+			data: "proxy.header.realip = X-Mycdn-Ip",
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.RealIPHeader = "X-Mycdn-Ip"
+				return cfg
+			},
+		},
+		{
 			desc: "config from file II",
 			args: []string{"-cfg=/tmp/fabio-config-test"},
 			path: "/tmp/fabio-config-test",
@@ -1175,6 +1201,10 @@ func TestLoad(t *testing.T) {
 				return cfg
 			},
 		},
+	}
+
+	if defaultConfig.Proxy.RealIPHeader != "X-Real-Ip" {
+		t.Fatalf("default real IP header = %q, want X-Real-Ip", defaultConfig.Proxy.RealIPHeader)
 	}
 
 	for _, tt := range tests {

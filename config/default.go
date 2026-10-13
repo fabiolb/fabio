@@ -51,6 +51,7 @@ var defaultConfig = &Config{
 		FlushInterval:        time.Second,
 		GlobalFlushInterval:  0,
 		LocalIP:              LocalIPString(),
+		RealIPHeader:         "X-Real-Ip",
 		AuthSchemes:          map[string]AuthScheme{},
 		IdleConnTimeout:      15 * time.Second,
 		GRPCMaxRxMsgSize:     4 * 1024 * 1024, // 4M

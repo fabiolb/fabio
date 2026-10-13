@@ -8,6 +8,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io"
+	"maps"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -60,6 +61,7 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 	type testCase struct {
 		clientHeader       http.Header
 		clearClientHeaders bool
+		realIPHeader       string
 		wantHeader         http.Header
 	}
 	test := func(t *testing.T, tc testCase) {
@@ -69,12 +71,18 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 			hdr = r.Header
 		}))
 		defer server.Close()
+		protectHeaders := make(map[string]bool, len(testProtectHeaders)+1)
+		maps.Copy(protectHeaders, testProtectHeaders)
+		if tc.realIPHeader != "" {
+			protectHeaders[http.CanonicalHeaderKey(tc.realIPHeader)] = true
+		}
 
 		proxy := httptest.NewServer(&HTTPProxy{
-			ProtectHeaders: testProtectHeaders,
+			ProtectHeaders: protectHeaders,
 			Config: config.Proxy{
 				LocalIP:            "1.1.1.1",
 				ClientIPHeader:     "X-Client-Ip",
+				RealIPHeader:       tc.realIPHeader,
 				RequestID:          "X-Request-ID",
 				ClearClientHeaders: tc.clearClientHeaders,
 			},
@@ -124,6 +132,50 @@ func TestProxyProducesCorrectXForwardedSomethingHeader(t *testing.T) {
 			},
 		})
 	})
+
+	for _, tc := range []struct {
+		name       string
+		incomingIP string
+		clear      bool
+		connection bool
+		wantIP     string
+	}{
+		{name: "TrustedCustomRealIP", incomingIP: "9.9.9.9", wantIP: "9.9.9.9"},
+		{name: "MissingCustomRealIP", wantIP: "127.0.0.1"},
+		{name: "ClearedCustomRealIP", incomingIP: "9.9.9.9", clear: true, wantIP: "127.0.0.1"},
+		{name: "ConnectionCustomRealIP", incomingIP: "9.9.9.9", connection: true, wantIP: "9.9.9.9"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			incoming := make(http.Header)
+			if tc.incomingIP != "" {
+				incoming.Set("X-Mycdn-Ip", tc.incomingIP)
+			}
+			if tc.connection {
+				incoming.Set("Connection", "x-mycdn-ip")
+			}
+			want := http.Header{
+				"Accept-Encoding":   {"gzip"},
+				"User-Agent":        {"Go-http-client/1.1"},
+				"X-Client-Ip":       {"127.0.0.1"},
+				"X-Forwarded-For":   {"127.0.0.1"},
+				"X-Forwarded-Host":  {"foo.com"},
+				"X-Forwarded-Port":  {"80"},
+				"X-Forwarded-Proto": {"http"},
+				"X-Mycdn-Ip":        {tc.wantIP},
+				"X-Request-Id":      {"proxy-test-uuid"},
+			}
+			if tc.clear {
+				// ClearClientHeaders also removes the pre-populated request ID.
+				want.Del("X-Request-Id")
+			}
+			test(t, testCase{
+				clientHeader:       incoming,
+				clearClientHeaders: tc.clear,
+				realIPHeader:       "X-Mycdn-Ip",
+				wantHeader:         want,
+			})
+		})
+	}
 }
 
 func TestProxyRequestIDHeader(t *testing.T) {

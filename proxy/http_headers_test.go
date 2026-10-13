@@ -555,6 +555,123 @@ func TestAddHeadersSuccess(t *testing.T) {
 				"X-Real-Ip":         {"6.6.6.6"},
 			},
 		},
+		{
+			"preserve configured real IP header from trusted edge",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{
+				"X-Mycdn-Ip": {"9.9.9.9"},
+			}},
+			config.Proxy{RealIPHeader: "X-Mycdn-Ip"},
+			"",
+			http.Header{
+				"Forwarded":         {"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": {"http"},
+				"X-Forwarded-Port":  {"80"},
+				"X-Mycdn-Ip":        {"9.9.9.9"},
+			},
+		},
+		{
+			"populate configured real IP header if absent",
+			&http.Request{RemoteAddr: "1.2.3.4:5555"},
+			config.Proxy{RealIPHeader: "X-Mycdn-Ip"},
+			"",
+			http.Header{
+				"Forwarded":         {"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": {"http"},
+				"X-Forwarded-Port":  {"80"},
+				"X-Mycdn-Ip":        {"1.2.3.4"},
+			},
+		},
+		{
+			"populate configured real IP header if empty",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{
+				"X-Mycdn-Ip": {""},
+			}},
+			config.Proxy{RealIPHeader: "X-Mycdn-Ip"},
+			"",
+			http.Header{
+				"Forwarded":         {"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": {"http"},
+				"X-Forwarded-Port":  {"80"},
+				"X-Mycdn-Ip":        {"1.2.3.4"},
+			},
+		},
+		{
+			"client IP header matching real IP case insensitively preserves the edge value",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{
+				"X-Mycdn-Ip": {"9.9.9.9"},
+			}},
+			config.Proxy{RealIPHeader: "x-MYCDN-ip", ClientIPHeader: "X-MYCDN-IP"},
+			"",
+			http.Header{
+				"Forwarded":         {"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": {"http"},
+				"X-Forwarded-Port":  {"80"},
+				"X-Mycdn-Ip":        {"9.9.9.9"},
+			},
+		},
+		{
+			"other client IP header still reports immediate peer",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{
+				"X-Mycdn-Ip": {"9.9.9.9"},
+			}},
+			config.Proxy{RealIPHeader: "X-Mycdn-Ip", ClientIPHeader: "Client-IP"},
+			"",
+			http.Header{
+				"Client-Ip":         {"1.2.3.4"},
+				"Forwarded":         {"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": {"http"},
+				"X-Forwarded-Port":  {"80"},
+				"X-Mycdn-Ip":        {"9.9.9.9"},
+			},
+		},
+		{
+			"clear untrusted configured real IP header before fallback",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{
+				"X-Mycdn-Ip": {"9.9.9.9"},
+			}},
+			config.Proxy{RealIPHeader: "X-Mycdn-Ip", ClearClientHeaders: true},
+			"",
+			http.Header{
+				"Forwarded":         {"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": {"http"},
+				"X-Forwarded-Port":  {"80"},
+				"X-Mycdn-Ip":        {"1.2.3.4"},
+			},
+		},
+		{
+			"configured real IP header cannot be removed by Connection token",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{
+				"Connection": {"keep-alive, x-mycdn-ip"},
+				"X-Mycdn-Ip": {"9.9.9.9"},
+			}},
+			config.Proxy{RealIPHeader: "X-Mycdn-Ip"},
+			"",
+			http.Header{
+				"Connection":        {"keep-alive"},
+				"Forwarded":         {"for=1.2.3.4; proto=http"},
+				"X-Forwarded-Proto": {"http"},
+				"X-Forwarded-Port":  {"80"},
+				"X-Mycdn-Ip":        {"9.9.9.9"},
+			},
+		},
+		{
+			"configured real IP header does not alter websocket forwarding",
+			&http.Request{RemoteAddr: "1.2.3.4:5555", Header: http.Header{
+				"Upgrade":         {"websocket"},
+				"X-Forwarded-For": {"9.9.9.9"},
+				"X-Mycdn-Ip":      {"8.8.8.8"},
+			}},
+			config.Proxy{RealIPHeader: "X-Mycdn-Ip"},
+			"",
+			http.Header{
+				"Forwarded":         {"for=1.2.3.4; proto=ws"},
+				"Upgrade":           {"websocket"},
+				"X-Forwarded-For":   {"9.9.9.9, 1.2.3.4"},
+				"X-Forwarded-Proto": {"http"},
+				"X-Forwarded-Port":  {"80"},
+				"X-Mycdn-Ip":        {"8.8.8.8"},
+			},
+		},
 	}
 
 	for i, tt := range tests {
