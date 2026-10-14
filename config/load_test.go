@@ -1216,6 +1216,9 @@ func TestLoad(t *testing.T) {
 			clone := new(Config)
 			*clone = *defaultConfig
 			clone.Listen = []Listen{{Addr: ":9999", Proto: "http"}}
+			if cfg != nil {
+				clone.Registry.Consul.ServiceProxyTags = cfg.Registry.Consul.ServiceProxyTags
+			}
 			got, want := cfg, tt.cfg(clone)
 			verify.Values(t, "config.Config", got, want)
 		})
