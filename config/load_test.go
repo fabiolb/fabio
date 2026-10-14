@@ -463,6 +463,14 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			desc:    "client IP header from environment",
+			environ: []string{"FABIO_proxy_header_clientip=X-Mycdn-Ip"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.ClientIPHeader = "X-Mycdn-Ip"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.header.tls", "value"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Proxy.TLSHeader = "value"
@@ -989,6 +997,16 @@ func TestLoad(t *testing.T) {
 			data: "proxy.addr = :5555",
 			cfg: func(cfg *Config) *Config {
 				cfg.Listen = []Listen{{Addr: ":5555", Proto: "http"}}
+				return cfg
+			},
+		},
+		{
+			desc: "client IP header from config file",
+			args: []string{"-cfg", "/tmp/fabio-config-test"},
+			path: "/tmp/fabio-config-test",
+			data: "proxy.header.clientip = X-Mycdn-Ip",
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.ClientIPHeader = "X-Mycdn-Ip"
 				return cfg
 			},
 		},
