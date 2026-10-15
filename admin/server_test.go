@@ -167,9 +167,13 @@ route del removed`))
 				t.Fatalf("status = %d", rec.Code)
 			}
 			var rows []struct {
-				Service, Src, Dst, Cmd, Opts string
-				Tags                         []string
-				Weight                       float64
+				Service string   `json:"service"`
+				Src     string   `json:"src"`
+				Dst     string   `json:"dst"`
+				Cmd     string   `json:"cmd"`
+				Opts    string   `json:"opts"`
+				Tags    []string `json:"tags"`
+				Weight  float64  `json:"weight"`
 			}
 			if err := json.Unmarshal(rec.Body.Bytes(), &rows); err != nil {
 				t.Fatal(err)
