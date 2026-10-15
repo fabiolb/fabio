@@ -1,11 +1,15 @@
 package admin
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/fabiolb/fabio/config"
+	"github.com/fabiolb/fabio/route"
 )
 
 func TestAdminServerAccess(t *testing.T) {
@@ -138,4 +142,71 @@ func TestAdminServerAccess(t *testing.T) {
 	testAccess("ro", "/fabio", roTestsWithPath)
 	testAccess("rw", "/fabio", rwTestsWithPath)
 	testAccess("no", "/fabio", noTestsWithPath)
+}
+
+func TestDeletedRouteAPIAndPageForReadOnlyAndWritableAccess(t *testing.T) {
+	old := route.GetTable()
+	defer route.SetTable(old)
+
+	table, err := route.NewTable(bytes.NewBufferString(`route add removed /old http://gone.example/ tags "retired" opts "strip=/old"
+route add live /live http://live.example/
+route add zero /zero http://zero.example/ weight 0
+route del removed`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	route.SetTable(table)
+
+	for _, access := range []string{"ro", "rw"} {
+		t.Run(access, func(t *testing.T) {
+			srv := &Server{Access: access, Cfg: &config.Config{}}
+			request := httptest.NewRequest("GET", "/api/routes", nil)
+			rec := httptest.NewRecorder()
+			srv.handler().ServeHTTP(rec, request)
+			if rec.Code != http.StatusOK {
+				t.Fatalf("status = %d", rec.Code)
+			}
+			var rows []struct {
+				Service, Src, Dst, Cmd, Opts string
+				Tags                         []string
+				Weight                       float64
+			}
+			if err := json.Unmarshal(rec.Body.Bytes(), &rows); err != nil {
+				t.Fatal(err)
+			}
+			if len(rows) != 3 {
+				t.Fatalf("rows = %+v", rows)
+			}
+			for _, row := range rows {
+				switch row.Service {
+				case "removed":
+					if row.Cmd != "route del" || row.Weight != 0 || row.Src != "/old" || row.Dst != "http://gone.example/" || row.Opts != "strip=/old" || len(row.Tags) != 1 || row.Tags[0] != "retired" {
+						t.Errorf("deleted row = %+v", row)
+					}
+				case "live":
+					if row.Cmd != "route add" || row.Weight != 1 || row.Dst != "http://live.example/" {
+						t.Errorf("live row = %+v", row)
+					}
+				case "zero":
+					if row.Cmd != "route add" || row.Weight != 0 || row.Dst != "http://zero.example/" {
+						t.Errorf("zero-weight active row = %+v", row)
+					}
+				default:
+					t.Errorf("unexpected row = %+v", row)
+				}
+			}
+
+			raw := httptest.NewRecorder()
+			srv.handler().ServeHTTP(raw, httptest.NewRequest("GET", "/api/routes?raw", nil))
+			if raw.Code != http.StatusOK || strings.Contains(raw.Body.String(), "gone.example") || strings.Contains(raw.Body.String(), "route del") || !strings.Contains(raw.Body.String(), "live.example") {
+				t.Errorf("raw route config = %q (status %d)", raw.Body.String(), raw.Code)
+			}
+
+			page := httptest.NewRecorder()
+			srv.handler().ServeHTTP(page, httptest.NewRequest("GET", "/routes", nil))
+			if page.Code != http.StatusOK || !strings.Contains(page.Body.String(), `r.cmd === "route del"`) || !strings.Contains(page.Body.String(), "tr.deleted-route td") {
+				t.Errorf("routes page missing deleted state rendering (status %d)", page.Code)
+			}
+		})
+	}
 }

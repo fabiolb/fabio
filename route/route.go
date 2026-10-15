@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/fabiolb/fabio/transport"
 	"log"
+	"maps"
 	"net/url"
 	"reflect"
 	"slices"
@@ -36,6 +37,10 @@ type Route struct {
 	// Targets contains the list of URLs
 	Targets []*Target
 
+	// DeletedTargets retains display-only metadata for removed targets.
+	// Neither routing nor traffic metrics use these records.
+	DeletedTargets []*Target
+
 	// wTargets contains targets distributed according to their weight
 	wTargets []*Target
 
@@ -48,6 +53,16 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 	if fixedWeight < 0 {
 		fixedWeight = -1
 	}
+
+	// A re-added target is active again, not a stale deleted entry.
+	var deleted []*Target
+	for _, t := range r.DeletedTargets {
+		if t.Service == service && t.URL.String() == targetURL.String() && reflect.DeepEqual(t.Tags, tags) {
+			continue
+		}
+		deleted = append(deleted, t)
+	}
+	r.DeletedTargets = deleted
 
 	// de-dup existing target
 	for _, t := range r.Targets {
@@ -108,6 +123,13 @@ func (r *Route) filter(skip func(t *Target) bool) {
 	var clone []*Target
 	for _, t := range r.Targets {
 		if skip(t) {
+			// Only keep the fields required by the admin display; never
+			// retain counter handles or transport state as deleted routes.
+			u := *t.URL
+			r.DeletedTargets = append(r.DeletedTargets, &Target{
+				Service: t.Service, URL: &u,
+				Tags: slices.Clone(t.Tags), Opts: maps.Clone(t.Opts),
+			})
 			continue
 		}
 		clone = append(clone, t)
@@ -211,6 +233,11 @@ const maxSlots = 1e4 // 10000
 // Targets with a dynamic weight will receive an equal share of the remaining
 // traffic if there is any left.
 func (r *Route) weighTargets() {
+	if len(r.Targets) == 0 {
+		r.wTargets = nil
+		return
+	}
+
 	// how big is the fixed weighted traffic?
 	var nFixed int
 	var sumFixed float64

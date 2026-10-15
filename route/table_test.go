@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"testing"
@@ -796,5 +797,188 @@ func TestTable_Dump(t *testing.T) {
 
 	if want != got {
 		t.Errorf("Unexpected Dump() output:\nwant:\n%s\ngot:\n%s\n", want, got)
+	}
+}
+
+// Deleted targets stay visible to administrators but never become live targets.
+func TestDeletedRouteDisplayOnly(t *testing.T) {
+	tests := []struct {
+		name, config    string
+		active, deleted []string
+	}{
+		{
+			name: "service-wide",
+			config: `route add alpha /api http://a.example/ opts "strip=/old"
+route add alpha /other http://b.example/
+route add beta /api http://c.example/
+route del alpha`,
+			active:  []string{"beta /api http://c.example/"},
+			deleted: []string{"alpha /api http://a.example/", "alpha /other http://b.example/"},
+		},
+		{
+			name: "service-and-path",
+			config: `route add alpha /api http://a.example/
+route add alpha /api http://b.example/
+route add alpha /other http://c.example/
+route add beta /api http://d.example/
+route del alpha /api`,
+			active:  []string{"alpha /other http://c.example/", "beta /api http://d.example/"},
+			deleted: []string{"alpha /api http://a.example/", "alpha /api http://b.example/"},
+		},
+		{
+			name: "specific-destination",
+			config: `route add alpha /api http://a.example/
+route add alpha /api http://b.example/
+route del alpha /api http://a.example/`,
+			active:  []string{"alpha /api http://b.example/"},
+			deleted: []string{"alpha /api http://a.example/"},
+		},
+		{
+			name: "service-and-tags",
+			config: `route add alpha /api http://a.example/ tags "blue,common"
+route add alpha /api http://b.example/ tags "red"
+route add beta /api http://c.example/ tags "blue"
+route del alpha tags "blue"`,
+			active:  []string{"alpha /api http://b.example/", "beta /api http://c.example/"},
+			deleted: []string{"alpha /api http://a.example/"},
+		},
+		{
+			name: "all-services-by-tags",
+			config: `route add alpha /api http://a.example/ tags "blue"
+route add beta /api http://b.example/ tags "blue"
+route add beta /api http://c.example/ tags "red"
+route del tags "blue"`,
+			active:  []string{"beta /api http://c.example/"},
+			deleted: []string{"alpha /api http://a.example/", "beta /api http://b.example/"},
+		},
+		{
+			name: "unmatched-delete",
+			config: `route add alpha /api http://a.example/
+route del missing /api
+route del alpha /unknown
+route del alpha /api http://missing.example/`,
+			active: []string{"alpha /api http://a.example/"},
+		},
+		{
+			name: "readded-target",
+			config: `route add alpha /api http://a.example/ tags "one" opts "strip=/old"
+route del alpha /api
+route del alpha /api
+route add alpha /api http://a.example/ tags "one" opts "strip=/new"`,
+			active: []string{"alpha /api http://a.example/"},
+		},
+		{
+			name: "readd-with-different-tags-preserves-old-record",
+			config: `route add alpha /api http://a.example/ tags "blue"
+route del alpha /api
+route add alpha /api http://a.example/ tags "red"`,
+			active:  []string{"alpha /api http://a.example/"},
+			deleted: []string{"alpha /api http://a.example/"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tbl, err := NewTable(bytes.NewBufferString(tt.config))
+			if err != nil {
+				t.Fatal(err)
+			}
+			var active, deleted []string
+			for _, routes := range tbl {
+				for _, r := range routes {
+					for _, tg := range r.Targets {
+						active = append(active, tg.Service+" "+r.Host+r.Path+" "+tg.URL.String())
+					}
+					for _, tg := range r.DeletedTargets {
+						deleted = append(deleted, tg.Service+" "+r.Host+r.Path+" "+tg.URL.String())
+						if tg.Timer != nil || tg.RxCounter != nil || tg.TxCounter != nil || tg.Transport != nil {
+							t.Fatal("deleted display record retained live metrics or transport")
+						}
+					}
+				}
+			}
+			sort.Strings(active)
+			sort.Strings(deleted)
+			sort.Strings(tt.active)
+			sort.Strings(tt.deleted)
+			if !reflect.DeepEqual(active, tt.active) {
+				t.Errorf("active = %v, want %v", active, tt.active)
+			}
+			if !reflect.DeepEqual(deleted, tt.deleted) {
+				t.Errorf("deleted = %v, want %v", deleted, tt.deleted)
+			}
+			if strings.Contains(tbl.String(), "route del") {
+				t.Fatal("config emitted deleted route")
+			}
+		})
+	}
+}
+
+func TestDeletedRouteLookupFallbackAndMetrics(t *testing.T) {
+	tbl, err := NewTable(bytes.NewBufferString(`route add fallback example.com/ http://live.example/
+route add removed example.com/api http://gone.example/
+route del removed example.com/api`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	deleted := tbl.route("example.com", "/api")
+	if deleted == nil || len(deleted.Targets) != 0 || len(deleted.wTargets) != 0 || len(deleted.DeletedTargets) != 1 {
+		t.Fatalf("unexpected deleted route state: %+v", deleted)
+	}
+	for _, globDisabled := range []bool{true, false} {
+		req := httptest.NewRequest("GET", "http://example.com/api/child", nil)
+		target := tbl.Lookup(req, rrPicker, prefixMatcher, globCache, globDisabled)
+		if target == nil || target.URL.String() != "http://live.example/" {
+			t.Errorf("fallback target = %v, want http://live.example/", target)
+		}
+	}
+	if strings.Contains(tbl.String(), "gone.example") || strings.Contains(tbl.Dump(), "/api") {
+		t.Fatalf("deleted route leaked into config or dump: %q / %q", tbl.String(), tbl.Dump())
+	}
+	if keys := collectTableMetricKeys(tbl); len(keys) != 1 {
+		t.Fatalf("metrics include deleted routes: %v", keys)
+	}
+}
+
+func TestDeletedRouteNewTableCustomMatchesParsed(t *testing.T) {
+	defs := []RouteDef{
+		{Cmd: RouteAddCmd, Service: "one", Src: "/api", Dst: "http://one.example/", Weight: -1, Tags: []string{"blue"}},
+		{Cmd: RouteAddCmd, Service: "two", Src: "/api", Dst: "http://two.example/", Weight: -1},
+		{Cmd: RouteDelCmd, Service: "one", Src: "/api"},
+		{Cmd: RouteAddCmd, Service: "one", Src: "/api", Dst: "http://one.example/", Weight: -1, Tags: []string{"blue"}},
+	}
+	c, err := NewTableCustom(&defs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := NewTable(bytes.NewBufferString(`route add one /api http://one.example/ tags "blue"
+route add two /api http://two.example/
+route del one /api
+route add one /api http://one.example/ tags "blue"`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tbl := range []Table{c, p} {
+		r := tbl.route("", "/api")
+		if r == nil || len(r.Targets) != 2 || len(r.DeletedTargets) != 0 {
+			t.Fatalf("unexpected custom/parsed route: %+v", r)
+		}
+		if !strings.Contains(tbl.String(), "http://one.example/") || !strings.Contains(tbl.String(), "http://two.example/") {
+			t.Fatalf("live targets missing from config: %s", tbl.String())
+		}
+	}
+	if got, want := c.String(), p.String(); got != want {
+		t.Fatalf("custom and parsed tables differ:\ncustom: %s\nparsed: %s", got, want)
+	}
+}
+
+func TestZeroWeightActiveTargetIsNotDeleted(t *testing.T) {
+	tbl, err := NewTable(bytes.NewBufferString(`route add zero /zero http://zero.example/ weight 0`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	r := tbl.route("", "/zero")
+	if r == nil || len(r.Targets) != 1 || len(r.DeletedTargets) != 0 || r.Targets[0].Weight != 0 {
+		t.Fatalf("zero-weight target should remain active: %+v", r)
 	}
 }

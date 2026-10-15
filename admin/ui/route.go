@@ -36,6 +36,8 @@ var tmplRoutes = template.Must(template.New("routes").Parse( // language=HTML
 		td.tags { display: none; }
 		.footer { padding-top: 10px; }
 		.logo { height: 32px; margin: 0 auto; display: block; }
+		tr.deleted-route td { color: #9e9e9e; text-decoration: line-through; }
+		tr.deleted-route a { color: inherit; }
 
 		@media (min-width: 78em) {
 			td.tags{ display: table-cell; }
@@ -125,6 +127,9 @@ $(function(){
 					$tr.append($('<td />').addClass('tooltip').append($('<span class="tooltiptext"></span>').text("Route Source cannot start with the protocol or scheme (e.g. - 'http' and 'https' are invalid to have listed in the route source)")).append($('<span class="valign-wrapper" />').append(i+1).append($('<i class="material-icons">error_outline</i>'))));
 				} else {
 					$tr.append($('<td />').text(i+1));
+				}
+				if (r.cmd === "route del") {
+					$tr.addClass('deleted-route').attr('title', 'Removed by route override');
 				}
 				$tr.append($('<td />').text(r.service));
 

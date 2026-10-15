@@ -44,27 +44,32 @@ func (h *RoutesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, host := range hosts {
 		for _, tr := range t[host] {
 			for _, tg := range tr.Targets {
-				var opts []string
-				for k, v := range tg.Opts {
-					opts = append(opts, k+"="+v)
-				}
-
-				ar := apiRoute{
-					Service: tg.Service,
-					Host:    tr.Host,
-					Path:    tr.Path,
-					Src:     tr.Host + tr.Path,
-					Dst:     tg.URL.String(),
-					Opts:    strings.Join(opts, " "),
-					Weight:  tg.Weight,
-					Tags:    tg.Tags,
-					Cmd:     "route add",
-					// Rate1:   tg.Timer.Rate1(),
-					// Pct99:   tg.Timer.Percentile(0.99),
-				}
-				routes = append(routes, ar)
+				routes = append(routes, toAPIRoute(tr, tg, "route add", tg.Weight))
+			}
+			for _, tg := range tr.DeletedTargets {
+				routes = append(routes, toAPIRoute(tr, tg, "route del", 0))
 			}
 		}
 	}
 	writeJSON(w, r, routes)
+}
+
+// toAPIRoute presents live and removed targets with the same route metadata.
+func toAPIRoute(tr *route.Route, tg *route.Target, cmd string, weight float64) apiRoute {
+	var opts []string
+	for k, v := range tg.Opts {
+		opts = append(opts, k+"="+v)
+	}
+
+	return apiRoute{
+		Service: tg.Service,
+		Host:    tr.Host,
+		Path:    tr.Path,
+		Src:     tr.Host + tr.Path,
+		Dst:     tg.URL.String(),
+		Opts:    strings.Join(opts, " "),
+		Weight:  weight,
+		Tags:    tg.Tags,
+		Cmd:     cmd,
+	}
 }
