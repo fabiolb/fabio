@@ -22,8 +22,6 @@ import (
 	"testing"
 	"time"
 
-	"golang.org/x/net/http2"
-
 	"github.com/fabiolb/fabio/config"
 	consulapi "github.com/hashicorp/consul/api"
 	vaultapi "github.com/hashicorp/vault/api"
@@ -659,15 +657,17 @@ func http11Client(rootCAs *x509.CertPool) *http.Client {
 // http20Client returns an HTTP client which can
 // execute HTTP/2.0 requests via TLS if the server
 // supports it.
+//
+//nolint:unparam // Keep the existing test helper's error-returning signature.
 func http20Client(rootCAs *x509.CertPool) (*http.Client, error) {
 	t := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			RootCAs: rootCAs,
 		},
+		Protocols: new(http.Protocols),
 	}
-	if err := http2.ConfigureTransport(t); err != nil {
-		return nil, err
-	}
+	t.Protocols.SetHTTP1(true)
+	t.Protocols.SetHTTP2(true)
 	return &http.Client{Transport: t}, nil
 }
 
