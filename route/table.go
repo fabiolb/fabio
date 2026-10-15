@@ -287,7 +287,8 @@ func (t Table) weighRoute(d *RouteDef) error {
 // for this service and prefix are removed. This removes all active
 // instances of the service from the route. If only the service is
 // provided then all routes for this service are removed. The service
-// will no longer receive traffic. Routes with no targets are removed.
+// will no longer receive traffic. Routes without active targets are retained
+// only when they have deleted targets to display in the admin UI.
 func (t Table) delRoute(d *RouteDef) error {
 	switch {
 	case len(d.Tags) > 0:
@@ -332,11 +333,11 @@ func (t Table) delRoute(d *RouteDef) error {
 		})
 	}
 
-	// remove all routes without targets
+	// Retain deleted-only routes for administrative display.
 	for host, routes := range t {
 		var clone Routes
 		for _, r := range routes {
-			if len(r.Targets) == 0 {
+			if len(r.Targets) == 0 && len(r.DeletedTargets) == 0 {
 				continue
 			}
 			clone = append(clone, r)
@@ -512,7 +513,7 @@ func (t Table) lookup(host, path string, pick picker, match matcher) *Target {
 		if match(path, r) {
 			n := len(r.Targets)
 			if n == 0 {
-				return nil
+				continue
 			}
 
 			var target *Target
@@ -559,8 +560,13 @@ func (t Table) Dump() string {
 	w := new(bytes.Buffer)
 
 	hosts := []string{}
-	for k := range t {
-		hosts = append(hosts, k)
+	for k, routes := range t {
+		for _, r := range routes {
+			if len(r.Targets) > 0 {
+				hosts = append(hosts, k)
+				break
+			}
+		}
 	}
 	sort.Strings(hosts)
 
@@ -571,7 +577,12 @@ func (t Table) Dump() string {
 	for i, h := range hosts {
 		fmt.Fprintf(w, "+-- host=%s\n", h)
 
-		routes := t[h]
+		var routes Routes
+		for _, r := range t[h] {
+			if len(r.Targets) > 0 {
+				routes = append(routes, r)
+			}
+		}
 		for j, r := range routes {
 			p0 := "|   "
 			if last(i, len(hosts)) {
