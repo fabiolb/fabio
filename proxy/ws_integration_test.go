@@ -95,6 +95,7 @@ func TestProxyWSUpstream(t *testing.T) {
 }
 
 func TestProxyWSHandshakeResponseTimeout(t *testing.T) {
+	t.Parallel()
 	const handshakeDelay = 1250 * time.Millisecond
 	delayedEcho := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(handshakeDelay)
