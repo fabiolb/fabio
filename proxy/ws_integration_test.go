@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/route"
@@ -91,6 +92,102 @@ func TestProxyWSUpstream(t *testing.T) {
 	t.Run("ws-ws via http proxy with prepend", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/bar/baz", nil) })
 
 	t.Run("ws-ws via http proxy with strip & prepend", func(t *testing.T) { testWSEcho(t, "ws://"+httpProxyURL+"/old/world", nil) })
+}
+
+func TestProxyWSHandshakeResponseTimeout(t *testing.T) {
+	const handshakeDelay = 1250 * time.Millisecond
+	delayedEcho := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(handshakeDelay)
+		websocket.Handler(wsEchoHandler).ServeHTTP(w, r)
+	})
+
+	for _, mode := range []struct {
+		name        string
+		proxyTLS    bool
+		upstreamTLS bool
+	}{
+		{"http to ws", false, false},
+		{"https to ws", true, false},
+		{"http to wss", false, true},
+		{"https to wss", true, true},
+	} {
+		t.Run(mode.name, func(t *testing.T) {
+			t.Parallel()
+			upstream := httptest.NewUnstartedServer(delayedEcho)
+			if mode.upstreamTLS {
+				upstream.TLS = tlsServerConfig()
+				upstream.StartTLS()
+			} else {
+				upstream.Start()
+			}
+			defer upstream.Close()
+
+			routes := "route add ws /delayed " + upstream.URL
+			if mode.upstreamTLS {
+				routes += ` opts "proto=https"`
+			}
+			table, err := route.NewTable(bytes.NewBufferString(routes + "\n"))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			for _, tc := range []struct {
+				name        string
+				timeout     time.Duration
+				wantSuccess bool
+			}{
+				{"no limit", 0, true},
+				{"long enough", 3 * time.Second, true},
+				{"short limit", 250 * time.Millisecond, false},
+			} {
+				t.Run(tc.name, func(t *testing.T) {
+					p := httptest.NewUnstartedServer(&HTTPProxy{
+						Config:            config.Proxy{NoRouteStatus: 404, ResponseHeaderTimeout: tc.timeout},
+						Transport:         &http.Transport{TLSClientConfig: tlsClientConfig()},
+						InsecureTransport: &http.Transport{TLSClientConfig: tlsInsecureConfig()},
+						Lookup: func(r *http.Request) *route.Target {
+							return table.Lookup(r, route.Picker["rr"], route.Matcher["prefix"], globCache, globEnabled)
+						},
+					})
+					if mode.proxyTLS {
+						p.TLS = tlsServerConfig()
+						p.StartTLS()
+					} else {
+						p.Start()
+					}
+					defer p.Close()
+
+					wsURL := "ws://" + strings.TrimPrefix(p.URL, "http://") + "/delayed"
+					if mode.proxyTLS {
+						wsURL = "wss://" + strings.TrimPrefix(p.URL, "https://") + "/delayed"
+					}
+					if tc.wantSuccess {
+						testWSEcho(t, wsURL, nil)
+						return
+					}
+
+					cfg, err := websocket.NewConfig(wsURL, "http://localhost/")
+					if err != nil {
+						t.Fatal(err)
+					}
+					if mode.proxyTLS {
+						cfg.TlsConfig = tlsClientConfig()
+					}
+					started := time.Now()
+					ws, err := websocket.DialConfig(cfg)
+					if ws != nil {
+						ws.Close()
+					}
+					if err == nil {
+						t.Fatal("expected the backend handshake to exceed the configured timeout")
+					}
+					if elapsed := time.Since(started); elapsed >= handshakeDelay {
+						t.Fatalf("handshake failed after %s, expected it to time out before %s", elapsed, handshakeDelay)
+					}
+				})
+			}
+		})
+	}
 }
 
 func testWSEcho(t *testing.T, url string, hdr http.Header) {

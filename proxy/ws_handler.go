@@ -21,7 +21,7 @@ type dialFunc func(network, address string) (net.Conn, error)
 // an incoming and outgoing websocket connection. It checks whether
 // the handshake was completed successfully before forwarding data
 // between the client and server.
-func newWSHandler(host string, dial dialFunc, conn gkm.Gauge) http.Handler {
+func newWSHandler(host string, dial dialFunc, conn gkm.Gauge, responseHeaderTimeout time.Duration) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if conn != nil {
 			conn.Set(float64(conns.Add(1)))
@@ -62,10 +62,12 @@ func newWSHandler(host string, dial dialFunc, conn gkm.Gauge) http.Handler {
 		// read the initial response to check whether we get an HTTP/1.1 101 ... response
 		// to determine whether the handshake worked.
 		b := make([]byte, 1024)
-		if err := out.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
-			log.Printf("[ERROR] Error setting read timeout for %s: %s", r.URL, err)
-			http.Error(w, "error setting read timeout", http.StatusInternalServerError)
-			return
+		if responseHeaderTimeout > 0 {
+			if err := out.SetReadDeadline(time.Now().Add(responseHeaderTimeout)); err != nil {
+				log.Printf("[ERROR] Error setting read timeout for %s: %s", r.URL, err)
+				http.Error(w, "error setting read timeout", http.StatusInternalServerError)
+				return
+			}
 		}
 
 		n, err := out.Read(b)
