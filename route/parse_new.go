@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -49,6 +50,9 @@ route weight <svc> <src> weight <w> tags "<t1>,<t2>,..."
 route weight <src> weight <w> tags "<t1>,<t2>,..."
   - Route w% of traffic to all services matching src and tags
 
+route weight <w> tags "<t1>,<t2>,..."
+  - Set the combined weight of matching targets to w for every route with these tags
+
 route weight <svc> <src> weight <w>
   - Route w% of traffic to all services matching svc and src
 
@@ -60,7 +64,7 @@ route weight service host/path weight w tags "tag1,tag2"
     w > 0: route will receive n% of traffic. If sum(w) > 1 then w is normalized.
     sum(w) >= 1: only matching services will receive traffic
 
-   Note that the total sum of traffic sent to all matching routes is w%.
+   Weights are applied within each route, not across different routes.
 `
 
 // Parse loads a routing table from a set of route commands.
@@ -186,6 +190,10 @@ var reWeightSvc = mustCompileWithFlexibleSpace(`^route weight (\S+) (\S+) weight
 // 1: src 2: weight val 3: tags val
 var reWeightSrc = mustCompileWithFlexibleSpace(`^route weight (\S+) weight (\S+) tags "([^"]*)"$`)
 
+// route weight <w> tags "<t1>,<t2>,..."
+// 1: weight val 2: tags val
+var reWeightTags = mustCompileWithFlexibleSpace(`^route weight (\S+) tags "([^"]*)"$`)
+
 func parseRouteWeight(s string) (*RouteDef, error) {
 	if m := reWeightSvc.FindStringSubmatch(s); m != nil {
 		w, err := parseWeight(m[3])
@@ -205,6 +213,20 @@ func parseRouteWeight(s string) (*RouteDef, error) {
 			Weight: w,
 			Tags:   parseTags(m[3]),
 		}, err
+	}
+	if m := reWeightTags.FindStringSubmatch(s); m != nil {
+		w, err := parseWeight(m[1])
+		if err != nil {
+			return nil, err
+		}
+		tags := parseTags(m[2])
+		if len(tags) == 0 {
+			return nil, errors.New("syntax error: 'route weight' tags required")
+		}
+		if slices.Contains(tags, "") {
+			return nil, errors.New("syntax error: 'route weight' tags required")
+		}
+		return &RouteDef{Cmd: RouteWeightCmd, Weight: w, Tags: tags}, nil
 	}
 	return nil, errors.New("syntax error: 'route weight' invalid")
 }

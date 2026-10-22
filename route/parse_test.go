@@ -152,6 +152,31 @@ func TestParse(t *testing.T) {
 			in:   ` route  weight  /prefix  weight  1.2  tags  " a , b " `,
 			out:  []*RouteDef{{Cmd: RouteWeightCmd, Src: "/prefix", Weight: 1.2, Tags: []string{"a", "b"}}},
 		},
+		{
+			desc: "RouteWeightTagsOnly",
+			in:   `route weight 0.05 tags "canary"`,
+			out:  []*RouteDef{{Cmd: RouteWeightCmd, Weight: 0.05, Tags: []string{"canary"}}},
+		},
+		{
+			desc: "RouteWeightTagsOnlyMultipleTagsMoreSpaces",
+			in:   ` route  weight  .05  tags  " canary , west " `,
+			out:  []*RouteDef{{Cmd: RouteWeightCmd, Weight: 0.05, Tags: []string{"canary", "west"}}},
+		},
+		{
+			desc: "RouteWeightTagsOnlyInvalidWeight",
+			in:   `route weight invalid tags "canary"`,
+			fail: true,
+		},
+		{
+			desc: "RouteWeightTagsOnlyEmptyTags",
+			in:   `route weight 0.05 tags ""`,
+			fail: true,
+		},
+		{
+			desc: "RouteWeightTagsOnlyBlankTags",
+			in:   `route weight 0.05 tags "  "`,
+			fail: true,
+		},
 	}
 
 	reSyntaxError := regexp.MustCompile(`syntax error`)
@@ -227,6 +252,12 @@ func TestParseAliases(t *testing.T) {
 			route add charlie-be charlie/ http://1.2.3.5/ opts "host=charlie proto=https"
 			route add delta-be delta/ http://1.2.3.5/ opts "host=delta proto=https register=delta"`,
 			out: []string{"alpha", "bravo", "delta"},
+		},
+		{
+			desc: "RouteWeightTagsOnly",
+			in: `route add alpha-be alpha/ http://1.2.3.4/ opts "register=alpha"
+			route weight 0.05 tags "canary"`,
+			out: []string{"alpha"},
 		},
 	}
 

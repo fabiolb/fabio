@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"slices"
 	"sort"
 	"strings"
 	"sync/atomic"
@@ -265,12 +266,28 @@ func (t Table) addRoute(d *RouteDef) error {
 }
 
 func (t Table) weighRoute(d *RouteDef) error {
-	host, path := hostpath(d.Src)
-
 	if d.Src == "" {
-		return errInvalidPrefix
+		// A tag-only weight rule applies to each matching route independently.
+		// Require actual tags, since no path or service is specified.
+		if len(d.Tags) == 0 {
+			return errInvalidPrefix
+		}
+		if slices.Contains(d.Tags, "") {
+			return errInvalidPrefix
+		}
+		var matched int
+		for _, routes := range t {
+			for _, r := range routes {
+				matched += r.setWeight(d.Service, d.Weight, d.Tags)
+			}
+		}
+		if matched == 0 {
+			return errNoMatch
+		}
+		return nil
 	}
 
+	host, path := hostpath(d.Src)
 	if t[host] == nil || t[host].find(path) == nil {
 		return errNoMatch
 	}

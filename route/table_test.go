@@ -348,6 +348,65 @@ func TestTableParse(t *testing.T) {
 			},
 		},
 
+		{"weigh tags only across services, paths and hosts",
+			[]string{
+				`route add product /api/product http://product-main/`,
+				`route add product /api/product http://product-canary-a/ tags "canary"`,
+				`route add product /api/product http://product-canary-b/ tags "canary"`,
+				`route add billing /api/billing http://billing-main/`,
+				`route add billing /api/billing http://billing-canary/ tags "canary"`,
+				`route add inventory catalog.example/api/inventory http://inventory-main/`,
+				`route add inventory catalog.example/api/inventory http://inventory-canary/ tags "canary"`,
+				`route add other catalog.example/untouched http://regular/ weight 0.4`,
+				`route add other catalog.example/untouched http://regular2/ weight 0.6`,
+				`route weight 0.05 tags "canary"`,
+			},
+			[]string{
+				`route add other catalog.example/untouched http://regular/ weight 0.4000`,
+				`route add other catalog.example/untouched http://regular2/ weight 0.6000`,
+				`route add inventory catalog.example/api/inventory http://inventory-main/ weight 0.9500`,
+				`route add inventory catalog.example/api/inventory http://inventory-canary/ weight 0.0500 tags "canary"`,
+				`route add product /api/product http://product-main/ weight 0.9500`,
+				`route add product /api/product http://product-canary-a/ weight 0.0250 tags "canary"`,
+				`route add product /api/product http://product-canary-b/ weight 0.0250 tags "canary"`,
+				`route add billing /api/billing http://billing-main/ weight 0.9500`,
+				`route add billing /api/billing http://billing-canary/ weight 0.0500 tags "canary"`,
+			},
+		},
+		{"weigh tags only with all required tags",
+			[]string{
+				`route add search /api/search http://main/`,
+				`route add search /api/search http://canary-west/ tags "canary,west"`,
+				`route add search /api/search http://canary-east/ tags "canary,east"`,
+				`route weight 0.1 tags "canary,west"`,
+			},
+			[]string{
+				`route add search /api/search http://main/ weight 0.4500`,
+				`route add search /api/search http://canary-west/ weight 0.1000 tags "canary,west"`,
+				`route add search /api/search http://canary-east/ weight 0.4500 tags "canary,east"`,
+			},
+		},
+		{"weigh tags only without matching targets",
+			[]string{
+				`route add search /api/search http://main/ weight 0.4`,
+				`route add search /api/search http://secondary/ weight 0.6`,
+				`route weight 0.05 tags "missing"`,
+			},
+			[]string{
+				`route add search /api/search http://main/ weight 0.4000`,
+				`route add search /api/search http://secondary/ weight 0.6000`,
+			},
+		},
+		{"weigh tags only when every target is tagged",
+			[]string{
+				`route add search /api/search http://canary/ tags "canary"`,
+				`route weight 0.05 tags "canary"`,
+			},
+			[]string{
+				`route add search /api/search http://canary/ weight 1.0000 tags "canary"`,
+			},
+		},
+
 		{"weigh more than 1000 routes",
 			genRoutes(1234, `route add svc / http://bar:%d/`),
 			genRoutes(1234, `route add svc / http://bar:%d/ weight 0.0008`),
@@ -372,6 +431,7 @@ func TestTableParse(t *testing.T) {
 				`route weight svcb / weight 0.1`,
 				`route weight svc / weight 0.1 tags "b"`,
 				`route weight / weight 0.1 tags "b"`,
+				`route weight 0.05 tags "canary"`,
 			},
 			[]string(nil),
 		},
@@ -677,6 +737,64 @@ func TestTableLookup_656(t *testing.T) {
 	}
 	if got, want := fmt.Sprint(target.RedirectURL), "https://example.com/foo"; got != want {
 		t.Errorf("target.RedirectURL = %s, want %s", got, want)
+	}
+}
+
+func TestTableWeightTagsOnly(t *testing.T) {
+	base := `route add service-a /first http://first-main/
+route add service-a /first http://first-canary/ tags "canary"`
+	for _, tt := range []struct {
+		name, extra string
+		paths       []string
+	}{
+		{"initial table", "", []string{"/first"}},
+		{"rebuild with a new service", `route add service-b /second http://second-main/
+route add service-b /second http://second-canary/ tags "canary"`, []string{"/first", "/second"}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			tbl, err := NewTable(bytes.NewBufferString(base + "\n" + tt.extra + "\nroute weight 0.05 tags \"canary\""))
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, path := range tt.paths {
+				r := tbl.route("", path)
+				if r == nil || len(r.Targets) != 2 {
+					t.Fatalf("route %s: got %v, want two targets", path, r)
+				}
+				for _, target := range r.Targets {
+					want := 0.95
+					if contains(target.Tags, []string{"canary"}) {
+						want = 0.05
+					}
+					if math.Abs(target.Weight-want) > 1e-9 {
+						t.Errorf("route %s target %s: weight %f, want %f", path, target.URL, target.Weight, want)
+					}
+				}
+			}
+		})
+	}
+
+	defs := []RouteDef{
+		{Cmd: RouteAddCmd, Service: "service", Src: "/custom", Dst: "http://main/", Weight: -1},
+		{Cmd: RouteAddCmd, Service: "service", Src: "/custom", Dst: "http://canary/", Weight: -1, Tags: []string{"canary"}},
+		{Cmd: RouteWeightCmd, Weight: 0.05, Tags: []string{"canary"}},
+		{Cmd: RouteWeightCmd, Weight: 0.05, Tags: []string{"missing"}},
+	}
+	custom, err := NewTableCustom(&defs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := custom.route("", "/custom").Targets[1].Weight; math.Abs(got-0.05) > 1e-9 {
+		t.Errorf("custom table canary weight = %f, want 0.05", got)
+	}
+	before := custom.String()
+	for _, tags := range [][]string{nil, {""}} {
+		if err := custom.weighRoute(&RouteDef{Weight: 0.05, Tags: tags}); err != errInvalidPrefix {
+			t.Errorf("tag-only rule with tags %q: got %v, want %v", tags, err, errInvalidPrefix)
+		}
+	}
+	if got := custom.String(); got != before {
+		t.Errorf("empty tags changed route weights:\nbefore: %s\nafter: %s", before, got)
 	}
 }
 

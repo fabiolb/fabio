@@ -86,7 +86,11 @@ The weight `w` is expressed as follows:
  * `w > 0`: route will receive n% of traffic. If sum(w) > 1 then w is normalized.
  * `sum(w) >= 1`: only matching services will receive traffic
 
-Note that the total sum of traffic sent to all matching routes is `w`%.
+Weights are applied within each route's target pool. A tag-only rule sets
+the combined share of matching instances to `w` for each route independently,
+not a percentage of all requests across different services or paths.
+If a route has only matching instances, its traffic is still shared among
+those instances after weight normalization.
 
 The order of commands matters but routes are always ordered from most to least
 specific by prefix length.
@@ -94,6 +98,7 @@ specific by prefix length.
 ```
 route weight <svc> <src> weight <w> tags "<t1>,<t2>,..."
 route weight <src> weight <w> tags "<t1>,<t2>,..."
+route weight <w> tags "<t1>,<t2>,..."
 route weight <svc> <src> weight <w>
 route weight service host/path weight w tags "tag1,tag2"
 ```
@@ -110,6 +115,10 @@ route weight /path weight .05 tags "lang=go"
 
 # Route 5% of the traffice to '/path' on the product-svc-go
 route weight product-svc-go /path weight .05
+
+# Give canary instances a combined 5% share within every route that has them.
+# Each route is weighted independently, regardless of service, host or path.
+route weight .05 tags "canary"
 ```
 
 ### Routing rules
