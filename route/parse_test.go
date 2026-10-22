@@ -78,6 +78,16 @@ func TestParse(t *testing.T) {
 			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/", Opts: map[string]string{"foo": "bar", "baz": "bang", "blimp": ""}, Weight: -1}},
 		},
 		{
+			desc: "RouteAddSingleMethod",
+			in:   `route add svc /api http://1.2.3.4/ opts "method=GET"`,
+			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/api", Dst: "http://1.2.3.4/", Opts: map[string]string{"method": "GET"}, Weight: -1}},
+		},
+		{
+			desc: "RouteAddMultipleMethods",
+			in:   `route add svc /api http://1.2.3.4/ opts "method=GET,POST strip=/api"`,
+			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/api", Dst: "http://1.2.3.4/", Opts: map[string]string{"method": "GET,POST", "strip": "/api"}, Weight: -1}},
+		},
+		{
 			desc: "RouteDelTags",
 			in:   `route del tags "a,b"`,
 			out:  []*RouteDef{{Cmd: RouteDelCmd, Tags: []string{"a", "b"}}},

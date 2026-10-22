@@ -32,6 +32,7 @@ route add <svc> <src> <dst>[ weight <w>][ tags "<t1>,<t2>,..."][ opts "k1=v1 k2=
 	  tlsskipverify=true : disable TLS cert validation for HTTPS upstream
 	  host=name          : set the Host header to 'name'. If 'name == "dst"' then the 'Host' header will be set to the registered upstream host name
 	  register=name      : register fabio as new service 'name'. Useful for registering hostnames for host specific routes.
+	  method=GET,POST    : only route requests with one of the specified HTTP methods
       auth=name          : name of the auth scheme to use (defined in proxy.auth)
 
 route del <svc>[ <src>[ <dst>]]

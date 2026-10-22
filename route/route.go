@@ -33,6 +33,10 @@ type Route struct {
 	// Path is the path prefix from a request uri
 	Path string
 
+	// Methods restricts this route to the listed HTTP request methods.
+	// An empty list matches any method.
+	Methods []string
+
 	// Targets contains the list of URLs
 	Targets []*Target
 
@@ -42,6 +46,25 @@ type Route struct {
 	// total contains the total number of requests for this route.
 	// Used by the RRPicker
 	total uint64
+}
+
+func parseMethods(opts map[string]string) []string {
+	if opts["method"] == "" {
+		return nil
+	}
+	methods := strings.Split(opts["method"], ",")
+	var normalized []string
+	for _, method := range methods {
+		if method = strings.TrimSpace(method); method != "" {
+			normalized = append(normalized, method)
+		}
+	}
+	sort.Strings(normalized)
+	return slices.Compact(normalized)
+}
+
+func (r *Route) matchesMethod(method string) bool {
+	return len(r.Methods) == 0 || slices.Contains(r.Methods, method)
 }
 
 func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float64, tags []string, opts map[string]string) {
