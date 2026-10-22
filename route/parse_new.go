@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -222,10 +223,8 @@ func parseRouteWeight(s string) (*RouteDef, error) {
 		if len(tags) == 0 {
 			return nil, errors.New("syntax error: 'route weight' tags required")
 		}
-		for _, tag := range tags {
-			if tag == "" {
-				return nil, errors.New("syntax error: 'route weight' tags required")
-			}
+		if slices.Contains(tags, "") {
+			return nil, errors.New("syntax error: 'route weight' tags required")
 		}
 		return &RouteDef{Cmd: RouteWeightCmd, Weight: w, Tags: tags}, nil
 	}

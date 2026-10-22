@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"slices"
 	"sort"
 	"strings"
 	"sync/atomic"
@@ -271,10 +272,8 @@ func (t Table) weighRoute(d *RouteDef) error {
 		if len(d.Tags) == 0 {
 			return errInvalidPrefix
 		}
-		for _, tag := range d.Tags {
-			if tag == "" {
-				return errInvalidPrefix
-			}
+		if slices.Contains(d.Tags, "") {
+			return errInvalidPrefix
 		}
 		var matched int
 		for _, routes := range t {
