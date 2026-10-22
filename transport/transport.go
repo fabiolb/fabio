@@ -5,6 +5,7 @@ import (
 	"github.com/fabiolb/fabio/config"
 	"net"
 	"net/http"
+	"time"
 )
 
 var (
@@ -14,6 +15,7 @@ var (
 func NewTransport(tlscfg *tls.Config) *http.Transport {
 	return &http.Transport{
 		ResponseHeaderTimeout: cfg.Proxy.ResponseHeaderTimeout,
+		ExpectContinueTimeout: time.Second,
 		IdleConnTimeout:       cfg.Proxy.IdleConnTimeout,
 		MaxIdleConnsPerHost:   cfg.Proxy.MaxConn,
 		DialContext: (&net.Dialer{
