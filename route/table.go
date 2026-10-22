@@ -181,7 +181,7 @@ func NewTable(b *bytes.Buffer) (t Table, err error) {
 
 	// Sort the route table for each hostname
 	for _, h := range t {
-		sort.Sort(h)
+		sort.Stable(h)
 	}
 
 	return t, nil
@@ -211,7 +211,7 @@ func NewTableCustom(defs *[]RouteDef) (t Table, err error) {
 
 	// Sort the route table for each hostname
 	for _, h := range t {
-		sort.Sort(h)
+		sort.Stable(h)
 	}
 
 	return t, nil
@@ -235,32 +235,19 @@ func (t Table) addRoute(d *RouteDef) error {
 		return fmt.Errorf("route: invalid target. %s", err)
 	}
 
-	switch {
-	// add new host
-	case t[host] == nil:
-		g, err := glob.Compile(path)
-		if err != nil {
-			return err
-		}
-		r := &Route{Host: host, Path: path, Glob: g}
+	methods := parseMethods(d.Opts)
+	if r := t[host].findMethods(path, methods); r != nil {
 		r.addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
-		t[host] = Routes{r}
-
-	// add new route to existing host
-	case t[host].find(path) == nil:
-		g, err := glob.Compile(path)
-		if err != nil {
-			return err
-		}
-		r := &Route{Host: host, Path: path, Glob: g}
-		r.addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
-		t[host] = append(t[host], r)
-
-	// add new target to existing route
-	default:
-		t[host].find(path).addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
+		return nil
 	}
 
+	g, err := glob.Compile(path)
+	if err != nil {
+		return err
+	}
+	r := &Route{Host: host, Path: path, Methods: methods, Glob: g}
+	r.addTarget(d.Service, targetURL, d.Weight, d.Tags, d.Opts)
+	t[host] = append(t[host], r)
 	return nil
 }
 
@@ -271,11 +258,11 @@ func (t Table) weighRoute(d *RouteDef) error {
 		return errInvalidPrefix
 	}
 
-	if t[host] == nil || t[host].find(path) == nil {
-		return errNoMatch
+	var matched int
+	for _, r := range t[host].findAll(path) {
+		matched += r.setWeight(d.Service, d.Weight, d.Tags)
 	}
-
-	if n := t[host].find(path).setWeight(d.Service, d.Weight, d.Tags); n == 0 {
+	if matched == 0 {
 		return errNoMatch
 	}
 	return nil
@@ -309,13 +296,12 @@ func (t Table) delRoute(d *RouteDef) error {
 		}
 
 	case d.Dst == "":
-		r := t.route(hostpath(d.Src))
-		if r == nil {
-			return nil
+		host, path := hostpath(d.Src)
+		for _, r := range t[host].findAll(path) {
+			r.filter(func(tg *Target) bool {
+				return tg.Service == d.Service
+			})
 		}
-		r.filter(func(tg *Target) bool {
-			return tg.Service == d.Service
-		})
 
 	default:
 		targetURL, err := url.Parse(d.Dst)
@@ -323,13 +309,12 @@ func (t Table) delRoute(d *RouteDef) error {
 			return fmt.Errorf("route: invalid target. %s", err)
 		}
 
-		r := t.route(hostpath(d.Src))
-		if r == nil {
-			return nil
+		host, path := hostpath(d.Src)
+		for _, r := range t[host].findAll(path) {
+			r.filter(func(tg *Target) bool {
+				return tg.Service == d.Service && tg.URL.String() == targetURL.String()
+			})
 		}
-		r.filter(func(tg *Target) bool {
-			return tg.Service == d.Service && tg.URL.String() == targetURL.String()
-		})
 	}
 
 	// remove all routes without targets
@@ -484,7 +469,7 @@ func (t Table) Lookup(req *http.Request, pick picker, match matcher, globCache *
 
 	hosts = append(hosts, "")
 	for _, h := range hosts {
-		if target = t.lookup(h, req.URL.Path, pick, match); target != nil {
+		if target = t.lookup(h, req.URL.Path, req.Method, pick, match); target != nil {
 			if target.RedirectCode != 0 {
 				req.URL.Host = req.Host
 				target.BuildRedirectURL(req.URL) // build redirect url and cache in target
@@ -503,16 +488,16 @@ func (t Table) Lookup(req *http.Request, pick picker, match matcher, globCache *
 }
 
 func (t Table) LookupHost(host string, pick picker) *Target {
-	return t.lookup(host, "/", pick, prefixMatcher)
+	return t.lookup(host, "/", "", pick, prefixMatcher)
 }
 
-func (t Table) lookup(host, path string, pick picker, match matcher) *Target {
+func (t Table) lookup(host, path, method string, pick picker, match matcher) *Target {
 	host = strings.ToLower(host) // routes are always added lowercase
 	for _, r := range t[host] {
-		if match(path, r) {
+		if match(path, r) && r.matchesMethod(method) {
 			n := len(r.Targets)
 			if n == 0 {
-				return nil
+				continue
 			}
 
 			var target *Target
