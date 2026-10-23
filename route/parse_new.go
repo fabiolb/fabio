@@ -29,6 +29,8 @@ route add <svc> <src> <dst>[ weight <w>][ tags "<t1>,<t2>,..."][ opts "k1=v1 k2=
 	  prepend=/prefix    : forward '/path/to/file' as '/prefix/path/to/file'
 	  proto=tcp          : upstream service is TCP, dst is ':port'
 	  proto=https        : upstream service is HTTPS
+	  proto=fastcgi      : forward HTTP requests to a FastCGI responder at dst host:port
+	  root=/srv/www      : upstream FastCGI document root used for SCRIPT_FILENAME
 	  tlsskipverify=true : disable TLS cert validation for HTTPS upstream
 	  host=name          : set the Host header to 'name'. If 'name == "dst"' then the 'Host' header will be set to the registered upstream host name
 	  register=name      : register fabio as new service 'name'. Useful for registering hostnames for host specific routes.
