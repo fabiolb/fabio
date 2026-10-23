@@ -115,7 +115,35 @@ The full documentation is on [fabiolb.net](https://fabiolb.net/)
 
    By default fabio only watches services which have a **passing** health check, unless overridden with [registry.consul.service.status](https://fabiolb.net/ref/registry.consul.service.status/).
 
-4. Register one `urlprefix-` tag per `host/path` prefix it serves, e.g.:
+4. Prefer Consul service metadata for new routes. Give each route a unique
+   metadata key beginning with `urlprefix-` (the default
+   [route prefix](https://fabiolb.net/ref/registry.consul.tagprefix/)), and put
+   the `host/path` and route options in the value. Include the exact `fabio`
+   discovery tag so fabio can find services that only have metadata routes.
+   For example, register this Consul service with a passing health check:
+
+```json
+{
+  "service": {
+    "id": "users-1",
+    "name": "users",
+    "address": "127.0.0.1",
+    "port": 8080,
+    "tags": ["fabio", "prod"],
+    "meta": {
+      "urlprefix-0": "/users",
+      "urlprefix-1": "example.com/ proto=https"
+    },
+    "check": {
+      "http": "http://127.0.0.1:8080/health",
+      "interval": "10s"
+    }
+  }
+}
+```
+
+   Legacy `urlprefix-` service tags continue to work, with or without the
+   `fabio` discovery tag, and may be combined with metadata routes. For example:
 
 ```
 # HTTP/S examples
@@ -131,6 +159,11 @@ urlprefix-:3306 proto=tcp                          # route external port 3306
 ```
 
    Make sure the prefix for HTTP routes contains **at least one slash** (`/`).
+   Metadata keys must be distinct (for example, `urlprefix-0`, `urlprefix-1`).
+   A service needs either a prefixed route tag or the `fabio` discovery tag to
+   be found. For metadata-only changes that do not wake Consul's health-state
+   watcher, set `registry.consul.pollinterval` to a nonzero duration (e.g. `5s`)
+   to refresh routes periodically.
 
    See the full list of options in the [Documentation](https://github.com/fabiolb/fabio/wiki/Routing#config-language).
 
