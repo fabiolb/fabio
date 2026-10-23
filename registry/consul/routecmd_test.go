@@ -90,6 +90,21 @@ func TestRouteCmd(t *testing.T) {
 				`route add svc-1 :1234 tcp://1.1.1.1:2222`,
 			},
 		},
+		{
+			name: "fastcgi",
+			r: routecmd{
+				prefix: "urlprefix-",
+				svc: &api.CatalogService{
+					ServiceName:    "php",
+					ServiceAddress: "1.1.1.1",
+					ServicePort:    9000,
+					ServiceTags:    []string{`urlprefix-/app proto=fastcgi root=/srv/www strip=/app`},
+				},
+			},
+			cfg: []string{
+				`route add php /app http://1.1.1.1:9000/ opts "proto=fastcgi root=/srv/www strip=/app"`,
+			},
+		},
 	}
 
 	for _, c := range cases {
