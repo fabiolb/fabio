@@ -49,7 +49,7 @@ func (w *ServiceMonitor) Watch(updates chan string) {
 		log.Printf("[DEBUG] consul: Health changed to #%d", meta.LastIndex)
 
 		prefixedChecks := checksWithTagPrefix(w.config.TagPrefix, checks)
-		log.Printf("[DEBUG] consul: only %d of %d checks have the configured tag prefix", len(prefixedChecks), len(checks))
+		log.Printf("[DEBUG] consul: selected %d of %d checks for prefixed routes, fabio discovery or node/maintenance state", len(prefixedChecks), len(checks))
 
 		// determine which services have passing health checks
 		passing := passingServices(prefixedChecks, w.config.ServiceStatus, w.strict)
@@ -63,7 +63,7 @@ func (w *ServiceMonitor) Watch(updates chan string) {
 }
 
 // makeConfig determines which service instances have passing health checks
-// and then finds the ones which have tags with the right prefix to build the config from.
+// and then builds routes from their tags or metadata.
 func (w *ServiceMonitor) makeConfig(checks []*api.HealthCheck) string {
 	// map service name to list of service passing for which the health check is ok
 	m := map[string]map[string]bool{}
@@ -141,7 +141,8 @@ func (w *ServiceMonitor) serviceConfig(name string, passing map[string]bool) (co
 	return config
 }
 
-// checksWithTagPrefix filters a list of Consul Health Checks to only the Checks with a Tag that begins with the prefix
+// checksWithTagPrefix keeps Consul health checks for services with a route tag
+// or the fabio discovery tag, along with node and maintenance checks.
 func checksWithTagPrefix(prefix string, checks api.HealthChecks) api.HealthChecks {
 	checksWithPrefix := make(api.HealthChecks, 0, len(checks))
 	for _, c := range checks {
@@ -150,7 +151,7 @@ func checksWithTagPrefix(prefix string, checks api.HealthChecks) api.HealthCheck
 			continue
 		}
 		for _, t := range c.ServiceTags {
-			if strings.HasPrefix(t, prefix) {
+			if t == "fabio" || strings.HasPrefix(t, prefix) {
 				checksWithPrefix = append(checksWithPrefix, c)
 				break
 			}
