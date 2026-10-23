@@ -227,6 +227,8 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	start := timeNow()
 	rw := &responseWriter{w: w}
+	t.Begin()
+	defer t.End()
 	h.ServeHTTP(rw, r)
 	end := timeNow()
 	dur := end.Sub(start)

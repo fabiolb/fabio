@@ -117,6 +117,8 @@ func (g GrpcProxyInterceptor) Stream(srv any, stream grpc.ServerStream, info *gr
 
 	start := time.Now()
 
+	target.Begin()
+	defer target.End()
 	err = handler(srv, proxyStream)
 
 	end := time.Now()
