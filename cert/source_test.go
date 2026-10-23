@@ -661,6 +661,7 @@ func http20Client(rootCAs *x509.CertPool) *http.Client {
 		},
 	}
 	t.Protocols = new(http.Protocols)
+	t.Protocols.SetHTTP1(true)
 	t.Protocols.SetHTTP2(true)
 	return &http.Client{Transport: t}
 }
