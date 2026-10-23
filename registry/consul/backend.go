@@ -138,7 +138,7 @@ func (b *be) WriteManual(path string, value string, version uint64) (ok bool, er
 
 func (b *be) WatchServices() chan string {
 	log.Printf("[INFO] consul: Using dynamic routes")
-	log.Printf("[INFO] consul: Using tag prefix %q", b.cfg.TagPrefix)
+	log.Printf("[INFO] consul: Using route tag and metadata key prefix %q (discovery tag: fabio)", b.cfg.TagPrefix)
 
 	m := NewServiceMonitor(b.c, b.cfg, b.dc)
 	svc := make(chan string)
