@@ -330,6 +330,9 @@ func startAdmin(cfg *config.Config) {
 			Version:  version,
 			Commands: route.Commands,
 			Cfg:      cfg,
+			IsShuttingDown: func() bool {
+				return atomic.LoadInt32(&shuttingDown) != 0
+			},
 		}
 		if err := srv.ListenAndServe(l, tlscfg); err != nil {
 			exit.Fatal("[FATAL] ui: ", err)
