@@ -1,9 +1,15 @@
 package consul
 
 import (
+	"crypto/sha256"
+	"crypto/tls"
 	"errors"
+	"fmt"
 	"log"
+	"net/http"
+	"os"
 	"slices"
+	"sync"
 
 	"github.com/fabiolb/fabio/config"
 	"github.com/fabiolb/fabio/registry"
@@ -35,6 +41,13 @@ func NewBackend(cfg *config.Consul) (registry.Backend, error) {
 	if err != nil {
 		return nil, err
 	}
+	if cfg.Scheme == "https" && (cfg.TLS.CertFile != "" || cfg.TLS.KeyFile != "" || cfg.TLS.CAFile != "") {
+		transport, err := newConsulTLSReloadTransport(consulCfg.HttpClient.Transport.(*http.Transport), consulCfg.TLSConfig)
+		if err != nil {
+			return nil, err
+		}
+		consulCfg.HttpClient.Transport = transport
+	}
 
 	// ping the agent
 	dc, err := datacenter(c)
@@ -50,6 +63,74 @@ func NewBackend(cfg *config.Consul) (registry.Backend, error) {
 		log.Printf("[INFO] consul: Connecting to default namespace")
 	}
 	return &be{c: c, dc: dc, cfg: cfg}, nil
+}
+
+// consulTLSReloadTransport keeps the shared Consul client while replacing its
+// TLS transport when certificate or CA file contents change.
+type consulTLSReloadTransport struct {
+	mu          sync.Mutex
+	config      api.TLSConfig
+	transport   *http.Transport
+	fingerprint [sha256.Size]byte
+	lastError   string
+}
+
+func newConsulTLSReloadTransport(transport *http.Transport, config api.TLSConfig) (*consulTLSReloadTransport, error) {
+	r := &consulTLSReloadTransport{config: config, transport: transport}
+	var err error
+	r.fingerprint, err = r.fileFingerprint()
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func (r *consulTLSReloadTransport) fileFingerprint() ([sha256.Size]byte, error) {
+	hash := sha256.New()
+	for _, path := range []string{r.config.CertFile, r.config.KeyFile, r.config.CAFile} {
+		if path == "" {
+			continue
+		}
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return [sha256.Size]byte{}, fmt.Errorf("consul: read TLS file %q: %w", path, err)
+		}
+		hash.Write([]byte(path))
+		hash.Write([]byte{0})
+		hash.Write(data)
+		hash.Write([]byte{0})
+	}
+	var fingerprint [sha256.Size]byte
+	copy(fingerprint[:], hash.Sum(nil))
+	return fingerprint, nil
+}
+
+func (r *consulTLSReloadTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	r.mu.Lock()
+	fingerprint, err := r.fileFingerprint()
+	if err == nil && fingerprint != r.fingerprint {
+		var tlsConfig *tls.Config
+		tlsConfig, err = api.SetupTLSConfig(&r.config)
+		if err == nil {
+			next := r.transport.Clone()
+			next.TLSClientConfig = tlsConfig
+			previous := r.transport
+			r.transport = next
+			r.fingerprint = fingerprint
+			previous.CloseIdleConnections()
+		}
+	}
+	if err != nil {
+		if message := err.Error(); message != r.lastError {
+			log.Printf("[WARN] consul: retaining last valid TLS configuration: %v", err)
+			r.lastError = message
+		}
+	} else {
+		r.lastError = ""
+	}
+	transport := r.transport
+	r.mu.Unlock()
+	return transport.RoundTrip(req)
 }
 
 func (b *be) Register(services []string) error {
