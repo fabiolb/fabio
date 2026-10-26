@@ -11,12 +11,15 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"net/http/httptrace"
 	"net/url"
 	"os"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -25,6 +28,7 @@ import (
 	"github.com/fabiolb/fabio/noroute"
 	"github.com/fabiolb/fabio/proxy/internal"
 	"github.com/fabiolb/fabio/route"
+	"github.com/fabiolb/fabio/transport"
 	"github.com/google/go-cmp/cmp"
 	"github.com/pascaldekloe/goe/verify"
 )
@@ -601,6 +605,185 @@ func TestProxyHTTPSUpstream(t *testing.T) {
 	if got, want := string(body), "OK"; got != want {
 		t.Fatalf("got body %q want %q", got, want)
 	}
+}
+
+type trackedRequestBody struct {
+	reader      io.Reader
+	readStarted chan struct{}
+	bytesRead   atomic.Int64
+}
+
+func (b *trackedRequestBody) Read(p []byte) (int, error) {
+	n, err := b.reader.Read(p)
+	if n > 0 && b.bytesRead.Add(int64(n)) == int64(n) {
+		close(b.readStarted)
+	}
+	return n, err
+}
+
+func TestProxyExpectContinue(t *testing.T) {
+	const payload = "the request body should only be sent after 100 Continue"
+	clientTransport := &http.Transport{ExpectContinueTimeout: 3 * time.Second}
+	t.Cleanup(clientTransport.CloseIdleConnections)
+	client := &http.Client{Transport: clientTransport, Timeout: 5 * time.Second}
+
+	newProxy := func(t *testing.T, upstreamURL string) string {
+		t.Helper()
+		tr := transport.NewTransport(nil)
+		proxy := httptest.NewServer(&HTTPProxy{
+			ProtectHeaders: testProtectHeaders,
+			Transport:      tr,
+			Lookup: func(*http.Request) *route.Target {
+				return &route.Target{URL: mustParse(upstreamURL)}
+			},
+		})
+		t.Cleanup(func() {
+			proxy.Close()
+			tr.CloseIdleConnections()
+		})
+		return proxy.URL
+	}
+
+	newRequest := func(t *testing.T, proxyURL, password string, received100 chan<- struct{}) (*http.Request, *trackedRequestBody) {
+		t.Helper()
+		body := &trackedRequestBody{reader: strings.NewReader(payload), readStarted: make(chan struct{})}
+		req, err := http.NewRequest(http.MethodPost, proxyURL, body)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.ContentLength = int64(len(payload))
+		req.Header.Set("Expect", "100-continue")
+		req.SetBasicAuth("user", password)
+		req = req.WithContext(httptrace.WithClientTrace(req.Context(), &httptrace.ClientTrace{
+			Got100Continue: func() { received100 <- struct{}{} },
+		}))
+		return req, body
+	}
+
+	t.Run("upstream rejects before body", func(t *testing.T) {
+		upstreamHeaders := make(chan string, 1)
+		upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			upstreamHeaders <- r.Header.Get("Expect")
+			if user, password, ok := r.BasicAuth(); !ok || user != "user" || password != "wrong-password" {
+				t.Error("upstream did not receive the expected invalid credentials")
+			}
+			w.WriteHeader(http.StatusUnauthorized)
+			io.WriteString(w, "upstream rejected credentials")
+		}))
+		defer upstream.Close()
+
+		received100 := make(chan struct{}, 1)
+		req, body := newRequest(t, newProxy(t, upstream.URL), "wrong-password", received100)
+		resp, err := client.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+		responseBody, err := io.ReadAll(resp.Body)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := <-upstreamHeaders; got != "100-continue" {
+			t.Errorf("upstream Expect header = %q, want 100-continue", got)
+		}
+		if resp.StatusCode != http.StatusUnauthorized || string(responseBody) != "upstream rejected credentials" {
+			t.Errorf("got status %d and body %q, want upstream 401", resp.StatusCode, responseBody)
+		}
+		select {
+		case <-received100:
+			t.Error("client received 100 Continue before upstream rejected the request")
+		default:
+		}
+		if got := body.bytesRead.Load(); got != 0 {
+			t.Errorf("client uploaded %d body bytes before upstream 401", got)
+		}
+	})
+
+	t.Run("upstream continues before body", func(t *testing.T) {
+		upstreamHeaders := make(chan string, 1)
+		allowBodyRead := make(chan struct{})
+		releaseBodyRead := sync.OnceFunc(func() { close(allowBodyRead) })
+		upstreamBodies := make(chan string, 1)
+		var upstreamRequests atomic.Int32
+		upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			upstreamRequests.Add(1)
+			upstreamHeaders <- r.Header.Get("Expect")
+			if user, password, ok := r.BasicAuth(); !ok || user != "user" || password != "correct-password" {
+				t.Error("upstream did not receive the expected valid credentials")
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			<-allowBodyRead
+			data, err := io.ReadAll(r.Body)
+			if err != nil {
+				t.Errorf("upstream body read: %v", err)
+				return
+			}
+			upstreamBodies <- string(data)
+			w.WriteHeader(http.StatusCreated)
+		}))
+		defer func() {
+			releaseBodyRead()
+			upstream.Close()
+		}()
+
+		received100 := make(chan struct{}, 1)
+		req, body := newRequest(t, newProxy(t, upstream.URL), "correct-password", received100)
+		type result struct {
+			response *http.Response
+			err      error
+		}
+		done := make(chan result, 1)
+		go func() {
+			resp, err := client.Do(req)
+			done <- result{resp, err}
+		}()
+
+		select {
+		case got := <-upstreamHeaders:
+			if got != "100-continue" {
+				t.Errorf("upstream Expect header = %q, want 100-continue", got)
+			}
+		case <-time.After(3 * time.Second):
+			t.Fatal("upstream did not receive request headers")
+		}
+
+		select {
+		case <-received100:
+			t.Fatal("client received 100 Continue before upstream read the body")
+		case <-body.readStarted:
+			t.Fatal("client started uploading before upstream read the body")
+		case <-time.After(200 * time.Millisecond):
+		}
+		releaseBodyRead()
+
+		select {
+		case outcome := <-done:
+			if outcome.err != nil {
+				t.Fatal(outcome.err)
+			}
+			defer outcome.response.Body.Close()
+			if got := outcome.response.StatusCode; got != http.StatusCreated {
+				t.Fatalf("got status %d, want 201 Created", got)
+			}
+		case <-time.After(3 * time.Second):
+			t.Fatal("client did not receive upstream response")
+		}
+		select {
+		case <-received100:
+		default:
+			t.Error("client did not receive upstream 100 Continue")
+		}
+		if got := <-upstreamBodies; got != payload {
+			t.Errorf("upstream received body %q, want %q", got, payload)
+		}
+		if got := upstreamRequests.Load(); got != 1 {
+			t.Errorf("upstream received %d requests, want 1", got)
+		}
+		if got := body.bytesRead.Load(); got != int64(len(payload)) {
+			t.Errorf("client uploaded %d bytes, want %d", got, len(payload))
+		}
+	})
 }
 
 type sniHandler struct {
