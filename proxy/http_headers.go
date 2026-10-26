@@ -42,7 +42,7 @@ var DefaultProtectHeaders = map[string]bool{
 // * add X-Forwarded-Proto header, if not present
 // * add X-Real-Ip, if not present
 // * remove Connection headers if they clash with internal ones.
-// * ClientIPHeader != "": Set header with that name to <remote ip>
+// * ClientIPHeader != "": Preserve a non-empty value or set it to <remote ip>
 // * TLS connection: Set header with name from `cfg.TLSHeader` to `cfg.TLSHeaderValue`
 func addHeaders(r *http.Request, hdrs map[string]bool, cfg config.Proxy, stripPath string) error {
 	remoteIP, _, err := net.SplitHostPort(r.RemoteAddr)
@@ -55,7 +55,7 @@ func addHeaders(r *http.Request, hdrs map[string]bool, cfg config.Proxy, stripPa
 	for _, s := range r.Header.Values("Connection") {
 		for p := range strings.SplitSeq(s, ",") {
 			p = strings.TrimSpace(p)
-			if !hdrs[textproto.CanonicalMIMEHeaderKey(p)] {
+			if !hdrs[textproto.CanonicalMIMEHeaderKey(p)] && !strings.EqualFold(p, cfg.ClientIPHeader) {
 				conHeaders = append(conHeaders, p)
 			}
 		}
@@ -65,6 +65,9 @@ func addHeaders(r *http.Request, hdrs map[string]bool, cfg config.Proxy, stripPa
 		for k := range hdrs {
 			r.Header.Del(k)
 		}
+		if cfg.ClientIPHeader != "" {
+			r.Header.Del(cfg.ClientIPHeader)
+		}
 	}
 
 	r.Header.Del("Connection")
@@ -73,11 +76,12 @@ func addHeaders(r *http.Request, hdrs map[string]bool, cfg config.Proxy, stripPa
 	}
 
 	// set configurable ClientIPHeader
-	// X-Real-Ip is set later and X-Forwarded-For is set
+	// X-Real-Ip is set independently and X-Forwarded-For is set
 	// by the Go HTTP reverse proxy.
 	if cfg.ClientIPHeader != "" &&
-		cfg.ClientIPHeader != "X-Forwarded-For" &&
-		cfg.ClientIPHeader != "X-Real-Ip" {
+		!strings.EqualFold(cfg.ClientIPHeader, "X-Forwarded-For") &&
+		!strings.EqualFold(cfg.ClientIPHeader, "X-Real-Ip") &&
+		r.Header.Get(cfg.ClientIPHeader) == "" {
 		r.Header.Set(cfg.ClientIPHeader, remoteIP)
 	}
 
