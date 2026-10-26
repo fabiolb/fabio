@@ -365,6 +365,13 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			args: []string{"-proxy.strategy", "lconn"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.Strategy = "lconn"
+				return cfg
+			},
+		},
+		{
 			args: []string{"-proxy.matcher", "prefix"},
 			cfg: func(cfg *Config) *Config {
 				cfg.Proxy.Matcher = "prefix"
@@ -973,6 +980,24 @@ func TestLoad(t *testing.T) {
 			},
 		},
 		{
+			desc:    "lconn strategy from environ",
+			environ: []string{"FABIO_proxy_strategy=lconn"},
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.Strategy = "lconn"
+				return cfg
+			},
+		},
+		{
+			desc: "lconn strategy from file",
+			args: []string{"-cfg", "/tmp/fabio-config-test"},
+			path: "/tmp/fabio-config-test",
+			data: "proxy.strategy = lconn",
+			cfg: func(cfg *Config) *Config {
+				cfg.Proxy.Strategy = "lconn"
+				return cfg
+			},
+		},
+		{
 			desc: "config from url",
 			args: []string{"-cfg", "URL"},
 			path: "http",
@@ -1104,6 +1129,12 @@ func TestLoad(t *testing.T) {
 			args: []string{"-proxy.addr", ":5555;cs=name;proto=tcp+sni", "-proxy.cs", "cs=name;type=path;cert=value"},
 			cfg:  func(cfg *Config) *Config { return nil },
 			err:  errors.New("cert source requires proto 'https', 'tcp', 'tcp-dynamic', 'https+tcp+sni', 'prometheus', or 'grpcs'"),
+		},
+		{
+			desc: "unknown proxy.strategy",
+			args: []string{"-proxy.strategy", "unknown"},
+			cfg:  func(cfg *Config) *Config { return nil },
+			err:  errors.New("invalid proxy.strategy: unknown"),
 		},
 		{
 			desc: "-proxy.noroutestatus too small",

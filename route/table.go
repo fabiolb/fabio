@@ -125,6 +125,24 @@ func SetTable(t Table) {
 	}
 	// Get the old table to compare against
 	oldTable := GetTable()
+	// Retain in-flight work for targets that survive service discovery updates.
+	active := make(map[string]*atomic.Int64)
+	for _, routes := range oldTable {
+		for _, r := range routes {
+			for _, target := range r.Targets {
+				active[makeMetricKey(target.Service, r.Host, r.Path, target.URL.String())] = target.activeCounter()
+			}
+		}
+	}
+	for _, routes := range t {
+		for _, r := range routes {
+			for _, target := range r.Targets {
+				if counter := active[makeMetricKey(target.Service, r.Host, r.Path, target.URL.String())]; counter != nil && counter != target.activeCounter() {
+					target.sharedActive = counter
+				}
+			}
+		}
+	}
 	// Store the new table FIRST, then cleanup stale metrics.
 	// This order is important to avoid a race condition where traffic
 	// could recreate the metrics between delete and table swap.
@@ -518,6 +536,9 @@ func (t Table) lookup(host, path string, pick picker, match matcher) *Target {
 			var target *Target
 			if n == 1 {
 				target = r.Targets[0]
+				if target.Weight <= 0 {
+					return nil
+				}
 			} else {
 				target = pick(r)
 			}

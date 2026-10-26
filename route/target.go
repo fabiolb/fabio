@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync/atomic"
 
 	gkm "github.com/go-kit/kit/metrics"
 )
@@ -66,12 +67,41 @@ type Target struct {
 	// Weight is the actual weight for this service in percent.
 	Weight float64
 
+	// weightGroup identifies an allocation and rotates ties within that group.
+	weightGroup *atomic.Uint64
+
+	// active tracks in-flight upstream work, shared across routing table updates.
+	active       atomic.Int64
+	sharedActive *atomic.Int64
+
 	// TLSSkipVerify disables certificate validation for upstream
 	// TLS connections.
 	TLSSkipVerify bool
 
 	// ProxyProto enables PROXY Protocol on upstream connection
 	ProxyProto bool
+}
+
+func (t *Target) activeCounter() *atomic.Int64 {
+	if t.sharedActive != nil {
+		return t.sharedActive
+	}
+	return &t.active
+}
+
+// Begin marks the start of an upstream request or connection.
+func (t *Target) Begin() {
+	t.activeCounter().Add(1)
+}
+
+// End marks the completion of an upstream request or connection.
+func (t *Target) End() {
+	t.activeCounter().Add(-1)
+}
+
+// Active returns the number of currently handled upstream requests or connections.
+func (t *Target) Active() int64 {
+	return t.activeCounter().Load()
 }
 
 func (t *Target) BuildRedirectURL(requestURL *url.URL) {

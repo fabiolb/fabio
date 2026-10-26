@@ -342,7 +342,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 		}
 	}
 
-	if cfg.Proxy.Strategy != "rr" && cfg.Proxy.Strategy != "rnd" {
+	if cfg.Proxy.Strategy != "rr" && cfg.Proxy.Strategy != "rnd" && cfg.Proxy.Strategy != "lconn" {
 		return nil, fmt.Errorf("invalid proxy.strategy: %s", cfg.Proxy.Strategy)
 	}
 

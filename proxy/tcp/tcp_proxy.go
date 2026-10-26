@@ -68,6 +68,8 @@ func (p *Proxy) ServeTCP(in net.Conn) error {
 		return nil
 	}
 
+	t.Begin()
+	defer t.End()
 	out, err := net.DialTimeout("tcp", addr, p.DialTimeout)
 	if err != nil {
 		log.Print("[WARN] tcp: cannot connect to upstream ", addr)

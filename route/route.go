@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync/atomic"
 
 	"github.com/gobwas/glob"
 )
@@ -42,6 +43,9 @@ type Route struct {
 	// total contains the total number of requests for this route.
 	// Used by the RRPicker
 	total uint64
+
+	// tieCounter rotates selection among targets without fixed weights.
+	tieCounter atomic.Uint64
 }
 
 func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float64, tags []string, opts map[string]string) {
@@ -65,6 +69,20 @@ func (r *Route) addTarget(service string, targetURL *url.URL, fixedWeight float6
 		Timer:       counters.histogram.With("service", service, "host", r.Host, "path", r.Path, "target", targetURL.String()),
 		RxCounter:   counters.rxCounter.With("service", service, "host", r.Host, "path", r.Path, "target", targetURL.String()),
 		TxCounter:   counters.txCounter.With("service", service, "host", r.Host, "path", r.Path, "target", targetURL.String()),
+		weightGroup: &r.tieCounter,
+	}
+
+	if fixedWeight >= 0 {
+		t.weightGroup = nil
+		for _, existing := range r.Targets {
+			if existing.Service == service && existing.FixedWeight == fixedWeight && slices.Equal(existing.Tags, tags) {
+				t.weightGroup = existing.weightGroup
+				break
+			}
+		}
+		if t.weightGroup == nil {
+			t.weightGroup = new(atomic.Uint64)
+		}
 	}
 
 	var err error
@@ -117,7 +135,7 @@ func (r *Route) filter(skip func(t *Target) bool) {
 }
 
 func (r *Route) setWeight(service string, weight float64, tags []string) int {
-	loop := func(w float64) int {
+	loop := func(w float64, group *atomic.Uint64) int {
 		n := 0
 		for _, t := range r.Targets {
 			if service != "" && t.Service != service {
@@ -128,6 +146,7 @@ func (r *Route) setWeight(service string, weight float64, tags []string) int {
 			}
 			n++
 			t.FixedWeight = w
+			t.weightGroup = group
 		}
 		return n
 	}
@@ -137,11 +156,15 @@ func (r *Route) setWeight(service string, weight float64, tags []string) int {
 	// weight across all of them since the rule
 	// states to assign only that percentage
 	// of traffic to all matching routes combined.
-	n := loop(-1)
+	n := loop(-1, &r.tieCounter)
 	w := weight / float64(n)
-	loop(w)
 
 	if n > 0 {
+		group := &r.tieCounter
+		if w >= 0 {
+			group = new(atomic.Uint64)
+		}
+		loop(w, group)
 		r.weighTargets()
 	}
 	return n
