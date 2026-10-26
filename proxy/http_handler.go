@@ -32,9 +32,13 @@ func newHTTPProxy(target *url.URL, tr http.RoundTripper, flush time.Duration) ht
 				req.Out.Header.Set("X-Forwarded-For", xff)
 			}
 
-			// SetXForwarded will handle X-Forwarded-For (append), X-Forwarded-Host, and X-Forwarded-Proto
-			// Other headers (X-Forwarded-Port, X-Forwarded-Prefix, Forwarded) are already set by addHeaders()
+			// SetXForwarded handles X-Forwarded-For (append) and X-Forwarded-Host,
+			// but derives X-Forwarded-Proto from the direct connection. Preserve the
+			// protocol already resolved by addHeaders(), including one from an upstream proxy.
 			req.SetXForwarded()
+			if xfp := req.In.Header.Get("X-Forwarded-Proto"); xfp != "" {
+				req.Out.Header.Set("X-Forwarded-Proto", xfp)
+			}
 		},
 		FlushInterval: flush,
 		Transport:     tr,
