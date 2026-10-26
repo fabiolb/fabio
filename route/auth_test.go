@@ -9,11 +9,11 @@ import (
 )
 
 type testAuth struct {
-	ok bool
+	decision auth.AuthDecision
 }
 
-func (t *testAuth) Authorized(r *http.Request, w http.ResponseWriter) bool {
-	return t.ok
+func (t *testAuth) Authorized(r *http.Request, w http.ResponseWriter) auth.AuthDecision {
+	return t.decision
 }
 
 type responseWriter struct {
@@ -40,31 +40,39 @@ func TestTarget_Authorized(t *testing.T) {
 		name        string
 		authScheme  string
 		authSchemes map[string]auth.AuthScheme
-		out         bool
+		out         auth.AuthDecision
 	}{
 		{
 			name:       "matches correct auth scheme",
 			authScheme: "mybasic",
 			authSchemes: map[string]auth.AuthScheme{
-				"mybasic": &testAuth{ok: true},
+				"mybasic": &testAuth{decision: auth.AuthDecision{Authorized: true}},
 			},
-			out: true,
+			out: auth.AuthDecision{Authorized: true},
 		},
 		{
 			name:       "returns true when scheme is empty",
 			authScheme: "",
 			authSchemes: map[string]auth.AuthScheme{
-				"mybasic": &testAuth{ok: false},
+				"mybasic": &testAuth{},
 			},
-			out: true,
+			out: auth.AuthDecision{Authorized: true},
 		},
 		{
 			name:       "returns false when scheme is unknown",
 			authScheme: "foobar",
 			authSchemes: map[string]auth.AuthScheme{
-				"mybasic": &testAuth{ok: true},
+				"mybasic": &testAuth{decision: auth.AuthDecision{Authorized: true}},
 			},
-			out: false,
+			out: auth.AuthDecision{},
+		},
+		{
+			name:       "returns completed response decision from scheme",
+			authScheme: "external",
+			authSchemes: map[string]auth.AuthScheme{
+				"external": &testAuth{decision: auth.AuthDecision{Done: true}},
+			},
+			out: auth.AuthDecision{Done: true},
 		},
 	}
 

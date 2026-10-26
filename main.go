@@ -224,7 +224,14 @@ func newHTTPProxy(cfg *config.Config, statsHandler *proxy.HttpStatsHandler) *pro
 	log.Printf("[INFO] Using routing strategy %q", cfg.Proxy.Strategy)
 	log.Printf("[INFO] Using route matching %q", cfg.Proxy.Matcher)
 
-	authSchemes, err := auth.LoadAuthSchemes(cfg.Proxy.AuthSchemes)
+	authClient := &http.Client{
+		Transport: transport.NewTransport(nil),
+		Timeout:   cfg.Proxy.DialTimeout,
+		CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+	authSchemes, err := auth.LoadAuthSchemes(cfg.Proxy.AuthSchemes, authClient)
 
 	if err != nil {
 		exit.Fatal("[FATAL] ", err)
