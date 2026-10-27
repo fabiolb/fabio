@@ -44,6 +44,21 @@ func TestRouteCmd(t *testing.T) {
 			},
 		},
 		{
+			name: "http methods in urlprefix tag",
+			r: routecmd{
+				prefix: "urlprefix-",
+				svc: &api.CatalogService{
+					ServiceName:    "svc-1",
+					ServiceAddress: "1.1.1.1",
+					ServicePort:    2222,
+					ServiceTags:    []string{`urlprefix-/api method=GET,POST`},
+				},
+			},
+			cfg: []string{
+				`route add svc-1 /api http://1.1.1.1:2222/ opts "method=GET,POST"`,
+			},
+		},
+		{
 			name: "http multiple tags",
 			r: routecmd{
 				prefix: "p-",

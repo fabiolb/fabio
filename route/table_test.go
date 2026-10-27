@@ -680,6 +680,314 @@ func TestTableLookup_656(t *testing.T) {
 	}
 }
 
+func TestTableLookupMethod(t *testing.T) {
+	tbl, err := NewTable(bytes.NewBufferString(`
+route add svc / http://global/
+route add svc /api http://api-default/
+route add svc /api http://post-put/ opts "method=POST,PUT"
+route add svc /api http://post/ opts "method=POST"
+route add svc /api http://get/ opts "method=GET"
+route add svc /api/v2 http://post-v2/ opts "method=POST"
+route add svc example.com/api http://host-get/ opts "method=GET"
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name, method, host, path, want string
+		match                          matcher
+		globDisabled                   bool
+	}{
+		{"GET", "GET", "other.com", "/api", "http://get/", prefixMatcher, false},
+		{"POST narrower method set", "POST", "other.com", "/api", "http://post/", prefixMatcher, false},
+		{"PUT multiple methods", "PUT", "other.com", "/api", "http://post-put/", prefixMatcher, false},
+		{"DELETE falls back to same path", "DELETE", "other.com", "/api", "http://api-default/", prefixMatcher, false},
+		{"method case is significant", "get", "other.com", "/api", "http://api-default/", prefixMatcher, false},
+		{"specific path POST", "POST", "other.com", "/api/v2/thing", "http://post-v2/", prefixMatcher, false},
+		{"specific path GET falls back to parent", "GET", "other.com", "/api/v2/thing", "http://get/", prefixMatcher, false},
+		{"specific path PATCH falls back to parent", "PATCH", "other.com", "/api/v2/thing", "http://api-default/", prefixMatcher, false},
+		{"different path", "PATCH", "other.com", "/other", "http://global/", prefixMatcher, false},
+		{"host-specific GET", "GET", "example.com", "/api", "http://host-get/", prefixMatcher, false},
+		{"host fallback to hostless POST", "POST", "example.com", "/api", "http://post/", prefixMatcher, false},
+		{"empty method uses unconditional route", "", "other.com", "/api", "http://api-default/", prefixMatcher, false},
+		{"iprefix", "GET", "other.com", "/API/v2", "http://get/", iPrefixMatcher, false},
+		{"host without glob", "GET", "example.com", "/api", "http://host-get/", prefixMatcher, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := &http.Request{Method: tt.method, Host: tt.host, URL: mustParse(tt.path)}
+			target := tbl.Lookup(req, rrPicker, tt.match, globCache, tt.globDisabled)
+			if target == nil {
+				t.Fatalf("no route for %s %s%s; want %s", tt.method, tt.host, tt.path, tt.want)
+			}
+			if got := target.URL.String(); got != tt.want {
+				t.Errorf("got %s; want %s", got, tt.want)
+			}
+		})
+	}
+
+	methodsOnly, err := NewTable(bytes.NewBufferString(`
+route add svc /api http://get-only/ opts "method=GET"
+route add svc example.org/ http://post-only/ opts "method=POST"
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, method := range []string{"POST", ""} {
+		req := &http.Request{Method: method, Host: "other.com", URL: mustParse("/api")}
+		if got := methodsOnly.Lookup(req, rrPicker, prefixMatcher, globCache, globEnabled); got != nil {
+			t.Errorf("unmatched method %q selected %s; want nil", method, got.URL)
+		}
+	}
+	if got := methodsOnly.LookupHost("example.org", rrPicker); got != nil {
+		t.Errorf("TCP lookup selected method-limited target %s; want nil", got.URL)
+	}
+
+	other, err := NewTable(bytes.NewBufferString(`
+route add svc /user/* http://glob-get/ opts "method=GET"
+route add svc /* http://glob-fallback/
+route add svc grpc.com/ http://grpc-default/
+route add svc grpc.com/ http://grpc-get/ opts "method=GET"
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tt := range []struct{ method, want string }{
+		{"GET", "http://glob-get/"},
+		{"POST", "http://glob-fallback/"},
+	} {
+		req := &http.Request{Method: tt.method, Host: "other.com", URL: mustParse("/user/123")}
+		if target := other.Lookup(req, rrPicker, globMatcher, globCache, globEnabled); target == nil || target.URL.String() != tt.want {
+			t.Errorf("glob %s: got %v; want %s", tt.method, target, tt.want)
+		}
+	}
+	if target := other.LookupHost("grpc.com", rrPicker); target == nil || target.URL.String() != "http://grpc-default/" {
+		t.Errorf("methodless TCP lookup: got %v; want default", target)
+	}
+	req := &http.Request{Host: "grpc.com", URL: mustParse("/grpc.Service/Method")}
+	if target := other.Lookup(req, rrPicker, prefixMatcher, globCache, globEnabled); target == nil || target.URL.String() != "http://grpc-default/" {
+		t.Errorf("methodless gRPC lookup: got %v; want default", target)
+	}
+}
+
+func TestTableMethodPools(t *testing.T) {
+	defs := `
+route add svc /api http://first/ opts "method=GET,POST"
+route add svc /api http://second/ opts "method=POST,GET"
+route add svc /api http://first/ opts "method=POST,GET"
+route add svc /api http://post/ opts "method=POST"
+route add svc /api http://put/ opts "method=PUT"
+route add svc /api http://default/
+`
+	tbl, err := NewTable(bytes.NewBufferString(defs))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := len(tbl[""]); got != 4 {
+		t.Fatalf("got %d method pools, want 4", got)
+	}
+	methods := tbl[""].findMethods("/api", []string{"GET", "POST"})
+	if methods == nil || len(methods.Targets) != 2 {
+		t.Fatalf("equivalent method lists should share a two-target pool; got %v", methods)
+	}
+	for _, target := range methods.Targets {
+		if target.Weight != 0.5 {
+			t.Errorf("shared method pool weight = %f, want 0.5", target.Weight)
+		}
+	}
+	for i, want := range []string{"http://first/", "http://second/", "http://first/", "http://second/"} {
+		req := &http.Request{Method: "GET", URL: mustParse("/api")}
+		if got := tbl.Lookup(req, rrPicker, prefixMatcher, globCache, globEnabled).URL.String(); got != want {
+			t.Errorf("round robin %d: got %s want %s", i, got, want)
+		}
+	}
+	for range 30 {
+		req := &http.Request{Method: "GET", URL: mustParse("/api")}
+		got := tbl.Lookup(req, rndPicker, prefixMatcher, globCache, globEnabled).URL.String()
+		if got != "http://first/" && got != "http://second/" {
+			t.Errorf("random picker selected unrelated method pool: %s", got)
+		}
+	}
+	for _, tt := range []struct{ method, want string }{
+		{"POST", "http://post/"},
+		{"PUT", "http://put/"},
+		{"DELETE", "http://default/"},
+	} {
+		req := &http.Request{Method: tt.method, URL: mustParse("/api")}
+		if got := tbl.Lookup(req, rrPicker, prefixMatcher, globCache, globEnabled).URL.String(); got != tt.want {
+			t.Errorf("%s: got %s want %s", tt.method, got, tt.want)
+		}
+	}
+	serialized := tbl.String()
+	if !strings.Contains(serialized, "method=POST,GET") {
+		t.Fatalf("method options missing from serialized table:\n%s", serialized)
+	}
+	reparsed, err := NewTable(bytes.NewBufferString(serialized))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := len(reparsed[""].findMethods("/api", []string{"GET", "POST"}).Targets); got != 2 {
+		t.Errorf("round-trip grouped %d targets; want 2", got)
+	}
+	for _, tt := range []struct{ method, want string }{
+		{"GET", "http://first/"},
+		{"POST", "http://post/"},
+		{"PUT", "http://put/"},
+		{"DELETE", "http://default/"},
+	} {
+		req := &http.Request{Method: tt.method, URL: mustParse("/api")}
+		if target := reparsed.Lookup(req, rrPicker, prefixMatcher, globCache, globEnabled); target == nil || target.URL.String() != tt.want {
+			t.Errorf("reparsed %s: got %v want %s", tt.method, target, tt.want)
+		}
+	}
+
+	// Equal-sized overlapping method sets retain their input order.
+	equal, err := NewTable(bytes.NewBufferString(`
+route add svc /api http://first/ opts "method=GET,POST"
+route add svc /api http://second/ opts "method=GET,PUT"
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := &http.Request{Method: "GET", URL: mustParse("/api")}
+	if got := equal.Lookup(req, rrPicker, prefixMatcher, globCache, globEnabled).URL.String(); got != "http://first/" {
+		t.Errorf("equal-sized overlapping conditions: got %s; want first configured target", got)
+	}
+}
+
+func TestTableMethodMutation(t *testing.T) {
+	base := `
+route add svc /api http://get-x/ tags "x" opts "method=GET"
+route add svc /api http://get-y/ tags "y" opts "method=GET"
+route add svc /api http://post-x/ tags "x" opts "method=POST"
+route add svc /api http://post-y/ tags "y" opts "method=POST"
+route add svc /api http://all-x/ tags "x"
+route add svc /api http://all-y/ tags "y"
+`
+
+	t.Run("weight applies independently to all method pools", func(t *testing.T) {
+		tbl, err := NewTable(bytes.NewBufferString(base + `route weight svc /api weight 0.2 tags "x"`))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(tbl[""]) != 3 {
+			t.Fatalf("got %d pools, want 3", len(tbl[""]))
+		}
+		for _, r := range tbl[""] {
+			if len(r.Targets) != 2 {
+				t.Fatalf("pool %v has %d targets, want 2", r.Methods, len(r.Targets))
+			}
+			for _, target := range r.Targets {
+				if contains(target.Tags, []string{"x"}) {
+					if target.FixedWeight != 0.2 || target.Weight != 0.2 {
+						t.Errorf("pool %v tagged x has weights %v/%v, want 0.2", r.Methods, target.FixedWeight, target.Weight)
+					}
+				} else if target.FixedWeight != -1 || math.Abs(target.Weight-0.8) > 1e-9 {
+					t.Errorf("pool %v tagged y has weights %v/%v, want -1/0.8", r.Methods, target.FixedWeight, target.Weight)
+				}
+			}
+		}
+		if err := tbl.weighRoute(&RouteDef{Src: "/api", Service: "absent", Weight: 0.2}); err != errNoMatch {
+			t.Errorf("unmatched weight command = %v, want %v", err, errNoMatch)
+		}
+	})
+
+	t.Run("tag delete touches every method pool", func(t *testing.T) {
+		tbl, err := NewTable(bytes.NewBufferString(base + `route del svc tags "x"`))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(tbl[""]) != 3 {
+			t.Fatalf("got %d pools after tag delete, want 3", len(tbl[""]))
+		}
+		for _, r := range tbl[""] {
+			if len(r.Targets) != 1 || !contains(r.Targets[0].Tags, []string{"y"}) {
+				t.Errorf("tag delete missed pool %v: %v", r.Methods, r.Targets)
+			}
+		}
+	})
+
+	t.Run("target deletion removes the same destination from every pool", func(t *testing.T) {
+		tbl, err := NewTable(bytes.NewBufferString(`
+route add svc /api http://shared/ opts "method=GET"
+route add svc /api http://shared/ opts "method=POST"
+route add svc /api http://shared/
+route add other /api http://keep/
+route del svc /api http://shared/
+`))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(tbl[""]) != 1 || len(tbl[""][0].Targets) != 1 {
+			t.Fatalf("expected only the surviving default pool, got %v", tbl)
+		}
+		for _, method := range []string{"GET", "POST", "DELETE"} {
+			req := &http.Request{Method: method, URL: mustParse("/api")}
+			if got := tbl.Lookup(req, rrPicker, prefixMatcher, globCache, globEnabled).URL.String(); got != "http://keep/" {
+				t.Errorf("%s: got %s want http://keep/", method, got)
+			}
+		}
+	})
+
+	for _, tt := range []struct {
+		name, command string
+		want          []string
+	}{
+		{"delete service and path", "route del svc /api", nil},
+		{"delete service globally", "route del svc", nil},
+		{"delete tagged targets", `route del tags "x"`, []string{"http://get-y/", "http://post-y/", "http://all-y/"}},
+		{"delete matching destination", "route del svc /api http://post-x/", []string{"http://get-x/", "http://get-y/", "http://post-y/", "http://all-x/", "http://all-y/"}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			tbl, err := NewTable(bytes.NewBufferString(base + tt.command))
+			if err != nil {
+				t.Fatal(err)
+			}
+			got := tbl.String()
+			for _, dst := range []string{"http://get-x/", "http://get-y/", "http://post-x/", "http://post-y/", "http://all-x/", "http://all-y/"} {
+				want := false
+				for _, expected := range tt.want {
+					if dst == expected {
+						want = true
+					}
+				}
+				if strings.Contains(got, dst) != want {
+					t.Errorf("destination %s presence %v, want %v; table:\n%s", dst, strings.Contains(got, dst), want, got)
+				}
+			}
+			if tt.want == nil && len(tbl) != 0 {
+				t.Errorf("empty method pools remained after delete: %v", tbl)
+			}
+		})
+	}
+
+	t.Run("custom definitions and method-based deletion", func(t *testing.T) {
+		defs := []RouteDef{
+			{Cmd: RouteAddCmd, Service: "svc", Src: "/api", Dst: "http://get/", Weight: -1, Opts: map[string]string{"method": "GET"}},
+			{Cmd: RouteAddCmd, Service: "svc", Src: "/api", Dst: "http://post/", Weight: -1, Opts: map[string]string{"method": "POST"}},
+			{Cmd: RouteAddCmd, Service: "other", Src: "/api", Dst: "http://default/", Weight: -1},
+			{Cmd: RouteDelCmd, Service: "svc", Src: "/api", Dst: "http://get/"},
+		}
+		tbl, err := NewTableCustom(&defs)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(tbl[""]) != 2 {
+			t.Errorf("got %d pools, want POST and default only", len(tbl[""]))
+		}
+		for _, tt := range []struct{ method, want string }{
+			{"GET", "http://default/"},
+			{"POST", "http://post/"},
+		} {
+			req := &http.Request{Method: tt.method, URL: mustParse("/api")}
+			if got := tbl.Lookup(req, rrPicker, prefixMatcher, globCache, globEnabled).URL.String(); got != tt.want {
+				t.Errorf("%s: got %s want %s", tt.method, got, tt.want)
+			}
+		}
+	})
+}
+
 func TestNewTableCustom(t *testing.T) {
 
 	var routes []RouteDef
