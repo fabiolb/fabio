@@ -78,6 +78,11 @@ func TestParse(t *testing.T) {
 			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "svc", Src: "/prefix", Dst: "http://1.2.3.4/", Opts: map[string]string{"foo": "bar", "baz": "bang", "blimp": ""}, Weight: -1}},
 		},
 		{
+			desc: "RouteAddFastCGI",
+			in:   `route add php /app http://127.0.0.1:9000/ opts "proto=fastcgi root=/srv/www strip=/app"`,
+			out:  []*RouteDef{{Cmd: RouteAddCmd, Service: "php", Src: "/app", Dst: "http://127.0.0.1:9000/", Weight: -1, Opts: map[string]string{"proto": "fastcgi", "root": "/srv/www", "strip": "/app"}}},
+		},
+		{
 			desc: "RouteDelTags",
 			in:   `route del tags "a,b"`,
 			out:  []*RouteDef{{Cmd: RouteDelCmd, Tags: []string{"a", "b"}}},

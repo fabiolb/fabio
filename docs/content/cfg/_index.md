@@ -33,6 +33,8 @@ Option                                     | Description
 `proto=tcp`                                | Upstream service is TCP, `dst` must be `:port`
 `pxyproto=true`                            | Enables outbound PROXY protocol v1 headers on a TCP connection
 `proto=https`                              | Upstream service is HTTPS
+`proto=fastcgi`                            | Send HTTP requests to a TCP FastCGI responder on the destination's host and port
+`root=/srv/www`                            | FastCGI document root on the upstream host, used to form `SCRIPT_FILENAME` from the rewritten path
 `tlsskipverify=true`                       | Disable TLS cert validation for HTTPS upstream
 `host=name`                                | Set the `Host` header to `name`. If `name == 'dst'` then the `Host` header will be set to the registered upstream host name
 `register=name`                            | Register fabio as new service `name`. Useful for registering hostnames for host specific routes.
@@ -44,6 +46,23 @@ Option                                     | Description
 # route traffic for product-svc to 1.2.3.4:8000 and :9000
 route add product-svc /product http://1.2.3.4:8000
 route add product-svc /product http://1.2.3.4:9000
+```
+
+To serve PHP through an HTTP or HTTPS listener, route requests to the
+upstream FastCGI process. The `root` is an absolute path **on the FastCGI
+server**, not on fabio's host. It supplies `DOCUMENT_ROOT` and is joined
+with the path after any `strip` and `prepend` options to form
+`SCRIPT_FILENAME`. The original request path and query are sent as
+`REQUEST_URI`.
+
+```
+route add php /app http://php-fpm:9000/ opts "proto=fastcgi root=/srv/www strip=/app"
+```
+
+The equivalent Consul service tag is:
+
+```
+urlprefix-/app proto=fastcgi root=/srv/www strip=/app
 ```
 
 ### `route del`
