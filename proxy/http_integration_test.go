@@ -1023,6 +1023,11 @@ func TestProxyPathNormalization(t *testing.T) {
 			requestPath:  "/api/users/",
 			expectedPath: "/api/users/",
 		},
+		{
+			name:         "fragments preserved",
+			requestPath:  "/api/users%23123",
+			expectedPath: "/api/users#123",
+		},
 	}
 
 	for _, tt := range tests {
