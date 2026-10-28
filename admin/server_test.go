@@ -1,8 +1,10 @@
 package admin
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"sync/atomic"
 	"testing"
 
 	"github.com/fabiolb/fabio/config"
@@ -138,4 +140,50 @@ func TestAdminServerAccess(t *testing.T) {
 	testAccess("ro", "/fabio", roTestsWithPath)
 	testAccess("rw", "/fabio", rwTestsWithPath)
 	testAccess("no", "/fabio", noTestsWithPath)
+}
+
+func TestHealthDuringShutdown(t *testing.T) {
+	// Servers without a shutdown callback retain the original health response.
+	recorder := httptest.NewRecorder()
+	(&Server{}).handler().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/health", nil))
+	if recorder.Code != http.StatusOK || recorder.Body.String() != "OK\n" {
+		t.Fatalf("health without callback: got %d %q, want 200 %q", recorder.Code, recorder.Body.String(), "OK\n")
+	}
+
+	for _, access := range []string{"ro", "rw", "no"} {
+		for _, path := range []string{"", "/fabio"} {
+			t.Run(access+path, func(t *testing.T) {
+				var shuttingDown atomic.Int32
+				srv := &Server{
+					Access: access,
+					Path:   path,
+					Cfg:    &config.Config{},
+					IsShuttingDown: func() bool {
+						return shuttingDown.Load() != 0
+					},
+				}
+				ts := httptest.NewServer(srv.handler())
+				defer ts.Close()
+
+				checkHealth := func(wantCode int, wantBody string) {
+					resp, err := ts.Client().Get(ts.URL + "/health")
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+					body, err := io.ReadAll(resp.Body)
+					if err != nil {
+						t.Fatal(err)
+					}
+					if resp.StatusCode != wantCode || string(body) != wantBody {
+						t.Fatalf("health: got %d %q, want %d %q", resp.StatusCode, body, wantCode, wantBody)
+					}
+				}
+
+				checkHealth(http.StatusOK, "OK\n")
+				shuttingDown.Store(1)
+				checkHealth(http.StatusServiceUnavailable, "")
+			})
+		}
+	}
 }
