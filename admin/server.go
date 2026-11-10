@@ -14,13 +14,14 @@ import (
 
 // Server provides the HTTP server for the admin UI and API.
 type Server struct {
-	Cfg      *config.Config
-	Access   string
-	Color    string
-	Title    string
-	Path     string
-	Version  string
-	Commands string
+	Cfg            *config.Config
+	Access         string
+	Color          string
+	Title          string
+	Path           string
+	Version        string
+	Commands       string
+	IsShuttingDown func() bool
 }
 
 // ListenAndServe starts the admin server.
@@ -79,14 +80,18 @@ func (s *Server) handler() http.Handler {
 	}
 
 	// Due to how Fabio registers its own health-check with Consul, the base path is not prepended here
-	mux.HandleFunc("/health", handleHealth)
+	mux.HandleFunc("/health", s.handleHealth)
 
 	mux.HandleFunc(p+"/favicon.ico", http.NotFound)
 
 	return mux
 }
 
-func handleHealth(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
+	if s.IsShuttingDown != nil && s.IsShuttingDown() {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
 	fmt.Fprintln(w, "OK")
 }
 
