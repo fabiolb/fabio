@@ -90,6 +90,86 @@ func TestRouteCmd(t *testing.T) {
 				`route add svc-1 :1234 tcp://1.1.1.1:2222`,
 			},
 		},
+		{
+			name: "metadata only with node address fallback",
+			r: routecmd{
+				prefix: "urlprefix-",
+				svc: &api.CatalogService{
+					ServiceName: "users",
+					Address:     "10.0.0.3",
+					ServicePort: 8080,
+					ServiceTags: []string{"fabio", "prod"},
+					ServiceMeta: map[string]string{"urlprefix-0": "/users"},
+				},
+			},
+			cfg: []string{
+				`route add users /users http://10.0.0.3:8080/ tags "fabio,prod"`,
+			},
+		},
+		{
+			name: "metadata keys sorted with http https and tcp options",
+			r: routecmd{
+				prefix: "urlprefix-",
+				svc: &api.CatalogService{
+					ServiceName:    "svc-2",
+					ServiceAddress: "1.1.1.1",
+					ServicePort:    1234,
+					ServiceMeta: map[string]string{
+						"urlprefix-2": ":3306 proto=tcp weight=20",
+						"urlprefix-0": "  /catalog  ",
+						"urlprefix-1": "EXAMPLE.com/shop proto=https tlsskipverify=true weight=4",
+						"urlprefix-3": " \t ",
+						"region":      "west",
+						"other-route": "/ignored",
+					},
+				},
+			},
+			cfg: []string{
+				`route add svc-2 /catalog http://1.1.1.1:1234/`,
+				`route add svc-2 example.com/shop https://1.1.1.1:1234 weight 4 opts "tlsskipverify=true"`,
+				`route add svc-2 :3306 tcp://1.1.1.1:1234 weight 20`,
+			},
+		},
+		{
+			name: "mixed tags and metadata with custom prefix",
+			r: routecmd{
+				prefix: "route-",
+				svc: &api.CatalogService{
+					ServiceName:    "mixed",
+					ServiceAddress: "2.2.2.2",
+					ServicePort:    8080,
+					ServiceTags: []string{
+						"route-/legacy weight=2", "blue", "fabio", "route-/old proto=https",
+					},
+					ServiceMeta: map[string]string{
+						"route-9":     "HOST.EXAMPLE/redirect redirect=302,https://target.example/",
+						"route-0":     "/v2 strip=/api prepend=/new",
+						"urlprefix-0": "/ignored",
+					},
+				},
+			},
+			cfg: []string{
+				`route add mixed /legacy http://2.2.2.2:8080/ weight 2 tags "blue,fabio"`,
+				`route add mixed /old https://2.2.2.2:8080 tags "blue,fabio"`,
+				`route add mixed /v2 http://2.2.2.2:8080/ tags "blue,fabio" opts "strip=/api prepend=/new"`,
+				`route add mixed host.example/redirect https://target.example/ tags "blue,fabio" opts "redirect=302"`,
+			},
+		},
+		{
+			name: "unrelated and empty metadata without route tags",
+			r: routecmd{
+				prefix: "urlprefix-",
+				svc: &api.CatalogService{
+					ServiceName: "unused",
+					ServiceTags: []string{"prod"},
+					ServiceMeta: map[string]string{
+						"urlprefix-0": " \t ",
+						"urlprefix-1": "",
+						"other":       "/unrelated",
+					},
+				},
+			},
+		},
 	}
 
 	for _, c := range cases {

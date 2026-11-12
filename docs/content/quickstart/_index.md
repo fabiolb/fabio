@@ -26,11 +26,43 @@ weight: 100
 	btn-success">PASSING</button> since fabio will only watch services which
 	have a passing health check.
 
-4. Routes are stored in Consul [Service Tags](https://www.consul.io/docs/agent/services.html)
-and you need to add a separate `urlprefix-` tag for every `host/path` prefix the service serves.
-	
-	For example, if your service handles `/user` and `/product` then add two tags `urlprefix-/user` and `urlprefix-/product`. 
-	You can register as many prefixes as you want.
+4. Prefer Consul service metadata for route declarations. Give each route a
+		unique metadata key starting with `urlprefix-` and place its
+		`host/path` and options in the value. Add the exact `fabio` discovery
+		tag to services using only metadata routes. For example, this Consul
+		service registration includes a health check:
+
+		```json
+		{
+		  "service": {
+		    "id": "users-1",
+		    "name": "users",
+		    "address": "127.0.0.1",
+		    "port": 8080,
+		    "tags": ["fabio", "prod"],
+		    "meta": {
+		      "urlprefix-0": "/users",
+		      "urlprefix-1": "example.com/ proto=https"
+		    },
+		    "check": {
+		      "http": "http://127.0.0.1:8080/health",
+		      "interval": "10s"
+		    }
+		  }
+		}
+		```
+
+		Legacy `urlprefix-` service tags still work and may be combined with
+		metadata routes. For example, a service handling `/user` and `/product`
+		can use the two tags `urlprefix-/user` and `urlprefix-/product`
+		without the `fabio` discovery tag.
+
+		For new routes, use distinct metadata keys (such as `urlprefix-0` and
+		`urlprefix-1`) with the configured `registry.consul.tagprefix`.
+		Services without either a prefixed route tag or the `fabio` discovery
+		tag cannot be found by the health-state watcher. To refresh metadata-only
+		edits periodically, set `registry.consul.pollinterval` to a nonzero
+		duration (for example, `5s`).
 
 	fabio can forward HTTP, HTTPS and TCP traffic. Below are some configuration examples:
 

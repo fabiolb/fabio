@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -19,7 +20,7 @@ type routecmd struct {
 
 	env map[string]string
 
-	// prefix is the prefix of urlprefix tags. e.g. 'urlprefix-'.
+	// prefix is the prefix of route tags and metadata keys. e.g. 'urlprefix-'.
 	prefix string
 }
 
@@ -34,6 +35,17 @@ func (r routecmd) build() []string {
 		} else {
 			svctags = append(svctags, t)
 		}
+	}
+
+	var metaKeys []string
+	for key, value := range r.svc.ServiceMeta {
+		if strings.HasPrefix(key, r.prefix) && strings.TrimSpace(value) != "" {
+			metaKeys = append(metaKeys, key)
+		}
+	}
+	sort.Strings(metaKeys)
+	for _, key := range metaKeys {
+		routetags = append(routetags, r.prefix+strings.TrimSpace(r.svc.ServiceMeta[key]))
 	}
 
 	// generate route commands
