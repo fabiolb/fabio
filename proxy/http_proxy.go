@@ -94,6 +94,8 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		r.Header.Set(p.Config.RequestID, id())
 	}
 
+	// Keep the incoming URI for CGI even if route strip/prepend rewrites the path.
+	originalRequestURI := r.URL.RequestURI()
 	// Normalize Paths before routing.
 	r.URL.Path = normalizePath(r.URL.Path)
 
@@ -197,6 +199,18 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	var h http.Handler
 	switch {
+	case t.Opts["proto"] == "fastcgi":
+		flush := p.Config.GlobalFlushInterval
+		if accept == "text/event-stream" {
+			flush = p.Config.FlushInterval
+		}
+		h = newHTTPProxy(targetURL, fastCGITransport{
+			root:                  t.Opts["root"],
+			originalURI:           originalRequestURI,
+			dialTimeout:           p.Config.DialTimeout,
+			responseHeaderTimeout: p.Config.ResponseHeaderTimeout,
+		}, flush)
+
 	case upgrade == "websocket" || upgrade == "Websocket":
 		r.URL = targetURL
 		if targetURL.Scheme == "https" || targetURL.Scheme == "wss" {
