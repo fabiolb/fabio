@@ -26,8 +26,8 @@ func addResponseHeaders(w http.ResponseWriter, r *http.Request, cfg config.Proxy
 }
 
 // DefaultProtectHeaders is a map of headers that are protected from client manipulation.
-// At startup newHTTPProxy() will augment it with the following configuration-dependent
-// headers:
+// At startup newHTTPProxy() copies it and adds the following configuration-dependent
+// headers to the copy:
 //
 //   - [config.Proxy.RequestID] (example: X-Request-Id)
 //   - [config.Proxy.ClientIPHeader] (example: X-Client-Ip)

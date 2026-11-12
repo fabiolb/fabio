@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"maps"
 	"net"
 	"net/http"
 	"net/textproto"
@@ -191,7 +192,7 @@ func newHTTPProxy(cfg *config.Config, statsHandler *proxy.HttpStatsHandler) *pro
 	globCache := route.NewGlobCache(cfg.GlobCacheSize)
 
 	//Init ProtectHeaders
-	protectHeaders := proxy.DefaultProtectHeaders
+	protectHeaders := maps.Clone(proxy.DefaultProtectHeaders)
 	protectHeaders[textproto.CanonicalMIMEHeaderKey(cfg.Proxy.RequestID)] = true
 	protectHeaders[textproto.CanonicalMIMEHeaderKey(cfg.Proxy.ClientIPHeader)] = true
 	protectHeaders[textproto.CanonicalMIMEHeaderKey(cfg.Proxy.TLSHeader)] = true
