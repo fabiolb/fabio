@@ -202,9 +202,9 @@ func (p *HTTPProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if targetURL.Scheme == "https" || targetURL.Scheme == "wss" {
 			h = newWSHandler(targetURL.Host, func(network, address string) (net.Conn, error) {
 				return tls.Dial(network, address, tr.(*http.Transport).TLSClientConfig)
-			}, p.Stats.WSConn)
+			}, p.Stats.WSConn, p.Config.ResponseHeaderTimeout)
 		} else {
-			h = newWSHandler(targetURL.Host, net.Dial, p.Stats.WSConn)
+			h = newWSHandler(targetURL.Host, net.Dial, p.Stats.WSConn, p.Config.ResponseHeaderTimeout)
 		}
 
 	case accept == "text/event-stream":
