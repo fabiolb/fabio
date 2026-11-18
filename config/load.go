@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"regexp"
 	"runtime"
@@ -308,6 +309,7 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	if err != nil {
 		return nil, err
 	}
+	cfg.Registry.Consul.ServiceProxyTags = proxyListenerTags(cfg.Listen)
 
 	if cfg.Proxy.LocalIP != "" {
 		if cfg.Proxy.LocalIP, err = gs.Parse(cfg.Proxy.LocalIP); err != nil {
@@ -381,6 +383,26 @@ func load(cmdline, environ, envprefix []string, props *properties.Properties) (c
 	}
 
 	return cfg, nil
+}
+
+func proxyListenerTags(listeners []Listen) []string {
+	seen := map[string]bool{}
+	var tags []string
+	for _, l := range listeners {
+		if l.Proto == "prometheus" || l.Proto == "tcp-dynamic" {
+			continue
+		}
+		_, port, err := net.SplitHostPort(l.Addr)
+		if err != nil || port == "0" {
+			continue
+		}
+		tag := "fabio-proxy-port=" + l.Proto + ":" + port
+		if !seen[tag] {
+			seen[tag] = true
+			tags = append(tags, tag)
+		}
+	}
+	return tags
 }
 
 // parseScheme splits a url into scheme and address and defaults

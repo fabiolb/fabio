@@ -126,12 +126,17 @@ func serviceRegistration(cfg *config.Consul, serviceName string) (*api.AgentServ
 		checkURL = fmt.Sprintf("%s://[%s]:%d/health", cfg.CheckScheme, ip, port)
 	}
 
+	tags := append([]string(nil), cfg.ServiceTags...)
+	if serviceName == cfg.ServiceName {
+		tags = append(tags, cfg.ServiceProxyTags...)
+	}
+
 	service := &api.AgentServiceRegistration{
 		ID:        serviceID,
 		Name:      serviceName,
 		Address:   ip.String(),
 		Port:      port,
-		Tags:      cfg.ServiceTags,
+		Tags:      tags,
 		Namespace: cfg.Namespace,
 		// Set the checks for the service.
 		//

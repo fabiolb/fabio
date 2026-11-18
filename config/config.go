@@ -179,6 +179,7 @@ type Consul struct {
 	ChecksRequired     string
 	TLS                ConsulTlS
 	ServiceTags        []string
+	ServiceProxyTags   []string
 	ServiceStatus      []string
 	CheckInterval      time.Duration
 	CheckTimeout       time.Duration
